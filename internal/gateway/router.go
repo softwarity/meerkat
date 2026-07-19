@@ -15,6 +15,7 @@ import (
 	"sync"
 
 	"github.com/softwarity/meerkat/internal/filters"
+	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
 )
 
@@ -22,6 +23,7 @@ import (
 // wins in route order.
 type Router struct {
 	st *store.Store
+	sm *session.Manager
 
 	mu     sync.RWMutex
 	routes []compiledRoute
@@ -33,9 +35,10 @@ type compiledRoute struct {
 	handler http.Handler
 }
 
-// New builds a Router over the store. Call Reload to load the routes.
-func New(st *store.Store) *Router {
-	return &Router{st: st}
+// New builds a Router over the store. sm may be nil when no route requires
+// authentication (tests). Call Reload to load the routes.
+func New(st *store.Store, sm *session.Manager) *Router {
+	return &Router{st: st, sm: sm}
 }
 
 // Reload compiles the enabled routes from the store and swaps them in
@@ -53,6 +56,12 @@ func (rt *Router) Reload(ctx context.Context) error {
 		h, err := buildProxy(r)
 		if err != nil {
 			return fmt.Errorf("gateway: route %q: %w", r.Name, err)
+		}
+		if r.Authenticated {
+			if rt.sm == nil {
+				return fmt.Errorf("gateway: route %q requires authentication but no session manager is configured", r.Name)
+			}
+			h = requireSession(rt.sm, h)
 		}
 		compiled = append(compiled, compiledRoute{name: r.Name, prefix: r.PathPrefix, handler: h})
 	}
@@ -121,6 +130,28 @@ func buildProxy(r store.Route) (http.Handler, error) {
 		proxy.ModifyResponse = filters.InjectAfterHead(r.InjectHead)
 	}
 	return proxy, nil
+}
+
+// requireSession gates a route handler behind a valid session: browsers
+// navigating to HTML get redirected to the gateway's login page with a
+// return-to path, API-style requests get a plain 401.
+func requireSession(sm *session.Manager, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if _, err := sm.Resolve(req.Context(), req); err != nil {
+			if wantsHTML(req) {
+				http.Redirect(w, req, "/login?next="+url.QueryEscape(req.URL.RequestURI()), http.StatusSeeOther)
+				return
+			}
+			w.Header().Set("WWW-Authenticate", "Session")
+			http.Error(w, "authentication required", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, req)
+	})
+}
+
+func wantsHTML(req *http.Request) bool {
+	return req.Method == http.MethodGet && strings.Contains(req.Header.Get("Accept"), "text/html")
 }
 
 func singleJoin(base, path string) string {

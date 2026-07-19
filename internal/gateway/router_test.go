@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
 )
 
@@ -23,7 +24,7 @@ func newRouter(t *testing.T, routes ...store.Route) *Router {
 			t.Fatalf("SaveRoute: %v", err)
 		}
 	}
-	rt := New(st)
+	rt := New(st, session.NewManager(st))
 	if err := rt.Reload(context.Background()); err != nil {
 		t.Fatalf("Reload: %v", err)
 	}
@@ -125,6 +126,81 @@ func TestPrefixMatchesOnSegmentBoundary(t *testing.T) {
 	}
 }
 
+func TestAuthenticatedRouteGating(t *testing.T) {
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, "secret")
+	}))
+	t.Cleanup(upstream.Close)
+
+	st, err := store.Open(t.TempDir())
+	if err != nil {
+		t.Fatalf("store.Open: %v", err)
+	}
+	t.Cleanup(func() { _ = st.Close() })
+	ctx := context.Background()
+	if err := st.CreateUser(ctx, store.User{ID: "u1", Username: "admin", PasswordHash: "x"}); err != nil {
+		t.Fatalf("CreateUser: %v", err)
+	}
+	if err := st.SaveRoute(ctx, store.Route{
+		ID: "r1", Name: "secure", Enabled: true, Authenticated: true,
+		PathPrefix: "/secure", Upstream: upstream.URL,
+	}); err != nil {
+		t.Fatalf("SaveRoute: %v", err)
+	}
+	sm := session.NewManager(st)
+	rt := New(st, sm)
+	if err := rt.Reload(ctx); err != nil {
+		t.Fatalf("Reload: %v", err)
+	}
+	srv := httptest.NewServer(rt)
+	t.Cleanup(srv.Close)
+
+	// Anonymous browser navigation → redirect to the login page with return path.
+	req, _ := http.NewRequest("GET", srv.URL+"/secure/x?a=1", nil)
+	req.Header.Set("Accept", "text/html,application/xhtml+xml")
+	noRedirect := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}}
+	res, err := noRedirect.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = res.Body.Close()
+	if res.StatusCode != http.StatusSeeOther {
+		t.Fatalf("anonymous HTML: %d, want 303", res.StatusCode)
+	}
+	if loc := res.Header.Get("Location"); loc != "/login?next=%2Fsecure%2Fx%3Fa%3D1" {
+		t.Fatalf("Location = %q", loc)
+	}
+
+	// Anonymous API call → plain 401.
+	res, err = http.Get(srv.URL + "/secure/api")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = res.Body.Close()
+	if res.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("anonymous API: %d, want 401", res.StatusCode)
+	}
+
+	// With a valid session cookie → proxied.
+	rec := httptest.NewRecorder()
+	if _, err := sm.Issue(ctx, rec, httptest.NewRequest("POST", "/login", nil), "u1"); err != nil {
+		t.Fatalf("Issue: %v", err)
+	}
+	req, _ = http.NewRequest("GET", srv.URL+"/secure/x", nil)
+	req.AddCookie(rec.Result().Cookies()[0])
+	res, err = http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(res.Body)
+	_ = res.Body.Close()
+	if res.StatusCode != http.StatusOK || string(body) != "secret" {
+		t.Fatalf("authenticated: %d %q", res.StatusCode, body)
+	}
+}
+
 func TestUpstreamDownIs502(t *testing.T) {
 	rt := newRouter(t, store.Route{
 		ID: "r1", Name: "down", Enabled: true, PathPrefix: "/down",
@@ -150,7 +226,7 @@ func TestReloadPicksUpChanges(t *testing.T) {
 		t.Fatalf("store.Open: %v", err)
 	}
 	t.Cleanup(func() { _ = st.Close() })
-	rt := New(st)
+	rt := New(st, nil)
 	if err := rt.Reload(context.Background()); err != nil {
 		t.Fatalf("Reload: %v", err)
 	}

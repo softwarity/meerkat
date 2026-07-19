@@ -17,7 +17,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/softwarity/meerkat/internal/auth"
 	"github.com/softwarity/meerkat/internal/gateway"
+	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
 	"github.com/softwarity/meerkat/internal/version"
 )
@@ -53,8 +55,12 @@ func run(addr, dataDir string) error {
 	if err := seedDemoRoute(ctx, st); err != nil {
 		return err
 	}
+	if err := auth.SeedAdmin(ctx, st); err != nil {
+		return err
+	}
 
-	router := gateway.New(st)
+	sessions := session.NewManager(st)
+	router := gateway.New(st, sessions)
 	if err := router.Reload(ctx); err != nil {
 		return err
 	}
@@ -64,7 +70,19 @@ func run(addr, dataDir string) error {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = fmt.Fprintf(w, `{"status":"UP","version":%q}`, version.Version)
 	})
+	auth.New(st, sessions).Register(mux)
 	mux.Handle("/", router)
+
+	// Periodic TTL upkeep for expired sessions.
+	go func() {
+		for range time.Tick(time.Minute) {
+			if n, err := sessions.PurgeExpired(context.Background()); err != nil {
+				slog.Error("session purge failed", "err", err)
+			} else if n > 0 {
+				slog.Debug("purged expired sessions", "count", n)
+			}
+		}
+	}()
 
 	srv := &http.Server{
 		Addr:              addr,
@@ -113,8 +131,8 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 	if err != nil || n > 0 {
 		return err
 	}
-	slog.Info("first start: seeding demo route", "path", "/demo", "upstream", "https://httpbin.org")
-	return st.SaveRoute(ctx, store.Route{
+	slog.Info("first start: seeding demo routes", "public", "/demo", "authenticated", "/secure")
+	if err := st.SaveRoute(ctx, store.Route{
 		ID:          "demo",
 		Name:        "demo",
 		Order:       100,
@@ -123,6 +141,19 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 		StripPrefix: true,
 		Upstream:    "https://httpbin.org",
 		InjectHead:  `<script>console.log("injected by meerkat — the sentinel is watching")</script>`,
+	}); err != nil {
+		return err
+	}
+	return st.SaveRoute(ctx, store.Route{
+		ID:            "demo-secure",
+		Name:          "demo-secure",
+		Order:         101,
+		Enabled:       true,
+		Authenticated: true,
+		PathPrefix:    "/secure",
+		StripPrefix:   true,
+		Upstream:      "https://httpbin.org",
+		InjectHead:    `<script>console.log("authenticated — meerkat let you in")</script>`,
 	})
 }
 

@@ -299,6 +299,7 @@ sans modification de leur code :
 | CONSOLE-07 | Gestion des utilisateurs par le root : recherche paginée, création, réinitialisation de mot de passe (temporaire + délai de validation), promotion root/dev/créateur d'org, suppression, import en masse. | ✔ | M |
 | CONSOLE-08 | Visionneuse de **connexions/sessions** (globale pour root, personnelle pour l'utilisateur) avec filtres et pagination. | ✔ | M |
 | CONSOLE-09 | **Profil utilisateur complet** géré par la gateway : identité (nom complet, e-mail vérifié), avatar (upload/Gravatar), fuseau horaire, locale, préférences ; les applications amont n'ont pas à gérer de profil — il leur est fourni via les claims du JWT et une **API profil** consommable. | ◐ | M |
+| CONSOLE-11 | **Console dissociée de l'application — port d'administration dédié** : le binaire écoute sur deux plans séparés — le **port applicatif** (data plane, défaut `:8080`) qui ne sert que les routes des applications et les pages du flux utilisateur (login, MFA, sélections, profil, forgot password), et le **port d'administration** (control plane, défaut `:9090`) qui sert la console, l'API d'admin, healthz et les métriques. La console n'est **jamais routable** depuis le port applicatif (fin des collisions de chemins type `/archway` de la V1) ; le port admin peut être non exposé publiquement / restreint au réseau d'exploitation. Sessions partagées entre les deux plans (même host, les cookies ignorent le port). | ✘ | M |
 | CONSOLE-10 | **Suppression de compte** : par l'utilisateur (self-service, avec confirmation forte) et par l'admin ; purge ou anonymisation des données personnelles, révocation en cascade (sessions, tokens, navigateurs de confiance, passkeys), l'audit conservant une trace anonymisée. (La V1 l'affichait mais ne l'avait jamais implémentée.) | ✘ | S |
 
 ### 3.13 Cycle de vie & exploitation applicative (LIFE)
@@ -371,7 +372,8 @@ Trois familles de front-ends, avec trois technologies assumées :
 | PAGE-02 | Ces pages sont **customizables par l'intégrateur** sans rebuild : thème, logo, titre de l'application, et surcharge possible de certains layouts (templates remplaçables). | ◐ | M |
 | PAGE-03 | Ces pages sont **i18n-ables par l'intégrateur** : catalogues de traductions surchargeables et extensibles (ajout d'une langue sans rebuild). | ◐ | M |
 | PAGE-04 | Les **composants injectés dans les applications proxifiées** — bouton utilisateur (UIF-03), sélecteur de langue (UIF-05), canal WS (UIF-04)… — sont livrés en **Web Components** (custom elements standards) pour garantir la compatibilité avec n'importe quel framework amont (Angular, React, Vue, vanilla…). | ✘ | M |
-| PAGE-05 | La **console d'administration** reste une SPA **Angular** avec le thème Softwarity (continuité, maîtrise de l'équipe) ; elle est embarquée dans le binaire de la gateway. | ✔ | M |
+| PAGE-05 | La **console d'administration** reste une SPA **Angular** avec le thème Softwarity (continuité, maîtrise de l'équipe) ; elle est embarquée dans le binaire de la gateway et servie sur le **port d'administration** (CONSOLE-11). | ✔ | M |
+| PAGE-06 | **Layout de la console** : un rail de navigation à gauche (**`softwarity/rail-nav`**) portant les entrées principales, leurs sous-menus s'ouvrant dans le **drawer** du rail ; chaque entrée affiche sa route dans la **zone principale**, coiffée d'un **bandeau** portant les options propres à la vue et les options utilisateur en haut à gauche. | ✘ | M |
 
 ### 3.17 Quotas API & audit intégrés (QUOTA / AUD)
 

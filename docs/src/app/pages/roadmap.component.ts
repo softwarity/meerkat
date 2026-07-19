@@ -53,18 +53,37 @@ import { MatIconModule } from '@angular/material/icon';
           <td>Walking skeleton</td>
           <td>
             The critical path end to end: a route stored in embedded storage → predicate
-            matching → reverse proxy → an HTML-injection filter → a session cookie
+            matching → reverse proxy → an HTML-injection filter → an opaque session cookie
+            with a vanilla login page and per-route authentication
+          </td>
+          <td><mat-icon class="status-icon ok">check_circle</mat-icon> done</td>
+        </tr>
+        <tr>
+          <td>Routing core</td>
+          <td>
+            The heart of the product: the full predicate catalog (path first, then host,
+            header, method, cookie, query, remote address, weight…) and the request /
+            response filter chain — inspired by Spring Cloud Gateway's set, curated and
+            improved
           </td>
           <td><mat-icon class="status-icon soon">pending</mat-icon> next</td>
         </tr>
         <tr>
-          <td>Identity core</td>
-          <td>Login flow, sessions, passkeys/TOTP, JWT to upstreams, user profile</td>
+          <td>Routes console</td>
+          <td>
+            The admin console (Angular, rail-nav layout) on its dedicated admin port,
+            starting with route management
+          </td>
           <td><mat-icon class="status-icon soon">pending</mat-icon> planned</td>
         </tr>
         <tr>
-          <td>Service catalog &amp; console</td>
-          <td>Discovery, routes editor, versioned configurations, quotas &amp; audit</td>
+          <td>Identity core</td>
+          <td>SMTP, forgot password, passkeys/TOTP, JWT to upstreams, user profile</td>
+          <td><mat-icon class="status-icon soon">pending</mat-icon> planned</td>
+        </tr>
+        <tr>
+          <td>Service catalog</td>
+          <td>Discovery, endpoint inventory, versioned configurations, quotas &amp; audit</td>
           <td><mat-icon class="status-icon soon">pending</mat-icon> planned</td>
         </tr>
         <tr>

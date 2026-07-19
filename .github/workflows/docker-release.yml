@@ -1,0 +1,51 @@
+name: Docker release
+
+# Triggered by version tags created by the Release workflow: build and publish
+# the released image (semver tags) via the shared multi-arch workflow.
+#
+# A released image must be as blessed as :latest — the gate waits for the CI
+# run of this very commit and refuses to publish on anything but green
+# (pattern shared with softwarity/plug).
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  actions: read # the gate reads this commit's CI run
+  packages: write
+
+jobs:
+  gate:
+    name: wait for this commit's CI to be green
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha="${{ github.sha }}"
+          for _ in $(seq 1 30); do
+            read -r st cc < <(gh run list --repo "$GITHUB_REPOSITORY" --workflow=ci.yml \
+              --commit "$sha" --limit 1 --json status,conclusion \
+              --jq '.[0] | "\(.status) \(.conclusion // "")"' 2>/dev/null || echo "none ")
+            case "$st $cc" in
+              "completed success")
+                echo "CI is green for $sha — publishing"
+                exit 0 ;;
+              "completed "*)
+                echo "::error::CI concluded '$cc' for $sha — refusing to publish the release image. Re-run the CI on this commit, then re-run this workflow."
+                exit 1 ;;
+            esac
+            echo "CI for $sha: ${st:-no run yet} — waiting"
+            sleep 60
+          done
+          echo "::error::timed out waiting for this commit's CI run"
+          exit 1
+
+  image:
+    name: Build & publish image
+    needs: gate
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/_docker.yml

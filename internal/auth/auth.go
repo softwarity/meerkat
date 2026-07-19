@@ -27,19 +27,38 @@ var loginPage = template.Must(template.New("login").Parse(`<!doctype html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sign in · Meerkat</title>
   <style>
-    :root { color-scheme: light dark; }
-    body { font-family: system-ui, sans-serif; display: grid; place-items: center;
-           min-height: 100vh; margin: 0; background: #10131a; color: #e6edf3; }
-    form { background: #161b22; border: 1px solid #30363d; border-radius: 10px;
-           padding: 32px; width: min(340px, 90vw); display: grid; gap: 14px; }
+    /* Material-3-style design tokens (THEME-04). This block is the contract
+       the future theme editor rewrites at runtime — page rules below only
+       ever consume tokens, never hard-coded values. */
+    :root {
+      color-scheme: light dark;
+      --mk-primary: #7c5cff;
+      --mk-on-primary: #ffffff;
+      --mk-surface: #10131a;
+      --mk-on-surface: #e6edf3;
+      --mk-surface-container: #161b22;
+      --mk-surface-container-high: #0d1117;
+      --mk-on-surface-variant: #8b949e;
+      --mk-outline: #30363d;
+      --mk-error: #f85149;
+      --mk-radius: 10px;
+      --mk-radius-small: 6px;
+      --mk-font: system-ui, sans-serif;
+    }
+    body { font-family: var(--mk-font); display: grid; place-items: center;
+           min-height: 100vh; margin: 0; background: var(--mk-surface); color: var(--mk-on-surface); }
+    form { background: var(--mk-surface-container); border: 1px solid var(--mk-outline);
+           border-radius: var(--mk-radius); padding: 32px; width: min(340px, 90vw);
+           display: grid; gap: 14px; }
     h1 { font-size: 1.2rem; margin: 0 0 6px; }
-    label { display: grid; gap: 4px; font-size: .85rem; color: #8b949e; }
-    input { padding: 9px 10px; border-radius: 6px; border: 1px solid #30363d;
-            background: #0d1117; color: inherit; font-size: 1rem; }
-    button { padding: 10px; border: 0; border-radius: 6px; background: #7c5cff;
-             color: white; font-size: 1rem; cursor: pointer; }
-    .error { color: #f85149; font-size: .85rem; margin: 0; }
-    .brand { color: #8b949e; font-size: .75rem; text-align: center; margin-top: 4px; }
+    label { display: grid; gap: 4px; font-size: .85rem; color: var(--mk-on-surface-variant); }
+    input { padding: 9px 10px; border-radius: var(--mk-radius-small); border: 1px solid var(--mk-outline);
+            background: var(--mk-surface-container-high); color: inherit; font-size: 1rem; }
+    button { padding: 10px; border: 0; border-radius: var(--mk-radius-small);
+             background: var(--mk-primary); color: var(--mk-on-primary);
+             font-size: 1rem; cursor: pointer; }
+    .error { color: var(--mk-error); font-size: .85rem; margin: 0; }
+    .brand { color: var(--mk-on-surface-variant); font-size: .75rem; text-align: center; margin-top: 4px; }
   </style>
 </head>
 <body>

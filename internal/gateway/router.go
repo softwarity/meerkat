@@ -1,20 +1,21 @@
 // Package gateway is Meerkat's data path: route matching and reverse
-// proxying. Routes come from the store and are compiled into an immutable
-// snapshot swapped atomically on reload — the hot path takes a read lock and
-// nothing else.
+// proxying. Routes come from the store as declarative predicate/filter specs
+// (internal/routing), compiled into an immutable snapshot swapped atomically
+// on reload — the hot path takes a read lock and nothing else.
 package gateway
 
 import (
 	"context"
 	"fmt"
 	"log/slog"
+	"math/rand/v2"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
 	"sync"
 
-	"github.com/softwarity/meerkat/internal/filters"
+	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
 )
@@ -25,81 +26,108 @@ type Router struct {
 	st *store.Store
 	sm *session.Manager
 
-	mu     sync.RWMutex
-	routes []compiledRoute
+	// lottery draws the per-request value consumed by weight predicates
+	// (canary). Overridable in tests for determinism.
+	lottery func() float64
+
+	mu       sync.RWMutex
+	routes   []compiledRoute
+	needDraw bool // at least one route uses weight predicates
 }
 
 type compiledRoute struct {
 	name    string
-	prefix  string
+	preds   routing.CompiledPredicates
 	handler http.Handler
 }
 
 // New builds a Router over the store. sm may be nil when no route requires
 // authentication (tests). Call Reload to load the routes.
 func New(st *store.Store, sm *session.Manager) *Router {
-	return &Router{st: st, sm: sm}
+	return &Router{st: st, sm: sm, lottery: rand.Float64}
 }
 
 // Reload compiles the enabled routes from the store and swaps them in
-// atomically. Safe to call while serving.
+// atomically. Safe to call while serving. A route that fails to compile
+// aborts the reload with a precise error — the previous snapshot keeps
+// serving.
 func (rt *Router) Reload(ctx context.Context) error {
-	routes, err := rt.st.ListRoutes(ctx)
+	stored, err := rt.st.ListRoutes(ctx)
 	if err != nil {
 		return err
 	}
-	compiled := make([]compiledRoute, 0, len(routes))
-	for _, r := range routes {
+	compiled := make([]compiledRoute, 0, len(stored))
+	var allPreds []*routing.CompiledPredicates
+	needDraw := false
+	for _, r := range stored {
 		if !r.Enabled {
 			continue
 		}
-		h, err := buildProxy(r)
+		cr, err := rt.compile(r)
 		if err != nil {
 			return fmt.Errorf("gateway: route %q: %w", r.Name, err)
 		}
-		if r.Authenticated {
-			if rt.sm == nil {
-				return fmt.Errorf("gateway: route %q requires authentication but no session manager is configured", r.Name)
-			}
-			h = requireSession(rt.sm, h)
-		}
-		compiled = append(compiled, compiledRoute{name: r.Name, prefix: r.PathPrefix, handler: h})
+		compiled = append(compiled, cr)
+		allPreds = append(allPreds, &compiled[len(compiled)-1].preds)
+		needDraw = needDraw || cr.preds.HasWeight()
+	}
+	if err := routing.ResolveWeights(allPreds); err != nil {
+		return fmt.Errorf("gateway: %w", err)
 	}
 	rt.mu.Lock()
 	rt.routes = compiled
+	rt.needDraw = needDraw
 	rt.mu.Unlock()
 	slog.Info("routes reloaded", "count", len(compiled))
 	return nil
 }
 
-// ServeHTTP dispatches to the first route whose prefix matches the path.
+// ServeHTTP dispatches to the first route whose predicates all match.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	rt.mu.RLock()
-	routes := rt.routes
+	routes, needDraw := rt.routes, rt.needDraw
 	rt.mu.RUnlock()
-	for _, r := range routes {
-		if matchPrefix(req.URL.Path, r.prefix) {
-			r.handler.ServeHTTP(w, req)
+	if needDraw {
+		req = req.WithContext(routing.WithLottery(req.Context(), rt.lottery()))
+	}
+	for i := range routes {
+		if routes[i].preds.Match(req) {
+			routes[i].handler.ServeHTTP(w, req)
 			return
 		}
 	}
 	http.NotFound(w, req)
 }
 
-// matchPrefix reports whether path falls under prefix on segment boundaries:
-// /demo matches /demo and /demo/x but not /demolition.
-func matchPrefix(path, prefix string) bool {
-	if prefix == "/" {
-		return true
+func (rt *Router) compile(r store.Route) (compiledRoute, error) {
+	preds, err := routing.CompilePredicates(r.Predicates)
+	if err != nil {
+		return compiledRoute{}, err
 	}
-	prefix = strings.TrimSuffix(prefix, "/")
-	if !strings.HasPrefix(path, prefix) {
-		return false
+	filters, err := routing.CompileFilters(r.Filters)
+	if err != nil {
+		return compiledRoute{}, err
 	}
-	return len(path) == len(prefix) || path[len(prefix)] == '/'
+
+	var handler http.Handler
+	if filters.Terminal != nil {
+		handler = filters.Terminal
+	} else {
+		handler, err = buildProxy(r, filters)
+		if err != nil {
+			return compiledRoute{}, err
+		}
+	}
+	if r.Authenticated {
+		if rt.sm == nil {
+			return compiledRoute{}, fmt.Errorf("route requires authentication but no session manager is configured")
+		}
+		handler = requireSession(rt.sm, handler)
+	}
+	return compiledRoute{name: r.Name, preds: preds, handler: handler}, nil
 }
 
-func buildProxy(r store.Route) (http.Handler, error) {
+func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error) {
 	target, err := url.Parse(r.Upstream)
 	if err != nil {
 		return nil, fmt.Errorf("bad upstream %q: %w", r.Upstream, err)
@@ -111,23 +139,28 @@ func buildProxy(r store.Route) (http.Handler, error) {
 	proxy := &httputil.ReverseProxy{
 		Rewrite: func(pr *httputil.ProxyRequest) {
 			pr.SetXForwarded()
-			pr.SetURL(target)
-			if r.StripPrefix {
-				stripped := strings.TrimPrefix(pr.In.URL.Path, strings.TrimSuffix(r.PathPrefix, "/"))
-				if !strings.HasPrefix(stripped, "/") {
-					stripped = "/" + stripped
-				}
-				pr.Out.URL.Path = singleJoin(target.Path, stripped)
-				pr.Out.URL.RawPath = ""
+			// Request filters transform the request path/headers first, THEN
+			// the upstream base path is prepended by SetURL — so strip-prefix
+			// and friends reason on the request path, never on the upstream's.
+			for _, f := range cf.Request {
+				f(pr)
 			}
+			pr.SetURL(target)
 		},
 		ErrorHandler: func(w http.ResponseWriter, req *http.Request, err error) {
 			slog.Warn("upstream error", "route", r.Name, "upstream", r.Upstream, "err", err)
 			http.Error(w, "upstream unavailable", http.StatusBadGateway)
 		},
 	}
-	if r.InjectHead != "" {
-		proxy.ModifyResponse = filters.InjectAfterHead(r.InjectHead)
+	if len(cf.Response) > 0 {
+		proxy.ModifyResponse = func(res *http.Response) error {
+			for _, f := range cf.Response {
+				if err := f(res); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
 	}
 	return proxy, nil
 }
@@ -152,12 +185,4 @@ func requireSession(sm *session.Manager, next http.Handler) http.Handler {
 
 func wantsHTML(req *http.Request) bool {
 	return req.Method == http.MethodGet && strings.Contains(req.Header.Get("Accept"), "text/html")
-}
-
-func singleJoin(base, path string) string {
-	base = strings.TrimSuffix(base, "/")
-	if base == "" {
-		return path
-	}
-	return base + path
 }

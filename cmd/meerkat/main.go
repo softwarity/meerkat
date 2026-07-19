@@ -19,6 +19,7 @@ import (
 
 	"github.com/softwarity/meerkat/internal/auth"
 	"github.com/softwarity/meerkat/internal/gateway"
+	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
 	"github.com/softwarity/meerkat/internal/version"
@@ -133,14 +134,18 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 	}
 	slog.Info("first start: seeding demo routes", "public", "/demo", "authenticated", "/secure")
 	if err := st.SaveRoute(ctx, store.Route{
-		ID:          "demo",
-		Name:        "demo",
-		Order:       100,
-		Enabled:     true,
-		PathPrefix:  "/demo",
-		StripPrefix: true,
-		Upstream:    "https://httpbin.org",
-		InjectHead:  `<script>console.log("injected by meerkat — the sentinel is watching")</script>`,
+		ID:       "demo",
+		Name:     "demo",
+		Order:    100,
+		Enabled:  true,
+		Upstream: "https://httpbin.org",
+		Predicates: []routing.Spec{
+			{Type: "path", Args: map[string]any{"patterns": []any{"/demo/**"}}},
+		},
+		Filters: []routing.Spec{
+			{Type: "strip-prefix", Args: map[string]any{"parts": 1}},
+			{Type: "inject-head", Args: map[string]any{"fragment": `<script>console.log("injected by meerkat — the sentinel is watching")</script>`}},
+		},
 	}); err != nil {
 		return err
 	}
@@ -150,10 +155,14 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 		Order:         101,
 		Enabled:       true,
 		Authenticated: true,
-		PathPrefix:    "/secure",
-		StripPrefix:   true,
 		Upstream:      "https://httpbin.org",
-		InjectHead:    `<script>console.log("authenticated — meerkat let you in")</script>`,
+		Predicates: []routing.Spec{
+			{Type: "path", Args: map[string]any{"patterns": []any{"/secure/**"}}},
+		},
+		Filters: []routing.Spec{
+			{Type: "strip-prefix", Args: map[string]any{"parts": 1}},
+			{Type: "inject-head", Args: map[string]any{"fragment": `<script>console.log("authenticated — meerkat let you in")</script>`}},
+		},
 	})
 }
 

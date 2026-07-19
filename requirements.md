@@ -316,10 +316,13 @@ développeur **dans le maillage de routage**, à la manière d'un *tenant restre
 Elle s'appuie pour cela sur le projet **`softwarity/plug`** (public), qui sera **intégré et
 modifié pour l'occasion**. Aujourd'hui, plug sert à lancer un processus sur le poste du
 développeur en faisant résoudre ses appels comme s'il s'exécutait dans le cluster
-(sens poste → cluster). Les évolutions prévues ajoutent l'authentification par paire de clés
+(sens poste → cluster) ; il est **sans authentification, avec un certificat unique partagé**.
+Les évolutions prévues ajoutent l'authentification par paire de clés **par développeur**,
 liée au compte dev de la gateway, et la **substitution de service** déclarée au lancement
 (sens cluster → poste), rattachée au **devname** du développeur — chaque devname constituant
 une « variante » de l'application que d'autres utilisateurs peuvent choisir d'emprunter.
+L'intégration se fera sur un **fork ou une branche dédiée** de plug (mode à arbitrer en Q11),
+l'objectif restant de ne pas maintenir deux souches durablement.
 
 | ID | Exigence | V1 | Prio |
 |---|---|---|---|
@@ -502,7 +505,7 @@ Ces questions structurantes seront tranchées **après** stabilisation des exige
 | Q8 | **Modèle d'extension** : filtres/prédicats custom par plugins (utilisateur final) ou uniquement built-in ? | |
 | Q9 | **Édition OSS/commerciale : tranché** — dépôt **public** (`softwarity/meerkat`), un seul binaire ; cœur sous licence **FSL** (Functional Source License — interdit uniquement l'usage *concurrent* : revente ou SaaS concurrent ; usage interne/production libre ; conversion automatique en Apache 2.0 après 2 ans) ; code Enterprise dans `/ee` sous licence commerciale Softwarity, source visible, features déverrouillées par clé de licence (DEPLOY-05). Découpage indicatif : **cœur = tout ce qui sert une équipe** (gateway complète, auth + passwordless, routes/services, mode dev, console) ; **EE = les besoins « grande organisation »** (SSO OIDC/SAML, LDAP, HA/cluster, export d'audit, business access, support). Le dual-repo avec stripping (V1) est écarté définitivement. | |
 | Q10 | Périmètre **Stripe/SaaS : tranché — hors du produit** : la vente des licences se fait à l'extérieur (site marchand) ; la gateway ne fait que **valider une clé de licence hors-ligne**. Aucun code de facturation dans la gateway. | |
-| Q11 | **Intégration `softwarity/plug`** (§3.14) : **partiellement tranché** — le transport est un **tunnel inversé porté par plug** (la gateway ne connaît jamais l'adresse du poste). Reste à spécifier depuis le code de plug : protocole du tunnel (WebSocket, HTTP/2, QUIC ?), multiplexage de plusieurs services dans un tunnel, format des clés/certificats dev, granularité `-p <profil>`, comportement multi-instances d'un même service. | |
+| Q11 | **Intégration `softwarity/plug`** (§3.14) : **partiellement tranché** — le transport est un **tunnel inversé porté par plug** (la gateway ne connaît jamais l'adresse du poste). État actuel de plug : sans authentification, certificat unique partagé → à faire évoluer vers l'auth par certificat **par dev** (DEV-02), sur un **fork ou une branche dédiée** (mode à arbitrer ; viser une réintégration en plug v2 rétro-compatible plutôt que deux souches durables). Reste à spécifier depuis le code : protocole du tunnel (WebSocket, HTTP/2, QUIC ?), multiplexage de plusieurs services dans un tunnel, format des clés/certificats dev, granularité `-p <profil>`, comportement multi-instances d'un même service. | |
 | Q12 | **Passwordless** (AUTH-15/17) : stockage et récupération des passkeys, politique de secours (perte de la clé), imposition par rôle/organisation ? | |
 | Q13 | **Source de vérité de la configuration** : **tranché** (§3.15) — console-first avec **configurations versionnées internes** (dupliquer/modifier/comparer/switcher) ; fichier = seed à l'initialisation seulement, puis source d'une version parmi d'autres (CFG-03). Le GitOps reste possible côté client en versionnant les exports, sans que la gateway l'impose. | |
 | Q14 | **Découverte de services** (SVC-02) : quelles sources au lancement (Kubernetes, Swarm, DNS, statique) ? Droits nécessaires (RBAC lecture seule sur l'API de l'orchestrateur), fréquence/mécanisme de rafraîchissement (watch vs polling), environnements hors cluster ? | |

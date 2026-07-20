@@ -5,8 +5,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:i18n": "polyglot --config=./angular.json --port=4200",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "extract": "ng extract-i18n --output-path src/locale"
   },
   "dependencies": {
     "@angular/cdk": "^22.0.0",
@@ -14,6 +16,7 @@
     "@angular/compiler": "^22.0.0",
     "@angular/core": "^22.0.0",
     "@angular/forms": "^22.0.0",
+    "@angular/localize": "^22.0.7",
     "@angular/material": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
     "@angular/router": "^22.0.0",
@@ -27,6 +30,7 @@
     "@angular/build": "^22.0.0",
     "@angular/cli": "^22.0.0",
     "@angular/compiler-cli": "^22.0.0",
+    "@softwarity/polyglot": "^1.0.0",
     "typescript": "~6.0.0"
   }
 }

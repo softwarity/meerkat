@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="Routes" datatype="html">
+        <source>Routes</source>
+        <target>Routes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Sign_out" datatype="html">
+        <source>Sign out</source>
+        <target>Se déconnecter</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Type" datatype="html">
+        <source>Type</source>
+        <target>Type</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-form.component.ts</context>
+          <context context-type="linenumber">51,52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Remove" datatype="html">
+        <source>Remove</source>
+        <target>Retirer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-form.component.ts</context>
+          <context context-type="linenumber">83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="comma_separated" datatype="html">
+        <source>comma, separated</source>
+        <target>séparées par des virgules</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-form.component.ts</context>
+          <context context-type="linenumber">95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit_route" datatype="html">
+        <source>Edit route</source>
+        <target>Modifier la route</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">61,63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="New_route" datatype="html">
+        <source>New route</source>
+        <target>Nouvelle route</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">63,65</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
+          <context context-type="linenumber">47,48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Name" datatype="html">
+        <source>Name</source>
+        <target>Nom</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table.component.ts</context>
+          <context context-type="linenumber">31,32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Order" datatype="html">
+        <source>Order</source>
+        <target>Ordre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">72,73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Upstream" datatype="html">
+        <source>Upstream</source>
+        <target>Amont</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">78,79</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table.component.ts</context>
+          <context context-type="linenumber">48,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Not_used_when_a_terminal_filter_redirect_is_present" datatype="html">
+        <source>Not used when a terminal filter (redirect) is present</source>
+        <target>Ignoré quand un filtre terminal (redirect) est présent</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">80,84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Enabled" datatype="html">
+        <source>Enabled</source>
+        <target>Activée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">85,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Authenticated" datatype="html">
+        <source>Authenticated</source>
+        <target>Authentifiée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">91,92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Predicates_all_must_match" datatype="html">
+        <source>Predicates — all must match</source>
+        <target>Prédicats — tous doivent correspondre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">97,98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Add_predicate" datatype="html">
+        <source>Add predicate</source>
+        <target>Ajouter un prédicat</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">99,100</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Filters_applied_in_order" datatype="html">
+        <source>Filters — applied in order</source>
+        <target>Filtres — appliqués dans l'ordre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">105,107</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Add_filter" datatype="html">
+        <source>Add filter</source>
+        <target>Ajouter un filtre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">107,108</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Cancel" datatype="html">
+        <source>Cancel</source>
+        <target>Annuler</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">117,118</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Save_apply" datatype="html">
+        <source>
+        Save &amp; apply
+      </source>
+        <target>Enregistrer et appliquer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">119,121</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Save_failed" datatype="html">
+        <source>Save failed</source>
+        <target>Échec de l'enregistrement</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
+          <context context-type="linenumber">178</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Gateway_Routes" datatype="html">
+        <source>Gateway · Routes</source>
+        <target>Gateway · Routes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Refresh" datatype="html">
+        <source>Refresh</source>
+        <target>Rafraîchir</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
+          <context context-type="linenumber">42,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_route_yet_create_the_first_one" datatype="html">
+        <source>No route yet — create the first one.</source>
+        <target>Aucune route — créez la première.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
+          <context context-type="linenumber">55,57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Route_NAME_saved_and_applied" datatype="html">
+        <source>Route &quot;<x id="NAME" equiv-text="saved.name"/>&quot; saved and applied</source>
+        <target>Route "<x id="NAME" equiv-text="saved.name"/>" enregistrée et appliquée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
+          <context context-type="linenumber">97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_route_NAME" datatype="html">
+        <source>Delete route &quot;<x id="NAME" equiv-text="route.name"/>&quot;?</source>
+        <target>Supprimer la route "<x id="NAME" equiv-text="route.name"/>" ?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
+          <context context-type="linenumber">104</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Route_NAME_deleted" datatype="html">
+        <source>Route &quot;<x id="NAME" equiv-text="route.name"/>&quot; deleted</source>
+        <target>Route "<x id="NAME" equiv-text="route.name"/>" supprimée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
+          <context context-type="linenumber">109</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_failed" datatype="html">
+        <source>Delete failed</source>
+        <target>Échec de la suppression</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
+          <context context-type="linenumber">112</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="authenticated" datatype="html">
+        <source>authenticated</source>
+        <target>authentifiée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table.component.ts</context>
+          <context context-type="linenumber">35,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Matching" datatype="html">
+        <source>Matching</source>
+        <target>Correspondance</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table.component.ts</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit" datatype="html">
+        <source>Edit</source>
+        <target>Modifier</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table.component.ts</context>
+          <context context-type="linenumber">57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete" datatype="html">
+        <source>Delete</source>
+        <target>Supprimer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table.component.ts</context>
+          <context context-type="linenumber">60</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

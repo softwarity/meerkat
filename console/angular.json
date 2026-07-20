@@ -8,6 +8,12 @@
       "root": ".",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": { "code": "en", "subPath": "en" },
+        "locales": {
+          "fr": { "translation": "src/locale/messages.fr.xlf", "subPath": "fr" }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -15,7 +21,7 @@
             "outputPath": "dist/console",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [],
+            "polyfills": ["@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [],
@@ -31,12 +37,19 @@
                   "maximumError": "2mb"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "localize": true
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "en": {
+              "localize": ["en"]
+            },
+            "fr": {
+              "localize": ["fr"]
             }
           },
           "defaultConfiguration": "production"
@@ -49,6 +62,12 @@
             },
             "development": {
               "buildTarget": "console:build:development"
+            },
+            "en": {
+              "buildTarget": "console:build:development,en"
+            },
+            "fr": {
+              "buildTarget": "console:build:development,fr"
             }
           },
           "defaultConfiguration": "development"

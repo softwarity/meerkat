@@ -28,24 +28,24 @@ import { Route } from '../api.service';
       </ng-container>
 
       <ng-container matColumnDef="name">
-        <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+        <mat-header-cell *matHeaderCellDef i18n="@@Name">Name</mat-header-cell>
         <mat-cell *matCellDef="let r" [class.off]="!r.enabled">
           {{ r.name }}
           @if (r.authenticated) {
-            <mat-icon inline title="authenticated">lock</mat-icon>
+            <mat-icon inline i18n-title="@@authenticated" title="authenticated">lock</mat-icon>
           }
         </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="matching">
-        <mat-header-cell *matHeaderCellDef>Matching</mat-header-cell>
+        <mat-header-cell *matHeaderCellDef i18n="@@Matching">Matching</mat-header-cell>
         <mat-cell *matCellDef="let r" [class.off]="!r.enabled">
           <span class="muted">{{ summary(r) }}</span>
         </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="upstream">
-        <mat-header-cell *matHeaderCellDef>Upstream</mat-header-cell>
+        <mat-header-cell *matHeaderCellDef i18n="@@Upstream">Upstream</mat-header-cell>
         <mat-cell *matCellDef="let r" [class.off]="!r.enabled">{{ r.upstream }}</mat-cell>
       </ng-container>
 
@@ -53,10 +53,10 @@ import { Route } from '../api.service';
         <mat-header-cell *matHeaderCellDef></mat-header-cell>
         <mat-cell *matCellDef="let r">
           <span rowActions>
-            <button matIconButton (click)="edit.emit(r)" aria-label="Edit">
+            <button matIconButton (click)="edit.emit(r)" i18n-aria-label="@@Edit" aria-label="Edit">
               <mat-icon>edit</mat-icon>
             </button>
-            <button matIconButton (click)="remove.emit(r)" aria-label="Delete">
+            <button matIconButton (click)="remove.emit(r)" i18n-aria-label="@@Delete" aria-label="Delete">
               <mat-icon>delete</mat-icon>
             </button>
           </span>

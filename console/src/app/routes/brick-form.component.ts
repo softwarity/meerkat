@@ -48,7 +48,7 @@ import { BrickForm, defaultsFor, docOf, paramsOf } from './brick';
   ],
   template: `
     <mat-form-field>
-      <mat-label>Type</mat-label>
+      <mat-label i18n="@@Type">Type</mat-label>
       <mat-select [value]="brick().type" (selectionChange)="retype($event.value)">
         @for (e of entries(); track e.type) {
           <mat-option [value]="e.type">{{ e.type }}</mat-option>
@@ -70,7 +70,7 @@ import { BrickForm, defaultsFor, docOf, paramsOf } from './brick';
               matInput
               [type]="p.kind === 'int' ? 'number' : 'text'"
               [value]="text(p.name)"
-              [placeholder]="p.kind === 'stringList' ? 'comma, separated' : ''"
+              [placeholder]="p.kind === 'stringList' ? listPlaceholder : ''"
               (input)="set(p.name, $any($event.target).value)"
             />
             <mat-hint>{{ p.doc }}</mat-hint>
@@ -79,7 +79,7 @@ import { BrickForm, defaultsFor, docOf, paramsOf } from './brick';
       }
     </div>
 
-    <button matIconButton (click)="removed.emit()" aria-label="Remove">
+    <button matIconButton (click)="removed.emit()" i18n-aria-label="@@Remove" aria-label="Remove">
       <mat-icon>close</mat-icon>
     </button>
   `,
@@ -91,6 +91,8 @@ export class BrickFormComponent {
 
   protected readonly params = computed(() => paramsOf(this.brick().type, this.entries()));
   protected readonly doc = computed(() => docOf(this.brick().type, this.entries()));
+
+  protected readonly listPlaceholder = $localize`:@@comma_separated:comma, separated`;
 
   protected retype(type: string): void {
     this.brick.set({ type, values: defaultsFor(paramsOf(type, this.entries())) });

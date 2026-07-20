@@ -38,13 +38,13 @@ import { RoutesTableComponent } from './routes-table.component';
   ],
   template: `
     <div class="banner">
-      <h1>Gateway · Routes</h1>
-      <button matIconButton (click)="load()" aria-label="Refresh">
+      <h1 i18n="@@Gateway_Routes">Gateway · Routes</h1>
+      <button matIconButton (click)="load()" i18n-aria-label="@@Refresh" aria-label="Refresh">
         <mat-icon>refresh</mat-icon>
       </button>
       <button matButton="filled" (click)="edit(null)">
         <mat-icon>add</mat-icon>
-        New route
+        <ng-container i18n="@@New_route">New route</ng-container>
       </button>
     </div>
 
@@ -52,7 +52,7 @@ import { RoutesTableComponent } from './routes-table.component';
       @if (loading()) {
         <loading-indicator withContainer />
       } @else if (routes().length === 0) {
-        <div class="empty">No route yet — create the first one.</div>
+        <div class="empty" i18n="@@No_route_yet_create_the_first_one">No route yet — create the first one.</div>
       } @else {
         <app-routes-table [routes]="routes()" (edit)="edit($event)" (remove)="remove($event)" />
       }
@@ -94,22 +94,22 @@ export class RoutesPageComponent {
       .afterClosed()
       .subscribe((saved?: Route) => {
         if (saved) {
-          this.snack.open(`Route "${saved.name}" saved and applied`, undefined, { duration: 2500 });
+          this.snack.open($localize`:@@Route_NAME_saved_and_applied:Route "${saved.name}:NAME:" saved and applied`, undefined, { duration: 2500 });
           this.load();
         }
       });
   }
 
   remove(route: Route): void {
-    if (!confirm(`Delete route "${route.name}"?`)) {
+    if (!confirm($localize`:@@Delete_route_NAME:Delete route "${route.name}:NAME:"?`)) {
       return;
     }
     this.api.deleteRoute(route.id).subscribe({
       next: () => {
-        this.snack.open(`Route "${route.name}" deleted`, undefined, { duration: 2500 });
+        this.snack.open($localize`:@@Route_NAME_deleted:Route "${route.name}:NAME:" deleted`, undefined, { duration: 2500 });
         this.load();
       },
-      error: () => this.snack.open('Delete failed', undefined, { duration: 3000 }),
+      error: () => this.snack.open($localize`:@@Delete_failed:Delete failed`, undefined, { duration: 3000 }),
     });
   }
 }

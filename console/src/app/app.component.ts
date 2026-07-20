@@ -9,6 +9,7 @@ import {
   RailnavSpacerComponent,
 } from '@softwarity/rail-nav';
 import { ApiService } from './api.service';
+import { LangSelectComponent } from './shared/lang-select.component';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,7 @@ import { ApiService } from './api.service';
     RailnavContentComponent,
     RailnavItemComponent,
     RailnavSpacerComponent,
+    LangSelectComponent,
   ],
   styles: [
     `
@@ -34,11 +36,12 @@ import { ApiService } from './api.service';
   template: `
     <rail-nav-container>
       <rail-nav title="meerkat" subtitle="console">
-        <rail-nav-item label="Routes" routerLink="/routes">
+        <rail-nav-item i18n-label="@@Routes" label="Routes" routerLink="/routes">
           <mat-icon>alt_route</mat-icon>
         </rail-nav-item>
         <rail-nav-spacer />
-        <rail-nav-item label="Sign out" (click)="logout()">
+        <app-lang-select />
+        <rail-nav-item i18n-label="@@Sign_out" label="Sign out" (click)="logout()">
           <mat-icon>logout</mat-icon>
         </rail-nav-item>
       </rail-nav>

@@ -57,45 +57,53 @@ interface DialogData {
     `,
   ],
   template: `
-    <h2 mat-dialog-title>{{ data.route ? 'Edit route' : 'New route' }}</h2>
+    @if (data.route) {
+      <h2 mat-dialog-title i18n="@@Edit_route">Edit route</h2>
+    } @else {
+      <h2 mat-dialog-title i18n="@@New_route">New route</h2>
+    }
     <mat-dialog-content>
       <div class="grid">
         <mat-form-field>
-          <mat-label>Name</mat-label>
+          <mat-label i18n="@@Name">Name</mat-label>
           <input matInput [formField]="f.name" />
         </mat-form-field>
         <mat-form-field>
-          <mat-label>Order</mat-label>
+          <mat-label i18n="@@Order">Order</mat-label>
           <input matInput type="number" [formField]="f.order" />
         </mat-form-field>
       </div>
 
       <mat-form-field>
-        <mat-label>Upstream</mat-label>
+        <mat-label i18n="@@Upstream">Upstream</mat-label>
         <input matInput [formField]="f.upstream" placeholder="http://service:8080" />
-        <mat-hint>Not used when a terminal filter (redirect) is present</mat-hint>
+        <mat-hint i18n="@@Not_used_when_a_terminal_filter_redirect_is_present">Not used when a terminal filter (redirect) is present</mat-hint>
       </mat-form-field>
 
       <div class="flags">
         <mat-checkbox [checked]="scalars().enabled" (change)="setFlag('enabled', $event.checked)">
-          Enabled
+          <ng-container i18n="@@Enabled">Enabled</ng-container>
         </mat-checkbox>
         <mat-checkbox
           [checked]="scalars().authenticated"
           (change)="setFlag('authenticated', $event.checked)"
         >
-          Authenticated
+          <ng-container i18n="@@Authenticated">Authenticated</ng-container>
         </mat-checkbox>
       </div>
 
       <app-brick-list
+        i18n-title="@@Predicates_all_must_match"
         title="Predicates — all must match"
+        i18n-addLabel="@@Add_predicate"
         addLabel="Add predicate"
         [entries]="predicateEntries"
         [(bricks)]="predicates"
       />
       <app-brick-list
+        i18n-title="@@Filters_applied_in_order"
         title="Filters — applied in order"
+        i18n-addLabel="@@Add_filter"
         addLabel="Add filter"
         [entries]="filterEntries"
         [(bricks)]="filters"
@@ -106,8 +114,8 @@ interface DialogData {
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button matButton mat-dialog-close>Cancel</button>
-      <button matButton="filled" (click)="save()" [disabled]="saving() || !f().valid()">
+      <button matButton mat-dialog-close i18n="@@Cancel">Cancel</button>
+      <button matButton="filled" (click)="save()" [disabled]="saving() || !f().valid()" i18n="@@Save_apply">
         Save & apply
       </button>
     </mat-dialog-actions>
@@ -167,7 +175,7 @@ export class RouteDialogComponent {
         const msg =
           err instanceof HttpErrorResponse && typeof err.error?.error === 'string'
             ? err.error.error
-            : 'Save failed';
+            : $localize`:@@Save_failed:Save failed`;
         this.error.set(msg);
       },
     });

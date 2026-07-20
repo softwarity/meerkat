@@ -1,5 +1,0 @@
-{
-  "/api": { "target": "http://localhost:9090", "secure": false },
-  "/login": { "target": "http://localhost:9090", "secure": false },
-  "/logout": { "target": "http://localhost:9090", "secure": false }
-}

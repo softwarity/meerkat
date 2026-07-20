@@ -15,6 +15,7 @@ import (
 )
 
 type fixture struct {
+	api      *API
 	adminSrv *httptest.Server // the control plane
 	appSrv   *httptest.Server // the data plane, reloaded by the API
 	rootC    *http.Cookie
@@ -41,10 +42,12 @@ func setup(t *testing.T) fixture {
 		t.Fatal(err)
 	}
 
+	api := New(st, sm, router)
 	adminMux := http.NewServeMux()
-	New(st, sm, router).Register(adminMux)
+	api.Register(adminMux)
 
 	f := fixture{
+		api:      api,
 		adminSrv: httptest.NewServer(adminMux),
 		appSrv:   httptest.NewServer(router),
 		rootC:    issue(t, sm, "root"),

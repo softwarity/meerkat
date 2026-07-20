@@ -30,6 +30,7 @@ func main() {
 	showVersion := flag.Bool("version", false, "print version and exit")
 	addr := flag.String("addr", envOr("MEERKAT_ADDR", ":8080"), "application (data plane) listen address")
 	adminAddr := flag.String("admin-addr", envOr("MEERKAT_ADMIN_ADDR", ":9090"), "administration (control plane) listen address")
+	consoleURL := flag.String("console-url", envOr("MEERKAT_CONSOLE_URL", ""), "dev only: proxy the console UI to a front dev server (e.g. http://localhost:4200)")
 	dataDir := flag.String("data", envOr("MEERKAT_DATA", "data"), "data directory (embedded storage)")
 	flag.Parse()
 
@@ -38,13 +39,13 @@ func main() {
 		return
 	}
 
-	if err := run(*addr, *adminAddr, *dataDir); err != nil {
+	if err := run(*addr, *adminAddr, *consoleURL, *dataDir); err != nil {
 		slog.Error("fatal", "err", err)
 		os.Exit(1)
 	}
 }
 
-func run(addr, adminAddr, dataDir string) error {
+func run(addr, adminAddr, consoleURL, dataDir string) error {
 	if err := os.MkdirAll(dataDir, 0o750); err != nil {
 		return fmt.Errorf("data dir: %w", err)
 	}
@@ -82,6 +83,9 @@ func run(addr, adminAddr, dataDir string) error {
 	adminMux.HandleFunc("GET /healthz", healthz)
 	auth.New(st, sessions).Register(adminMux)
 	admin.New(st, sessions, router).Register(adminMux)
+	if err := admin.RegisterConsole(adminMux, consoleURL); err != nil {
+		return err
+	}
 
 	// Periodic TTL upkeep for expired sessions.
 	go func() {

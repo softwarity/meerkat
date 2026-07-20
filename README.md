@@ -39,6 +39,34 @@ what this gateway does for your services. Even the `plug` tunnel fits the pictur
 a developer's machine digs its way into the burrow. And since a group of meerkats is called a
 *mob*, you already know what to call a cluster of Meerkat nodes.
 
+## Development
+
+Two terminals. Node version is pinned by `.node-version` (fnm/nvm switch automatically);
+Go toolchain resolves from `go.mod`.
+
+```bash
+# terminal 1 — the console, all locales behind one proxy (:4200)
+cd console
+npm install            # once, and after every pull that touches console/package.json
+npm run start:i18n     # @softwarity/polyglot: one ng serve per locale, single proxy
+
+# terminal 2 — the gateway, hot-reloaded on every .go save (air)
+MEERKAT_ADDR=:8082 \
+MEERKAT_ADMIN_ADDR=:9092 \
+MEERKAT_CONSOLE_URL=http://localhost:4200 \
+MEERKAT_ADMIN_PASSWORD=test1234 \
+make dev               # requires air: go install github.com/air-verse/air@latest
+```
+
+Then browse **http://localhost:9092** (the admin port): the gateway serves its API and
+login there and proxies everything else to the console dev server — `/en/routes`,
+`/fr/routes`, HMR included. Pick any free ports; if a bind fails (port already in use)
+the process exits — the `fatal` line at the top of the log tells you which one.
+
+`make build && ./bin/meerkat --help` lists every flag; each has a `MEERKAT_*` env
+equivalent. First start seeds the `admin` account (password printed once unless
+`MEERKAT_ADMIN_PASSWORD` is set) — wipe `data/` to start fresh.
+
 ## License
 
 [FSL-1.1-Apache-2.0](./LICENSE.md) (Functional Source License): free to use, copy, modify and

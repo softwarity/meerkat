@@ -12,3 +12,6 @@ coverage.out
 .DS_Store
 .idea/
 .vscode/
+
+# air dev loop
+/tmp/

@@ -1,0 +1,17 @@
+# Dev hot-reload loop (make dev). Install air once:
+#   go install github.com/air-verse/air@latest
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -o ./tmp/meerkat ./cmd/meerkat"
+bin = "./tmp/meerkat"
+include_ext = ["go"]
+exclude_dir = ["bin", "data", "dist", "docs", "tmp"]
+exclude_regex = ["_test\\.go"]
+delay = 200            # ms of quiet before rebuilding
+send_interrupt = true  # SIGINT first: the gateway shuts down gracefully
+kill_delay = "2s"
+
+[log]
+main_only = true

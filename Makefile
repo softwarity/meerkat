@@ -8,7 +8,12 @@ LDFLAGS := -s -w \
 	-X $(MODULE)/internal/version.Commit=$(COMMIT) \
 	-X $(MODULE)/internal/version.Date=$(DATE)
 
-.PHONY: build test lint fmt vet clean
+.PHONY: build dev test lint fmt vet clean
+
+# Hot-reload dev loop: rebuilds and restarts the gateway on every .go save.
+# Requires air (once): go install github.com/air-verse/air@latest
+dev:
+	air
 
 build:
 	CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/meerkat ./cmd/meerkat

@@ -16,6 +16,15 @@ import (
 // embedded production console will take this spot.
 func RegisterConsole(mux *http.ServeMux, target string) error {
 	if target == "" {
+		// No console yet: answer the fallback with an explicit status page
+		// instead of a naked 404 — the admin port must never look dead.
+		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			_, _ = fmt.Fprintf(w,
+				`{"service":"meerkat control plane","console":"not mounted","hint":"set --console-url (or MEERKAT_CONSOLE_URL) to your console dev server, e.g. http://localhost:4200 — the embedded console will ship later","api":"/api","login":"/login","path":%q}`,
+				r.URL.Path)
+		})
 		return nil
 	}
 	u, err := url.Parse(target)

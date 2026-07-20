@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 // One shape everywhere: these mirror the Go types (routing.Spec, store.Route,
@@ -36,9 +36,9 @@ export interface CatalogEntry {
   params: Param[];
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ApiService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   catalog(): Observable<CatalogEntry[]> {
     return this.http.get<CatalogEntry[]>('/api/catalog');

@@ -285,6 +285,7 @@ sans modification de leur code :
 | THEME-04 | **Système de thème type Material 3 (M3), éditable via l'UI** : les pages servies par la gateway (login, sélection, profil…) sont stylées exclusivement par **design tokens** (variables CSS : palettes primary/secondary/surface/error, rôles on-*, coins, élévations) générés façon M3 à partir de couleurs sources ; la console permet de **modifier le thème à chaud** (couleurs sources, clair/sombre, logo) sans rebuild — les pages vanilla consomment les tokens, jamais de couleurs en dur. | ◐ | M |
 | I18N-01 | Pages servies par la gateway et console traduites ; V1 : **en, fr, de, vi** ; mécanisme extensible, locale utilisateur persistée, négociation de langue avec les amonts (routes multi-locales). | ✔ | M |
 | I18N-02 | Messages d'erreur backend localisés. | ✔ | S |
+| I18N-03 | **Console préparée pour la traduction** sans être traduite par défaut (anglais) : mécanisme **Angular i18n** (`$localize`/attributs `i18n`, catalogues XLIFF, builds par locale comme la V1) posé dès le départ pour que l'ajout d'une langue soit un acte de traduction, pas de refactoring. | ◐ | S |
 
 ### 3.12 Console d'administration (CONSOLE)
 

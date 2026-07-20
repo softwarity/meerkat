@@ -49,10 +49,10 @@ import { ApiService } from './api.service';
   `,
 })
 export class AppComponent {
-  private api = inject(ApiService);
+  private readonly api = inject(ApiService);
 
-  constructor(iconRegistry: MatIconRegistry) {
-    iconRegistry.setDefaultFontSetClass('material-symbols-outlined');
+  constructor() {
+    inject(MatIconRegistry).setDefaultFontSetClass('material-symbols-outlined');
   }
 
   logout(): void {

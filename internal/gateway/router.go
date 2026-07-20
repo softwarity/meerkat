@@ -127,6 +127,29 @@ func (rt *Router) compile(r store.Route) (compiledRoute, error) {
 	return compiledRoute{name: r.Name, preds: preds, handler: handler}, nil
 }
 
+// Validate checks that a route would compile — same checks as Reload, minus
+// the session-manager wiring. The admin API uses it to refuse invalid routes
+// with the engine's precise error before anything is persisted.
+func Validate(r store.Route) error {
+	if _, err := routing.CompilePredicates(r.Predicates); err != nil {
+		return err
+	}
+	cf, err := routing.CompileFilters(r.Filters)
+	if err != nil {
+		return err
+	}
+	if cf.Terminal == nil {
+		target, err := url.Parse(r.Upstream)
+		if err != nil {
+			return fmt.Errorf("bad upstream %q: %w", r.Upstream, err)
+		}
+		if target.Scheme == "" || target.Host == "" {
+			return fmt.Errorf("bad upstream %q: scheme and host required", r.Upstream)
+		}
+	}
+	return nil
+}
+
 func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error) {
 	target, err := url.Parse(r.Upstream)
 	if err != nil {

@@ -161,14 +161,14 @@ CREATE TABLE routes (
 // the traffic (routing.Spec is the single shape shared with exports, the
 // admin API and the console).
 type Route struct {
-	ID            string
-	Name          string
-	Order         int
-	Enabled       bool
-	Authenticated bool
-	Upstream      string
-	Predicates    []routing.Spec
-	Filters       []routing.Spec
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	Order         int            `json:"order"`
+	Enabled       bool           `json:"enabled"`
+	Authenticated bool           `json:"authenticated"`
+	Upstream      string         `json:"upstream"`
+	Predicates    []routing.Spec `json:"predicates"`
+	Filters       []routing.Spec `json:"filters"`
 }
 
 // ListRoutes returns every route ordered by ascending Order.
@@ -226,6 +226,36 @@ func (s *Store) SaveRoute(ctx context.Context, r Route) error {
 	return nil
 }
 
+// GetRoute returns one route by ID, or an error wrapping sql.ErrNoRows.
+func (s *Store) GetRoute(ctx context.Context, id string) (Route, error) {
+	var r Route
+	var preds, filts string
+	err := s.db.QueryRowContext(ctx,
+		`SELECT id, name, ord, enabled, authenticated, upstream, predicates, filters
+		 FROM routes WHERE id = ?`, id).
+		Scan(&r.ID, &r.Name, &r.Order, &r.Enabled, &r.Authenticated, &r.Upstream, &preds, &filts)
+	if err != nil {
+		return Route{}, fmt.Errorf("store: get route %q: %w", id, err)
+	}
+	if err := json.Unmarshal([]byte(preds), &r.Predicates); err != nil {
+		return Route{}, fmt.Errorf("store: route %q: bad predicates: %w", id, err)
+	}
+	if err := json.Unmarshal([]byte(filts), &r.Filters); err != nil {
+		return Route{}, fmt.Errorf("store: route %q: bad filters: %w", id, err)
+	}
+	return r, nil
+}
+
+// DeleteRoute removes a route and reports whether it existed.
+func (s *Store) DeleteRoute(ctx context.Context, id string) (bool, error) {
+	res, err := s.db.ExecContext(ctx, `DELETE FROM routes WHERE id = ?`, id)
+	if err != nil {
+		return false, fmt.Errorf("store: delete route %q: %w", id, err)
+	}
+	n, _ := res.RowsAffected()
+	return n > 0, nil
+}
+
 func orEmpty(specs []routing.Spec) []routing.Spec {
 	if specs == nil {
 		return []routing.Spec{}
@@ -270,6 +300,18 @@ func (s *Store) GetUserByUsername(ctx context.Context, username string) (User, e
 		Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Root)
 	if err != nil {
 		return User{}, fmt.Errorf("store: get user %q: %w", username, err)
+	}
+	return u, nil
+}
+
+// GetUserByID returns the user or an error wrapping sql.ErrNoRows.
+func (s *Store) GetUserByID(ctx context.Context, id string) (User, error) {
+	var u User
+	err := s.db.QueryRowContext(ctx,
+		`SELECT id, username, password_hash, root FROM users WHERE id = ?`, id).
+		Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Root)
+	if err != nil {
+		return User{}, fmt.Errorf("store: get user id %q: %w", id, err)
 	}
 	return u, nil
 }

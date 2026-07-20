@@ -8,6 +8,9 @@ Guidance for Claude Code sessions working on this repository.
 The product contract lives in **`requirements.md`** (French) — read it before any
 structural change; every requirement has a stable ID (AUTH-xx, ROUTE-xx…).
 
+**Session handoff**: read **`memory.md`** first (current state, known pitfalls, next
+milestones) and update it before ending a work session that changed the state.
+
 ## Layout
 
 | Path | What |

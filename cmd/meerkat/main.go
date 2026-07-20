@@ -75,10 +75,12 @@ func run(addr, adminAddr, dataDir string) error {
 	auth.New(st, sessions).Register(mux)
 	mux.Handle("/", router)
 
-	// Control plane (:9090): admin API (and later the console). Keep this
-	// port off the public load balancer.
+	// Control plane (:9090): admin API and the console. Keep this port off
+	// the public load balancer. Login/logout are mounted here too, so the
+	// console origin is self-sufficient for authentication.
 	adminMux := http.NewServeMux()
 	adminMux.HandleFunc("GET /healthz", healthz)
+	auth.New(st, sessions).Register(adminMux)
 	admin.New(st, sessions, router).Register(adminMux)
 
 	// Periodic TTL upkeep for expired sessions.

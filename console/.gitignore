@@ -1,0 +1,9 @@
+# Angular doc-site build artifacts and dependencies
+/node_modules
+/dist
+/out-tsc
+/.angular
+# generated at build by scripts/gen-version.mjs
+/src/assets/version.json
+*.log
+.DS_Store

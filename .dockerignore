@@ -1,0 +1,12 @@
+# Keep the build context lean: only sources reach the builders.
+.git
+.github
+bin
+dist
+data
+tmp
+docs
+console/node_modules
+console/dist
+console/.angular
+*.log

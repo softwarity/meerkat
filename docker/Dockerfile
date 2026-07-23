@@ -1,12 +1,23 @@
 # syntax=docker/dockerfile:1
 
 ARG GO_VERSION=1.26
+ARG NODE_VERSION=24
+
+# The console first: its production build (one SPA per locale) is embedded
+# in the Go binary, so the image needs nothing but the binary itself.
+FROM node:${NODE_VERSION}-alpine AS console
+WORKDIR /console
+COPY console/package.json console/package-lock.json ./
+RUN npm ci
+COPY console/ ./
+RUN npm run build
 
 FROM golang:${GO_VERSION} AS build
 WORKDIR /src
 COPY go.* ./
 RUN go mod download
 COPY . .
+COPY --from=console /console/dist/console/browser/ internal/admin/ui/dist/
 ARG VERSION=dev
 ARG GIT_REV=none
 ARG BUILD_DATE=unknown

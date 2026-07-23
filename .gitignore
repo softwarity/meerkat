@@ -16,5 +16,10 @@ coverage.out
 # air dev loop
 /tmp/
 
+# embedded console build, staged by `make ui` (the .gitkeep keeps go:embed
+# compiling when no console has been built)
+/internal/admin/ui/dist/*
+!/internal/admin/ui/dist/.gitkeep
+
 # local db folder
 data

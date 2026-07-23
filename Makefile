@@ -8,7 +8,7 @@ LDFLAGS := -s -w \
 	-X $(MODULE)/internal/version.Commit=$(COMMIT) \
 	-X $(MODULE)/internal/version.Date=$(DATE)
 
-.PHONY: build dev test lint fmt vet clean
+.PHONY: build ui dev test lint fmt vet clean
 
 # Hot-reload dev loop: rebuilds and restarts the gateway on every .go save.
 # Requires air (once): go install github.com/air-verse/air@latest
@@ -17,6 +17,17 @@ dev:
 
 build:
 	CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/meerkat ./cmd/meerkat
+
+# Build the console (all locales) and stage it for go:embed. Run before
+# `make build` to get a binary that ships its own console; skip it and the
+# binary builds console-less (admin port answers a JSON status page).
+# Requires console/node_modules (once: cd console && npm install).
+ui:
+	cd console && npm run build
+	rm -rf internal/admin/ui/dist
+	mkdir -p internal/admin/ui/dist
+	cp -R console/dist/console/browser/. internal/admin/ui/dist/
+	touch internal/admin/ui/dist/.gitkeep
 
 test:
 	go test -race ./...

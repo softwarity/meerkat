@@ -52,6 +52,20 @@ jobs:
         with:
           go-version: stable
           cache: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: console/package-lock.json
+      # The console build is arch-independent: built once, embedded in every
+      # binary below (same as `make ui`).
+      - name: Build console
+        working-directory: console
+        run: |
+          npm ci
+          npm run build
+          rm -rf ../internal/admin/ui/dist
+          cp -R dist/console/browser ../internal/admin/ui/dist
       - name: Cross-compile
         env:
           CGO_ENABLED: "0"

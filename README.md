@@ -67,6 +67,12 @@ the process exits — the `fatal` line at the top of the log tells you which one
 equivalent. First start seeds the `admin` account (password printed once unless
 `MEERKAT_ADMIN_PASSWORD` is set) — wipe `data/` to start fresh.
 
+A release build ships the console **inside the binary**: `make ui && make build`.
+The binary then serves the console itself on the admin port (`/` redirects to your
+browser's language, `/en/…`, `/fr/…`) — no Node at runtime, which is also how the
+Docker image is built. `--console-url` stays the dev override and always wins over
+the embedded build; without either, the admin port answers a JSON status page.
+
 ## License
 
 [FSL-1.1-Apache-2.0](./LICENSE.md) (Functional Source License): free to use, copy, modify and

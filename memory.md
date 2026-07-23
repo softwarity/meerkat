@@ -5,7 +5,7 @@
 > quand l'état change. Le contrat produit reste `requirements.md` ; les conventions,
 > `CLAUDE.md` ; ici : l'état courant, les chantiers, les pièges.
 
-_Dernière mise à jour : 2026-07-20 — dernier commit couvert : `f9d44e9`._
+_Dernière mise à jour : 2026-07-23 — dernier commit couvert : `f56ba4b` (console embarquée)._
 
 ## Où en est le produit
 
@@ -27,6 +27,13 @@ _Dernière mise à jour : 2026-07-20 — dernier commit couvert : `f9d44e9`._
 - **API admin** (`:9090`, session root requise) : `/api/catalog`, CRUD `/api/routes`
   avec **validation par compilation** (422 = message exact du moteur), reload auto
   (sauvegarder = appliquer). Sans console montée, `/` répond une page de statut JSON.
+- **Console embarquée dans le binaire** : `make ui` (build Angular toutes locales →
+  staging `internal/admin/ui/dist/`) puis `make build` → le binaire sert la console
+  seul sur le port admin (`/` → 302 vers la locale Accept-Language en gardant le
+  chemin ; fallback SPA par locale ; assets hashés cache immutable, index no-cache).
+  Priorité : `--console-url` (dev) > embarqué > page statut JSON. Dockerfile
+  multi-stage Node→Go ; le job CI cross-compile embarque la console dans chaque
+  binaire ; `go build` sans `make ui` compile toujours (grâce à `dist/.gitkeep`).
 - **Console Angular 22** (`console/`) : signal-first intégral, **Signal Forms**
   (`[formField]`), zoneless, standalone, `@Service()`, composants fins
   (routes-page → routes-table → route-dialog → brick-list → brick-form), éditeur
@@ -70,16 +77,15 @@ _Dernière mise à jour : 2026-07-20 — dernier commit couvert : `f9d44e9`._
 
 ## Prochains chantiers (ordre suggéré)
 
-1. **Embarquer la console dans le binaire** (`go:embed` des builds en/fr sur le mount
-   `/` du port admin, `--console-url` restant l'override dev) + câblage CI Node.
-2. **TRAP/catch-all** (ROUTE-10) : `/` du data plane → redirection configurable.
-3. **Identity core** (séquence : SMTP → forgot password AUTH-21 → vérif e-mail AUTH-22 →
+1. **TRAP/catch-all** (ROUTE-10) : `/` du data plane → redirection configurable.
+2. **Identity core** (séquence : SMTP → forgot password AUTH-21 → vérif e-mail AUTH-22 →
    TOTP MFA-01 → passkeys AUTH-15 → TTL par user TENANT-05 → profil + timezone
    CONSOLE-09, composant `timezone-select` de l'org).
-4. **Services UI** (SVC-01/06, I18N-04, THEME-05) : type UI, locales par service,
+3. **Services UI** (SVC-01/06, I18N-04, THEME-05) : type UI, locales par service,
    dispatch locale/color-scheme via injection.
-5. Console : dialog de confirmation maison (remplacer `confirm()`), réordonnancement
-   des routes, page Users.
+4. Console : dialog de confirmation maison (remplacer `confirm()`), réordonnancement
+   des routes, page Users. Aussi : l'`index.html` buildé précharge
+   `fonts.gstatic.com` (Material) — à internaliser pour l'air-gapped.
 
 ## Références rapides
 

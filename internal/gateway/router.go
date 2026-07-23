@@ -170,7 +170,7 @@ func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error)
 			}
 			pr.SetURL(target)
 		},
-		ErrorHandler: func(w http.ResponseWriter, req *http.Request, err error) {
+		ErrorHandler: func(w http.ResponseWriter, _ *http.Request, err error) {
 			slog.Warn("upstream error", "route", r.Name, "upstream", r.Upstream, "err", err)
 			http.Error(w, "upstream unavailable", http.StatusBadGateway)
 		},

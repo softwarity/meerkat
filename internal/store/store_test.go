@@ -137,10 +137,12 @@ INSERT INTO routes VALUES
 		t.Fatalf("got %d routes, want 2", len(routes))
 	}
 	demo := routes[0]
+	// The skeleton's inject_head column is dropped by design: page
+	// injections are UI-route options now, not a generic filter.
 	if demo.Name != "demo" ||
 		demo.Predicates[0].Type != "path" ||
-		demo.Filters[0].Type != "strip-prefix" ||
-		demo.Filters[1].Type != "inject-head" {
+		len(demo.Filters) != 1 ||
+		demo.Filters[0].Type != "strip-prefix" {
 		t.Fatalf("demo not converted: %+v", demo)
 	}
 	pats := demo.Predicates[0].Args["patterns"].([]any)

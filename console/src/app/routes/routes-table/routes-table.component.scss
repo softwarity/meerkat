@@ -1,0 +1,57 @@
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85em;
+}
+.off {
+  opacity: 0.45;
+}
+mat-row.clickable {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+mat-row.clickable:hover {
+  background: var(--mat-sys-surface-container);
+}
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--mat-sys-secondary);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-secondary) 60%, transparent);
+  vertical-align: middle;
+}
+.off .dot {
+  background: var(--mat-sys-outline);
+  box-shadow: none;
+}
+.name {
+  font-weight: 500;
+}
+.drag-col {
+  flex: 0 0 44px;
+  max-width: 44px;
+  justify-content: center;
+}
+.handle {
+  cursor: grab;
+  color: var(--mat-sys-on-surface-variant);
+}
+.handle:active {
+  cursor: grabbing;
+}
+/* while a row is dragging, keep it visually intact on top */
+.cdk-drag-preview {
+  display: flex;
+  align-items: center;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.28);
+  background: var(--mat-sys-surface-container-high);
+  border-radius: 8px;
+}
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+.cdk-drop-list-dragging .clickable:not(.cdk-drag-placeholder) {
+  transition: transform 0.18s cubic-bezier(0, 0, 0.2, 1);
+}

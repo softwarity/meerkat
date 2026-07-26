@@ -1,0 +1,84 @@
+<mat-table [dataSource]="routes()" cdkDropList (cdkDropListDropped)="drop($event)">
+  <ng-container matColumnDef="drag">
+    <mat-header-cell *matHeaderCellDef class="drag-col"></mat-header-cell>
+    <mat-cell *matCellDef="let r" class="drag-col">
+      <mat-icon
+        cdkDragHandle
+        class="handle"
+        (click)="$event.stopPropagation()"
+        i18n-matTooltip="@@Drag_to_reorder"
+        matTooltip="Drag to reorder"
+      >drag_indicator</mat-icon>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="name">
+    <mat-header-cell *matHeaderCellDef i18n="@@Name">Name</mat-header-cell>
+    <mat-cell *matCellDef="let r" [class.off]="!r.enabled">
+      <span class="dot" [title]="r.enabled ? 'enabled' : 'disabled'"></span>
+      <span class="name">{{ r.name }}</span>
+      @if (r.authenticated) {
+        <mat-icon inline i18n-title="@@authenticated" title="authenticated">lock</mat-icon>
+      }
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="matching">
+    <mat-header-cell *matHeaderCellDef i18n="@@Matching">Matching</mat-header-cell>
+    <mat-cell *matCellDef="let r" [class.off]="!r.enabled">
+      <span class="muted mono">{{ summary(r) }}</span>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="upstream">
+    <mat-header-cell *matHeaderCellDef i18n="@@Upstream">Upstream</mat-header-cell>
+    <mat-cell *matCellDef="let r" [class.off]="!r.enabled">
+      <span class="mono">{{ r.upstream }}</span>
+      <span rowActions="tonal">
+        @if (r.enabled) {
+          <button
+            matIconButton
+            (click)="$event.stopPropagation(); toggleEnabled.emit(r)"
+            i18n-matTooltip="@@Disable_route"
+            matTooltip="Disable route"
+            i18n-aria-label="@@Disable_route"
+            aria-label="Disable route"
+          >
+            <mat-icon>pause_circle</mat-icon>
+          </button>
+        } @else {
+          <button
+            matIconButton
+            (click)="$event.stopPropagation(); toggleEnabled.emit(r)"
+            i18n-matTooltip="@@Enable_route"
+            matTooltip="Enable route"
+            i18n-aria-label="@@Enable_route"
+            aria-label="Enable route"
+          >
+            <mat-icon>play_circle</mat-icon>
+          </button>
+        }
+        <button
+          matIconButton
+          (click)="$event.stopPropagation(); remove.emit(r)"
+          i18n-matTooltip="@@Delete_route"
+          matTooltip="Delete route"
+          i18n-aria-label="@@Delete_route"
+          aria-label="Delete route"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </span>
+    </mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+  <mat-row
+    *matRowDef="let row; columns: columns"
+    cdkDrag
+    class="clickable"
+    (click)="onRowClick(row)"
+    i18n-title="@@Edit_route"
+    title="Edit route"
+  ></mat-row>
+</mat-table>

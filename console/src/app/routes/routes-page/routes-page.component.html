@@ -1,0 +1,43 @@
+<mat-drawer-container>
+  <mat-drawer-content>
+    <div class="banner">
+      <h1 i18n="@@Gateway_Routes">Gateway · Routes</h1>
+      <button matIconButton (click)="load()" i18n-aria-label="@@Refresh" aria-label="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button matButton="filled" (click)="openNew()">
+        <mat-icon>add</mat-icon>
+        <ng-container i18n="@@New_route">New route</ng-container>
+      </button>
+    </div>
+
+    <div class="content">
+      @if (loading()) {
+        <loading-indicator withContainer />
+      } @else if (routes().length === 0) {
+        <div class="empty" i18n="@@No_route_yet_create_the_first_one">No route yet, create the first one.</div>
+      } @else {
+        <app-routes-table
+          [routes]="routes()"
+          (edit)="openEdit($event)"
+          (remove)="remove($event)"
+          (toggleEnabled)="toggleEnabled($event)"
+          (reorder)="onReorder($event)"
+        />
+      }
+    </div>
+  </mat-drawer-content>
+
+  <mat-drawer position="end" mode="over" [opened]="editing() !== null" (closedStart)="closeEditor()">
+    @if (editing() !== null) {
+      <app-route-editor
+        [route]="editingRoute()"
+        [catalog]="catalog()"
+        [initialSection]="section()"
+        (sectionChange)="changeSection($event)"
+        (saved)="onSaved($event)"
+        (closed)="closeEditor()"
+      />
+    }
+  </mat-drawer>
+</mat-drawer-container>

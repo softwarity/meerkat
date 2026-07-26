@@ -5,8 +5,58 @@
 > quand l'état change. Le contrat produit reste `requirements.md` ; les conventions,
 > `CLAUDE.md` ; ici : l'état courant, les chantiers, les pièges.
 
-_Dernière mise à jour : 2026-07-26 — dernier commit couvert : la série « identity
-platform » du 2026-07-26, rebasée sur `f56ba4b` (console embarquée)._
+_Dernière mise à jour : 2026-07-27 : sécurité par endpoint (RBAC-07) livrée sur la
+branche `feat/endpoint-security-openapi` (non mergée). Base : la série « identity
+platform » du 2026-07-26._
+
+## Session 2026-07-27 — sécurité par endpoint (RBAC-07) + parse OpenAPI
+
+Sujet : sécuriser les opérations d'un amont dont on n'a pas le code, à partir de sa
+spec OpenAPI. Deux faces d'un même socle (décision François) : la **sécurité par
+endpoint** (livrée) et un **swagger-ui embarqué** pour la doc (à faire, chantier 7).
+Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI brut.
+
+- **Parse OpenAPI côté serveur** (`internal/openapi`, dép `github.com/pb33f/libopenapi`
+  v0.38.7). `Parse([]byte)` auto-détecte Swagger 2.0 vs OpenAPI 3.x et projette en liste
+  PLATE d'opérations `{method, path, operationId, summary, tags}` (ni $ref ni schémas :
+  la face sécurité n'en a pas besoin, swagger-ui parsera lui-même pour la doc).
+  `Fetch(ctx, client, url)` récupère la spec côté serveur (limite 12 Mo) et rend spec +
+  octets bruts. `Rewrite(raw, exposedBase)` = UIF-07 (JSON) : 2.0 pose `basePath` et
+  retire `host`/`schemes` ; 3.x pose un `server` relatif unique.
+- **Modèle store** : `RouteAPI.Security = *EndpointSecurity{denyByDefault, endpoints[]}`,
+  chaque `EndpointPolicy{method, path, access, roles}`, access = `public` |
+  `authenticated` | `roles`. PAS de bump de schéma (`RouteAPI` voyage déjà en JSON dans
+  la colonne `api`). `EndpointSecurity.Validate()` (paths compilent, méthodes/access
+  connus, majuscule les méthodes).
+- **Enforcement routeur** : `endpointGuard` greffé dans `compile`, à l'INTÉRIEUR de
+  l'auth de route (la garde de route passe d'abord). Précompile chaque path via
+  `routing.CompilePath` (export du matcher de prédicat, gère `{var}`). Par requête :
+  ramène le path entrant à la coordonnée de la spec en défaisant le strip-prefix
+  (`stripPrefixCount`), matche méthode+path, applique la règle. **deny-by-default** :
+  opération sans règle refusée (posture sûre pour un amont non maîtrisé) ; sans deny,
+  retombe sur la garde de route. `requireAnyRole` ajouté (union de rôles).
+- **Admin API** (`internal/admin/openapi.go`, scope GATEWAY) : `GET
+  /api/routes/{id}/operations` (fetch+parse live, renvoie métadonnées + operations + la
+  sécurité sauvée) et `PUT /api/routes/{id}/security` (valide via `gateway.Validate`,
+  sauve, reload à chaud, audit `route.security`). Une politique orpheline (path hors
+  spec) est préservée par la console au save.
+- **Console** : page dédiée pleine largeur `/endpoint-security/:id` (swagger-like),
+  atteinte depuis l'éditeur de route (bouton « Endpoint security » dès que la route est
+  sauvée et porte un swagger URL). Opérations groupées par tag, chip méthode coloré,
+  select d'accès + multiselect de rôles, toggle deny-by-default, save = apply.
+  Signal-first, Material sur `--mat-sys`, zéro ngModel. `api.service` : types +
+  `getRouteOperations`/`saveRouteSecurity`. i18n fr complet.
+- **Vert** : `go test -race ./...`, `go vet`, `golangci-lint` (0 issue), build console
+  (0 erreur, 0 warning i18n). **Live** : fetch+parse du VRAI httpbin sur :80 (Swagger
+  2.0, 73 opérations) + rewrite, validés par un test jetable (non commité). Chaîne
+  admin→store→enforcement couverte par `internal/admin/openapi_test.go` et la matrice
+  `internal/gateway/endpoint_test.go`.
+- **Branche `feat/endpoint-security-openapi`** (3 commits), PAS mergée, PAS poussée. À
+  relire/merger. `requirements.md` : RBAC-07 et SVC-06 réancrés sur la route.
+- **Note de séance** : au démarrage, le dépôt était au milieu d'un rebase interactif de
+  `main` bloqué sur un conflit `memory.md` ; il s'est terminé seul (l'arbre a churné, d'où
+  des lectures incohérentes au début). Vérifié `main == origin/main == 625fbc8` propre
+  avant de brancher.
 
 ## Session 2026-07-26 — propriété découplée + audit
 
@@ -896,6 +946,22 @@ platform » du 2026-07-26, rebasée sur `f56ba4b` (console embarquée)._
      **Access tokens** sous Gateway (rootOnly, `key`), mention « pour le MCP et le
      CLI (à venir) ». Reste à faire : le **CLI** et/ou le **MCP** qui consomment ce
      token. À cadrer en requirement (ex. `TOOL-01`) si François valide.
+7. **Swagger-ui embarqué servi (2e face du chantier OpenAPI, décision 2026-07-27).**
+   Face « doc » d'archway : fournir un swagger-ui pour les specs proxifiées. Décidé
+   avec François : **onglet, pas iframe** (évite cross-origin/framing/cookies en dev,
+   pleine largeur, double usage admin+consommateurs) ; servi par le **plan data** au
+   path exposé de la route, gaté par rôle ; on **vendore seulement les assets lourds**
+   (`swagger-ui-bundle.js` + `swagger-ui.css`) via `go:embed`, avec **notre** wrapper
+   HTML pointé sur la spec réécrite (UIF-07, `openapi.Rewrite` DÉJÀ fait et testé) ;
+   update = épingler une version + script `tools/` (checksum) qui remplace les blobs.
+   Reste à faire, dans l'ordre : (a) script `tools/vendor-swagger-ui` (télécharge la
+   version épinglée, vérifie le checksum ; a besoin du réseau) ; (b) handler qui sert
+   wrapper + assets + spec réécrite ; (c) câbler sur le plan data un sous-path par
+   route API (calcul de l'`exposedBase` = inverse du strip-prefix) ; (d) bouton
+   « Ouvrir la doc » dans la page endpoint-security (nouvel onglet). NON commencé ce
+   soir : vendoring lourd (~2 Mo dans le binaire/repo) + surgery routeur, secondaire
+   par rapport à la face sécurité (la priorité explicite de François). Le socle de
+   parse et `Rewrite` sont prêts, donc démarrage rapide.
 
 ## Références rapides
 

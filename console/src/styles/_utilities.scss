@@ -1,0 +1,8 @@
+// Utility classes shared across components.
+
+// Technical, machine-truth values — predicate types, CIDRs, methods, upstreams.
+.mono {
+  font-family: var(--mk-mono);
+  font-feature-settings: 'ss01', 'zero';
+  letter-spacing: -0.01em;
+}

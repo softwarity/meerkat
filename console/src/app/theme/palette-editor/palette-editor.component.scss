@@ -1,0 +1,96 @@
+mat-card {
+  padding: 16px 20px;
+}
+
+.wide {
+  width: 100%;
+}
+
+.head,
+.row {
+  display: grid;
+  grid-template-columns: 1fr 96px 96px;
+  gap: 10px;
+  align-items: center;
+}
+
+.head {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.group-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mat-sys-secondary);
+  margin: 14px 0 6px;
+}
+
+.row {
+  padding: 3px 0;
+}
+
+.label {
+  font-size: 0.85rem;
+  cursor: help;
+  width: fit-content;
+
+  &:hover {
+    color: var(--mat-sys-secondary);
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+  }
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+input[type='color'] {
+  inline-size: 30px;
+  block-size: 30px;
+  padding: 0;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+
+.hex {
+  width: 62px;
+  border: 0;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: transparent;
+  color: var(--mat-sys-on-surface);
+  font-family: var(--mk-mono);
+  font-size: 0.75rem;
+  padding: 3px 0;
+
+  &:focus {
+    outline: none;
+    border-bottom-color: var(--mat-sys-secondary);
+  }
+}
+
+// The "Glow" line carries a checkbox as its label; keep it flush-left in the
+// token column, no extra left padding from the checkbox ripple area.
+.glow-toggle {
+  justify-self: start;
+  margin-left: -8px;
+}
+// When glow is off its colour is unused: fade the whole line so the disabled
+// pickers read as inert, not broken.
+.row.dimmed {
+  opacity: 0.5;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}

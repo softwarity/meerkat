@@ -1,31 +1,139 @@
+@use './styles/fonts';
 @use '@angular/material' as mat;
+@use '@softwarity/timezone-select/timezone-select-theme' as timezone-select;
+@use './styles/theme-colors' as brand;
+@use './styles/roles' as roles;
+@use './styles/base';
+@use './styles/utilities';
+@use './styles/overrides';
 
-// Material 3 theme — violet palette, Softwarity look, dark by default.
+// ── Meerkat console — "The Sentinel's Watch" ─────────────────────────────────
+// Night-blue field, mint-signal accent (the meerkat's alarm call), dark by
+// default. Everything is driven by M3 tokens (--mat-sys-*); the brand palette is
+// generated from primary #1e3856 / secondary #00e9bc via the Angular Material
+// theme-color schematic — never hard-coded colours in components. CSS is split
+// by function under styles/: theme-colors, roles, base, utilities, overrides.
 html {
-  @include mat.theme((color: mat.$violet-palette));
+  @include mat.theme(
+    (
+      color: (
+        primary: brand.$primary-palette,
+        tertiary: brand.$tertiary-palette,
+      ),
+      typography: (
+        plain-family: 'Roboto',
+        brand-family: '"Bricolage Grotesque"',
+        bold-weight: 700,
+        medium-weight: 500,
+        regular-weight: 400,
+      ),
+      density: (
+        scale: 0,
+      ),
+    )
+  );
+  @include timezone-select.theme();
+
+  // The console keeps watch in the dark. (Light tokens still exist for the
+  // vanilla flow pages, which follow the user's color-scheme.)
   color-scheme: dark;
+
+  // Surfaces: keep Softwarity teal/cyan for primary/accent, but swap M3's
+  // near-black dark neutrals for Catppuccin Macchiato's blue-tinted darks — a
+  // warmer, less black field. (Accent tokens stay from the generated palette.)
+  --mat-sys-background: #24273a;
+  --mat-sys-surface: #24273a;
+  --mat-sys-surface-dim: #1e2030;
+  --mat-sys-surface-bright: #3a3e54;
+  --mat-sys-surface-container-lowest: #181926;
+  --mat-sys-surface-container-low: #1e2030;
+  --mat-sys-surface-container: #282b3e;
+  --mat-sys-surface-container-high: #363a4f;
+  --mat-sys-surface-container-highest: #414559;
+  --mat-sys-surface-variant: #494d64;
+  --mat-sys-on-surface: #cad3f5;
+  --mat-sys-on-surface-variant: #a5adcb;
+  --mat-sys-outline: #6e738d;
+  --mat-sys-outline-variant: #494d64;
+
+  // House tokens layered on top of M3.
+  --mk-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --mk-signal: var(--mat-sys-secondary); // mint — used sparingly, as an accent
+  --mk-radius: 12px;
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: Roboto, system-ui, sans-serif;
-  background: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
+// ── Role-based visibility (UIF-06) ───────────────────────────────────────────
+// Config lives in styles/_roles.scss. Elements carry `any-role="root dev"`
+// (space = OR); they show only when <body> has a matching role class. The
+// superuser role reveals every gated element (admin sees all). Material
+// components don't restore a useful display with `revert`, so the correct
+// display is restated per family.
+$mat-inline-flex: '[matButton], [matIconButton], [matFab], [matMiniFab],'
+  + 'mat-chip, mat-chip-row, mat-chip-option, mat-basic-chip, mat-form-field';
+$mat-inline-block: 'mat-icon, mat-radio-button, mat-checkbox, mat-slide-toggle';
+// App-level flex containers carrying any-role belong here too: .drawer-item is
+// a plain <a> whose display:flex would otherwise be reverted to inline on
+// reveal (revert goes to the UA default, breaking align-items:center).
+$mat-flex: 'mat-toolbar, mat-toolbar-row, mat-list-item, mat-button-toggle-group,'
+  + '.drawer-item';
+$mat-block: 'mat-card, mat-card-header, mat-card-content, mat-card-actions,'
+  + 'mat-list, mat-nav-list, mat-action-list, mat-selection-list, mat-divider,'
+  + 'mat-expansion-panel, mat-tab-group, mat-paginator, mat-tree, mat-table,'
+  + 'mat-row, mat-header-row, mat-option, mat-optgroup';
+
+@mixin reveal($scope) {
+  #{$scope} [any-role],
+  #{$scope} [anyrole] {
+    display: revert !important;
+  }
+  #{$scope} :is(#{$mat-inline-flex})[any-role],
+  #{$scope} :is(#{$mat-inline-flex})[anyrole] {
+    display: inline-flex !important;
+  }
+  #{$scope} :is(#{$mat-inline-block})[any-role],
+  #{$scope} :is(#{$mat-inline-block})[anyrole] {
+    display: inline-block !important;
+  }
+  #{$scope} :is(#{$mat-flex})[any-role],
+  #{$scope} :is(#{$mat-flex})[anyrole] {
+    display: flex !important;
+  }
+  #{$scope} :is(#{$mat-block})[any-role],
+  #{$scope} :is(#{$mat-block})[anyrole] {
+    display: block !important;
+  }
 }
 
-// Material Symbols glyph class (the Google css2 stylesheet ships only the
-// @font-face, not this helper).
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-smoothing: antialiased;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+@if roles.$applyRoles {
+  [any-role],
+  [anyrole] {
+    display: none !important;
+  }
+
+  // Superuser: reveal every gated element, whatever its any-role value.
+  @include reveal('body.#{roles.$superuser-role}');
+
+  // Each known role reveals only the elements that name it.
+  @each $role in roles.$known-roles {
+    body.#{$role} [any-role~='#{$role}'],
+    body.#{$role} [anyrole~='#{$role}'] {
+      display: revert !important;
+    }
+    body.#{$role} :is(#{$mat-inline-flex})[any-role~='#{$role}'],
+    body.#{$role} :is(#{$mat-inline-flex})[anyrole~='#{$role}'] {
+      display: inline-flex !important;
+    }
+    body.#{$role} :is(#{$mat-inline-block})[any-role~='#{$role}'],
+    body.#{$role} :is(#{$mat-inline-block})[anyrole~='#{$role}'] {
+      display: inline-block !important;
+    }
+    body.#{$role} :is(#{$mat-flex})[any-role~='#{$role}'],
+    body.#{$role} :is(#{$mat-flex})[anyrole~='#{$role}'] {
+      display: flex !important;
+    }
+    body.#{$role} :is(#{$mat-block})[any-role~='#{$role}'],
+    body.#{$role} :is(#{$mat-block})[anyrole~='#{$role}'] {
+      display: block !important;
+    }
+  }
 }

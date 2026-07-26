@@ -1,0 +1,54 @@
+<mat-card appearance="outlined">
+  <h3 i18n="@@Branding">Branding</h3>
+  <mat-form-field class="wide">
+    <mat-label i18n="@@Application_name">Application name</mat-label>
+    <input matInput [value]="appName()" (input)="appName.set($any($event.target).value)" />
+  </mat-form-field>
+  <mat-form-field class="wide">
+    <mat-label i18n="@@Tagline">Tagline</mat-label>
+    <input matInput [value]="tagline()" (input)="tagline.set($any($event.target).value)" />
+  </mat-form-field>
+
+  <div
+    class="dropzone"
+    [class.dragging]="dragging()"
+    (click)="logoInput.click()"
+    (dragover)="$event.preventDefault(); dragging.set(true)"
+    (dragleave)="dragging.set(false)"
+    (drop)="onDrop($event)"
+  >
+    @if (logo()) {
+      <img class="logo-preview" [src]="logo()" alt="" />
+      <span class="dz-hint" i18n="@@Drop_or_click_to_replace">Drop or click to replace</span>
+      <button
+        matIconButton
+        class="clear"
+        (click)="$event.stopPropagation(); logo.set('')"
+        i18n-matTooltip="@@Reset_to_placeholder"
+        matTooltip="Reset to the placeholder"
+        i18n-aria-label="@@Reset_to_placeholder"
+        aria-label="Reset to the placeholder"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    } @else {
+      <svg class="generic" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="50" height="50" rx="12" stroke="currentColor" stroke-width="2.5" stroke-dasharray="7 6" />
+        <circle cx="21" cy="21" r="5" fill="currentColor" opacity=".85" />
+        <path d="M12 42l11-12 8 9 5-5 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span class="dz-hint" i18n="@@Drop_your_logo_here_or_click">Drop your logo here, or click</span>
+    }
+    <input
+      #logoInput
+      type="file"
+      accept="image/png,image/jpeg,image/webp,image/svg+xml"
+      hidden
+      (change)="onLogoFile($event)"
+    />
+  </div>
+
+  <div class="actions">
+    <button matButton="tonal" (click)="save.emit()" i18n="@@Save">Save</button>
+  </div>
+</mat-card>

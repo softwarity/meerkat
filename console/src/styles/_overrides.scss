@@ -1,0 +1,90 @@
+// Material component overrides and global helpers that must live outside a
+// component's scoped styles (CDK overlay, dialog surface).
+
+// Always-visible, themed scrollbars — macOS hides overlay scrollbars until you
+// scroll, which reads as "there is no scrollbar". Make scroll affordances plain.
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mat-sys-outline-variant) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mat-sys-outline);
+  background-clip: content-box;
+}
+
+// Capability toggles use plain mat-chip with [highlighted] (state is read by
+// colour, not a selection checkmark — mat-chip-option's checkmark animates the
+// graphic slot in/out on every toggle and shifts the row). Interactive chips
+// carry role="button"; give them the matching cursor.
+.mat-mdc-chip[role='button']:not(.locked) {
+  cursor: pointer;
+}
+
+// A "locked" capability (e.g. root on your own account): still shows its actual
+// state — a locked-on chip stays HIGHLIGHTED/filled, never blanked — but cannot
+// be toggled. MDC's own `disabled` would strip the highlighted fill, reading as
+// "not root", so we lock it ourselves: keep the fill, dim slightly, block input.
+.mat-mdc-chip.locked {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+// Contrast the rail-nav contextual drawer against the rail and the page with a
+// more elevated surface. Set globally: the drawer renders in a body-level CDK
+// overlay, so a per-rail override wouldn't cascade down to it.
+:root {
+  --rail-nav-drawer-surface: var(--mat-sys-surface-container-high);
+}
+
+// M3 leaves button labels un-cased (Material 2 uppercased them); the product
+// wants uppercase back. Each variant reads its casing from a token that defaults
+// to `none` — flip them all. This targets the LABEL only, so mat-icon ligatures
+// (case-sensitive glyph names) are untouched.
+.mat-mdc-button-base {
+  --mat-button-filled-label-text-transform: uppercase;
+  --mat-button-tonal-label-text-transform: uppercase;
+  --mat-button-outlined-label-text-transform: uppercase;
+  --mat-button-protected-label-text-transform: uppercase;
+  --mat-button-text-label-text-transform: uppercase;
+}
+
+// Material Symbols glyph class (the Google css2 stylesheet ships only the
+// @font-face, not this helper).
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  // font-size drives the GLYPH size for a ligature icon font. Google's helper
+  // ships this 24px default; omitting it made icons render at the inherited
+  // font-size in contexts that only size the box (e.g. mat-menu-item → tiny
+  // glyph in a 24px box). Icon buttons force their own size; inline icons
+  // (.mat-icon-inline) override to inherit — both win on specificity.
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+// A floating outline label overflows a few px ABOVE its field. Right after a
+// dialog title, mat-dialog-content drops its padding-top, so a form field
+// leading the content gets that label clipped by the scroll container. Give
+// the first field of every dialog the room its label needs.
+.mat-mdc-dialog-content > mat-form-field:first-child,
+.mat-mdc-dialog-content > app-form-field:first-child {
+  margin-top: 12px;
+}

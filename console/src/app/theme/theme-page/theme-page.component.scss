@@ -1,0 +1,50 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+
+  h1 {
+    font-size: 1.15rem;
+    font-weight: 500;
+    margin: 0;
+    flex: 1;
+  }
+}
+
+.layout {
+  display: flex;
+  gap: 16px;
+  padding: 0 24px 24px;
+  align-items: flex-start;
+}
+
+.left {
+  flex: 0 0 430px;
+  display: grid;
+  gap: 16px;
+}
+
+.preview {
+  flex: 1;
+  min-width: 0;
+}
+
+/* the built-in pages' language offer, under branding */
+.langs-card {
+  margin-top: 16px;
+  padding: 16px 20px;
+}
+.langs-card h3 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.langs-card .hint {
+  margin: 0 0 12px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+.langs-field {
+  width: 260px;
+}

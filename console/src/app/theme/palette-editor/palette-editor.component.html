@@ -1,0 +1,65 @@
+<mat-card appearance="outlined">
+  <div class="head">
+    <span i18n="@@Token">Token</span>
+    <span i18n="@@Dark">Dark</span>
+    <span i18n="@@Light">Light</span>
+  </div>
+
+  @for (group of tokenGroups; track group.label) {
+    <div class="group-label">{{ group.label }}</div>
+    @for (tok of group.tokens; track tok.key) {
+      <!-- "Glow" (the night token) is the decorative-glow colour: a checkbox on
+           its own line switches the flow-page effects on/off, and when off the
+           colour is unused, so its pickers are disabled. -->
+      @let glowLine = tok.key === 'night';
+      @let glowOff = glowLine && flat();
+      <div class="row" [class.dimmed]="glowOff">
+        @if (glowLine) {
+          <mat-checkbox
+            class="label glow-toggle"
+            [checked]="!flat()"
+            (change)="flat.set(!$event.checked)"
+            (mouseenter)="hoverToken.emit(tok.key)"
+            (mouseleave)="hoverToken.emit('')"
+            i18n-matTooltip="@@Glow_hint"
+            matTooltip="Decorative flow-page effects: the ambient halo behind the page, logo & button glows, and the app-name gradient. Uncheck for a flat design; this colour then goes unused."
+          >{{ tok.label }}</mat-checkbox>
+        } @else {
+          <span class="label" (mouseenter)="hoverToken.emit(tok.key)" (mouseleave)="hoverToken.emit('')">{{ tok.label }}</span>
+        }
+        <span class="cell">
+          <input
+            type="color"
+            [value]="dark()[tok.key] || '#000000'"
+            [disabled]="glowOff"
+            (input)="setColor('dark', tok.key, $any($event.target).value)"
+          />
+          <input
+            class="hex"
+            [value]="dark()[tok.key] || ''"
+            [disabled]="glowOff"
+            (change)="setColor('dark', tok.key, $any($event.target).value)"
+          />
+        </span>
+        <span class="cell">
+          <input
+            type="color"
+            [value]="light()[tok.key] || '#ffffff'"
+            [disabled]="glowOff"
+            (input)="setColor('light', tok.key, $any($event.target).value)"
+          />
+          <input
+            class="hex"
+            [value]="light()[tok.key] || ''"
+            [disabled]="glowOff"
+            (change)="setColor('light', tok.key, $any($event.target).value)"
+          />
+        </span>
+      </div>
+    }
+  }
+
+  <div class="actions">
+    <button matButton="tonal" (click)="save.emit()" [disabled]="saving()" i18n="@@Save">Save</button>
+  </div>
+</mat-card>

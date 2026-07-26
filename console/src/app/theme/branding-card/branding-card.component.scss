@@ -1,0 +1,62 @@
+mat-card {
+  padding: 16px 20px;
+}
+
+h3 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.wide {
+  width: 100%;
+}
+
+// The drop zone IS the placeholder: the same dashed generic mark the flow
+// pages show while no logo is set.
+.dropzone {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 2px dashed var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover,
+  &.dragging {
+    border-color: var(--mat-sys-secondary);
+    background: var(--mat-sys-surface-container);
+  }
+}
+
+.generic {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.logo-preview {
+  height: 44px;
+  max-width: 140px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.dz-hint {
+  flex: 1;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.8rem;
+}
+
+.clear {
+  flex: 0 0 auto;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

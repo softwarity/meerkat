@@ -1,0 +1,93 @@
+<div class="rail">
+  <!-- Infinite ring of pills, spread across the width. -->
+  <div class="track">
+    @for (t of themes(); track t.id; let i = $index) {
+      @let o = offset(i);
+      <button
+        class="pill"
+        [class.slide]="o >= -3 && o <= 3"
+        [class.centered]="o === 0"
+        [class.active]="t.active"
+        [style.left]="leftFor(o)"
+        [attr.aria-current]="t.active ? 'true' : null"
+        (click)="pick.emit(t)"
+        i18n-aria-label="@@Theme_swatches"
+        aria-label="Theme"
+      >
+        <span class="swatch" [style.background]="t.dark['surface']"></span>
+        <span class="swatch" [style.background]="t.dark['primary']"></span>
+        <span class="swatch" [style.background]="t.light['surface']"></span>
+        <span class="swatch" [style.background]="t.light['primary']"></span>
+      </button>
+    }
+  </div>
+
+  @if (selected(); as t) {
+    <div class="nav">
+      <!-- Current theme's palette as a pill, straddling the nav block's top edge.
+           Clicking it makes this theme live. -->
+      <button
+        class="current-pill"
+        [class.active]="t.active"
+        (click)="t.active || activateTheme.emit(t)"
+        [attr.aria-pressed]="t.active"
+        [matTooltip]="t.active ? tipActive : tipActivate"
+        matTooltipPosition="above"
+        i18n-aria-label="@@Set_active"
+        aria-label="Set active"
+      >
+        <span class="swatch" [style.background]="t.dark['surface']"></span>
+        <span class="swatch" [style.background]="t.dark['primary']"></span>
+        <span class="swatch" [style.background]="t.light['surface']"></span>
+        <span class="swatch" [style.background]="t.light['primary']"></span>
+      </button>
+
+      <div class="controls">
+        <button matIconButton (click)="prev()" i18n-aria-label="@@Previous_theme" aria-label="Previous theme">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button
+          matIconButton
+          [matMenuTriggerFor]="addMenu"
+          i18n-matTooltip="@@Add_theme"
+          matTooltip="Add theme"
+          i18n-aria-label="@@Add_theme"
+          aria-label="Add theme"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+        <button
+          matIconButton
+          (click)="removeTheme.emit(t)"
+          [disabled]="t.active"
+          i18n-matTooltip="@@Delete"
+          matTooltip="Delete"
+          i18n-aria-label="@@Delete"
+          aria-label="Delete"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button matIconButton (click)="next()" i18n-aria-label="@@Next_theme" aria-label="Next theme">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <mat-menu #addMenu="matMenu">
+      <button mat-menu-item (click)="duplicateTheme.emit(t)">
+        <mat-icon>content_copy</mat-icon>
+        <span i18n="@@Duplicate">Duplicate</span>
+      </button>
+      <mat-divider></mat-divider>
+      @for (p of presets(); track p.id) {
+        <button mat-menu-item (click)="createPreset.emit(p)">
+          <span class="preset-swatches">
+            <span class="swatch" [style.background]="p.dark['primary']"></span>
+            <span class="swatch" [style.background]="p.light['primary']"></span>
+          </span>
+          <span>{{ p.name }}</span>
+        </button>
+      }
+    </mat-menu>
+  }
+</div>

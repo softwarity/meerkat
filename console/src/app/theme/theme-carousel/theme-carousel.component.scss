@@ -1,0 +1,112 @@
+:host {
+  display: block;
+}
+
+// Thin baseline for the pills; the nav block is taller and straddles beyond it
+// onto both panes. .rail is NOT clipped (so the nav can overhang) — only .track
+// clips the pills that scroll off the ends.
+.rail {
+  position: relative;
+  height: 26px;
+}
+
+.track {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.pill {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  // left (a % of the rail) is set inline; only visible pills transition it.
+  display: inline-flex;
+  gap: 3px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-low);
+  cursor: pointer;
+
+  &.slide {
+    transition: left 0.22s ease;
+  }
+
+  // The selected theme sits under the nav block — hide it, the nav represents it.
+  &.centered {
+    visibility: hidden;
+  }
+
+  // The LIVE theme: accent border + ring, wherever it is in the ring.
+  &.active {
+    border-color: var(--mat-sys-secondary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--mat-sys-secondary) 35%, transparent);
+  }
+}
+
+.swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--mat-sys-outline-variant);
+
+  &.big {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+// The nav block: centred on the pills row, tall enough to straddle both panes.
+.nav {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+}
+
+// Current theme's palette as a pill — SAME size as the strip pills, so it hides
+// little of the controls it straddles.
+.current-pill {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  margin-bottom: -11px;
+  z-index: 1;
+  display: inline-flex;
+  gap: 3px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-high);
+  cursor: pointer;
+
+  &.active {
+    border-color: var(--mat-sys-secondary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--mat-sys-secondary) 35%, transparent);
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  padding: 5px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mat-sys-surface-container-high) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--mat-sys-outline-variant);
+
+  .mat-mdc-icon-button {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+}
+
+.preset-swatches {
+  display: inline-flex;
+  gap: 3px;
+  margin-right: 10px;
+}

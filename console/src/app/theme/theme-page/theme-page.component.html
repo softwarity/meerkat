@@ -1,0 +1,43 @@
+<div class="banner">
+  <h1 i18n="@@Built_in_pages">Built-in pages</h1>
+</div>
+
+@if (loading()) {
+  <loading-indicator withContainer />
+} @else {
+  <div class="layout">
+    <div class="left">
+      <app-branding-card [(appName)]="brandName" [(tagline)]="brandTagline" [(logo)]="brandLogo" (save)="saveBranding()" />
+      @if (selected()) {
+        <app-palette-editor [(dark)]="dark" [(light)]="light" [(flat)]="flat" [saving]="saving()" (hoverToken)="hover($event)" (save)="save()" />
+      }
+    </div>
+
+    <div class="preview">
+      <!-- Theme picker lives IN the gap between the two panes (no top row) —
+           see theme-carousel. -->
+      <app-theme-preview
+        [themeId]="selectedId()"
+        [version]="version()"
+        [dark]="dark()"
+        [light]="light()"
+        [brandName]="brandName()"
+        [brandTagline]="brandTagline()"
+        [brandLogo]="brandLogo()"
+        [flat]="flat()"
+        [highlight]="highlightVar()"
+      >
+        <app-theme-carousel
+          [themes]="themes()"
+          [presets]="presets()"
+          [selectedId]="selectedId()"
+          (pick)="select($event)"
+          (activateTheme)="activate($event)"
+          (duplicateTheme)="createFrom()"
+          (removeTheme)="remove($event)"
+          (createPreset)="createFromPreset($event)"
+        />
+      </app-theme-preview>
+    </div>
+  </div>
+}

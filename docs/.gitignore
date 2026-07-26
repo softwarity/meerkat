@@ -3,7 +3,8 @@
 /dist
 /out-tsc
 /.angular
-# generated at build by scripts/gen-version.mjs
+# generated at build by scripts/gen-version.mjs and sync-scenarios.mjs
 /src/assets/version.json
+/src/assets/scenarios.json
 *.log
 .DS_Store

@@ -7,6 +7,8 @@ on:
       - main
     paths:
       - 'docs/**'
+      # The Test coverage page renders the integration-test matrix verbatim.
+      - 'e2e/scenarios.json'
       - '.github/workflows/deploy-doc.yml'
   # A release changes no docs/** file, so redeploy on it too — that regenerates
   # assets/version.json (the pinned tag shown in the snippets) from the new tag.

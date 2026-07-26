@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "start": "node scripts/gen-version.mjs && ng serve",
-    "build": "node scripts/gen-version.mjs && ng build",
+    "start": "node scripts/gen-version.mjs && node scripts/sync-scenarios.mjs && ng serve",
+    "build": "node scripts/gen-version.mjs && node scripts/sync-scenarios.mjs && ng build",
     "watch": "ng build --watch --configuration development"
   },
   "dependencies": {

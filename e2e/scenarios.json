@@ -1,0 +1,336 @@
+{
+  "$comment": "Single source of truth for the integration-test coverage. The Playwright suites execute every scenario listed here (kind api/ui data-driven, kind flow as a dedicated spec named by `spec`); the doc site renders this same file on its Test coverage page. Paths may carry {tenantId} / {aliceId} placeholders resolved from the seeded fixtures.",
+  "profiles": [
+    { "id": "root", "username": "admin", "en": "Root: full control of the gateway", "fr": "Root : contrôle complet du gateway" },
+    { "id": "gateway-admin", "username": "gwadmin", "en": "Gateway admin: routes and built-in pages only", "fr": "Admin gateway : routes et pages intégrées uniquement" },
+    { "id": "app-admin", "username": "appadmin", "en": "Application admin: users, roles and identity settings only", "fr": "Admin appli : utilisateurs, rôles et réglages d'identité uniquement" },
+    { "id": "tenant-admin", "username": "tadmin", "en": "Tenant admin: ADMIN member of the acme tenant", "fr": "Admin tenant : membre ADMIN du tenant acme" },
+    { "id": "user", "username": "alice", "en": "Plain user: USER member of the acme tenant, no capability", "fr": "Utilisateur simple : membre USER du tenant acme, aucune capacité" }
+  ],
+  "scenarios": [
+    {
+      "id": "api-gw-routes",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/routes" },
+      "allowed": ["root", "gateway-admin"],
+      "title": { "en": "List the routes", "fr": "Lister les routes" },
+      "description": {
+        "en": "The routing plane belongs to the gateway scope: only root and gateway-admin may read the route table; every other profile gets 403.",
+        "fr": "Le plan de routage appartient au périmètre gateway : seuls root et l'admin gateway lisent la table des routes ; tout autre profil reçoit 403."
+      }
+    },
+    {
+      "id": "api-gw-catalog",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/catalog" },
+      "allowed": ["root", "gateway-admin"],
+      "title": { "en": "Read the brick catalog", "fr": "Lire le catalogue de briques" },
+      "description": {
+        "en": "The predicates/modifiers catalog drives the route editor: gateway scope.",
+        "fr": "Le catalogue des prédicats/modificateurs alimente l'éditeur de routes : périmètre gateway."
+      }
+    },
+    {
+      "id": "api-gw-themes",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/themes" },
+      "allowed": ["root", "gateway-admin"],
+      "title": { "en": "Manage the built-in pages' themes", "fr": "Gérer les thèmes des pages intégrées" },
+      "description": {
+        "en": "The flow pages (login, profile) are served by the gateway itself: their themes and branding are gateway scope.",
+        "fr": "Les pages de flux (login, profil) sont servies par le gateway lui-même : leurs thèmes et le branding sont du périmètre gateway."
+      }
+    },
+    {
+      "id": "api-app-users",
+      "domain": "application",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/users" },
+      "allowed": ["root", "app-admin"],
+      "title": { "en": "List the users", "fr": "Lister les utilisateurs" },
+      "description": {
+        "en": "The user base is the application's identity: app-admin scope. A gateway admin has no business reading it.",
+        "fr": "La base d'utilisateurs est l'identité de l'application : périmètre admin appli. Un admin gateway n'a pas à la lire."
+      }
+    },
+    {
+      "id": "api-app-roles",
+      "domain": "application",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/roles" },
+      "allowed": ["root", "app-admin"],
+      "title": { "en": "Read the role catalogue", "fr": "Lire le catalogue de rôles" },
+      "description": {
+        "en": "The global hierarchical role catalogue (RBAC-01) is application scope.",
+        "fr": "Le catalogue global hiérarchique de rôles (RBAC-01) est du périmètre applicatif."
+      }
+    },
+    {
+      "id": "api-app-smtp-test",
+      "domain": "application",
+      "kind": "api",
+      "probe": { "method": "POST", "path": "/api/settings/smtp/test", "body": { "to": "probe@e2e.test" }, "allowedStatus": [200, 422] },
+      "allowed": ["root", "app-admin"],
+      "title": { "en": "Send an SMTP test message", "fr": "Envoyer un e-mail de test SMTP" },
+      "description": {
+        "en": "Outbound e-mail serves the application's identity flows: only app admins may fire the SMTP test (422 while no server is configured).",
+        "fr": "L'e-mail sortant sert les flux d'identité de l'application : seuls les admins appli déclenchent le test SMTP (422 tant qu'aucun serveur n'est configuré)."
+      }
+    },
+    {
+      "id": "api-app-audit",
+      "domain": "application",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/audit" },
+      "allowed": ["root", "gateway-admin", "app-admin", "tenant-admin"],
+      "title": { "en": "Read the audit trail", "fr": "Lire la piste d'audit" },
+      "description": {
+        "en": "The audit trail is a transverse section scoped by capability (RBAC-05): root sees all, gateway-admin the routing plane (routes, themes), app-admin the identity (users, roles, settings), a tenant admin only their tenants' events. Anyone who administers nothing is refused.",
+        "fr": "La piste d'audit est une section transverse cadrée par capacité (RBAC-05) : root voit tout, l'admin gateway le plan de routage (routes, thèmes), l'admin appli l'identité (utilisateurs, rôles, réglages), un admin de tenant seulement les événements de ses tenants. Quiconque n'administre rien est refusé."
+      }
+    },
+    {
+      "id": "api-tenant-members",
+      "domain": "tenant",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/tenants/{tenantId}/members" },
+      "allowed": ["root", "tenant-admin"],
+      "title": { "en": "List a tenant's members", "fr": "Lister les membres d'un tenant" },
+      "description": {
+        "en": "Tenant administration is ownership or the ADMIN membership on THAT tenant: neither capability admins nor plain members reach another tenant's member list.",
+        "fr": "L'administration d'un tenant est la propriété ou la membership ADMIN sur CE tenant : ni les admins par capacité ni les membres simples n'atteignent la liste des membres."
+      }
+    },
+    {
+      "id": "api-tenant-member-logins",
+      "domain": "tenant",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/tenants/{tenantId}/members/{aliceId}/logins" },
+      "allowed": ["root", "tenant-admin"],
+      "title": { "en": "Read a member's sign-in history", "fr": "Lire l'historique de connexions d'un membre" },
+      "description": {
+        "en": "The sign-in history of a member is visible to root and to that tenant's owner or ADMIN, nobody else.",
+        "fr": "L'historique de connexions d'un membre est visible par root et par le propriétaire ou l'ADMIN de son tenant, personne d'autre."
+      }
+    },
+    {
+      "id": "api-tenant-transfer-owner",
+      "domain": "tenant",
+      "kind": "api",
+      "probe": { "method": "POST", "path": "/api/tenants/{tenantId}/owner", "body": { "userId": "e2e-nonexistent" }, "allowedStatus": [200, 422] },
+      "allowed": ["root"],
+      "title": { "en": "Transfer tenant ownership", "fr": "Transférer la propriété d'un tenant" },
+      "description": {
+        "en": "Ownership is a tenant field (TENANT-02): only root or the current owner may transfer it. A tenant ADMIN reaches the endpoint but is refused (403); root reaches the handler and 422s on the probe's unknown user, without changing anything.",
+        "fr": "La propriété est un champ du tenant (TENANT-02) : seuls root ou le propriétaire actuel peuvent la transférer. Un ADMIN de tenant atteint l'endpoint mais est refusé (403) ; root atteint le handler et renvoie 422 sur l'utilisateur inconnu de la sonde, sans rien changer."
+      }
+    },
+    {
+      "id": "api-gw-admin-tokens",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/admin-tokens" },
+      "allowed": ["root"],
+      "title": { "en": "List control-plane access tokens", "fr": "Lister les tokens d'accès control-plane" },
+      "description": {
+        "en": "Control-plane tokens grant headless access to the admin port (the foundation for a CLI/MCP, planned). Minting and listing them is root-only; the tokens authenticate on the admin plane only, never the data plane.",
+        "fr": "Les tokens control-plane donnent un accès sans navigateur au port d'administration (base d'un CLI/MCP, prévu). Leur création et leur liste sont réservées à root ; ils authentifient sur le plan admin uniquement, jamais le plan data."
+      }
+    },
+    {
+      "id": "ui-rail-gateway",
+      "domain": "console",
+      "kind": "ui",
+      "check": { "railItem": "Gateway" },
+      "allowed": ["root", "gateway-admin"],
+      "title": { "en": "The Gateway rail entry shows only for its admins", "fr": "L'entrée Gateway du rail n'apparaît que pour ses admins" },
+      "description": {
+        "en": "The console rail hides the Gateway scope from profiles that cannot use it (and the API refuses them anyway).",
+        "fr": "Le rail de la console cache le périmètre Gateway aux profils qui ne peuvent pas l'utiliser (et l'API les refuse de toute façon)."
+      }
+    },
+    {
+      "id": "ui-rail-application",
+      "domain": "console",
+      "kind": "ui",
+      "check": { "railItem": "Application" },
+      "allowed": ["root", "app-admin"],
+      "title": { "en": "The Application rail entry shows only for its admins", "fr": "L'entrée Application du rail n'apparaît que pour ses admins" },
+      "description": {
+        "en": "Users, roles and identity settings are gated behind the app-admin capability in the console navigation.",
+        "fr": "Utilisateurs, rôles et réglages d'identité sont derrière la capacité admin appli dans la navigation console."
+      }
+    },
+    {
+      "id": "ui-rail-tenants",
+      "domain": "console",
+      "kind": "ui",
+      "check": { "railItem": "Tenants" },
+      "allowed": ["root", "tenant-admin"],
+      "title": { "en": "The Tenants rail entry shows for tenant admins", "fr": "L'entrée Tenants du rail apparaît pour les admins de tenant" },
+      "description": {
+        "en": "A tenant owner or ADMIN (or a tenant creator) sees the Tenants scope; plain members and capability admins without a tenant do not.",
+        "fr": "Un propriétaire ou ADMIN de tenant (ou un créateur de tenants) voit le périmètre Tenants ; les membres simples et les admins par capacité sans tenant, non."
+      }
+    },
+    {
+      "id": "ui-landing",
+      "domain": "console",
+      "kind": "flow",
+      "spec": "console-nav",
+      "allowed": ["root", "gateway-admin", "app-admin", "tenant-admin", "user"],
+      "title": { "en": "Each profile lands on its own first screen", "fr": "Chaque profil atterrit sur son premier écran" },
+      "description": {
+        "en": "Opening the console root: gateway admins land on /routes, app admins on /general, everyone else on their tenant.",
+        "fr": "À l'ouverture de la console : les admins gateway atterrissent sur /routes, les admins appli sur /general, les autres sur leur tenant."
+      }
+    },
+    {
+      "id": "flow-login-bad-password",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": [],
+      "title": { "en": "A wrong password is refused without a session", "fr": "Un mauvais mot de passe est refusé sans session" },
+      "description": {
+        "en": "The login page answers 401 with the same message whether the user or the password is wrong (no account enumeration) and no session cookie is issued.",
+        "fr": "La page de login répond 401 avec le même message que l'utilisateur ou le mot de passe soit faux (pas d'énumération de comptes) et aucun cookie de session n'est émis."
+      }
+    },
+    {
+      "id": "flow-profile-history",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": ["user"],
+      "title": { "en": "A user sees their own sign-in history", "fr": "Un utilisateur voit son historique de connexions" },
+      "description": {
+        "en": "After signing in, /profile/security links to /profile/history where the fresh sign-in shows with its method.",
+        "fr": "Une fois connecté, /profile/security mène à /profile/history où la connexion fraîche apparaît avec sa méthode."
+      }
+    },
+    {
+      "id": "flow-profile-apps",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": ["user"],
+      "title": { "en": "The profile flow links back to the applications", "fr": "Le flux profil ramène vers les applications" },
+      "description": {
+        "en": "The profile hub (and the user button's Applications submenu) lists the UI routes the session may open — public, authenticated, and granted role-gated ones only.",
+        "fr": "Le hub profil (et le sous-menu Applications du user-button) liste les routes UI que la session peut ouvrir — publiques, authentifiées, et à rôle requis seulement s'il est détenu."
+      }
+    },
+    {
+      "id": "flow-dev-page-forbidden",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": [],
+      "title": { "en": "The developer page refuses non-dev users", "fr": "La page développeur refuse les non-développeurs" },
+      "description": {
+        "en": "/profile/dev answers 403 for a user without the dev capability.",
+        "fr": "/profile/dev répond 403 pour un utilisateur sans la capacité dev."
+      }
+    },
+    {
+      "id": "flow-privilege-escalation",
+      "domain": "application",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": [],
+      "title": { "en": "An app admin can never mint or promote a root", "fr": "Un admin appli ne peut jamais créer ni promouvoir un root" },
+      "description": {
+        "en": "Creating a root user or setting the root flag on an existing user requires root itself: the API answers 403 to an app-admin.",
+        "fr": "Créer un utilisateur root ou poser le drapeau root sur un utilisateur existant exige root : l'API répond 403 à un admin appli."
+      }
+    },
+    {
+      "id": "flow-register-captcha",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": [],
+      "title": { "en": "The built-in captcha gates self-registration", "fr": "Le captcha intégré protège l'auto-inscription" },
+      "description": {
+        "en": "With the home-grown captcha on (the default), the register page carries a distorted-digits image; a wrong copy is refused, creates no account, and each challenge is single-use.",
+        "fr": "Avec le captcha maison activé (le défaut), la page d'inscription porte une image de chiffres déformés ; une copie fausse est refusée, ne crée aucun compte, et chaque défi est à usage unique."
+      }
+    },
+    {
+      "id": "flow-self-register",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": [],
+      "title": { "en": "Self-registration end to end", "fr": "Auto-inscription de bout en bout" },
+      "description": {
+        "en": "With the policy on and SMTP configured: the visitor registers, cannot sign in before confirming, opens the mailed one-shot link, the admins are notified, and the first sign-in lands on the waiting room until access is granted.",
+        "fr": "Politique activée et SMTP configuré : le visiteur s'inscrit, ne peut pas se connecter avant de confirmer, ouvre le lien à usage unique reçu par mail, les admins sont notifiés, et la première connexion atterrit sur la salle d'attente jusqu'à l'attribution d'accès."
+      }
+    },
+    {
+      "id": "flow-api-token",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": ["user"],
+      "title": { "en": "Personal API tokens authenticate API calls", "fr": "Les jetons API personnels authentifient les appels API" },
+      "description": {
+        "en": "A user mints a token on Profile → Security → API tokens (shown once); it captures their current tenant+group context and authenticates 'Authorization: Bearer mk_…' calls to the data-plane API routes with no browser session. Disabling or revoking it — or disabling the account — stops it at the next request; the admin port never accepts it.",
+        "fr": "Un utilisateur crée un jeton dans Profil → Sécurité → Jetons API (affiché une fois) ; il capture son contexte tenant+groupe courant et authentifie les appels « Authorization: Bearer mk_… » vers les routes API du data plane sans session navigateur. Le désactiver ou le révoquer — ou désactiver le compte — l'arrête à la requête suivante ; le port admin ne l'accepte jamais."
+      }
+    },
+    {
+      "id": "flow-rate-limit",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": [],
+      "title": { "en": "Brute-force sign-ins are throttled", "fr": "Les connexions par force brute sont freinées" },
+      "description": {
+        "en": "Failed sign-ins are counted per address and account within a configurable window (Security page): past the budget the endpoint answers 429 without even checking, and a success forgives the counter. Wrong two-factor codes are throttled per account the same way.",
+        "fr": "Les échecs de connexion sont comptés par adresse et par compte dans une fenêtre configurable (page Security) : au-delà du budget l'endpoint répond 429 sans même vérifier, et un succès remet le compteur à zéro. Les mauvais codes de double authentification sont freinés par compte de la même façon."
+      }
+    },
+    {
+      "id": "flow-forgot-password",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": [],
+      "title": { "en": "Forgot password resets through a mailed one-shot link", "fr": "Le mot de passe oublié se réinitialise par lien mail à usage unique" },
+      "description": {
+        "en": "The sign-in page links the flow (when SMTP is configured): a neutral outcome whatever the address, a 1-hour one-shot link that survives mail-scanner prefetches (GET peeks, POST consumes), and a successful reset revokes every open session and notifies the owner.",
+        "fr": "La page de connexion propose le flux (quand SMTP est configuré) : réponse neutre quelle que soit l'adresse, lien à usage unique valable 1 h qui survit aux préchargements des scanners de mail (le GET regarde, le POST consomme), et une réinitialisation réussie révoque toutes les sessions ouvertes et notifie le propriétaire."
+      }
+    },
+    {
+      "id": "flow-select-group",
+      "domain": "tenant",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": ["user"],
+      "title": { "en": "Exclusive group mode asks which group at sign-in", "fr": "Le mode groupe exclusif demande quel groupe à la connexion" },
+      "description": {
+        "en": "With a tenant forced to SINGLE, a member holding several groups lands on /select-group after signing in (and again after each tenant switch); only the chosen group's roles apply to the session.",
+        "fr": "Avec un tenant forcé en SINGLE, un membre de plusieurs groupes atterrit sur /select-group après connexion (et à chaque changement de tenant) ; seuls les rôles du groupe choisi s'appliquent à la session."
+      }
+    },
+    {
+      "id": "flow-passkey-policy",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "flow-pages",
+      "allowed": [],
+      "title": { "en": "Disabling passkeys removes the affordance and refuses the ceremonies", "fr": "Désactiver les passkeys retire le bouton et refuse les cérémonies" },
+      "description": {
+        "en": "When the global passkey policy is off, the login page hides the passkey button and the WebAuthn endpoints answer 403.",
+        "fr": "Quand la politique globale passkey est coupée, la page de login cache le bouton passkey et les endpoints WebAuthn répondent 403."
+      }
+    }
+  ]
+}

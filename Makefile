@@ -12,8 +12,11 @@ LDFLAGS := -s -w \
 
 # Hot-reload dev loop: rebuilds and restarts the gateway on every .go save.
 # Requires air (once): go install github.com/air-verse/air@latest
+# Resolved from PATH or GOPATH/bin, so it works even when ~/go/bin is not in PATH.
+AIR := $(shell command -v air 2>/dev/null || echo "$$(go env GOPATH)/bin/air")
+
 dev:
-	air
+	$(AIR)
 
 build:
 	CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/meerkat ./cmd/meerkat

@@ -42,6 +42,39 @@ jobs:
       - name: Test
         run: go test -race ./...
 
+  # Integration: a real gateway + the built console, driven by Playwright over
+  # the seeded profiles of e2e/scenarios.json (positive AND negative access).
+  e2e:
+    name: Integration (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Build console
+        working-directory: console
+        run: |
+          npm ci
+          npx ng build --configuration development
+      - name: Install Playwright
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Run integration suite
+        working-directory: e2e
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+
   build:
     name: Cross-compile
     needs: test

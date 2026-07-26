@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  height: 100%;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+.body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.identity {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+}
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+section h3 {
+  margin: 0 0 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mat-sys-on-surface-variant);
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.danger {
+  color: var(--mat-sys-error);
+}
+app-mfa-select mat-form-field {
+  width: 240px;
+}

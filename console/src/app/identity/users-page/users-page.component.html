@@ -1,0 +1,68 @@
+<mat-drawer-container>
+  <mat-drawer-content>
+    <div class="banner">
+      <h1 i18n="@@Users">Users</h1>
+      <button matButton="filled" (click)="create()">
+        <mat-icon>person_add</mat-icon>
+        <ng-container i18n="@@New_user">New user</ng-container>
+      </button>
+    </div>
+
+    <div class="content">
+      @if (loading()) {
+        <loading-indicator withContainer />
+      } @else {
+        <mat-table [dataSource]="users()">
+          <ng-container matColumnDef="identity">
+            <mat-header-cell *matHeaderCellDef i18n="@@User">User</mat-header-cell>
+            <mat-cell *matCellDef="let u" [class.off]="!u.enabled">
+              <span class="dot" [title]="u.enabled ? 'enabled' : 'disabled'"></span>
+              <span class="id">
+                <span class="mono">{{ u.username }}</span>
+                <span class="muted">{{ u.fullname }} {{ u.email ? '· ' + u.email : '' }}</span>
+              </span>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Capabilities toggle right here — a badge click flips the power
+               without opening the drawer (stopPropagation keeps the row click
+               for the drawer). -->
+          <ng-container matColumnDef="summary">
+            <mat-header-cell *matHeaderCellDef i18n="@@Capabilities">Capabilities</mat-header-cell>
+            <mat-cell *matCellDef="let u" [class.off]="!u.enabled">
+              <span class="badges">
+                @for (c of capabilities; track c.key) {
+                  <button
+                    type="button"
+                    class="badge"
+                    [class.on]="u[c.key]"
+                    [disabled]="c.key === 'root' && u.id === meId()"
+                    [matTooltip]="c.tooltip"
+                    (click)="toggleCapability(u, c.key, $event)"
+                  >
+                    {{ c.label }}
+                  </button>
+                }
+              </span>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: columns" class="clickable" (click)="editing.set(row)"></mat-row>
+        </mat-table>
+      }
+    </div>
+  </mat-drawer-content>
+
+  <mat-drawer position="end" mode="over" [opened]="editing() !== null" (closedStart)="editing.set(null)">
+    @if (editing(); as u) {
+      <app-user-editor
+        [user]="u"
+        [globalMfaLabel]="globalMfaLabel()"
+        [meId]="meId()"
+        (saved)="onUserSaved($event)"
+        (closed)="onClose()"
+      />
+    }
+  </mat-drawer>
+</mat-drawer-container>

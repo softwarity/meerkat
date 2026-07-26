@@ -1,0 +1,80 @@
+<!-- search and tag filter both live in the layout's right-zone header. -->
+
+@if (loading()) {
+  <loading-indicator withContainer />
+} @else if (roles().length === 0) {
+  <p class="empty" i18n="@@No_roles_catalogue">
+    No roles in the catalogue yet: create them in Application / Roles.
+  </p>
+} @else {
+  <div class="table-wrap">
+    <mat-table [dataSource]="filteredRoles()">
+      <ng-container matColumnDef="role" sticky>
+        <mat-header-cell *matHeaderCellDef i18n="@@Roles">Roles</mat-header-cell>
+        <!-- name + description only — tags are a filter concern (header select),
+             their pills live on the Roles page. -->
+        <mat-cell *matCellDef="let r">
+          <div class="role-cell">
+            <span class="name mono">{{ r.name }}</span>
+            @if (r.description) {
+              <span class="desc">{{ r.description }}</span>
+            }
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <!-- flex spacer so the table fills the width; groups sit right after it and
+           only scroll horizontally once they are too many to fit. -->
+      <ng-container matColumnDef="spacer">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let r"></mat-cell>
+      </ng-container>
+
+      @for (g of groups(); track g.id) {
+        <ng-container [matColumnDef]="g.id">
+          <mat-header-cell *matHeaderCellDef class="grp-head">
+            <span class="col-name" [title]="g.description">{{ g.name }}</span>
+            <button
+              matIconButton
+              [matMenuTriggerFor]="groupMenu"
+              [matMenuTriggerData]="{ group: g }"
+              i18n-aria-label="@@Group_menu"
+              aria-label="Group menu"
+            >
+              <mat-icon>more_vert</mat-icon>
+            </button>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let r">
+            <mat-checkbox
+              [checked]="roleChecked(r, g.id)"
+              [disabled]="roleImplied(r, g.id)"
+              (change)="toggle(r, g.id, $event.checked)"
+            />
+          </mat-cell>
+        </ng-container>
+      }
+
+      <mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns()"></mat-row>
+    </mat-table>
+  </div>
+
+  <button mat-fab class="new-fab" (click)="addGroup()" i18n-matTooltip="@@New_group" matTooltip="New group" i18n-aria-label="@@New_group" aria-label="New group">
+    <mat-icon>add</mat-icon>
+  </button>
+}
+
+<!-- One menu at the template root (in scope of every trigger, correctly
+     positioned), receiving its group via context. -->
+<mat-menu #groupMenu>
+  <ng-template matMenuContent let-group="group">
+    <button mat-menu-item (click)="editGroup(group)">
+      <mat-icon>edit</mat-icon>
+      <span i18n="@@Edit">Edit</span>
+    </button>
+    <button mat-menu-item (click)="removeGroup(group)">
+      <mat-icon>delete</mat-icon>
+      <span i18n="@@Delete">Delete</span>
+    </button>
+  </ng-template>
+</mat-menu>

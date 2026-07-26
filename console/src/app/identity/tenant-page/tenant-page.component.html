@@ -1,0 +1,57 @@
+@if (loading()) {
+  <loading-indicator withContainer />
+} @else if (scope.tenant(); as t) {
+  <!-- The tenant's name crowns the section nav — sections are child routes. -->
+  <nav class="left">
+    <h2>{{ t.name }}</h2>
+    <a routerLink="general" routerLinkActive="active" class="section-link">
+      <mat-icon>tune</mat-icon>
+      <span i18n="@@Section_general">General</span>
+    </a>
+    <a routerLink="groups" routerLinkActive="active" class="section-link">
+      <mat-icon>groups</mat-icon>
+      <span i18n="@@Groups">Groups</span>
+    </a>
+    <a routerLink="members" routerLinkActive="active" class="section-link">
+      <mat-icon>group</mat-icon>
+      <span i18n="@@Members">Members</span>
+    </a>
+    <a routerLink="danger" routerLinkActive="active" class="section-link danger">
+      <mat-icon>warning</mat-icon>
+      <span i18n="@@Danger_zone">Danger zone</span>
+    </a>
+  </nav>
+
+  <div class="right">
+    <!-- The working zone's header: the active section's search/filters. The
+         enabled toggle lives in the General section now (part of its Save). -->
+    <header>
+      @if (section() === 'groups' && scope.tags().length) {
+        <mat-form-field class="tag-pick" subscriptSizing="dynamic">
+          <mat-label i18n="@@Tags">Tags</mat-label>
+          <mat-select [value]="scope.tagFilter()" (selectionChange)="scope.tagFilter.set($event.value)">
+            <mat-option value="" i18n="@@All">All</mat-option>
+            @for (t of scope.tags(); track t) {
+              <mat-option [value]="t">{{ t }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+      @if (section() === 'groups' || section() === 'members') {
+        <app-form-field class="search" icon="search" subscriptSizing="dynamic">
+          <input
+            matInput
+            [value]="scope.filter()"
+            (input)="scope.filter.set($any($event.target).value)"
+            i18n-placeholder="@@Search"
+            placeholder="Search"
+          />
+        </app-form-field>
+      }
+    </header>
+
+    <div class="panel">
+      <router-outlet />
+    </div>
+  </div>
+}

@@ -1,0 +1,91 @@
+/* Two zones: the section nav (left, full height) and the working zone (right)
+   which owns its header and hosts the routed section. */
+:host {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+.left {
+  flex: 0 0 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-right: 1px solid var(--mat-sys-outline-variant);
+  padding: 0 8px;
+}
+.left h2 {
+  margin: 0 -8px 6px;
+  padding: 16px 16px 12px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+.section-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--mat-sys-on-surface);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.section-link:hover {
+  background: var(--mat-sys-surface-container-high);
+}
+.section-link.active {
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+.section-link.danger {
+  color: var(--mat-sys-error);
+}
+.section-link.danger.active {
+  background: color-mix(in srgb, var(--mat-sys-error) 16%, transparent);
+  color: var(--mat-sys-error);
+}
+.right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.right > header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+.search {
+  flex: 1 1 240px;
+  max-width: 420px;
+}
+.tag-pick {
+  flex: 0 1 200px;
+}
+.spacer {
+  flex: 1;
+}
+.panel {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /* horizontal scroll belongs to the matrices' own wrap (sticky columns);
+     the panel never scrolls sideways. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 24px;
+}
+/* the routed section fills the panel; matrices scroll internally */
+.panel > * {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+}

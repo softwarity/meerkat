@@ -9,9 +9,15 @@
       "sourceRoot": "src",
       "prefix": "app",
       "i18n": {
-        "sourceLocale": { "code": "en", "subPath": "en" },
+        "sourceLocale": {
+          "code": "en",
+          "subPath": "en"
+        },
         "locales": {
-          "fr": { "translation": "src/locale/messages.fr.xlf", "subPath": "fr" }
+          "fr": {
+            "translation": "src/locale/messages.fr.xlf",
+            "subPath": "fr"
+          }
         }
       },
       "architect": {
@@ -21,11 +27,20 @@
             "outputPath": "dist/console",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["@angular/localize/init"],
+            "polyfills": [
+              "@angular/localize/init"
+            ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [],
-            "styles": ["src/styles.scss"],
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
             "scripts": []
           },
           "configurations": {
@@ -33,7 +48,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "800kb",
+                  "maximumWarning": "1mb",
                   "maximumError": "2mb"
                 }
               ],
@@ -46,10 +61,16 @@
               "sourceMap": true
             },
             "en": {
-              "localize": ["en"]
+              "localize": [
+                "en"
+              ],
+              "baseHref": "/en/"
             },
             "fr": {
-              "localize": ["fr"]
+              "localize": [
+                "fr"
+              ],
+              "baseHref": "/fr/"
             }
           },
           "defaultConfiguration": "production"

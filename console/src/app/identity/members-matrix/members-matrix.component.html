@@ -1,0 +1,144 @@
+<!-- the search lives in the drawer's right-zone header. -->
+@if (loading()) {
+  <loading-indicator withContainer />
+} @else if (rows().length === 0) {
+  <p class="empty" i18n="@@No_users">No users.</p>
+} @else {
+  <div class="table-wrap">
+    <mat-table [dataSource]="filteredRows()">
+      <ng-container matColumnDef="user" sticky>
+        <mat-header-cell *matHeaderCellDef i18n="@@User">User</mat-header-cell>
+        <mat-cell *matCellDef="let u">
+          <div class="user-cell">
+            <span class="name mono">{{ u.username }}</span>
+            @if (u.fullname) {
+              <span class="desc">{{ u.fullname }}</span>
+            }
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <!-- membership + its TYPE: the "member" badge joins/leaves (USER), the
+           "admin" badge beside it flips USER ↔ ADMIN; the tenant's OWNER shows
+           a read-only badge (ownership is a tenant field, transferred in the
+           Danger zone, and may belong to a non-member). -->
+      <ng-container matColumnDef="member">
+        <mat-header-cell *matHeaderCellDef i18n="@@Membership">Membership</mat-header-cell>
+        <mat-cell *matCellDef="let u">
+          <button
+            type="button"
+            class="type-badge member"
+            [class.on]="isMember(u.id)"
+            (click)="toggleMember(u, !isMember(u.id))"
+            i18n-matTooltip="@@Member_badge_tooltip"
+            matTooltip="Belongs to this tenant"
+            i18n="@@member"
+          >member</button>
+          @if (isOwner(u.id)) {
+            <span
+              class="type-badge on owner"
+              i18n-matTooltip="@@Owner_tooltip"
+              matTooltip="Owns the tenant: transfer it in the Danger zone"
+              i18n="@@owner"
+            >owner</span>
+          } @else {
+            <button
+              type="button"
+              class="type-badge"
+              [class.on]="memberType(u.id) === 'ADMIN'"
+              [disabled]="!isMember(u.id)"
+              (click)="toggleAdmin(u)"
+              i18n-matTooltip="@@Admin_badge_tooltip"
+              matTooltip="Administers this tenant: groups, members, hours"
+              i18n="@@admin"
+            >admin</button>
+          }
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="spacer">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let u"></mat-cell>
+      </ng-container>
+
+      @for (g of groups(); track g.id) {
+        <ng-container [matColumnDef]="g.id">
+          <mat-header-cell *matHeaderCellDef class="grp-head">
+            <span class="col-name" [title]="g.description">{{ g.name }}</span>
+            <button
+              matIconButton
+              [matMenuTriggerFor]="groupMenu"
+              [matMenuTriggerData]="{ group: g }"
+              i18n-aria-label="@@Group_menu"
+              aria-label="Group menu"
+            >
+              <mat-icon>more_vert</mat-icon>
+            </button>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let u">
+            <mat-checkbox
+              [checked]="memberInGroup(u.id, g.id)"
+              [disabled]="!isMember(u.id)"
+              (change)="toggleMemberGroup(u.id, g.id, $event.checked)"
+            />
+          </mat-cell>
+        </ng-container>
+      }
+
+      <!-- last connection closes the row; the tenant-scoped password reset
+           rides on it (a tenant admin needs no root for that). -->
+      <ng-container matColumnDef="lastConn" stickyEnd>
+        <mat-header-cell *matHeaderCellDef i18n="@@Last_connection">Last connection</mat-header-cell>
+        <mat-cell *matCellDef="let u">
+          <span class="last-seen" [title]="lastSeenFull(u.lastConnectionAt)">
+            {{ lastSeen(u.lastConnectionAt) }}
+          </span>
+          <span rowActions="tonal">
+            <button
+              matIconButton
+              [disabled]="!isMember(u.id)"
+              (click)="showLogins(u)"
+              i18n-matTooltip="@@Sign_in_history"
+              matTooltip="Sign-in history"
+              i18n-aria-label="@@Sign_in_history"
+              aria-label="Sign-in history"
+            >
+              <mat-icon>history</mat-icon>
+            </button>
+            <button
+              matIconButton
+              [disabled]="!isMember(u.id)"
+              (click)="resetPassword(u)"
+              i18n-matTooltip="@@Reset_password"
+              matTooltip="Reset password"
+              i18n-aria-label="@@Reset_password"
+              aria-label="Reset password"
+            >
+              <mat-icon>lock_reset</mat-icon>
+            </button>
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns()"></mat-row>
+    </mat-table>
+  </div>
+
+  <button mat-fab class="new-fab" (click)="addGroup()" i18n-matTooltip="@@New_group" matTooltip="New group" i18n-aria-label="@@New_group" aria-label="New group">
+    <mat-icon>add</mat-icon>
+  </button>
+}
+
+<mat-menu #groupMenu>
+  <ng-template matMenuContent let-group="group">
+    <button mat-menu-item (click)="editGroup(group)">
+      <mat-icon>edit</mat-icon>
+      <span i18n="@@Edit">Edit</span>
+    </button>
+    <button mat-menu-item (click)="removeGroup(group)">
+      <mat-icon>delete</mat-icon>
+      <span i18n="@@Delete">Delete</span>
+    </button>
+  </ng-template>
+</mat-menu>

@@ -18,28 +18,12 @@
           <context context-type="linenumber">44,45</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Type" datatype="html">
-        <source>Type</source>
-        <target>Type</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/brick-form.component.ts</context>
-          <context context-type="linenumber">51,52</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Remove" datatype="html">
         <source>Remove</source>
         <target>Retirer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/brick-form.component.ts</context>
           <context context-type="linenumber">83</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="comma_separated" datatype="html">
-        <source>comma, separated</source>
-        <target>séparées par des virgules</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/brick-form.component.ts</context>
-          <context context-type="linenumber">95</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Edit_route" datatype="html">
@@ -74,14 +58,6 @@
           <context context-type="linenumber">31,32</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Order" datatype="html">
-        <source>Order</source>
-        <target>Ordre</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
-          <context context-type="linenumber">72,73</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Upstream" datatype="html">
         <source>Upstream</source>
         <target>Amont</target>
@@ -92,14 +68,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-table.component.ts</context>
           <context context-type="linenumber">48,49</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Not_used_when_a_terminal_filter_redirect_is_present" datatype="html">
-        <source>Not used when a terminal filter (redirect) is present</source>
-        <target>Ignoré quand un filtre terminal (redirect) est présent</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
-          <context context-type="linenumber">80,84</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Enabled" datatype="html">
@@ -120,34 +88,26 @@
       </trans-unit>
       <trans-unit id="Predicates_all_must_match" datatype="html">
         <source>Predicates — all must match</source>
-        <target>Prédicats — tous doivent correspondre</target>
+        <target>Prédicats : tous doivent correspondre</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
           <context context-type="linenumber">97,98</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Add_predicate" datatype="html">
-        <source>Add predicate</source>
-        <target>Ajouter un prédicat</target>
+      <trans-unit id="A_header_cookie_or_query_matcher_needs_a_name" datatype="html">
+        <source>A header, cookie or query matcher needs a name</source>
+        <target>Un critère header, cookie ou query doit avoir un nom</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
-          <context context-type="linenumber">99,100</context>
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
+          <context context-type="linenumber">71</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Filters_applied_in_order" datatype="html">
-        <source>Filters — applied in order</source>
-        <target>Filtres — appliqués dans l'ordre</target>
+      <trans-unit id="Weight_needs_both_a_group_and_a_weight" datatype="html">
+        <source>Weight needs both a group and a weight</source>
+        <target>Weight requiert à la fois un groupe et un poids</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
-          <context context-type="linenumber">105,107</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Add_filter" datatype="html">
-        <source>Add filter</source>
-        <target>Ajouter un filtre</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
-          <context context-type="linenumber">107,108</context>
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
+          <context context-type="linenumber">77</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Cancel" datatype="html">
@@ -156,16 +116,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
           <context context-type="linenumber">117,118</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Save_apply" datatype="html">
-        <source>
-        Save &amp; apply
-      </source>
-        <target>Enregistrer et appliquer</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-dialog.component.ts</context>
-          <context context-type="linenumber">119,121</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Save_failed" datatype="html">
@@ -194,7 +144,7 @@
       </trans-unit>
       <trans-unit id="No_route_yet_create_the_first_one" datatype="html">
         <source>No route yet — create the first one.</source>
-        <target>Aucune route — créez la première.</target>
+        <target>Aucune route : créez la première.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
           <context context-type="linenumber">55,57</context>
@@ -248,14 +198,6 @@
           <context context-type="linenumber">41,42</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Edit" datatype="html">
-        <source>Edit</source>
-        <target>Modifier</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/routes-table.component.ts</context>
-          <context context-type="linenumber">57</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Delete" datatype="html">
         <source>Delete</source>
         <target>Supprimer</target>
@@ -263,6 +205,2965 @@
           <context context-type="sourcefile">src/app/routes/routes-table.component.ts</context>
           <context context-type="linenumber">60</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="New_tenant" datatype="html">
+        <source>New tenant</source>
+        <target>Nouveau tenant</target>
+      </trans-unit>
+      <trans-unit id="Create" datatype="html">
+        <source>Create</source>
+        <target>Créer</target>
+      </trans-unit>
+      <trans-unit id="Remove" datatype="html">
+        <source>Remove</source>
+        <target>Retirer</target>
+      </trans-unit>
+      <trans-unit id="Type_the_tenant_name_to_confirm" datatype="html">
+        <source>Type the tenant name to confirm</source>
+        <target>Saisissez le nom du tenant pour confirmer</target>
+      </trans-unit>
+      <trans-unit id="Theme_is_now_live" datatype="html">
+        <source>This theme is now live on the flow pages</source>
+        <target>Ce thème est maintenant actif sur les pages</target>
+      </trans-unit>
+      <trans-unit id="Theme_swatches" datatype="html">
+        <source>Theme</source>
+        <target>Thème</target>
+      </trans-unit>
+      <trans-unit id="Set_active" datatype="html">
+        <source>Set active</source>
+        <target>Activer</target>
+      </trans-unit>
+      <trans-unit id="Active_theme" datatype="html">
+        <source>Active theme</source>
+        <target>Thème actif</target>
+      </trans-unit>
+      <trans-unit id="Add_theme" datatype="html">
+        <source>Add theme</source>
+        <target>Ajouter un thème</target>
+      </trans-unit>
+      <trans-unit id="Application" datatype="html">
+        <source>Application</source>
+        <target>Application</target>
+      </trans-unit>
+      <trans-unit id="Gateway" datatype="html">
+        <source>Gateway</source>
+        <target>Gateway</target>
+      </trans-unit>
+      <trans-unit id="Glow_hint" datatype="html">
+        <source>Decorative flow-page effects — the ambient halo behind the page, logo &amp; button glows, and the app-name gradient. Uncheck for a flat design; this colour then goes unused.</source>
+        <target>Effets décoratifs des pages : la lueur d'ambiance derrière la page, les halos du logo et du bouton, et le dégradé du nom de l'application. Décochez pour un design plat ; cette couleur n'est alors plus utilisée.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/palette-editor/palette-editor.component.html</context>
+          <context context-type="linenumber">21,22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Two_factor" datatype="html">
+        <source>Two-factor</source>
+        <target>Double facteur</target>
+      </trans-unit>
+      <trans-unit id="Inherited_MFA" datatype="html">
+        <source>Inherited (<x id="INTERPOLATION" equiv-text="{{ inheritedLabel() }}"/>)</source>
+        <target>Hérité (<x id="INTERPOLATION" equiv-text="{{ inheritedLabel() }}"/>)</target>
+      </trans-unit>
+      <trans-unit id="MFA_required" datatype="html">
+        <source>Required</source>
+        <target>Obligatoire</target>
+      </trans-unit>
+      <trans-unit id="MFA_optional" datatype="html">
+        <source>Optional</source>
+        <target>Optionnel</target>
+      </trans-unit>
+      <trans-unit id="Security" datatype="html">
+        <source>Security</source>
+        <target>Sécurité</target>
+      </trans-unit>
+      <trans-unit id="Require_two_factor" datatype="html">
+        <source>Require two-factor for everyone</source>
+        <target>Exiger le double facteur pour tous</target>
+      </trans-unit>
+      <trans-unit id="MFA_global_hint" datatype="html">
+        <source>
+Require a second factor for every user. Organizations and members can override this.
+</source>
+        <target>
+Exiger un deuxième facteur pour chaque utilisateur. Les organisations et les membres peuvent le surcharger.
+</target>
+      </trans-unit>
+      <trans-unit id="Trusted_browsers" datatype="html">
+        <source>Trusted browsers</source>
+        <target>Navigateurs de confiance</target>
+      </trans-unit>
+      <trans-unit id="Trusted_browsers_hint" datatype="html">
+        <source>
+Let users skip the two-factor challenge on a browser they mark as trusted, until it expires.
+</source>
+        <target>
+Permettre aux utilisateurs de sauter le challenge double facteur sur un navigateur de confiance, jusqu'à expiration.
+</target>
+      </trans-unit>
+      <trans-unit id="Allow_trusted_browsers" datatype="html">
+        <source>Allow trusted browsers</source>
+        <target>Autoriser les navigateurs de confiance</target>
+      </trans-unit>
+      <trans-unit id="Trust_duration" datatype="html">
+        <source>Trust duration</source>
+        <target>Durée de confiance</target>
+      </trans-unit>
+      <trans-unit id="Save" datatype="html">
+        <source>Save</source>
+        <target>Enregistrer</target>
+      </trans-unit>
+      <trans-unit id="Settings_saved" datatype="html">
+        <source>Settings saved</source>
+        <target>Paramètres enregistrés</target>
+      </trans-unit>
+      <trans-unit id="Account" datatype="html">
+        <source>Account</source>
+        <target>Compte</target>
+      </trans-unit>
+      <trans-unit id="Groups" datatype="html">
+        <source>Groups</source>
+        <target>Groupes</target>
+      </trans-unit>
+      <trans-unit id="Roles" datatype="html">
+        <source>Roles</source>
+        <target>Rôles</target>
+      </trans-unit>
+      <trans-unit id="Drag_to_reorder" datatype="html">
+        <source>Drag to reorder</source>
+        <target>Glisser pour réordonner</target>
+      </trans-unit>
+      <trans-unit id="New_role" datatype="html">
+        <source>New role</source>
+        <target>Nouveau rôle</target>
+      </trans-unit>
+      <trans-unit id="Role_name" datatype="html">
+        <source>Role name</source>
+        <target>Nom du rôle</target>
+      </trans-unit>
+      <trans-unit id="No_role_yet" datatype="html">
+        <source>No role yet — create the first one.</source>
+        <target>Aucun rôle : créez le premier.</target>
+      </trans-unit>
+      <trans-unit id="System" datatype="html">
+        <source>system</source>
+        <target>système</target>
+      </trans-unit>
+      <trans-unit id="Delete_role" datatype="html">
+        <source>Delete role</source>
+        <target>Supprimer le rôle</target>
+      </trans-unit>
+      <trans-unit id="Delete_role_NAME" datatype="html">
+        <source>Delete role &quot;<x id="NAME" equiv-text="role.name"/>&quot;?</source>
+        <target>Supprimer le rôle "<x id="NAME" equiv-text="role.name"/>" ?</target>
+      </trans-unit>
+      <trans-unit id="New_group" datatype="html">
+        <source>New group</source>
+        <target>Nouveau groupe</target>
+      </trans-unit>
+      <trans-unit id="Group_name" datatype="html">
+        <source>Group name</source>
+        <target>Nom du groupe</target>
+      </trans-unit>
+      <trans-unit id="Delete_group_NAME" datatype="html">
+        <source>Delete group &quot;<x id="NAME" equiv-text="g.name"/>&quot;?</source>
+        <target>Supprimer le groupe "<x id="NAME" equiv-text="g.name"/>" ?</target>
+      </trans-unit>
+      <trans-unit id="No_roles_catalogue" datatype="html">
+        <source>No roles in the catalogue yet — create them in Application → Roles.</source>
+        <target>Aucun rôle dans le catalogue : créez-les dans Application → Roles.</target>
+      </trans-unit>
+      <trans-unit id="Rename" datatype="html">
+        <source>Rename</source>
+        <target>Renommer</target>
+      </trans-unit>
+      <trans-unit id="Rename_group" datatype="html">
+        <source>Rename group</source>
+        <target>Renommer le groupe</target>
+      </trans-unit>
+      <trans-unit id="Group_menu" datatype="html">
+        <source>Group menu</source>
+        <target>Menu du groupe</target>
+      </trans-unit>
+      <trans-unit id="No_users" datatype="html">
+        <source>No users.</source>
+        <target>Aucun utilisateur.</target>
+      </trans-unit>
+      <trans-unit id="Member" datatype="html">
+        <source>Member</source>
+        <target>Membre</target>
+      </trans-unit>
+      <trans-unit id="Tenants" datatype="html">
+        <source>Tenants</source>
+        <target>Tenants</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">92</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">129,131</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenants-page/tenants-page.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Users" datatype="html">
+        <source>Users</source>
+        <target>Utilisateurs</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">137,139</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_tenant_yet" datatype="html">
+        <source>No tenant yet</source>
+        <target>Aucun tenant pour le moment</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">157,159</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenants-page/tenants-page.component.html</context>
+          <context context-type="linenumber">15,17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Timezone" datatype="html">
+        <source>Timezone</source>
+        <target>Fuseau horaire</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/business-access-form.component.ts</context>
+          <context context-type="linenumber">79,80</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="From" datatype="html">
+        <source>From</source>
+        <target>De</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/business-access-form.component.ts</context>
+          <context context-type="linenumber">86,87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="To" datatype="html">
+        <source>To</source>
+        <target>À</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/business-access-form.component.ts</context>
+          <context context-type="linenumber">90,91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Request_failed" datatype="html">
+        <source>Request failed</source>
+        <target>La requête a échoué</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
+          <context context-type="linenumber">207</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
+          <context context-type="linenumber">251</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.ts</context>
+          <context context-type="linenumber">166</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenants-page/tenants-page.component.ts</context>
+          <context context-type="linenumber">128</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
+          <context context-type="linenumber">71</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
+          <context context-type="linenumber">89</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.ts</context>
+          <context context-type="linenumber">198</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="User" datatype="html">
+        <source>User</source>
+        <target>Utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">10,11</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
+          <context context-type="linenumber">17,18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Temporary_password_for_USERNAME" datatype="html">
+        <source>Temporary password for &quot;<x id="INTERPOLATION" equiv-text="{{ data.username }}"/>&quot;</source>
+        <target>Mot de passe temporaire pour &quot;<x id="INTERPOLATION" equiv-text="{{ data.username }}"/>&quot;</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Shown_once_copy_it_now" datatype="html">
+        <source>Shown once — copy it now, it cannot be retrieved later.</source>
+        <target>Affiché une seule fois : copiez-le maintenant, il ne pourra pas être récupéré.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
+          <context context-type="linenumber">42,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Copy" datatype="html">
+        <source>Copy</source>
+        <target>Copier</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
+          <context context-type="linenumber">46</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
+          <context context-type="linenumber">69,70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Done" datatype="html">
+        <source>Done</source>
+        <target>Terminé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
+          <context context-type="linenumber">51,52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Description" datatype="html">
+        <source>Description</source>
+        <target>Description</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-dialog.component.ts</context>
+          <context context-type="linenumber">45,47</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit_role" datatype="html">
+        <source>Edit role</source>
+        <target>Modifier le rôle</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
+          <context context-type="linenumber">135,136</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
+          <context context-type="linenumber">137,139</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
+          <context context-type="linenumber">212</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Section_general" datatype="html">
+        <source>General</source>
+        <target>Général</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">11,12</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Members" datatype="html">
+        <source>Members</source>
+        <target>Membres</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Close" datatype="html">
+        <source>Close</source>
+        <target>Fermer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">58</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Working_hours" datatype="html">
+        <source>Working hours</source>
+        <target>Heures ouvrées</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">70,71</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenants-page/tenants-page.component.html</context>
+          <context context-type="linenumber">27,28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tenant_NAME_saved" datatype="html">
+        <source>Tenant &quot;<x id="NAME" equiv-text="saved.name"/>&quot; saved</source>
+        <target>Tenant &quot;<x id="NAME" equiv-text="saved.name"/>&quot; enregistré</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.ts</context>
+          <context context-type="linenumber">154</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Session_TTL" datatype="html">
+        <source>Session TTL</source>
+        <target>TTL de session</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenants-page/tenants-page.component.html</context>
+          <context context-type="linenumber">38,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_tenant" datatype="html">
+        <source>Delete tenant</source>
+        <target>Supprimer le tenant</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenants-page/tenants-page.component.html</context>
+          <context context-type="linenumber">74,75</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenants-page/tenants-page.component.html</context>
+          <context context-type="linenumber">76,78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tenant_name" datatype="html">
+        <source>Tenant name</source>
+        <target>Nom du tenant</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenants-page/tenants-page.component.ts</context>
+          <context context-type="linenumber">95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_tenant_NAME" datatype="html">
+        <source>Delete tenant &quot;<x id="NAME" equiv-text="t.name"/>&quot;?</source>
+        <target>Supprimer le tenant &quot;<x id="NAME" equiv-text="t.name"/>&quot; ?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenants-page/tenants-page.component.ts</context>
+          <context context-type="linenumber">112</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="New_user" datatype="html">
+        <source>New user</source>
+        <target>Nouvel utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
+          <context context-type="linenumber">30,31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
+          <context context-type="linenumber">7,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Username" datatype="html">
+        <source>Username</source>
+        <target>Identifiant</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Full_name" datatype="html">
+        <source>Full name</source>
+        <target>Nom complet</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
+          <context context-type="linenumber">37,38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Email" datatype="html">
+        <source>Email</source>
+        <target>E-mail</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Capabilities" datatype="html">
+        <source>Capabilities</source>
+        <target>Capacités</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
+          <context context-type="linenumber">28,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tooltip_root" datatype="html">
+        <source>Administers the whole gateway: routes, users, tenants, settings</source>
+        <target>Administre toute la gateway : routes, utilisateurs, tenants, paramètres</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tooltip_dev" datatype="html">
+        <source>Unlocks the developer tooling: dev keys, service substitution (plug)</source>
+        <target>Débloque l'outillage développeur : clés de dev, substitution de service (plug)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">26,27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tooltip_tester" datatype="html">
+        <source>Can opt into a developer&apos;s variant of the application</source>
+        <target>Peut opter pour la variante de l'application d'un développeur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">32,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tooltip_tenant_creator" datatype="html">
+        <source>May create tenants, and owns the tenants they create</source>
+        <target>Peut créer des tenants, et possède les tenants qu'il crée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">38,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="tenant_creator" datatype="html">
+        <source>tenant creator</source>
+        <target>créateur de tenants</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Reset_password" datatype="html">
+        <source>Reset password</source>
+        <target>Réinitialiser le mot de passe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">63,64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_user_USERNAME" datatype="html">
+        <source>Delete user &quot;<x id="USERNAME" equiv-text="u.username"/>&quot;?</source>
+        <target>Supprimer l&apos;utilisateur &quot;<x id="USERNAME" equiv-text="u.username"/>&quot; ?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.ts</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Header_name" datatype="html">
+        <source>Header name</source>
+        <target>Nom de l'en-tête</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">37,38</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">70,71</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/header-predicate.component.ts</context>
+          <context context-type="linenumber">25,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Value" datatype="html">
+        <source>Value</source>
+        <target>Valeur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">96,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Only_if_absent" datatype="html">
+        <source>Only if absent</source>
+        <target>Seulement si absent</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">46,47</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Query_param" datatype="html">
+        <source>Query parameter</source>
+        <target>Paramètre de requête</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">92,93</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">119,120</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/query-predicate.component.ts</context>
+          <context context-type="linenumber">25,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Segments_to_strip" datatype="html">
+        <source>Segments to strip</source>
+        <target>Segments à retirer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">141,142</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Prefix" datatype="html">
+        <source>Prefix</source>
+        <target>Préfixe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">163,164</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Pattern" datatype="html">
+        <source>Pattern</source>
+        <target>Motif</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">185,186</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Replacement" datatype="html">
+        <source>Replacement</source>
+        <target>Remplacement</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">189,190</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Status_code" datatype="html">
+        <source>Status code</source>
+        <target>Code de statut</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">240,241</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">266,267</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Location" datatype="html">
+        <source>Location</source>
+        <target>Location</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">262,263</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Move_up" datatype="html">
+        <source>Move up</source>
+        <target>Monter</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-item.component.ts</context>
+          <context context-type="linenumber">101,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Move_down" datatype="html">
+        <source>Move down</source>
+        <target>Descendre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-item.component.ts</context>
+          <context context-type="linenumber">104,105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Add" datatype="html">
+        <source>Add</source>
+        <target>Ajouter</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/matcher-rows.component.ts</context>
+          <context context-type="linenumber">58</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/string-list.component.ts</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group" datatype="html">
+        <source>Group</source>
+        <target>Groupe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/weight-predicate.component.ts</context>
+          <context context-type="linenumber">37,38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Weight" datatype="html">
+        <source>Weight</source>
+        <target>Poids</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/weight-predicate.component.ts</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Predicates" datatype="html">
+        <source>Predicates</source>
+        <target>Prédicats</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">16,17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Route_NAME_enabled" datatype="html">
+        <source>Route &quot;<x id="NAME" equiv-text="saved.name"/>&quot; enabled</source>
+        <target>Route &quot;<x id="NAME" equiv-text="saved.name"/>&quot; activée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Route_NAME_disabled" datatype="html">
+        <source>Route &quot;<x id="NAME" equiv-text="saved.name"/>&quot; disabled</source>
+        <target>Route &quot;<x id="NAME" equiv-text="saved.name"/>&quot; désactivée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
+          <context context-type="linenumber">83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Disable_route" datatype="html">
+        <source>Disable route</source>
+        <target>Désactiver la route</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
+          <context context-type="linenumber">45,47</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Enable_route" datatype="html">
+        <source>Enable route</source>
+        <target>Activer la route</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
+          <context context-type="linenumber">54,55</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
+          <context context-type="linenumber">56,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_route" datatype="html">
+        <source>Delete route</source>
+        <target>Supprimer la route</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
+          <context context-type="linenumber">67,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Toggle_visibility" datatype="html">
+        <source>Toggle visibility</source>
+        <target>Afficher/masquer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
+          <context context-type="linenumber">56,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Clear" datatype="html">
+        <source>Clear</source>
+        <target>Effacer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
+          <context context-type="linenumber">81,82</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Branding" datatype="html">
+        <source>Branding</source>
+        <target>Marque</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
+          <context context-type="linenumber">2,3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Application_name" datatype="html">
+        <source>Application name</source>
+        <target>Nom de l'application</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tagline" datatype="html">
+        <source>Tagline</source>
+        <target>Slogan</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
+          <context context-type="linenumber">8,9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Drop_or_click_to_replace" datatype="html">
+        <source>Drop or click to replace</source>
+        <target>Déposez ou cliquez pour remplacer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
+          <context context-type="linenumber">22,24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Reset_to_placeholder" datatype="html">
+        <source>Reset to the placeholder</source>
+        <target>Revenir au logo par défaut</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
+          <context context-type="linenumber">28,29</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
+          <context context-type="linenumber">30,32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Drop_your_logo_here_or_click" datatype="html">
+        <source>Drop your logo here — or click</source>
+        <target>Déposez votre logo ici : ou cliquez</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
+          <context context-type="linenumber">40,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Logo_type_unsupported" datatype="html">
+        <source>Use a png, jpeg, webp or svg image</source>
+        <target>Utilisez une image png, jpeg, webp ou svg</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.ts</context>
+          <context context-type="linenumber">52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Logo_too_large" datatype="html">
+        <source>Keep the logo under 200 KiB</source>
+        <target>Gardez le logo sous 200 Kio</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.ts</context>
+          <context context-type="linenumber">59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Token" datatype="html">
+        <source>Token</source>
+        <target>Token</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/palette-editor/palette-editor.component.html</context>
+          <context context-type="linenumber">3,4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Dark" datatype="html">
+        <source>Dark</source>
+        <target>Sombre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/palette-editor/palette-editor.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-preview/theme-preview.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Light" datatype="html">
+        <source>Light</source>
+        <target>Clair</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/palette-editor/palette-editor.component.html</context>
+          <context context-type="linenumber">5,8</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-preview/theme-preview.component.html</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Previous_theme" datatype="html">
+        <source>Previous theme</source>
+        <target>Thème précédent</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-carousel/theme-carousel.component.html</context>
+          <context context-type="linenumber">46,47</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Next_theme" datatype="html">
+        <source>Next theme</source>
+        <target>Thème suivant</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-carousel/theme-carousel.component.html</context>
+          <context context-type="linenumber">70,71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Duplicate" datatype="html">
+        <source>Duplicate</source>
+        <target>Dupliquer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-carousel/theme-carousel.component.html</context>
+          <context context-type="linenumber">79,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Branding_saved" datatype="html">
+        <source>Branding saved</source>
+        <target>Marque enregistrée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.ts</context>
+          <context context-type="linenumber">144</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_this_theme" datatype="html">
+        <source>Delete this theme?</source>
+        <target>Supprimer ce thème ?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.ts</context>
+          <context context-type="linenumber">184</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Working_hours_global_hint" datatype="html">
+        <source>
+            The application-wide access window — every tenant inherits it unless it defines its own.
+          </source>
+        <target>La fenêtre d'accès de toute l'application : chaque tenant en hérite tant qu'il ne définit pas la sienne.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">76,78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Session_TTL_hint" datatype="html">
+        <source>
+        How long a session lives before the user must sign in again.
+      </source>
+        <target>Durée de vie d'une session avant que l'utilisateur ne doive se reconnecter.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">88,90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tags" datatype="html">
+        <source>Tags</source>
+        <target>Tags</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-dialog.component.ts</context>
+          <context context-type="linenumber">69,70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Drop_here_for_top_level" datatype="html">
+        <source>Drop here to make it a top-level role</source>
+        <target>Déposez ici pour en faire un rôle de premier niveau</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
+          <context context-type="linenumber">177,179</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Danger_zone" datatype="html">
+        <source>Danger zone</source>
+        <target>Zone de danger</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">26,27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Transfer_ownership" datatype="html">
+        <source>Transfer ownership</source>
+        <target>Transférer la propriété</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">104,105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Transfer_ownership_hint" datatype="html">
+        <source>
+          A tenant has a single owner. The chosen member becomes it. Ownership is independent of
+          membership, so the previous owner keeps their membership unchanged.
+        </source>
+        <target>Un tenant a un unique propriétaire. Le membre choisi le devient. La propriété est indépendante de l'appartenance : l'ancien propriétaire conserve son adhésion inchangée.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">106,109</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Current_owner" datatype="html">
+        <source>Current owner</source>
+        <target>Propriétaire actuel</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">111,112</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="New_owner" datatype="html">
+        <source>New owner</source>
+        <target>Nouveau propriétaire</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">117,118</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Transfer" datatype="html">
+        <source>
+                  Transfer
+                </source>
+        <target>Transférer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">131,133</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.ts</context>
+          <context context-type="linenumber">199</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Transfer_ownership_to_USERNAME" datatype="html">
+        <source>Transfer ownership to &quot;<x id="USERNAME" equiv-text="grantee.username"/>&quot;?</source>
+        <target>Transférer la propriété à &quot;<x id="USERNAME" equiv-text="grantee.username"/>&quot; ?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.ts</context>
+          <context context-type="linenumber">198</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="USERNAME_is_now_the_owner" datatype="html">
+        <source>&quot;<x id="USERNAME" equiv-text="grantee.username"/>&quot; is now the owner</source>
+        <target>&quot;<x id="USERNAME" equiv-text="grantee.username"/>&quot; est maintenant propriétaire</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.ts</context>
+          <context context-type="linenumber">207</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_this_tenant" datatype="html">
+        <source>Delete this tenant</source>
+        <target>Supprimer ce tenant</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">137,138</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_this_tenant_hint" datatype="html">
+        <source>
+                Removes the tenant, its memberships and its groups. There is no undo.
+              </source>
+        <target>Supprime le tenant, ses adhésions et ses groupes. Aucun retour en arrière possible.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">139,141</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Add_range" datatype="html">
+        <source>Add range</source>
+        <target>Ajouter une plage</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/business-access-form.component.ts</context>
+          <context context-type="linenumber">155,156</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/business-access-form.component.ts</context>
+          <context context-type="linenumber">157,159</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Remove_range" datatype="html">
+        <source>Remove range</source>
+        <target>Supprimer la plage</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/business-access-form.component.ts</context>
+          <context context-type="linenumber">142,143</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/business-access-form.component.ts</context>
+          <context context-type="linenumber">144,146</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Closed" datatype="html">
+        <source>Closed</source>
+        <target>Fermé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/business-access-form.component.ts</context>
+          <context context-type="linenumber">165,166</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Inherited_TZ" datatype="html">
+        <source>Inherited (<x id="TZ" equiv-text="tz"/>)</source>
+        <target>Hérité (<x id="TZ" equiv-text="tz"/>)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/business-access-form.component.ts</context>
+          <context context-type="linenumber">219</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Last_connection" datatype="html">
+        <source>Last connection</source>
+        <target>Dernière connexion</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">80,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Reset_password_USERNAME" datatype="html">
+        <source>Reset password for &quot;<x id="USERNAME" equiv-text="u.username"/>&quot;?</source>
+        <target>Réinitialiser le mot de passe de &quot;<x id="USERNAME" equiv-text="u.username"/>&quot; ?</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
+          <context context-type="linenumber">207</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Owner_tooltip" datatype="html">
+        <source>Owns the tenant — transfer it in the Danger zone</source>
+        <target>Propriétaire du tenant : transfert via la zone de danger</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">31,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Admin_badge_tooltip" datatype="html">
+        <source>Administers this tenant: groups, members, hours</source>
+        <target>Administre ce tenant : groupes, membres, horaires</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">41,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="owner" datatype="html">
+        <source>owner</source>
+        <target>owner</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin" datatype="html">
+        <source>admin</source>
+        <target>admin</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="All" datatype="html">
+        <source>All</source>
+        <target>Tous</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Search" datatype="html">
+        <source>Search</source>
+        <target>Rechercher</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">48,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Languages_hint" datatype="html">
+        <source>
+            The languages the sign-in and flow pages offer — match them with your application&apos;s.
+          </source>
+        <target>Les locales que votre APPLICATION supporte (codes ISO comme fr ou fr-FR). Elles alimentent les pages de connexion et le bouton utilisateur, et le choix de l'utilisateur connecté suit chaque requête proxifiée.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">95,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Swagger_URL" datatype="html">
+        <source>Swagger URL</source>
+        <target>URL du Swagger</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">83,84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="User_button" datatype="html">
+        <source>User button</source>
+        <target>Bouton utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">93,94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="User_button_hint" datatype="html">
+        <source>
+          Injects the meerkat-user-button web component into the pages: profile, tenant switch,
+          languages, color scheme, sign out.
+        </source>
+        <target>Injecte le web component meerkat-user-button dans les pages : profil, changement de tenant, langues, apparence, déconnexion.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">95,98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Inject_the_user_button" datatype="html">
+        <source>Inject the user button</source>
+        <target>Injecter le bouton utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">99,100</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Height_px" datatype="html">
+        <source>Height (px)</source>
+        <target>Hauteur (px)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">104,105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Position" datatype="html">
+        <source>Position</source>
+        <target>Position</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Offer_scheme_switch" datatype="html">
+        <source>
+              Offer the color-scheme switch (reflected on the page for the application)
+            </source>
+        <target>Proposer le choix d'apparence (reflété sur la page pour l'application)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">130,132</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Color_scheme" datatype="html">
+        <source>Color scheme</source>
+        <target>Apparence</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">148</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">155,156</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Scheme_section_hint" datatype="html">
+        <source>
+          Does the application support a color scheme? The choice is always reflected on the CSS
+          color-scheme and a data-meerkat-scheme attribute; pick the application&apos;s own mechanism
+          on top if it has one.
+        </source>
+        <target>L'application supporte-t-elle un color-scheme ? Le choix est toujours reflété via le color-scheme CSS et l'attribut data-meerkat-scheme ; ajoutez le mécanisme propre à l'application si elle en a un.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">157,162</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Mechanism" datatype="html">
+        <source>Mechanism</source>
+        <target>Mécanisme</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">171,172</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Scheme_none" datatype="html">
+        <source>color-scheme only</source>
+        <target>color-scheme seul</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">173,174</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Scheme_attribute" datatype="html">
+        <source>attribute</source>
+        <target>attribut</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">174,175</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Scheme_class" datatype="html">
+        <source>class</source>
+        <target>classe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">175,176</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Attribute" datatype="html">
+        <source>Attribute</source>
+        <target>Attribut</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">180,181</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Light_value" datatype="html">
+        <source>Light value</source>
+        <target>Valeur claire</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">186,187</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Dark_value" datatype="html">
+        <source>Dark value</source>
+        <target>Valeur sombre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">190,191</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Custom_CSS" datatype="html">
+        <source>Custom CSS</source>
+        <target>CSS personnalisé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/css-dialog.component.ts</context>
+          <context context-type="linenumber">36,37</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">204,205</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Custom_CSS_hint" datatype="html">
+        <source>
+          A style block injected into the pages — tweak the application&apos;s look from the gateway.
+        </source>
+        <target>Un bloc de style injecté dans les pages : ajustez l'apparence de l'application depuis la gateway.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">206,208</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Add_CSS" datatype="html">
+        <source>Add CSS</source>
+        <target>Ajouter du CSS</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">214,215</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit_CSS" datatype="html">
+        <source>Edit CSS</source>
+        <target>Modifier le CSS</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">212,213</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="N_lines" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ n }}"/> lines</source>
+        <target><x id="INTERPOLATION" equiv-text="{{ n }}"/> lignes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">218,219</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="User_info" datatype="html">
+        <source>User info</source>
+        <target>Infos utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">231,232</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="User_info_hint" datatype="html">
+        <source>
+          Exposes the signed-in user (username, fullname, email, tenant) to the page — as prefixed
+          body attributes or meta tags.
+        </source>
+        <target>Expose les informations utilisateur sélectionnées à la PAGE, en attributs sur la balise de votre choix ou en balises meta. Pour envoyer l'utilisateur au service lui-même, utilisez la section Identity : les deux s'appliquent en même temps.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">233,236</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Inject_user_info" datatype="html">
+        <source>Inject the user info</source>
+        <target>Injecter les infos utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">238,239</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Roles_section_hint" datatype="html">
+        <source>
+          Puts the user&apos;s effective roles on the page&apos;s body — as classes or as one attribute —
+          so the application can gate elements on roles with pure CSS.
+        </source>
+        <target>Pose les rôles effectifs de l'utilisateur sur la page : classes ou attribut personnalisé sur la balise de votre choix, ou balise meta, pour conditionner des éléments par rôle en pur CSS.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">199,203</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Shape" datatype="html">
+        <source>Shape</source>
+        <target>Forme</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">123,124</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rounded" datatype="html">
+        <source>Rounded</source>
+        <target>Arrondi</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">125,126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Square" datatype="html">
+        <source>Square</source>
+        <target>Carré</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">126,127</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Hidden" datatype="html">
+        <source>Hidden</source>
+        <target>Masqué</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">132,133</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Before_the_avatar" datatype="html">
+        <source>Before the avatar</source>
+        <target>Avant l'avatar</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">133,134</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="After_the_avatar" datatype="html">
+        <source>After the avatar</source>
+        <target>Après l'avatar</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">134,135</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Upstream_ignored_terminal" datatype="html">
+        <source>Ignored: a redirect filter answers this route</source>
+        <target>Ignoré : une redirection répond à cette route</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">60,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Custom_JavaScript" datatype="html">
+        <source>Custom JavaScript</source>
+        <target>JavaScript personnalisé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/code-dialog.component.ts</context>
+          <context context-type="linenumber">42,44</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">327,328</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Section_user_button" datatype="html">
+        <source>User button</source>
+        <target>Bouton utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">32,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Section_user_info" datatype="html">
+        <source>User info</source>
+        <target>Infos utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Section_injections" datatype="html">
+        <source>Injections</source>
+        <target>Injections</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="A_meta_tag" datatype="html">
+        <source>a meta tag</source>
+        <target>une balise meta</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">251,252</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="As" datatype="html">
+        <source>As</source>
+        <target>En tant que</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">256,257</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Custom_JS_hint" datatype="html">
+        <source>
+          A script injected into the pages, right after the head opens.
+        </source>
+        <target>Un script injecté dans les pages, juste après l'ouverture du head.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">329,331</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit_JavaScript" datatype="html">
+        <source>Edit JavaScript</source>
+        <target>Modifier le JavaScript</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">335,336</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Add_JavaScript" datatype="html">
+        <source>Add JavaScript</source>
+        <target>Ajouter du JavaScript</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">337,338</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Section_identity" datatype="html">
+        <source>Identity</source>
+        <target>Identité</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">27,28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Section_locales" datatype="html">
+        <source>Locales</source>
+        <target>Locales</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Identity_section_hint" datatype="html">
+        <source>
+          Sends the signed-in user to the service behind this route. Headers today, JWT and
+          signed JWT later; Remote-User always carries the username, the cross-server standard.
+        </source>
+        <target>Envoie l'utilisateur connecté au service derrière cette route ; Remote-User porte toujours le username, le standard inter-serveurs.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">83,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Forward_the_signed_in_user" datatype="html">
+        <source>Forward the signed-in user</source>
+        <target>Transmettre l'utilisateur connecté</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">87,89</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Identity_headers_hint" datatype="html">
+        <source>
+            One header per field; empty uses the field name itself.
+          </source>
+        <target>Le nom sous lequel chaque information voyage : les noms de headers aujourd'hui, les claims JWT plus tard.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">91,93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Locales" datatype="html">
+        <source>Locales</source>
+        <target>Locales</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">254,255</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Locales_section_hint" datatype="html">
+        <source>
+          The languages the application behind this route supports: they fill the user button&apos;s
+          language submenu, and the choice travels to the application on every request.
+        </source>
+        <target>L'offre de locales de l'application, gérée dans Application General. Décochez celles que cette UI ne supporte pas : elles quittent le menu du bouton et la transmission.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">256,260</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Forwarding" datatype="html">
+        <source>Forwarding</source>
+        <target>Transmission</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">293,294</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Locales_forwarding_hint" datatype="html">
+        <source>
+          How the resolved locale reaches the application on every request.
+        </source>
+        <target>Accept-Language est TOUJOURS envoyé, réécrit avec le choix de l'utilisateur en première position. Les mécanismes additionnels s'y ajoutent, cumulables.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">295,298</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Path_prefix" datatype="html">
+        <source>Path prefix</source>
+        <target>Préfixe de chemin</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">302,303</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Custom_header" datatype="html">
+        <source>Custom header</source>
+        <target>Header personnalisé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">303,304</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="CODE_is_not_a_valid_ISO_code" datatype="html">
+        <source>&quot;<x id="CODE" equiv-text="raw"/>&quot; is not a valid ISO code</source>
+        <target>« <x id="CODE" equiv-text="raw"/> » n'est pas un code ISO valide</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
+          <context context-type="linenumber">178</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="CODE_is_already_listed" datatype="html">
+        <source>&quot;<x id="CODE" equiv-text="canon"/>&quot; is already listed</source>
+        <target>« <x id="CODE" equiv-text="canon"/> » est déjà dans la liste</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Query_parameter" datatype="html">
+        <source>Query parameter</source>
+        <target>Paramètre de requête</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">321,322</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Parameter_name" datatype="html">
+        <source>Parameter name</source>
+        <target>Nom du paramètre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">340,341</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="UI_serves_pages_in_a_browser" datatype="html">
+        <source>UI (serves pages in a browser)</source>
+        <target>UI (sert des pages dans un navigateur)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Swagger_hint" datatype="html">
+        <source>The OpenAPI spec the service exposes, for endpoint-level security later</source>
+        <target>La spec OpenAPI que le service expose, pour la sécurité par endpoint plus tard</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tag_name" datatype="html">
+        <source>Tag name</source>
+        <target>Nom de la balise</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">360,361</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">422,423</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Attribute_name" datatype="html">
+        <source>Attribute name</source>
+        <target>Nom de l'attribut</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">377,378</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Meta_name" datatype="html">
+        <source>Meta name</source>
+        <target>Nom de la meta</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">388,389</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Inject_the_users_roles" datatype="html">
+        <source>Inject the user&apos;s roles</source>
+        <target>Injecter les rôles de l'utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">346,347</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Methods" datatype="html">
+        <source>Methods</source>
+        <target>Méthodes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
+          <context context-type="linenumber">59,60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Value_regexp" datatype="html">
+        <source>Value (regexp)</source>
+        <target>Valeur (regexp)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
+          <context context-type="linenumber">90,91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="empty_presence_only" datatype="html">
+        <source>empty = presence only</source>
+        <target>vide = présence seule</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
+          <context context-type="linenumber">94,96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Trust_first_X_Forwarded_For" datatype="html">
+        <source>
+          Trust the first X-Forwarded-For entry (only behind a trusted proxy)
+        </source>
+        <target>Faire confiance à la première entrée X-Forwarded-For (seulement derrière un proxy de confiance)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
+          <context context-type="linenumber">121,124</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="From_RFC_3339" datatype="html">
+        <source>From (RFC 3339)</source>
+        <target>Début (RFC 3339)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
+          <context context-type="linenumber">148,149</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="To_RFC_3339" datatype="html">
+        <source>To (RFC 3339)</source>
+        <target>Fin (RFC 3339)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
+          <context context-type="linenumber">152,153</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Datetime_RFC_3339" datatype="html">
+        <source>Datetime (RFC 3339)</source>
+        <target>Date-heure (RFC 3339)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
+          <context context-type="linenumber">157,158</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_predicates_yet_the_route_matches_nothing" datatype="html">
+        <source>
+        No predicates yet: the route matches nothing.
+      </source>
+        <target>Aucun prédicat : la route ne matche rien.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicates.component.ts</context>
+          <context context-type="linenumber">65,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Add_predicate" datatype="html">
+        <source>Add predicate</source>
+        <target>Ajouter un prédicat</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicates.component.ts</context>
+          <context context-type="linenumber">71,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Match_the_request_path" datatype="html">
+        <source>Match the request path; several patterns act as a logical OR</source>
+        <target>Matche le chemin de la requête ; plusieurs motifs = OU logique</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Match_the_Host_header" datatype="html">
+        <source>Match the Host header (*.suffix wildcards)</source>
+        <target>Matche l'en-tête Host (jokers *.suffixe)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Match_the_HTTP_method" datatype="html">
+        <source>Match the HTTP method</source>
+        <target>Matche la méthode HTTP</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_A_header_is_present" datatype="html">
+        <source>A header is present, optionally matching a regexp</source>
+        <target>Un en-tête est présent, avec regexp optionnelle</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_A_cookie_is_present" datatype="html">
+        <source>A cookie is present, optionally matching a regexp</source>
+        <target>Un cookie est présent, avec regexp optionnelle</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_A_query_parameter_is_present" datatype="html">
+        <source>A query parameter is present, optionally matching a regexp</source>
+        <target>Un paramètre de requête est présent, avec regexp optionnelle</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_The_client_address_is_in_CIDR" datatype="html">
+        <source>The client address is in CIDR ranges</source>
+        <target>L'adresse du client est dans des plages CIDR</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_The_last_XFF_address_is_in_CIDR" datatype="html">
+        <source>The last X-Forwarded-For address is in CIDR ranges</source>
+        <target>La dernière adresse X-Forwarded-For est dans des plages CIDR</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Requests_made_after" datatype="html">
+        <source>Requests made after a datetime</source>
+        <target>Les requêtes après une date-heure</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Requests_made_before" datatype="html">
+        <source>Requests made before a datetime</source>
+        <target>Les requêtes avant une date-heure</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Requests_made_between" datatype="html">
+        <source>Requests made between two datetimes</source>
+        <target>Les requêtes entre deux date-heures</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Split_traffic_canary" datatype="html">
+        <source>Split traffic between the routes of a group (canary)</source>
+        <target>Répartit le trafic entre les routes d'un groupe (canary)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Remove_first_path_segments" datatype="html">
+        <source>Remove the first N path segments</source>
+        <target>Retire les N premiers segments du chemin</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Prepend_a_prefix" datatype="html">
+        <source>Prepend a prefix to the path</source>
+        <target>Ajoute un préfixe au chemin</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Rewrite_the_path_regexp" datatype="html">
+        <source>Rewrite the path with a regexp</source>
+        <target>Réécrit le chemin avec une regexp</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Set_a_request_header" datatype="html">
+        <source>Set a request header, replacing the client value</source>
+        <target>Pose un en-tête de requête, remplaçant la valeur du client</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Add_a_request_header" datatype="html">
+        <source>Add a request header value</source>
+        <target>Ajoute une valeur d'en-tête de requête</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Remove_a_request_header" datatype="html">
+        <source>Remove a request header</source>
+        <target>Retire un en-tête de requête</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Set_a_query_parameter" datatype="html">
+        <source>Set a query parameter</source>
+        <target>Pose un paramètre de requête</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Remove_a_query_parameter" datatype="html">
+        <source>Remove a query parameter</source>
+        <target>Retire un paramètre de requête</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Set_a_response_header" datatype="html">
+        <source>Set a response header, replacing the upstream value</source>
+        <target>Pose un en-tête de réponse, remplaçant la valeur du service</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Add_a_response_header" datatype="html">
+        <source>Add a response header value</source>
+        <target>Ajoute une valeur d'en-tête de réponse</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Remove_a_response_header" datatype="html">
+        <source>Remove a response header</source>
+        <target>Retire un en-tête de réponse</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Force_the_response_status" datatype="html">
+        <source>Force the response status code</source>
+        <target>Force le code de statut de la réponse</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Answer_with_a_redirect" datatype="html">
+        <source>Answer with a redirect instead of proxying</source>
+        <target>Répond par une redirection au lieu de proxifier</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incoming" datatype="html">
+        <source>incoming</source>
+        <target>entrante</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-item.component.ts</context>
+          <context context-type="linenumber">154</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="outgoing" datatype="html">
+        <source>outgoing</source>
+        <target>sortante</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-item.component.ts</context>
+          <context context-type="linenumber">156</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="terminal" datatype="html">
+        <source>terminal</source>
+        <target>terminale</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-item.component.ts</context>
+          <context context-type="linenumber">158</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_modifiers_yet" datatype="html">
+        <source>No modifiers yet.</source>
+        <target>Aucune modification.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
+          <context context-type="linenumber">101,104</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Add_modifier" datatype="html">
+        <source>Add modifier</source>
+        <target>Ajouter une modification</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
+          <context context-type="linenumber">106,107</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Modifiers" datatype="html">
+        <source>Modifiers</source>
+        <target>Modifications</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">22,23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="doc_Answer_503_maintenance" datatype="html">
+        <source>Answer 503 with a gateway maintenance page</source>
+        <target>Répond 503 avec une page de maintenance servie par la gateway</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_map_request_header" datatype="html">
+        <source>Copy a request header into another name</source>
+        <target>Copie un en-tête de requête sous un autre nom</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_rewrite_request_param" datatype="html">
+        <source>Rewrite a query parameter with a regexp</source>
+        <target>Réécrit un paramètre de requête avec une regexp</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_set_request_host" datatype="html">
+        <source>Force the Host header sent to the service</source>
+        <target>Force l'en-tête Host envoyé au service</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_preserve_host" datatype="html">
+        <source>Send the client Host header instead of the upstream one</source>
+        <target>Envoie le Host du client au lieu de celui de l'upstream</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_request_size" datatype="html">
+        <source>Refuse requests bigger than a limit</source>
+        <target>Refuse les requêtes au-delà d'une taille limite</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_circuit_breaker" datatype="html">
+        <source>Stop calling a failing service, with a fallback</source>
+        <target>Cesse d'appeler un service défaillant, avec un repli</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_retry" datatype="html">
+        <source>Retry idempotent requests on upstream errors</source>
+        <target>Rejoue les requêtes idempotentes sur erreur upstream</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_rate_limiter" datatype="html">
+        <source>Throttle callers by key</source>
+        <target>Limite le débit des appelants par clé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_dedupe_response_header" datatype="html">
+        <source>Drop duplicate response header values</source>
+        <target>Supprime les valeurs d'en-tête de réponse en double</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_rewrite_response_header" datatype="html">
+        <source>Rewrite a response header with a regexp</source>
+        <target>Réécrit un en-tête de réponse avec une regexp</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_rewrite_location" datatype="html">
+        <source>Fix the Location header of upstream redirects</source>
+        <target>Corrige l'en-tête Location des redirections upstream</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_secure_headers" datatype="html">
+        <source>Add the classic security headers</source>
+        <target>Ajoute les en-têtes de sécurité classiques</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_response_cache" datatype="html">
+        <source>Cache upstream responses locally</source>
+        <target>Met en cache local les réponses upstream</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planned_respond" datatype="html">
+        <source>Answer a fixed status and body</source>
+        <target>Répond un statut et un corps fixes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/brick-docs.ts</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Planned_not_available_yet" datatype="html">
+        <source>Planned (not available yet)</source>
+        <target>Prévu (pas encore disponible)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
+          <context context-type="linenumber">127,128</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Incoming_modifiers_intro" datatype="html">
+        <source>Applied in order to the request before it reaches the service.</source>
+        <target>Appliquées dans l'ordre à la requête avant qu'elle atteigne le service.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
+          <context context-type="linenumber">196</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Outgoing_modifiers_intro" datatype="html">
+        <source>Applied in order to the response before it reaches the client.</source>
+        <target>Appliquées dans l'ordre à la réponse avant qu'elle atteigne le client.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
+          <context context-type="linenumber">198</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Terminal_modifiers_intro" datatype="html">
+        <source>Answers instead of proxying (redirect, maintenance): at most one, not combined with other modifiers.</source>
+        <target>Répond à la place du service (redirection, maintenance) : au plus une, non combinable avec d'autres modifications.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
+          <context context-type="linenumber">200</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_terminal_the_route_proxies" datatype="html">
+        <source>None: the route proxies to its upstream.</source>
+        <target>Aucune : la route proxifie vers son upstream.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
+          <context context-type="linenumber">206</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Incoming" datatype="html">
+        <source>Incoming</source>
+        <target>Entrantes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">23,24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Outgoing" datatype="html">
+        <source>Outgoing</source>
+        <target>Sortantes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">29,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Redirect" datatype="html">
+        <source>Redirect</source>
+        <target>Redirect</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">35,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Message" datatype="html">
+        <source>Message</source>
+        <target>Message</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">265,266</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Back_soon" datatype="html">
+        <source>Back soon</source>
+        <target>De retour bientôt</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">269,270</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Extra_mechanisms" datatype="html">
+        <source>Extra mechanisms</source>
+        <target>Mécanismes additionnels</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">281,282</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Required_role" datatype="html">
+        <source>Required role</source>
+        <target>Rôle requis</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">95,96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="None" datatype="html">
+        <source>None</source>
+        <target>Aucun</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">97,98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Required_role_hint" datatype="html">
+        <source>Only sessions holding this effective role pass; implies Authenticated</source>
+        <target>Seules les sessions portant ce rôle effectif passent ; implique Authentifié</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">102,103</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Horizontal_gap_px" datatype="html">
+        <source>Horizontal gap (px)</source>
+        <target>Écart horizontal (px)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">182,183</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Vertical_gap_px" datatype="html">
+        <source>Vertical gap (px)</source>
+        <target>Écart vertical (px)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">193,194</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Add_a_locale" datatype="html">
+        <source>Add a locale</source>
+        <target>Ajouter une locale</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">141,142</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="An_attribute_on_a_tag" datatype="html">
+        <source>an attribute on a tag</source>
+        <target>un attribut sur une balise</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">367,368</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Classes_on_a_tag" datatype="html">
+        <source>classes on a tag</source>
+        <target>des classes sur une balise</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">368,369</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Attributes_on_a_tag" datatype="html">
+        <source>attributes on a tag</source>
+        <target>des attributs sur une balise</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">424,425</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Headers" datatype="html">
+        <source>Headers</source>
+        <target>Headers</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">130,131</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="JWT_planned" datatype="html">
+        <source>JWT (planned)</source>
+        <target>JWT (prévu)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">131,132</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Signed_JWT_planned" datatype="html">
+        <source>Signed JWT (planned)</source>
+        <target>JWT signé (prévu)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">132,133</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Built_in_pages" datatype="html">
+        <source>Built-in pages</source>
+        <target>Pages intégrées</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">191,193</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.html</context>
+          <context context-type="linenumber">2,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Languages" datatype="html">
+        <source>Languages</source>
+        <target>Langues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.html</context>
+          <context context-type="linenumber">12,13</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.html</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Builtin_languages_hint" datatype="html">
+        <source>
+          The languages these built-in pages speak (sign-in, flows, profile). Meerkat provides
+          the translations; this only narrows the offer, independently of the application&apos;s
+          locales.
+        </source>
+        <target>Les langues que parlent ces pages intégrées (connexion, parcours, profil). Meerkat fournit les traductions ; ceci ne fait que restreindre l'offre, indépendamment des locales de l'application.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.html</context>
+          <context context-type="linenumber">14,18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Sign_in_history" datatype="html">
+        <source>Sign-in history</source>
+        <target>Historique de connexions</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/login-history-dialog.component.ts</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">91,92</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">93,95</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_sign_in_recorded_yet" datatype="html">
+        <source>No sign-in recorded yet.</source>
+        <target>Aucune connexion enregistrée pour l’instant.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/login-history.component.ts</context>
+          <context context-type="linenumber">80,83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Method_passkey" datatype="html">
+        <source>passkey</source>
+        <target>passkey</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/login-history.component.ts</context>
+          <context context-type="linenumber">112</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Method_password_code" datatype="html">
+        <source>password + code</source>
+        <target>mot de passe + code</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/login-history.component.ts</context>
+          <context context-type="linenumber">114</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Method_password" datatype="html">
+        <source>password</source>
+        <target>mot de passe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/login-history.component.ts</context>
+          <context context-type="linenumber">116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Passkeys" datatype="html">
+        <source>Passkeys</source>
+        <target>Passkeys</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">91,92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Passkeys_global_hint" datatype="html">
+        <source>
+            Let users register passkeys and sign in with them instead of the password and second factor.
+          </source>
+        <target>Permettre aux utilisateurs d’enregistrer des passkeys et de se connecter avec, à la place du mot de passe et du second facteur.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">93,95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Allow_passkeys" datatype="html">
+        <source>Allow passkeys</source>
+        <target>Autoriser les passkeys</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">96,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="gateway_admin" datatype="html">
+        <source>gateway admin</source>
+        <target>admin gateway</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
+          <context context-type="linenumber">108</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="app_admin" datatype="html">
+        <source>app admin</source>
+        <target>admin appli</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
+          <context context-type="linenumber">113</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tooltip_gateway_admin" datatype="html">
+        <source>Administers the routing plane: routes and the built-in pages</source>
+        <target>Administre le plan de routage : les routes et les pages intégrées</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
+          <context context-type="linenumber">109</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tooltip_app_admin" datatype="html">
+        <source>Administers the application identity: users, roles, settings</source>
+        <target>Administre l’identité de l’application : utilisateurs, rôles, réglages</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
+          <context context-type="linenumber">114</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Email_SMTP" datatype="html">
+        <source>Email (SMTP)</source>
+        <target>E-mail (SMTP)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">203,204</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_hint" datatype="html">
+        <source>
+            Outbound email: account confirmations and administrator notifications. Save, then send a test.
+          </source>
+        <target>E-mails sortants : confirmations de compte et notifications aux administrateurs. Enregistrez, puis envoyez un test.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">205,207</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_host" datatype="html">
+        <source>Host</source>
+        <target>Hôte</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">209,210</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_port" datatype="html">
+        <source>Port</source>
+        <target>Port</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">213,214</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_security" datatype="html">
+        <source>Security</source>
+        <target>Sécurité</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">217,218</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_username" datatype="html">
+        <source>Username</source>
+        <target>Identifiant</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">225,226</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_password" datatype="html">
+        <source>Password</source>
+        <target>Mot de passe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">229,230</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_from" datatype="html">
+        <source>From</source>
+        <target>Expéditeur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">240,241</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Test_recipient" datatype="html">
+        <source>Test recipient</source>
+        <target>Destinataire du test</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">246,247</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Your_account_email" datatype="html">
+        <source>your account email</source>
+        <target>l’e-mail de votre compte</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">247,248</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Save_and_send_test" datatype="html">
+        <source>Save and send a test</source>
+        <target>Enregistrer et envoyer un test</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">251,252</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Test_email_sent_to_ADDR" datatype="html">
+        <source>Test email sent to <x id="ADDR" equiv-text="sent"/></source>
+        <target>E-mail de test envoyé à <x id="ADDR" equiv-text="sent"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">451</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Self_registration" datatype="html">
+        <source>Self-registration</source>
+        <target>Auto-inscription</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">91,92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Self_registration_hint" datatype="html">
+        <source>
+            Let visitors create their own account on the sign-in page. The address is confirmed by
+            email, administrators are notified, and the account waits until someone grants it access.
+            Requires a configured SMTP server (Application, General).
+          </source>
+        <target>Permettre aux visiteurs de créer leur compte depuis la page de connexion. L’adresse est confirmée par e-mail, les administrateurs sont prévenus, et le compte attend qu’on lui accorde des accès. Nécessite un serveur SMTP configuré (Application, General).</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">93,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Allow_self_registration" datatype="html">
+        <source>Allow self-registration (local accounts)</source>
+        <target>Autoriser l’auto-inscription (comptes locaux)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">98,99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Require_captcha" datatype="html">
+        <source>Require the anti-robot check (built-in captcha)</source>
+        <target>Exiger la vérification anti-robot (captcha intégré)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">103,104</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_mode" datatype="html">
+        <source>Group mode</source>
+        <target>Mode des groupes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">69,70</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">75,76</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">91,92</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">98,99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_mode_hint" datatype="html">
+        <source>
+            How a member&apos;s groups combine: cumulative merges the roles of every assigned group;
+            exclusive makes the user pick ONE group at sign-in (and again after each tenant switch).
+            Each tenant may override this.
+          </source>
+        <target>Comment les groupes d'un membre se combinent : le cumulatif fusionne les rôles de tous les groupes assignés ; l'exclusif fait choisir UN groupe à la connexion (et à chaque changement de tenant). Chaque tenant peut surcharger ce réglage.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">93,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Cumulative" datatype="html">
+        <source>Cumulative</source>
+        <target>Cumulatif</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">78,79</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">100,101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Exclusive" datatype="html">
+        <source>Exclusive</source>
+        <target>Exclusif</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">79,80</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">101,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tenant_group_mode_hint" datatype="html">
+        <source>
+      Cumulative merges the roles of every assigned group; exclusive makes members pick ONE group
+      when they enter this tenant.
+    </source>
+        <target>Le cumulatif fusionne les rôles de tous les groupes assignés ; l'exclusif fait choisir UN groupe aux membres à l'entrée dans ce tenant.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">71,74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Inherited_global" datatype="html">
+        <source>Inherited (global setting)</source>
+        <target>Hérité (réglage global)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">77,78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rate_limiting" datatype="html">
+        <source>Rate limiting</source>
+        <target>Limitation de débit</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">116,117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rate_limiting_hint" datatype="html">
+        <source>
+            Throttles brute-force attempts: failed sign-ins per address and account within the
+            window, and wrong two-factor codes per account. Zero disables a limiter.
+          </source>
+        <target>Freine les attaques par force brute : échecs de connexion par adresse et par compte dans la fenêtre, et mauvais codes de double authentification par compte. Zéro désactive un limiteur.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">118,121</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Failed_sign_ins" datatype="html">
+        <source>Failed sign-ins</source>
+        <target>Échecs de connexion</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">123,124</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Wrong_codes" datatype="html">
+        <source>Wrong 2FA codes</source>
+        <target>Mauvais codes 2FA</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">127,128</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Within" datatype="html">
+        <source>Within</source>
+        <target>Sur une fenêtre de</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">131,132</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="API_tokens" datatype="html">
+        <source>API tokens</source>
+        <target>Jetons API</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">170,171</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="API_tokens_hint" datatype="html">
+        <source>
+            Let users mint personal access tokens (Profile, Security) to call the API routes behind
+            the gateway without a browser session. A token acts with the user&apos;s context at creation.
+          </source>
+        <target>Permettre aux utilisateurs de créer des jetons d'accès personnels (Profil, Sécurité) pour appeler les routes API derrière la gateway sans session navigateur. Un jeton agit avec le contexte de l'utilisateur à sa création.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">172,175</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Allow_API_tokens" datatype="html">
+        <source>Allow personal API tokens</source>
+        <target>Autoriser les jetons API personnels</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">176,177</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Application_languages" datatype="html">
+        <source>Application languages</source>
+        <target>Langues de l'application</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_application_locale_yet" datatype="html">
+        <source>
+              No application locale yet — the flow pages speak English.
+            </source>
+        <target>Aucune locale d'application pour l'instant — les pages du flux sont en anglais.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
+          <context context-type="linenumber">151,156</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Membership" datatype="html">
+        <source>Membership</source>
+        <target>Appartenance</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">25,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="member" datatype="html">
+        <source>member</source>
+        <target>membre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">35,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Member_badge_tooltip" datatype="html">
+        <source>Belongs to this tenant</source>
+        <target>Appartient à ce tenant</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">33,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Created_on" datatype="html">
+        <source>Created on</source>
+        <target>Créé le</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="by" datatype="html">
+        <source>by</source>
+        <target>par</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Owner" datatype="html">
+        <source>Owner</source>
+        <target>Propriétaire</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_owner" datatype="html">
+        <source>no owner</source>
+        <target>sans propriétaire</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">103,105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit_group" datatype="html">
+        <source>Edit group</source>
+        <target>Modifier le groupe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
+          <context context-type="linenumber">258</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit" datatype="html">
+        <source>Edit</source>
+        <target>Modifier</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
+          <context context-type="linenumber">73,74</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">136,137</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Audit" datatype="html">
+        <source>Audit</source>
+        <target>Audit</target>
+      </trans-unit>
+      <trans-unit id="Audit_hint" datatype="html">
+        <source>
+        Every administrative change, with the exact fields that moved and their before and after.
+      </source>
+        <target>Chaque changement administratif, avec les champs exacts qui ont bougé et leur avant/après.</target>
+      </trans-unit>
+      <trans-unit id="Target" datatype="html">
+        <source>Target</source>
+        <target>Cible</target>
+      </trans-unit>
+      <trans-unit id="Period" datatype="html">
+        <source>Period</source>
+        <target>Période</target>
+      </trans-unit>
+      <trans-unit id="Last_24h" datatype="html">
+        <source>Last 24 hours</source>
+        <target>Dernières 24 heures</target>
+      </trans-unit>
+      <trans-unit id="Last_7_days" datatype="html">
+        <source>Last 7 days</source>
+        <target>7 derniers jours</target>
+      </trans-unit>
+      <trans-unit id="Last_30_days" datatype="html">
+        <source>Last 30 days</source>
+        <target>30 derniers jours</target>
+      </trans-unit>
+      <trans-unit id="All_time" datatype="html">
+        <source>All time</source>
+        <target>Tout l'historique</target>
+      </trans-unit>
+      <trans-unit id="No_audit_events" datatype="html">
+        <source>No audit events for this filter.</source>
+        <target>Aucun événement d'audit pour ce filtre.</target>
+      </trans-unit>
+      <trans-unit id="Access_tokens" datatype="html">
+        <source>Access tokens</source>
+        <target>Tokens d'accès</target>
+      </trans-unit>
+      <trans-unit id="Access_tokens_planned" datatype="html">
+        <source>
+          Control-plane tokens grant browserless access to the admin port with your powers. They are
+          the foundation for a Meerkat CLI and MCP server, which let an AI or a script manage the
+          gateway. That tooling is planned; the tokens work today for your own automation.
+        </source>
+        <target>Les tokens control-plane donnent un accès sans navigateur au port d'administration avec vos droits. Ils sont la base d'un CLI et d'un serveur MCP Meerkat, qui permettront à une IA ou à un script de piloter la gateway. Cet outillage est prévu ; les tokens fonctionnent dès aujourd'hui pour votre propre automatisation.</target>
+      </trans-unit>
+      <trans-unit id="New_token" datatype="html">
+        <source>New token</source>
+        <target>Nouveau token</target>
+      </trans-unit>
+      <trans-unit id="Token_name" datatype="html">
+        <source>Token name</source>
+        <target>Nom du token</target>
+      </trans-unit>
+      <trans-unit id="Expiry" datatype="html">
+        <source>Expiry</source>
+        <target>Expiration</target>
+      </trans-unit>
+      <trans-unit id="Never_expires" datatype="html">
+        <source>never expires</source>
+        <target>n'expire jamais</target>
+      </trans-unit>
+      <trans-unit id="In_30_days" datatype="html">
+        <source>30 days</source>
+        <target>30 jours</target>
+      </trans-unit>
+      <trans-unit id="In_90_days" datatype="html">
+        <source>90 days</source>
+        <target>90 jours</target>
+      </trans-unit>
+      <trans-unit id="In_1_year" datatype="html">
+        <source>1 year</source>
+        <target>1 an</target>
+      </trans-unit>
+      <trans-unit id="No_access_tokens" datatype="html">
+        <source>No access token yet.</source>
+        <target>Aucun token d'accès pour l'instant.</target>
+      </trans-unit>
+      <trans-unit id="Revoke" datatype="html">
+        <source>Revoke</source>
+        <target>Révoquer</target>
+      </trans-unit>
+      <trans-unit id="Revoke_token_NAME" datatype="html">
+        <source>Revoke token &quot;<x id="NAME" equiv-text="t.name"/>&quot;?</source>
+        <target>Révoquer le token « <x id="NAME" equiv-text="t.name"/> » ?</target>
+      </trans-unit>
+      <trans-unit id="Token_created" datatype="html">
+        <source>Token created</source>
+        <target>Token créé</target>
+      </trans-unit>
+      <trans-unit id="Expires_DATE" datatype="html">
+        <source>expires <x id="DATE" equiv-text="this.day(ts)"/></source>
+        <target>expire le <x id="DATE" equiv-text="this.day(ts)"/></target>
+      </trans-unit>
+      <trans-unit id="Never_used" datatype="html">
+        <source>never used</source>
+        <target>jamais utilisé</target>
+      </trans-unit>
+      <trans-unit id="Last_used_REL" datatype="html">
+        <source>last used <x id="REL" equiv-text="rel"/></source>
+        <target>dernière utilisation <x id="REL" equiv-text="rel"/></target>
       </trans-unit>
     </body>
   </file>

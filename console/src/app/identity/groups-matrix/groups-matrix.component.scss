@@ -1,0 +1,92 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+  position: relative;
+}
+.empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* the table fills the remaining height and scrolls (sticky header) vertically,
+   and horizontally when the group columns overflow. */
+.table-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-medium, 8px);
+}
+mat-table {
+  min-width: 100%;
+  background: transparent;
+}
+
+/* fixed column widths; the spacer flexes to fill the row. */
+mat-header-cell,
+mat-cell {
+  flex: 0 0 150px;
+  justify-content: center;
+  padding: 0 8px;
+}
+.mat-column-role {
+  flex: 0 0 300px;
+  justify-content: flex-start;
+}
+.mat-column-spacer {
+  flex: 1 1 40px;
+  padding: 0;
+}
+/* leave room under the last row so the FAB never covers a cell */
+mat-row:last-of-type {
+  margin-bottom: 64px;
+}
+
+/* sticky role column + header */
+mat-header-row {
+  background: var(--mat-sys-surface-container-high);
+}
+mat-header-cell.mat-column-role {
+  background: var(--mat-sys-surface-container-high);
+}
+mat-cell.mat-column-role {
+  background: var(--mat-sys-surface);
+}
+
+.role-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+}
+.role-cell .name {
+  font-weight: 500;
+}
+/* the description is the human-facing label — put it forward, full contrast */
+.role-cell .desc {
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface);
+}
+.grp-head {
+  gap: 2px;
+}
+.grp-head .col-name {
+  font-weight: 500;
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* icon-only FAB pinned to the bottom-right of the matrix, above the scroll */
+.new-fab {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+}

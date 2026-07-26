@@ -1,0 +1,92 @@
+:host {
+  display: block;
+  height: 100%;
+}
+mat-drawer-container {
+  height: 100%;
+  background: transparent;
+}
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+}
+.banner h1 {
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 0;
+  flex: 1;
+}
+.content {
+  padding: 0 24px 24px;
+}
+.clickable {
+  cursor: pointer;
+}
+.clickable:hover {
+  background: var(--mat-sys-surface-container-high);
+}
+.id {
+  display: flex;
+  flex-direction: column;
+}
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.82em;
+}
+.off {
+  opacity: 0.45;
+}
+.dot {
+  display: inline-block;
+  flex: 0 0 7px;
+  width: 7px;
+  height: 7px;
+  margin-right: 12px;
+  border-radius: 50%;
+  background: var(--mat-sys-secondary);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-secondary) 60%, transparent);
+}
+.off .dot {
+  background: var(--mat-sys-outline);
+  box-shadow: none;
+}
+mat-drawer {
+  width: min(560px, 96vw);
+  border-left: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-high);
+}
+
+/* Capability badges — clickable pills, toggled without opening the drawer. */
+.badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.badge {
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  padding: 2px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: transparent;
+  color: var(--mat-sys-on-surface-variant);
+  opacity: 0.7;
+}
+.badge:hover:not(:disabled) {
+  background: var(--mat-sys-surface-container-high);
+  opacity: 1;
+}
+.badge.on {
+  border-color: transparent;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  opacity: 1;
+}
+.badge:disabled {
+  cursor: default;
+  opacity: 0.45;
+}

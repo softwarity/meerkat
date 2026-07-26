@@ -19,7 +19,7 @@ func TestRegisterConsoleProxiesEverythingButTheAPI(t *testing.T) {
 
 	mux := http.NewServeMux()
 	f.api.Register(mux)
-	if err := RegisterConsole(mux, devServer.URL); err != nil {
+	if err := RegisterConsole(mux, devServer.URL, nil, nil); err != nil {
 		t.Fatalf("RegisterConsole: %v", err)
 	}
 	srv := httptest.NewServer(mux)
@@ -49,10 +49,10 @@ func TestRegisterConsoleProxiesEverythingButTheAPI(t *testing.T) {
 }
 
 func TestRegisterConsoleValidation(t *testing.T) {
-	if err := RegisterConsole(http.NewServeMux(), ""); err != nil {
+	if err := RegisterConsole(http.NewServeMux(), "", nil, nil); err != nil {
 		t.Fatalf("empty target must be a no-op, got %v", err)
 	}
-	if err := RegisterConsole(http.NewServeMux(), "not a url"); err == nil {
+	if err := RegisterConsole(http.NewServeMux(), "not a url", nil, nil); err == nil {
 		t.Fatal("bad target accepted")
 	}
 }
@@ -137,7 +137,7 @@ func TestEmbeddedConsoleServing(t *testing.T) {
 
 func TestConsoleDevServerDownIs502(t *testing.T) {
 	mux := http.NewServeMux()
-	if err := RegisterConsole(mux, "http://127.0.0.1:1"); err != nil {
+	if err := RegisterConsole(mux, "http://127.0.0.1:1", nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	srv := httptest.NewServer(mux)
@@ -150,5 +150,46 @@ func TestConsoleDevServerDownIs502(t *testing.T) {
 	_ = res.Body.Close()
 	if res.StatusCode != http.StatusBadGateway || !strings.Contains(string(body), "npm start") {
 		t.Fatalf("%d %q", res.StatusCode, body)
+	}
+}
+
+// The console HTML gets the signed-in identity stamped on <body> (roles as
+// classes, data-meerkat-* attributes); anonymous navigations stay untouched.
+func TestConsoleIdentityStamp(t *testing.T) {
+	f := setup(t)
+	devServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = io.WriteString(w, "<!doctype html><html><head></head><body><app-root></app-root></body></html>")
+	}))
+	t.Cleanup(devServer.Close)
+
+	mux := http.NewServeMux()
+	f.api.Register(mux)
+	if err := RegisterConsole(mux, devServer.URL, f.api.st, f.api.sm); err != nil {
+		t.Fatalf("RegisterConsole: %v", err)
+	}
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+
+	get := func(cookie *http.Cookie) string {
+		req, _ := http.NewRequest("GET", srv.URL+"/routes", nil)
+		req.Header.Set("Accept", "text/html")
+		if cookie != nil {
+			req.AddCookie(cookie)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, _ := io.ReadAll(res.Body)
+		_ = res.Body.Close()
+		return string(body)
+	}
+
+	if body := get(f.rootC); !strings.Contains(body, `<body class="root" data-meerkat-user-id="root" data-meerkat-username="root">`) {
+		t.Fatalf("root identity not stamped: %q", body)
+	}
+	if body := get(nil); !strings.Contains(body, "<body>") {
+		t.Fatalf("anonymous body must stay untouched: %q", body)
 	}
 }

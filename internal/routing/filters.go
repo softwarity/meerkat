@@ -2,11 +2,10 @@ package routing
 
 import (
 	"fmt"
+	"html"
 	"net/http"
 	"net/http/httputil"
 	"regexp"
-
-	"github.com/softwarity/meerkat/internal/filters"
 )
 
 // RequestFilter mutates the outgoing (proxied) request.
@@ -291,18 +290,29 @@ func init() {
 		},
 	})
 
-	registerFilter(filterDef{
-		Type: "inject-head", Phase: phaseResponse,
-		Doc: "Injects gateway content right after <head> in proxied HTML pages (the app-gateway signature filter).",
-		Params: []Param{
-			{Name: "fragment", Kind: KindString, Required: true},
-		},
-		compileResponse: func(a decoded) (ResponseFilter, error) {
-			return ResponseFilter(filters.InjectAfterHead(a.str("fragment"))), nil
-		},
-	})
+	// NOTE: the old generic "inject-head" filter is gone — page injections are
+	// a UI-route affair (Injections section: custom CSS/JS, user button, page
+	// stamps), all riding filters.InjectAfterHead internally.
 
 	// ---- terminal ----------------------------------------------------------
+
+	registerFilter(filterDef{
+		Type: "maintenance", Phase: phaseTerminal,
+		Doc: "Answers 503 with a gateway maintenance page instead of proxying.",
+		Params: []Param{
+			{Name: "message", Kind: KindString, Doc: "optional text shown on the page"},
+		},
+		compileTerminal: func(a decoded) (http.Handler, error) {
+			page := maintenancePage(a.str("message"))
+			return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				w.Header().Set("Cache-Control", "no-store")
+				w.Header().Set("Retry-After", "300")
+				w.WriteHeader(http.StatusServiceUnavailable)
+				_, _ = w.Write(page)
+			}), nil
+		},
+	})
 
 	registerFilter(filterDef{
 		Type: "redirect", Phase: phaseTerminal,
@@ -322,4 +332,22 @@ func init() {
 			}), nil
 		},
 	})
+}
+
+// maintenancePage renders the built-in "under maintenance" answer: a sober
+// dark page, self-contained (the gateway must run offline). The message is
+// the admin's own text, escaped.
+func maintenancePage(message string) []byte {
+	extra := ""
+	if message != "" {
+		extra = `<p class="msg">` + html.EscapeString(message) + `</p>`
+	}
+	return []byte(`<!doctype html><html><head><meta charset="utf-8"><title>Maintenance</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"><style>
+body { margin:0; min-height:100vh; display:grid; place-items:center; background:#1b2f40; color:#e6edf3; font-family:system-ui,sans-serif; }
+main { text-align:center; padding:24px; }
+h1 { font-size:1.3rem; letter-spacing:.1em; text-transform:uppercase; }
+.msg { color:#9fb3c8; max-width:52ch; }
+.dot { width:10px; height:10px; margin:20px auto 0; border-radius:50%; background:#25c2e0; box-shadow:0 0 12px #25c2e0; }
+</style></head><body><main><h1>Under maintenance</h1>` + extra + `<div class="dot"></div></main></body></html>`)
 }

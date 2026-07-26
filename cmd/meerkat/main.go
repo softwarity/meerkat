@@ -16,10 +16,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	_ "time/tzdata" // IANA zones for business-access windows, even on distroless
 
 	"github.com/softwarity/meerkat/internal/admin"
 	"github.com/softwarity/meerkat/internal/auth"
 	"github.com/softwarity/meerkat/internal/gateway"
+	"github.com/softwarity/meerkat/internal/mail"
 	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
@@ -63,7 +65,10 @@ func run(addr, adminAddr, consoleURL, dataDir string) error {
 		return err
 	}
 
+	// One session manager PER PLANE: distinct cookie names and a plane stamp
+	// on every stored session — the two ports never share a browser session.
 	sessions := session.NewManager(st)
+	adminSessions := session.NewManager(st, session.ForAdminPlane())
 	router := gateway.New(st, sessions)
 	if err := router.Reload(ctx); err != nil {
 		return err
@@ -71,9 +76,17 @@ func run(addr, adminAddr, consoleURL, dataDir string) error {
 
 	// Data plane (:8080): application routes + the user-flow pages. The
 	// console is NEVER reachable here (CONSOLE-11).
+	// Outbound e-mail: the config is read from the store AT SEND TIME, so a
+	// console change applies to the very next message.
+	mailer := func(ctx context.Context, msg mail.Message) error {
+		return mail.Send(ctx, st.GetSMTP(ctx), msg)
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", healthz)
-	auth.New(st, sessions).Register(mux)
+	authHandler := auth.New(st, sessions)
+	authHandler.Mailer = mailer
+	authHandler.Register(mux)
 	mux.Handle("/", router)
 
 	// Control plane (:9090): admin API and the console. Keep this port off
@@ -81,19 +94,41 @@ func run(addr, adminAddr, consoleURL, dataDir string) error {
 	// console origin is self-sufficient for authentication.
 	adminMux := http.NewServeMux()
 	adminMux.HandleFunc("GET /healthz", healthz)
-	auth.New(st, sessions).Register(adminMux)
-	admin.New(st, sessions, router).Register(adminMux)
-	if err := admin.RegisterConsole(adminMux, consoleURL); err != nil {
+	adminAuth := auth.NewAdmin(st, adminSessions)
+	adminAuth.Mailer = mailer
+	adminAuth.Register(adminMux)
+	adminAPI := admin.New(st, adminSessions, router)
+	adminAPI.Mailer = mailer
+	adminAPI.Register(adminMux)
+	if err := admin.RegisterConsole(adminMux, consoleURL, st, adminSessions); err != nil {
 		return err
 	}
 
-	// Periodic TTL upkeep for expired sessions.
+	// Periodic TTL upkeep: expired sessions, lapsed e-mail tokens, and
+	// self-registrations abandoned before confirming (7 days).
 	go func() {
 		for range time.Tick(time.Minute) {
-			if n, err := sessions.PurgeExpired(context.Background()); err != nil {
+			ctx := context.Background()
+			if n, err := sessions.PurgeExpired(ctx); err != nil {
 				slog.Error("session purge failed", "err", err)
 			} else if n > 0 {
 				slog.Debug("purged expired sessions", "count", n)
+			}
+			if _, err := st.PurgeExpiredEmailTokens(ctx, time.Now().Unix()); err != nil {
+				slog.Error("email token purge failed", "err", err)
+			}
+			if n, err := st.PurgeUnconfirmedSelfRegistrations(ctx, time.Now().Add(-7*24*time.Hour).Unix()); err != nil {
+				slog.Error("unconfirmed sign-up purge failed", "err", err)
+			} else if n > 0 {
+				slog.Info("purged unconfirmed sign-ups", "count", n)
+			}
+			if _, err := st.PurgeExpiredAPITokens(ctx, time.Now().Unix()); err != nil {
+				slog.Error("api token purge failed", "err", err)
+			}
+			if n, err := st.PurgeAuditEventsBefore(ctx, time.Now().Add(-admin.AuditRetention).Unix()); err != nil {
+				slog.Error("audit purge failed", "err", err)
+			} else if n > 0 {
+				slog.Debug("purged old audit events", "count", n)
 			}
 		}
 	}()
@@ -163,36 +198,52 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 	if err != nil || n > 0 {
 		return err
 	}
-	slog.Info("first start: seeding demo routes", "public", "/demo", "authenticated", "/secure")
+	slog.Info("first start: seeding demo routes", "public", "/demo", "authenticated", "/secure", "trap", "/**")
 	if err := st.SaveRoute(ctx, store.Route{
 		ID:       "demo",
 		Name:     "demo",
 		Order:    100,
 		Enabled:  true,
+		IsUI:     true,
 		Upstream: "https://httpbin.org",
 		Predicates: []routing.Spec{
 			{Type: "path", Args: map[string]any{"patterns": []any{"/demo/**"}}},
 		},
 		Filters: []routing.Spec{
 			{Type: "strip-prefix", Args: map[string]any{"parts": 1}},
-			{Type: "inject-head", Args: map[string]any{"fragment": `<script>console.log("injected by meerkat — the sentinel is watching")</script>`}},
 		},
+		UI: &store.RouteUI{CustomJS: `console.log("injected by meerkat, the sentinel is watching")`},
 	}); err != nil {
 		return err
 	}
-	return st.SaveRoute(ctx, store.Route{
+	if err := st.SaveRoute(ctx, store.Route{
 		ID:            "demo-secure",
 		Name:          "demo-secure",
 		Order:         101,
 		Enabled:       true,
 		Authenticated: true,
+		IsUI:          true,
 		Upstream:      "https://httpbin.org",
 		Predicates: []routing.Spec{
 			{Type: "path", Args: map[string]any{"patterns": []any{"/secure/**"}}},
 		},
 		Filters: []routing.Spec{
 			{Type: "strip-prefix", Args: map[string]any{"parts": 1}},
-			{Type: "inject-head", Args: map[string]any{"fragment": `<script>console.log("authenticated — meerkat let you in")</script>`}},
+		},
+		UI: &store.RouteUI{CustomJS: `console.log("authenticated, meerkat let you in")`},
+	}); err != nil {
+		return err
+	}
+	// The TRAP (ROUTE-10) is an ordinary route: a "/**" catch-all ordered LAST,
+	// so whatever the routes above did not match — "/" included — lands there.
+	return st.SaveRoute(ctx, store.Route{
+		ID:       "trap",
+		Name:     "trap",
+		Order:    900,
+		Enabled:  true,
+		Upstream: "https://httpbin.org",
+		Predicates: []routing.Spec{
+			{Type: "path", Args: map[string]any{"patterns": []any{"/**"}}},
 		},
 	})
 }

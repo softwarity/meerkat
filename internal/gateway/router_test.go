@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
@@ -75,15 +76,18 @@ func htmlUpstream(t *testing.T, wantPath string) *httptest.Server {
 
 func TestProxiesWithStripPrefixAndInjection(t *testing.T) {
 	upstream := htmlUpstream(t, "/page")
-	rt := newRouter(t, pathRoute("r1", "demo", 1, "/demo/**", upstream.URL,
+	r := pathRoute("r1", "demo", 1, "/demo/**", upstream.URL,
 		routing.Spec{Type: "strip-prefix", Args: map[string]any{"parts": 1}},
-		routing.Spec{Type: "inject-head", Args: map[string]any{"fragment": `<script>meerkat</script>`}},
-	))
+	)
+	// Injection rides the UI options now (the generic inject-head filter is gone).
+	r.IsUI = true
+	r.UI = &store.RouteUI{CustomJS: "meerkat()"}
+	rt := newRouter(t, r)
 	res, body := get(t, rt, "/demo/page")
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("status = %d", res.StatusCode)
 	}
-	if want := `<html><head><script>meerkat</script></head><body>ok</body></html>`; body != want {
+	if want := "<html><head><script>\nmeerkat()\n</script></head><body>ok</body></html>"; body != want {
 		t.Fatalf("got %q, want %q", body, want)
 	}
 }
@@ -368,5 +372,227 @@ func TestReloadPicksUpChanges(t *testing.T) {
 	_ = res.Body.Close()
 	if res.StatusCode != http.StatusOK || string(body) != "up" {
 		t.Fatalf("after reload: %d %q", res.StatusCode, body)
+	}
+}
+
+// TestCatchAllRouteTraps: the TRAP (ROUTE-10) is an ordinary route — a "/**"
+// catch-all ordered LAST. Whatever the routes above did not match lands on it,
+// "/" included, any method; without such a route, unmatched is a plain 404.
+func TestCatchAllRouteTraps(t *testing.T) {
+	up := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte("trapped"))
+	}))
+	t.Cleanup(up.Close)
+
+	st, err := store.Open(t.TempDir())
+	if err != nil {
+		t.Fatalf("store.Open: %v", err)
+	}
+	t.Cleanup(func() { _ = st.Close() })
+	ctx := context.Background()
+	if err := st.SaveRoute(ctx, pathRoute("r1", "demo", 1, "/demo/**", up.URL+"/unused")); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SaveRoute(ctx, pathRoute("trap", "trap", 2, "/**", up.URL)); err != nil {
+		t.Fatal(err)
+	}
+	rt := New(st, nil)
+	if err := rt.Reload(ctx); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, req := range []*http.Request{
+		httptest.NewRequest("GET", "/", nil),
+		httptest.NewRequest("POST", "/nope", nil),
+	} {
+		rec := httptest.NewRecorder()
+		rt.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK || rec.Body.String() != "trapped" {
+			t.Fatalf("%s %s: %d %q, want the catch-all to trap it", req.Method, req.URL.Path, rec.Code, rec.Body.String())
+		}
+	}
+}
+
+// TestUpstreamHangIs502: an upstream that never answers its headers must fail
+// fast as 502 thanks to the transport's ResponseHeaderTimeout (ROUTE-07).
+func TestUpstreamHangIs502(t *testing.T) {
+	prev := upstreamTransport
+	upstreamTransport = &http.Transport{ResponseHeaderTimeout: 100 * time.Millisecond}
+	t.Cleanup(func() { upstreamTransport = prev })
+
+	release := make(chan struct{})
+	up := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+		<-release // hang until the test ends
+	}))
+	t.Cleanup(func() { close(release); up.Close() })
+
+	rt := newRouter(t, pathRoute("r1", "hang", 1, "/**", up.URL))
+
+	start := time.Now()
+	rec := httptest.NewRecorder()
+	rt.ServeHTTP(rec, httptest.NewRequest("GET", "/x", nil))
+	if rec.Code != http.StatusBadGateway {
+		t.Fatalf("hanging upstream: %d, want 502", rec.Code)
+	}
+	if elapsed := time.Since(start); elapsed > 3*time.Second {
+		t.Fatalf("502 took %v — the timeout did not bound the wait", elapsed)
+	}
+}
+
+// resolveLocale: cookie first, then Accept-Language (exact then base), then
+// the route's first code.
+func TestResolveLocale(t *testing.T) {
+	codes := []string{"en-US", "fr-FR", "de"}
+	mk := func(cookie, accept string) *http.Request {
+		req := httptest.NewRequest("GET", "/", nil)
+		if cookie != "" {
+			req.AddCookie(&http.Cookie{Name: "MEERKAT_LANG", Value: cookie})
+		}
+		if accept != "" {
+			req.Header.Set("Accept-Language", accept)
+		}
+		return req
+	}
+	cases := []struct{ cookie, accept, want string }{
+		{"fr-FR", "", "fr-FR"},
+		{"fr", "", "fr-FR"},      // base-language cookie picks the region variant
+		{"es", "de;q=0.9", "de"}, // unknown cookie falls to Accept-Language
+		{"", "fr-CA,en;q=0.8", "fr-FR"},
+		{"", "es,pt", "en-US"}, // nothing matches: first code
+		{"", "", "en-US"},
+	}
+	for _, c := range cases {
+		if got := resolveLocale(mk(c.cookie, c.accept), codes); got != c.want {
+			t.Errorf("resolveLocale(cookie=%q accept=%q) = %q, want %q", c.cookie, c.accept, got, c.want)
+		}
+	}
+}
+
+// Locale mechanisms: custom/query/path only (Accept-Language always goes),
+// path demands a UI route, names are validated.
+func TestValidateLocales(t *testing.T) {
+	mk := func(isUI bool, mechs []string, header, param string) store.Route {
+		return store.Route{IsUI: isUI, Upstream: "http://up",
+			Locales: &store.LocalesConfig{Mechanisms: mechs, Header: header, Param: param}}
+	}
+	if err := Validate(mk(true, []string{"query", "path"}, "", "lg")); err != nil {
+		t.Fatalf("valid locales refused: %v", err)
+	}
+	if err := Validate(mk(false, []string{"query"}, "", "")); err != nil {
+		t.Fatalf("query mechanism on an API refused: %v", err)
+	}
+	if err := Validate(mk(false, []string{"path"}, "", "")); err == nil {
+		t.Fatal("path mechanism accepted on a non-UI route")
+	}
+	if err := Validate(mk(true, []string{"header"}, "", "")); err == nil {
+		t.Fatal("header is not a mechanism anymore (always sent)")
+	}
+	if err := Validate(mk(true, []string{"custom"}, "X Locale", "")); err == nil {
+		t.Fatal("bad custom header accepted")
+	}
+}
+
+// Accept-Language promotion: the resolved locale lands first, the caller's
+// other preferences stay behind, duplicates are dropped.
+func TestPromoteLocale(t *testing.T) {
+	cases := []struct{ orig, loc, want string }{
+		{"", "fr", "fr"},
+		{"en-US,en;q=0.8", "fr", "fr, en-US, en;q=0.8"},
+		{"fr;q=0.5,en;q=0.8", "fr", "fr, en;q=0.8"},
+		{"de", "de", "de"},
+	}
+	for _, c := range cases {
+		if got := promoteLocale(c.orig, c.loc); got != c.want {
+			t.Errorf("promoteLocale(%q, %q) = %q, want %q", c.orig, c.loc, got, c.want)
+		}
+	}
+}
+
+// Identity forwarding validates its mechanism, fields and header names.
+func TestValidateIdentity(t *testing.T) {
+	mk := func(mech string, headers map[string]string) store.Route {
+		return store.Route{Upstream: "http://up",
+			Identity: &store.IdentityForward{Enabled: true, Mechanism: mech, Headers: headers}}
+	}
+	if err := Validate(mk("headers", map[string]string{"username": "X-User"})); err != nil {
+		t.Fatalf("valid identity refused: %v", err)
+	}
+	if err := Validate(mk("jwt", nil)); err == nil {
+		t.Fatal("jwt mechanism accepted before it exists")
+	}
+	if err := Validate(mk("", map[string]string{"shoesize": "X"})); err == nil {
+		t.Fatal("unknown identity field accepted")
+	}
+	if err := Validate(mk("", map[string]string{"email": "not a header"})); err == nil {
+		t.Fatal("bad header name accepted")
+	}
+}
+
+// Identity forwarding rides EVERY request of the route, HTML navigations and
+// API calls alike (a UI route's page and its /api calls share the pipe):
+// headers reach the upstream, spoofed inbound values are purged, anonymous
+// requests carry nothing.
+func TestIdentityForwardHeadersReachUpstream(t *testing.T) {
+	st, err := store.Open(t.TempDir())
+	if err != nil {
+		t.Fatalf("store.Open: %v", err)
+	}
+	t.Cleanup(func() { _ = st.Close() })
+	ctx := context.Background()
+	if err := st.CreateUser(ctx, store.User{ID: "u1", Username: "neo", Email: "neo@io",
+		Timezone: "Europe/Paris", Enabled: true, PasswordHash: "x"}); err != nil {
+		t.Fatal(err)
+	}
+	sm := session.NewManager(st)
+
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.WriteString(w, "user="+r.Header.Get("username")+
+			";remote="+r.Header.Get("Remote-User")+
+			";mail="+r.Header.Get("X-Mail")+
+			";tenant="+r.Header.Get("tenant"))
+	}))
+	t.Cleanup(upstream.Close)
+
+	route := store.Route{ID: "r", Name: "r", Enabled: true, Upstream: upstream.URL,
+		Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{"/**"}}}},
+		Identity:   &store.IdentityForward{Enabled: true, Headers: map[string]string{"email": "X-Mail"}}}
+	if err := st.SaveRoute(ctx, route); err != nil {
+		t.Fatal(err)
+	}
+	rt := New(st, sm)
+	if err := rt.Reload(ctx); err != nil {
+		t.Fatal(err)
+	}
+	srv := httptest.NewServer(rt)
+	t.Cleanup(srv.Close)
+
+	rec := httptest.NewRecorder()
+	if _, err := sm.Issue(ctx, rec, httptest.NewRequest("POST", "/login", nil), "u1"); err != nil {
+		t.Fatalf("Issue: %v", err)
+	}
+	cookie := rec.Result().Cookies()[0]
+
+	call := func(withSession bool) string {
+		req, _ := http.NewRequest("GET", srv.URL+"/get", nil)
+		// Spoofing attempts: the gateway must purge these.
+		req.Header.Set("username", "hacker")
+		req.Header.Set("tenant", "EvilCorp")
+		if withSession {
+			req.AddCookie(cookie)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, _ := io.ReadAll(res.Body)
+		_ = res.Body.Close()
+		return string(body)
+	}
+
+	if got := call(true); got != "user=neo;remote=neo;mail=neo@io;tenant=" {
+		t.Fatalf("signed-in forwarding wrong: %q", got)
+	}
+	if got := call(false); got != "user=;remote=;mail=;tenant=" {
+		t.Fatalf("anonymous request must carry no identity: %q", got)
 	}
 }

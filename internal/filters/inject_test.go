@@ -96,6 +96,31 @@ func TestGzipRoundTrip(t *testing.T) {
 	}
 }
 
+func TestRewriteHTMLFunc(t *testing.T) {
+	// A false gate skips everything (body untouched, not buffered/mutated).
+	res := htmlResponse(`<body>x</body>`, nil)
+	skip := RewriteHTMLFunc(func(*http.Response) bool { return false },
+		func(*http.Response, []byte) []byte { return []byte("MUT") })
+	if err := skip(res); err != nil {
+		t.Fatal(err)
+	}
+	if got := readBody(t, res); got != `<body>x</body>` {
+		t.Fatalf("false gate must skip: %q", got)
+	}
+
+	// A nil gate always runs; the transform sees the decoded bytes.
+	res2 := htmlResponse(`<body>x</body>`, nil)
+	run := RewriteHTMLFunc(nil, func(_ *http.Response, b []byte) []byte {
+		return bytes.ReplaceAll(b, []byte("x"), []byte("YES"))
+	})
+	if err := run(res2); err != nil {
+		t.Fatal(err)
+	}
+	if got := readBody(t, res2); got != `<body>YES</body>` {
+		t.Fatalf("transform: %q", got)
+	}
+}
+
 func TestSkipsUnknownEncoding(t *testing.T) {
 	res := htmlResponse(`<html><head></head></html>`, http.Header{"Content-Encoding": []string{"br"}})
 	if err := InjectAfterHead(`<x/>`)(res); err != nil {

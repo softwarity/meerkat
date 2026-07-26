@@ -24,55 +24,86 @@ var headTag = regexp.MustCompile(`(?i)<head[^>]*>`)
 // responses and unsupported encodings pass through untouched. Gzip bodies are
 // decoded and re-encoded; the skeleton does not handle brotli yet.
 func InjectAfterHead(fragment string) func(*http.Response) error {
-	frag := []byte(fragment)
-	return func(res *http.Response) error {
-		if len(frag) == 0 || !isHTML(res) {
-			return nil
-		}
-		encoding := res.Header.Get("Content-Encoding")
-		if encoding != "" && encoding != "gzip" {
-			return nil // brotli/zstd: pass through for now
-		}
-		if res.ContentLength > maxInjectableBody {
-			return nil
-		}
+	return InjectAfterHeadFunc(func(*http.Response) string { return fragment })
+}
 
-		body, err := io.ReadAll(io.LimitReader(res.Body, maxInjectableBody+1))
-		closeErr := res.Body.Close()
-		if err != nil {
-			return fmt.Errorf("inject: read body: %w", err)
+// InjectAfterHeadFunc is InjectAfterHead with a PER-RESPONSE fragment: f runs
+// on each HTML response (res.Request carries the caller's cookies/context, so
+// the fragment can be session-specific). An empty fragment skips the rewrite
+// WITHOUT buffering the body (the common anonymous case stays cheap).
+func InjectAfterHeadFunc(f func(*http.Response) string) func(*http.Response) error {
+	return func(res *http.Response) error {
+		if !isHTML(res) {
+			return nil
 		}
-		if closeErr != nil {
-			return fmt.Errorf("inject: close body: %w", closeErr)
+		frag := []byte(f(res))
+		if len(frag) == 0 {
+			return nil
 		}
-		if len(body) > maxInjectableBody {
-			// Too big to rewrite: restore what we read, untouched.
+		return rewriteHTMLBody(res, func(body []byte) []byte { return injectAfterHead(body, frag) })
+	}
+}
+
+// RewriteHTMLFunc buffers each HTML response and hands the DECODED bytes to f,
+// which returns the rewritten bytes (used for server-side stamping that must
+// edit an existing tag, not just insert after <head>). gate, when non-nil,
+// runs first and skips the whole thing (no body buffering) when it returns
+// false — pass a cheap session check so anonymous requests stay untouched.
+// Non-HTML and unsupported encodings pass through.
+func RewriteHTMLFunc(gate func(*http.Response) bool, f func(res *http.Response, body []byte) []byte) func(*http.Response) error {
+	return func(res *http.Response) error {
+		if !isHTML(res) {
+			return nil
+		}
+		if gate != nil && !gate(res) {
+			return nil
+		}
+		return rewriteHTMLBody(res, func(body []byte) []byte { return f(res, body) })
+	}
+}
+
+// rewriteHTMLBody handles the read/decode/transform/re-encode plumbing shared
+// by the HTML rewriters. Unsupported encodings, oversized or broken bodies pass
+// through untouched.
+func rewriteHTMLBody(res *http.Response, transform func([]byte) []byte) error {
+	encoding := res.Header.Get("Content-Encoding")
+	if encoding != "" && encoding != "gzip" {
+		return nil // brotli/zstd: pass through for now
+	}
+	if res.ContentLength > maxInjectableBody {
+		return nil
+	}
+	body, err := io.ReadAll(io.LimitReader(res.Body, maxInjectableBody+1))
+	closeErr := res.Body.Close()
+	if err != nil {
+		return fmt.Errorf("rewrite: read body: %w", err)
+	}
+	if closeErr != nil {
+		return fmt.Errorf("rewrite: close body: %w", closeErr)
+	}
+	if len(body) > maxInjectableBody {
+		// Too big to rewrite: restore what we read, untouched.
+		res.Body = io.NopCloser(bytes.NewReader(body))
+		return nil
+	}
+	plain := body
+	if encoding == "gzip" {
+		if plain, err = gunzip(body); err != nil {
+			// Broken encoding: hand the original bytes back untouched.
 			res.Body = io.NopCloser(bytes.NewReader(body))
 			return nil
 		}
-
-		plain := body
-		if encoding == "gzip" {
-			if plain, err = gunzip(body); err != nil {
-				// Broken encoding: hand the original bytes back untouched.
-				res.Body = io.NopCloser(bytes.NewReader(body))
-				return nil
-			}
-		}
-
-		injected := injectAfterHead(plain, frag)
-
-		out := injected
-		if encoding == "gzip" {
-			if out, err = gzipBytes(injected); err != nil {
-				return fmt.Errorf("inject: gzip: %w", err)
-			}
-		}
-		res.Body = io.NopCloser(bytes.NewReader(out))
-		res.ContentLength = int64(len(out))
-		res.Header.Set("Content-Length", strconv.Itoa(len(out)))
-		return nil
 	}
+	out := transform(plain)
+	if encoding == "gzip" {
+		if out, err = gzipBytes(out); err != nil {
+			return fmt.Errorf("rewrite: gzip: %w", err)
+		}
+	}
+	res.Body = io.NopCloser(bytes.NewReader(out))
+	res.ContentLength = int64(len(out))
+	res.Header.Set("Content-Length", strconv.Itoa(len(out)))
+	return nil
 }
 
 func isHTML(res *http.Response) bool {

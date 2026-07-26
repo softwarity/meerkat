@@ -1,7 +1,10 @@
 package admin
 
 import (
+	"bytes"
 	"fmt"
+	"html"
+	"io"
 	"io/fs"
 	"log/slog"
 	"net/http"
@@ -9,9 +12,12 @@ import (
 	"net/url"
 	"path"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/softwarity/meerkat/internal/admin/ui"
+	"github.com/softwarity/meerkat/internal/session"
+	"github.com/softwarity/meerkat/internal/store"
 )
 
 // RegisterConsole mounts the console UI on the admin mux fallback.
@@ -22,7 +28,12 @@ import (
 // no target, the console embedded at build time (`make ui`) is served, one
 // SPA per locale. With neither, the fallback answers an explicit status
 // page instead of a naked 404 — the admin port must never look dead.
-func RegisterConsole(mux *http.ServeMux, target string) error {
+//
+// The proxied console's HTML gets the signed-in identity STAMPED on its
+// <body> (same mechanism as UI routes, hard-wired here): capability roles as
+// classes and data-meerkat-* attributes — the console boots without calling
+// /api/me, and the role-CSS visibility applies from the first paint.
+func RegisterConsole(mux *http.ServeMux, target string, st *store.Store, sm *session.Manager) error {
 	if target != "" {
 		u, err := url.Parse(target)
 		if err != nil || u.Scheme == "" || u.Host == "" {
@@ -31,6 +42,14 @@ func RegisterConsole(mux *http.ServeMux, target string) error {
 		proxy := &httputil.ReverseProxy{
 			Rewrite: func(pr *httputil.ProxyRequest) {
 				pr.SetURL(u)
+				// HTML navigations must arrive uncompressed so the identity stamp
+				// can rewrite <body>; assets keep their encoding untouched.
+				if wantsHTML(pr.In) {
+					pr.Out.Header.Del("Accept-Encoding")
+				}
+			},
+			ModifyResponse: func(resp *http.Response) error {
+				return stampConsoleHTML(resp, st, sm)
 			},
 			ErrorHandler: func(w http.ResponseWriter, _ *http.Request, err error) {
 				slog.Warn("console dev server unreachable", "target", target, "err", err)
@@ -103,4 +122,89 @@ func pickLocale(locales []string, acceptLanguage string) string {
 		}
 	}
 	return locales[0]
+}
+
+func wantsHTML(r *http.Request) bool {
+	return strings.Contains(r.Header.Get("Accept"), "text/html")
+}
+
+// stampConsoleHTML rewrites the console index's <body> tag with the session's
+// identity attributes. No session, not HTML, or no <body> tag: untouched.
+func stampConsoleHTML(resp *http.Response, st *store.Store, sm *session.Manager) error {
+	if st == nil || sm == nil || resp.Request == nil || !wantsHTML(resp.Request) {
+		return nil
+	}
+	if resp.StatusCode != http.StatusOK ||
+		!strings.HasPrefix(resp.Header.Get("Content-Type"), "text/html") {
+		return nil
+	}
+	attrs := consoleBodyAttrs(resp.Request, st, sm)
+	if attrs == "" {
+		return nil
+	}
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 8<<20))
+	closeErr := resp.Body.Close()
+	if err != nil {
+		return err
+	}
+	if closeErr != nil {
+		return closeErr
+	}
+	stamped := bytes.Replace(body, []byte("<body"), []byte("<body "+attrs), 1)
+	resp.Body = io.NopCloser(bytes.NewReader(stamped))
+	resp.ContentLength = int64(len(stamped))
+	resp.Header.Set("Content-Length", strconv.Itoa(len(stamped)))
+	return nil
+}
+
+// consoleBodyAttrs renders the identity stamp for the admin session carried by
+// r, or "" without one: capability roles as classes (the role-CSS mechanism
+// the console already uses) plus data-meerkat-* identity attributes.
+func consoleBodyAttrs(r *http.Request, st *store.Store, sm *session.Manager) string {
+	sess, err := sm.Resolve(r.Context(), r)
+	if err != nil {
+		return ""
+	}
+	user, err := st.GetUserByID(r.Context(), sess.UserID)
+	if err != nil || !user.Enabled {
+		return ""
+	}
+	var roles []string
+	if user.Root {
+		roles = append(roles, "root")
+	}
+	if user.Dev {
+		roles = append(roles, "dev")
+	}
+	if user.Tester {
+		roles = append(roles, "tester")
+	}
+	if user.TenantCreator {
+		roles = append(roles, "tenant-creator")
+	}
+	if user.GatewayAdmin {
+		roles = append(roles, "gateway-admin")
+	}
+	if user.AppAdmin {
+		roles = append(roles, "app-admin")
+	}
+	// tenant-admin: administers at least one tenant — as its owner (owner_id,
+	// member or not) or an ADMIN member. Ownership is decoupled from membership.
+	if administered, err := st.ListTenantsAdministeredBy(r.Context(), user.ID); err == nil && len(administered) > 0 {
+		roles = append(roles, "tenant-admin")
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, `class="%s"`, strings.Join(roles, " "))
+	for _, kv := range [][2]string{
+		{"user-id", user.ID},
+		{"username", user.Username},
+		{"fullname", user.Fullname},
+		{"email", user.Email},
+	} {
+		if kv[1] == "" {
+			continue
+		}
+		fmt.Fprintf(&b, ` data-meerkat-%s="%s"`, kv[0], html.EscapeString(kv[1]))
+	}
+	return b.String()
 }

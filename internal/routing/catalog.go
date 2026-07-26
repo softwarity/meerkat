@@ -7,7 +7,7 @@ import "sort"
 // documentation is derived from. One source of truth for four layers.
 type CatalogEntry struct {
 	Kind   string  `json:"kind"`            // "predicate" | "filter"
-	Type   string  `json:"type"`            // e.g. "path", "inject-head"
+	Type   string  `json:"type"`            // e.g. "path", "strip-prefix"
 	Phase  string  `json:"phase,omitempty"` // filters: request | response | terminal
 	Doc    string  `json:"doc"`
 	Params []Param `json:"params"`

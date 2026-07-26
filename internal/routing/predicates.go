@@ -7,6 +7,7 @@ import (
 	"net/netip"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // Predicate decides whether a request matches. All predicates of a route
@@ -283,6 +284,97 @@ func init() {
 	})
 
 	registerPredicate(predicateDef{
+		Type: "after",
+		Doc:  "Matches requests made after the given datetime.",
+		Params: []Param{
+			{Name: "datetime", Kind: KindString, Required: true, Doc: "RFC 3339, e.g. 2026-01-20T17:42:47+01:00"},
+		},
+		compile: func(a decoded) (Predicate, error) {
+			t, err := parseDatetime(a.str("datetime"))
+			if err != nil {
+				return nil, err
+			}
+			return func(*http.Request) bool { return time.Now().After(t) }, nil
+		},
+	})
+
+	registerPredicate(predicateDef{
+		Type: "before",
+		Doc:  "Matches requests made before the given datetime.",
+		Params: []Param{
+			{Name: "datetime", Kind: KindString, Required: true, Doc: "RFC 3339, e.g. 2026-01-20T17:42:47+01:00"},
+		},
+		compile: func(a decoded) (Predicate, error) {
+			t, err := parseDatetime(a.str("datetime"))
+			if err != nil {
+				return nil, err
+			}
+			return func(*http.Request) bool { return time.Now().Before(t) }, nil
+		},
+	})
+
+	registerPredicate(predicateDef{
+		Type: "between",
+		Doc:  "Matches requests made between the two datetimes.",
+		Params: []Param{
+			{Name: "datetime1", Kind: KindString, Required: true, Doc: "RFC 3339 start"},
+			{Name: "datetime2", Kind: KindString, Required: true, Doc: "RFC 3339 end"},
+		},
+		compile: func(a decoded) (Predicate, error) {
+			t1, err := parseDatetime(a.str("datetime1"))
+			if err != nil {
+				return nil, err
+			}
+			t2, err := parseDatetime(a.str("datetime2"))
+			if err != nil {
+				return nil, err
+			}
+			if !t2.After(t1) {
+				return nil, fmt.Errorf("between: datetime2 %s must be after datetime1 %s", t2, t1)
+			}
+			return func(*http.Request) bool {
+				now := time.Now()
+				return now.After(t1) && now.Before(t2)
+			}, nil
+		},
+	})
+
+	registerPredicate(predicateDef{
+		Type: "x-forwarded-remote-addr",
+		Doc:  "Matches the rightmost X-Forwarded-For address against CIDR ranges — the address the LAST proxy reports; use behind a trusted front proxy.",
+		Params: []Param{
+			{Name: "cidrs", Kind: KindStringList, Required: true, Doc: "e.g. 10.0.0.0/8, 192.168.1.10/32"},
+		},
+		compile: func(a decoded) (Predicate, error) {
+			prefixes := make([]netip.Prefix, 0, len(a.strs("cidrs")))
+			for _, c := range a.strs("cidrs") {
+				p, err := netip.ParsePrefix(c)
+				if err != nil {
+					return nil, fmt.Errorf("x-forwarded-remote-addr: bad cidr %q: %w", c, err)
+				}
+				prefixes = append(prefixes, p)
+			}
+			return func(r *http.Request) bool {
+				xff := r.Header.Get("X-Forwarded-For")
+				if xff == "" {
+					return false
+				}
+				parts := strings.Split(xff, ",")
+				addr, err := netip.ParseAddr(strings.TrimSpace(parts[len(parts)-1]))
+				if err != nil {
+					return false
+				}
+				for _, p := range prefixes {
+					if p.Contains(addr) {
+						return true
+					}
+				}
+				return false
+			}, nil
+		},
+	})
+
+	registerPredicate(predicateDef{
 		Type: "weight",
 		Doc:  "Splits traffic between the routes of a group (canary): a route takes weight/total of the requests.",
 		Params: []Param{
@@ -314,6 +406,16 @@ func compileNamedValue(get func(*http.Request, string) (string, bool)) func(deco
 			return re == nil || re.MatchString(v)
 		}, nil
 	}
+}
+
+// parseDatetime reads the after/before/between bounds: RFC 3339 only, so a
+// bad value fails at validation, never silently at match time.
+func parseDatetime(s string) (time.Time, error) {
+	t, err := time.Parse(time.RFC3339, s)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("bad datetime %q: use RFC 3339, like 2026-01-20T17:42:47+01:00", s)
+	}
+	return t, nil
 }
 
 func hostname(hostport string) string {

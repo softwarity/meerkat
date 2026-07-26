@@ -5,6 +5,7 @@
 package admin
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/softwarity/meerkat/internal/gateway"
+	"github.com/softwarity/meerkat/internal/mail"
 	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
@@ -21,6 +23,10 @@ import (
 // API serves the admin endpoints. Every endpoint requires a session whose
 // user is root.
 type API struct {
+	// Mailer sends outbound e-mail (the SMTP test); nil answers "not
+	// configured". Wired by main, faked in tests.
+	Mailer func(ctx context.Context, msg mail.Message) error
+
 	st     *store.Store
 	sm     *session.Manager
 	router *gateway.Router
@@ -32,34 +38,26 @@ func New(st *store.Store, sm *session.Manager, router *gateway.Router) *API {
 	return &API{st: st, sm: sm, router: router}
 }
 
-// Register mounts the API on mux.
+// Register mounts the API on mux. The routing plane is GATEWAY scope
+// (RBAC-05): root or the gateway-admin capability.
 func (a *API) Register(mux *http.ServeMux) {
-	mux.Handle("GET /api/catalog", a.root(a.catalog))
-	mux.Handle("GET /api/routes", a.root(a.listRoutes))
-	mux.Handle("GET /api/routes/{id}", a.root(a.getRoute))
-	mux.Handle("PUT /api/routes/{id}", a.root(a.putRoute))
-	mux.Handle("DELETE /api/routes/{id}", a.root(a.deleteRoute))
+	mux.Handle("GET /api/catalog", a.gw(a.catalog))
+	mux.Handle("GET /api/routes", a.gw(a.listRoutes))
+	mux.Handle("POST /api/routes/reorder", a.gatewayAdmin(a.reorderRoutes))
+	mux.Handle("GET /api/routes/{id}", a.gw(a.getRoute))
+	mux.Handle("PUT /api/routes/{id}", a.gatewayAdmin(a.putRoute))
+	mux.Handle("DELETE /api/routes/{id}", a.gatewayAdmin(a.deleteRoute))
+	a.registerIdentity(mux)
+	a.registerThemes(mux)
+	a.registerRBAC(mux)
+	a.registerAdminTokens(mux)
+	a.auditRegisterViewer(mux)
 }
 
-// root gates a handler behind an authenticated root user.
-func (a *API) root(next http.HandlerFunc) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sess, err := a.sm.Resolve(r.Context(), r)
-		if err != nil {
-			writeErr(w, http.StatusUnauthorized, "authentication required")
-			return
-		}
-		user, err := a.st.GetUserByID(r.Context(), sess.UserID)
-		if err != nil {
-			writeErr(w, http.StatusUnauthorized, "authentication required")
-			return
-		}
-		if !user.Root {
-			writeErr(w, http.StatusForbidden, "root privilege required")
-			return
-		}
-		next(w, r)
-	})
+// gw adapts a plain handler to the gateway-admin guard (the routing-plane
+// handlers predate the userHandler signature and never need the actor).
+func (a *API) gw(next http.HandlerFunc) http.Handler {
+	return a.gatewayAdmin(func(w http.ResponseWriter, r *http.Request, _ store.User) { next(w, r) })
 }
 
 func (a *API) catalog(w http.ResponseWriter, _ *http.Request) {
@@ -87,10 +85,32 @@ func (a *API) getRoute(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, route)
 }
 
+// reorderRoutes persists a new route order (first-match-wins, so order matters)
+// from a JSON array of route ids, then reloads the data-plane snapshot.
+func (a *API) reorderRoutes(w http.ResponseWriter, r *http.Request, actor store.User) {
+	var ids []string
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&ids); err != nil {
+		writeErr(w, http.StatusBadRequest, "malformed order: expected a JSON array of route ids")
+		return
+	}
+	if err := a.st.ReorderRoutes(r.Context(), ids); err != nil {
+		a.internal(w, err)
+		return
+	}
+	if err := a.router.Reload(r.Context()); err != nil {
+		a.internal(w, fmt.Errorf("reordered, but reload failed: %w", err))
+		return
+	}
+	a.auditEvent(r.Context(), actor, "route.reorder", "route", "", "", "", fmt.Sprintf("%d routes reordered", len(ids)))
+	writeJSON(w, http.StatusOK, map[string]int{"reordered": len(ids)})
+}
+
 // putRoute upserts a route: the body is validated by COMPILING it — the
 // exact same code path the engine uses — so an invalid route is refused with
 // the engine's precise error and never persisted.
-func (a *API) putRoute(w http.ResponseWriter, r *http.Request) {
+func (a *API) putRoute(w http.ResponseWriter, r *http.Request, actor store.User) {
 	var route store.Route
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
@@ -111,6 +131,11 @@ func (a *API) putRoute(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
+	// The prior route (if any) so the audit tells a create from an update diff.
+	old, hadRoute := store.Route{}, false
+	if prev, err := a.st.GetRoute(r.Context(), route.ID); err == nil {
+		old, hadRoute = prev, true
+	}
 	if err := a.st.SaveRoute(r.Context(), route); err != nil {
 		a.internal(w, err)
 		return
@@ -121,11 +146,18 @@ func (a *API) putRoute(w http.ResponseWriter, r *http.Request) {
 		a.internal(w, fmt.Errorf("saved, but reload failed: %w", err))
 		return
 	}
+	if hadRoute {
+		a.auditUpdate(r.Context(), actor, "route.update", "route", route.ID, route.Name, "", old, route)
+	} else {
+		a.auditEvent(r.Context(), actor, "route.create", "route", route.ID, route.Name, "", "")
+	}
 	writeJSON(w, http.StatusOK, route)
 }
 
-func (a *API) deleteRoute(w http.ResponseWriter, r *http.Request) {
-	existed, err := a.st.DeleteRoute(r.Context(), r.PathValue("id"))
+func (a *API) deleteRoute(w http.ResponseWriter, r *http.Request, actor store.User) {
+	id := r.PathValue("id")
+	route, _ := a.st.GetRoute(r.Context(), id) // capture the name before deletion
+	existed, err := a.st.DeleteRoute(r.Context(), id)
 	if err != nil {
 		a.internal(w, err)
 		return
@@ -138,6 +170,7 @@ func (a *API) deleteRoute(w http.ResponseWriter, r *http.Request) {
 		a.internal(w, fmt.Errorf("deleted, but reload failed: %w", err))
 		return
 	}
+	a.auditEvent(r.Context(), actor, "route.delete", "route", id, route.Name, "", "")
 	w.WriteHeader(http.StatusNoContent)
 }
 

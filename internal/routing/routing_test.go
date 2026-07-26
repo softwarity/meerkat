@@ -318,3 +318,23 @@ func TestQueryEncodingPreserved(t *testing.T) {
 		t.Fatalf("query round trip broken: %q (%v)", pr.Out.URL.RawQuery, err)
 	}
 }
+
+// The built-in maintenance terminal answers 503 with the gateway page.
+func TestMaintenanceTerminal(t *testing.T) {
+	cf, err := CompileFilters([]Spec{{Type: "maintenance", Args: map[string]any{"message": "back at <noon>"}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cf.Terminal == nil {
+		t.Fatal("maintenance must be terminal")
+	}
+	rec := httptest.NewRecorder()
+	cf.Terminal.ServeHTTP(rec, httptest.NewRequest("GET", "/", nil))
+	body := rec.Body.String()
+	if rec.Code != http.StatusServiceUnavailable || rec.Header().Get("Retry-After") == "" {
+		t.Fatalf("code=%d headers=%v", rec.Code, rec.Header())
+	}
+	if !strings.Contains(body, "Under maintenance") || !strings.Contains(body, "back at &lt;noon&gt;") {
+		t.Fatalf("page wrong (message must be escaped): %s", body)
+	}
+}

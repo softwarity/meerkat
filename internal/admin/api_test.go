@@ -30,19 +30,23 @@ func setup(t *testing.T) fixture {
 	}
 	t.Cleanup(func() { _ = st.Close() })
 	ctx := context.Background()
-	if err := st.CreateUser(ctx, store.User{ID: "root", Username: "root", PasswordHash: "x", Root: true}); err != nil {
+	if err := st.CreateUser(ctx, store.User{ID: "root", Username: "root", PasswordHash: "x", Root: true, Enabled: true}); err != nil {
 		t.Fatal(err)
 	}
-	if err := st.CreateUser(ctx, store.User{ID: "bob", Username: "bob", PasswordHash: "x"}); err != nil {
+	if err := st.CreateUser(ctx, store.User{ID: "bob", Username: "bob", PasswordHash: "x", Enabled: true}); err != nil {
 		t.Fatal(err)
 	}
+	// The data plane and the control plane have SEPARATE session managers, as in
+	// production (session.ForAdminPlane) — this is what isolates admin-plane API
+	// tokens from data-plane ones.
 	sm := session.NewManager(st)
+	adminSM := session.NewManager(st, session.ForAdminPlane())
 	router := gateway.New(st, sm)
 	if err := router.Reload(ctx); err != nil {
 		t.Fatal(err)
 	}
 
-	api := New(st, sm, router)
+	api := New(st, adminSM, router)
 	adminMux := http.NewServeMux()
 	api.Register(adminMux)
 
@@ -50,8 +54,8 @@ func setup(t *testing.T) fixture {
 		api:      api,
 		adminSrv: httptest.NewServer(adminMux),
 		appSrv:   httptest.NewServer(router),
-		rootC:    issue(t, sm, "root"),
-		plainC:   issue(t, sm, "bob"),
+		rootC:    issue(t, adminSM, "root"),
+		plainC:   issue(t, adminSM, "bob"),
 	}
 	t.Cleanup(f.adminSrv.Close)
 	t.Cleanup(f.appSrv.Close)
@@ -127,7 +131,7 @@ func TestCatalogIsServed(t *testing.T) {
 		kinds[e["kind"].(string)] = true
 		types[e["type"].(string)] = true
 	}
-	if !kinds["predicate"] || !kinds["filter"] || !types["path"] || !types["inject-head"] {
+	if !kinds["predicate"] || !kinds["filter"] || !types["path"] || !types["strip-prefix"] {
 		t.Fatalf("catalog incomplete: %v", body)
 	}
 }

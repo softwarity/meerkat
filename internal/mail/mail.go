@@ -1,0 +1,141 @@
+// Package mail is Meerkat's outbound e-mail: one SMTP config (a gateway-wide
+// setting), one Send. Pure Go (net/smtp + crypto/tls), offline-friendly — a
+// missing config is a normal, explicit error, never a crash.
+package mail
+
+import (
+	"context"
+	"crypto/tls"
+	"fmt"
+	"mime"
+	"net"
+	netmail "net/mail"
+	"net/smtp"
+	"strings"
+	"time"
+)
+
+// Config is the gateway-wide SMTP setting (stored under the "smtp" key).
+type Config struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
+	// Security: "starttls" (587, default), "tls" (465, implicit), "none".
+	Security string `json:"security"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	// From is the sender, either "addr@dom" or "Name <addr@dom>".
+	From string `json:"from"`
+}
+
+// Configured reports whether the config can send at all.
+func (c Config) Configured() bool { return c.Host != "" && c.From != "" }
+
+// Message is one outbound e-mail: text always, HTML optionally alongside.
+type Message struct {
+	To      []string
+	Subject string
+	Text    string
+	HTML    string
+}
+
+// Send delivers msg through cfg. The dial is bounded; every failure names the
+// step so an admin can act on it.
+func Send(ctx context.Context, cfg Config, msg Message) error {
+	if !cfg.Configured() {
+		return fmt.Errorf("mail: SMTP is not configured (host and from are required)")
+	}
+	from, err := netmail.ParseAddress(cfg.From)
+	if err != nil {
+		return fmt.Errorf("mail: bad from address %q: %w", cfg.From, err)
+	}
+	port := cfg.Port
+	if port == 0 {
+		port = 587
+	}
+	addr := net.JoinHostPort(cfg.Host, fmt.Sprint(port))
+
+	d := net.Dialer{Timeout: 10 * time.Second}
+	var conn net.Conn
+	if cfg.Security == "tls" {
+		conn, err = tls.DialWithDialer(&d, "tcp", addr, &tls.Config{ServerName: cfg.Host, MinVersion: tls.VersionTLS12})
+	} else {
+		conn, err = d.DialContext(ctx, "tcp", addr)
+	}
+	if err != nil {
+		return fmt.Errorf("mail: connect %s: %w", addr, err)
+	}
+	c, err := smtp.NewClient(conn, cfg.Host)
+	if err != nil {
+		_ = conn.Close()
+		return fmt.Errorf("mail: SMTP handshake with %s: %w", addr, err)
+	}
+	defer func() { _ = c.Close() }()
+
+	if cfg.Security == "" || cfg.Security == "starttls" {
+		if ok, _ := c.Extension("STARTTLS"); ok {
+			if err := c.StartTLS(&tls.Config{ServerName: cfg.Host, MinVersion: tls.VersionTLS12}); err != nil {
+				return fmt.Errorf("mail: STARTTLS with %s: %w", addr, err)
+			}
+		} else if cfg.Security == "starttls" {
+			return fmt.Errorf("mail: %s does not offer STARTTLS (allowed security modes: starttls, tls, none)", addr)
+		}
+	}
+	if cfg.Username != "" {
+		if err := c.Auth(smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)); err != nil {
+			return fmt.Errorf("mail: authentication refused by %s: %w", addr, err)
+		}
+	}
+	if err := c.Mail(from.Address); err != nil {
+		return fmt.Errorf("mail: sender refused: %w", err)
+	}
+	for _, to := range msg.To {
+		if err := c.Rcpt(to); err != nil {
+			return fmt.Errorf("mail: recipient %q refused: %w", to, err)
+		}
+	}
+	w, err := c.Data()
+	if err != nil {
+		return fmt.Errorf("mail: DATA refused: %w", err)
+	}
+	if _, err := w.Write(Build(cfg.From, msg)); err != nil {
+		return fmt.Errorf("mail: write body: %w", err)
+	}
+	if err := w.Close(); err != nil {
+		return fmt.Errorf("mail: message refused: %w", err)
+	}
+	return c.Quit()
+}
+
+// Build renders the RFC 5322 message: text/plain alone, or
+// multipart/alternative when an HTML part rides along.
+func Build(from string, msg Message) []byte {
+	var b strings.Builder
+	crlf := func(s string) {
+		b.WriteString(strings.ReplaceAll(s, "\n", "\r\n"))
+		b.WriteString("\r\n")
+	}
+	crlf("From: " + from)
+	crlf("To: " + strings.Join(msg.To, ", "))
+	crlf("Subject: " + mime.QEncoding.Encode("utf-8", msg.Subject))
+	crlf("Date: " + time.Now().Format(time.RFC1123Z))
+	crlf("MIME-Version: 1.0")
+	if msg.HTML == "" {
+		crlf(`Content-Type: text/plain; charset="utf-8"`)
+		crlf("")
+		crlf(msg.Text)
+		return []byte(b.String())
+	}
+	const boundary = "meerkat-alt-9d41c6"
+	crlf(`Content-Type: multipart/alternative; boundary="` + boundary + `"`)
+	crlf("")
+	crlf("--" + boundary)
+	crlf(`Content-Type: text/plain; charset="utf-8"`)
+	crlf("")
+	crlf(msg.Text)
+	crlf("--" + boundary)
+	crlf(`Content-Type: text/html; charset="utf-8"`)
+	crlf("")
+	crlf(msg.HTML)
+	crlf("--" + boundary + "--")
+	return []byte(b.String())
+}

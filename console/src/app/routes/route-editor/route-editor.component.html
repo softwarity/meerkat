@@ -78,6 +78,13 @@
           <mat-hint i18n="@@Swagger_hint">The OpenAPI spec the service exposes, for endpoint-level security later</mat-hint>
         </mat-form-field>
 
+        @if (route()?.id && draft().swaggerUrl) {
+          <a matButton="tonal" class="endpoint-security-link" [routerLink]="['/endpoint-security', route()!.id]">
+            <mat-icon>shield</mat-icon>
+            <span i18n="@@Edit_endpoint_security">Endpoint security</span>
+          </a>
+        }
+
         <div class="flags">
           <mat-checkbox [checked]="draft().enabled" (change)="setFlag('enabled', $event.checked)">
             <ng-container i18n="@@Enabled">Enabled</ng-container>

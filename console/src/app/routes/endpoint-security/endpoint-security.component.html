@@ -1,0 +1,90 @@
+<header class="bar">
+  <a matIconButton [routerLink]="['/routes', routeId, 'general']" i18n-aria-label="@@Back" aria-label="Back">
+    <mat-icon>arrow_back</mat-icon>
+  </a>
+  <div class="title">
+    <h2 i18n="@@Endpoint_security">Endpoint security</h2>
+    @if (data(); as d) {
+      <span class="meta">
+        @if (d.title) {<span>{{ d.title }}</span>}
+        @if (d.format) {<span class="badge">{{ d.format }}</span>}
+        @if (d.version) {<span class="badge">v{{ d.version }}</span>}
+      </span>
+    }
+  </div>
+  <span class="spacer"></span>
+  <button matButton="filled" (click)="save()" [disabled]="saving() || loading() || !!error()">
+    <mat-icon>save</mat-icon>
+    <span i18n="@@Save_apply">Save &amp; apply</span>
+  </button>
+</header>
+
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (error()) {
+  <div class="notice error">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error() }}</span>
+  </div>
+} @else if (!loading()) {
+  <div class="content">
+    <!-- Deny-by-default: the safe posture for an API one does not control. -->
+    <section class="deny">
+      <mat-slide-toggle [checked]="denyByDefault()" (change)="denyByDefault.set($event.checked)">
+        <span i18n="@@Deny_by_default">Deny by default</span>
+      </mat-slide-toggle>
+      <p class="hint" i18n="@@Deny_by_default_hint">
+        Lock every operation with no explicit rule. A new endpoint appearing upstream is then refused until you expose it on purpose.
+      </p>
+    </section>
+
+    @for (g of groups(); track g.tag) {
+      <section class="group">
+        <h3 class="tag">{{ g.tag || 'default' }}</h3>
+        <ul class="ops">
+          @for (o of g.operations; track o.method + ' ' + o.path) {
+            <li class="op" [class.secured]="stateOf(o).access !== 'default'">
+              <span class="method m-{{ o.method.toLowerCase() }}">{{ o.method }}</span>
+              <span class="path">{{ o.path }}</span>
+              @if (o.summary) {<span class="summary">{{ o.summary }}</span>}
+
+              <mat-form-field class="access" subscriptSizing="dynamic">
+                <mat-select
+                  [value]="stateOf(o).access"
+                  (selectionChange)="setAccess(o, $event.value)"
+                >
+                  <mat-option value="default" i18n="@@Access_default">Default</mat-option>
+                  <mat-option value="public" i18n="@@Access_public">Public</mat-option>
+                  <mat-option value="authenticated" i18n="@@Access_authenticated">Authenticated</mat-option>
+                  <mat-option value="roles" i18n="@@Access_roles">Roles</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              @if (stateOf(o).access === 'roles') {
+                <mat-form-field class="roles" subscriptSizing="dynamic">
+                  <mat-label i18n="@@Roles">Roles</mat-label>
+                  <mat-select multiple [value]="stateOf(o).roles" (selectionChange)="setRoles(o, $event.value)">
+                    @for (r of roles(); track r.id) {
+                      <mat-option [value]="r.name">{{ r.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    } @empty {
+      <div class="notice">
+        <mat-icon>info</mat-icon>
+        <span i18n="@@No_operations">This spec exposes no operations.</span>
+      </div>
+    }
+
+    <footer class="summary" i18n="@@Endpoints_secured_summary">
+      {{ (data()?.operations)?.length || 0 }} operations, {{ securedCount() }} secured
+    </footer>
+  </div>
+}

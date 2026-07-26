@@ -2,6 +2,62 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="Endpoint_security" datatype="html">
+        <source>Endpoint security</source>
+        <target>Sécurité par endpoint</target>
+      </trans-unit>
+      <trans-unit id="Edit_endpoint_security" datatype="html">
+        <source>Endpoint security</source>
+        <target>Sécurité par endpoint</target>
+      </trans-unit>
+      <trans-unit id="Back" datatype="html">
+        <source>Back</source>
+        <target>Retour</target>
+      </trans-unit>
+      <trans-unit id="Save_apply" datatype="html">
+        <source>Save &amp; apply</source>
+        <target>Enregistrer et appliquer</target>
+      </trans-unit>
+      <trans-unit id="Deny_by_default" datatype="html">
+        <source>Deny by default</source>
+        <target>Refuser par défaut</target>
+      </trans-unit>
+      <trans-unit id="Deny_by_default_hint" datatype="html">
+        <source>Lock every operation with no explicit rule.</source>
+        <target>Verrouille toute opération sans règle explicite. Un nouvel endpoint apparaissant en amont est alors refusé jusqu'à ce que vous l'exposiez volontairement.</target>
+      </trans-unit>
+      <trans-unit id="Endpoints_secured_summary" datatype="html">
+        <source><x id="INTERPOLATION"/> operations, <x id="INTERPOLATION_1"/> secured</source>
+        <target><x id="INTERPOLATION" equiv-text="{{ (data()?.operations)?.length || 0 }}"/> opérations, <x id="INTERPOLATION_1" equiv-text="{{ securedCount() }}"/> sécurisées</target>
+      </trans-unit>
+      <trans-unit id="Access_default" datatype="html">
+        <source>Default</source>
+        <target>Défaut</target>
+      </trans-unit>
+      <trans-unit id="Access_public" datatype="html">
+        <source>Public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="Access_authenticated" datatype="html">
+        <source>Authenticated</source>
+        <target>Authentifié</target>
+      </trans-unit>
+      <trans-unit id="Access_roles" datatype="html">
+        <source>Roles</source>
+        <target>Rôles</target>
+      </trans-unit>
+      <trans-unit id="No_operations" datatype="html">
+        <source>This spec exposes no operations.</source>
+        <target>Cette spec n'expose aucune opération.</target>
+      </trans-unit>
+      <trans-unit id="No_route_selected" datatype="html">
+        <source>No route selected</source>
+        <target>Aucune route sélectionnée</target>
+      </trans-unit>
+      <trans-unit id="Endpoint_security_saved" datatype="html">
+        <source>Endpoint security saved and applied</source>
+        <target>Sécurité par endpoint enregistrée et appliquée</target>
+      </trans-unit>
       <trans-unit id="Routes" datatype="html">
         <source>Routes</source>
         <target>Routes</target>

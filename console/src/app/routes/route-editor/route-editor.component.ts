@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { LOCALE_ID } from '@angular/core';
 import { ApiService, CatalogEntry, IDENTITY_FIELDS, PAGE_USER_FIELDS, Role, Route, USER_BUTTON_POSITIONS } from '../../api.service';
@@ -55,6 +56,7 @@ const MATCHER_TYPES = ['header', 'cookie', 'query'];
     MatListModule,
     MatSelectModule,
     MatSlideToggleModule,
+    RouterLink,
     PredicatesComponent,
     FiltersComponent,
   ],

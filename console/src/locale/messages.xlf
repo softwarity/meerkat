@@ -31,7 +31,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">154,155</context>
+          <context context-type="linenumber">171,172</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Section_general" datatype="html">
@@ -61,7 +61,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">307,308</context>
+          <context context-type="linenumber">314,315</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
@@ -87,8 +87,12 @@
           <context context-type="linenumber">199,200</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">67,68</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">365,366</context>
+          <context context-type="linenumber">372,373</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Users" datatype="html">
@@ -161,7 +165,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">106,107</context>
+          <context context-type="linenumber">110,111</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Request_failed" datatype="html">
@@ -172,7 +176,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">335</context>
+          <context context-type="linenumber">339</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
@@ -199,6 +203,10 @@
           <context context-type="linenumber">144</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
+          <context context-type="linenumber">191</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
           <context context-type="linenumber">105</context>
         </context-group>
@@ -219,11 +227,11 @@
         <source>New token</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">109,110</context>
+          <context context-type="linenumber">113,114</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">241,242</context>
+          <context context-type="linenumber">245,246</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Access_tokens_planned" datatype="html">
@@ -234,25 +242,25 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">117,123</context>
+          <context context-type="linenumber">121,127</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Revoke" datatype="html">
         <source>Revoke</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">131</context>
+          <context context-type="linenumber">135</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">203</context>
+          <context context-type="linenumber">207</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Created_on" datatype="html">
         <source>Created on</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">135</context>
+          <context context-type="linenumber">139</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
@@ -263,88 +271,88 @@
         <source>No access token yet.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">141,144</context>
+          <context context-type="linenumber">145,148</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Revoke_token_NAME" datatype="html">
         <source>Revoke token &quot;<x id="NAME" equiv-text="t.name"/>&quot;?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">202</context>
+          <context context-type="linenumber">206</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Never_expires" datatype="html">
         <source>never expires</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">218</context>
+          <context context-type="linenumber">222</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">256,257</context>
+          <context context-type="linenumber">260,261</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Expires_DATE" datatype="html">
         <source>expires <x id="DATE" equiv-text="this.day(ts)"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">219</context>
+          <context context-type="linenumber">223</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Never_used" datatype="html">
         <source>never used</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">223</context>
+          <context context-type="linenumber">227</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Last_used_REL" datatype="html">
         <source>last used <x id="REL" equiv-text="rel"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">225</context>
+          <context context-type="linenumber">229</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Token_name" datatype="html">
         <source>Token name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">244,245</context>
+          <context context-type="linenumber">248,249</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Expiry" datatype="html">
         <source>Expiry</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">254,255</context>
+          <context context-type="linenumber">258,259</context>
         </context-group>
       </trans-unit>
       <trans-unit id="In_30_days" datatype="html">
         <source>30 days</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">257,258</context>
+          <context context-type="linenumber">261,262</context>
         </context-group>
       </trans-unit>
       <trans-unit id="In_90_days" datatype="html">
         <source>90 days</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">258,259</context>
+          <context context-type="linenumber">262,263</context>
         </context-group>
       </trans-unit>
       <trans-unit id="In_1_year" datatype="html">
         <source>1 year</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">259,260</context>
+          <context context-type="linenumber">263,264</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Cancel" datatype="html">
         <source>Cancel</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">264,265</context>
+          <context context-type="linenumber">268,269</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/group-dialog.component.ts</context>
@@ -368,7 +376,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">519,520</context>
+          <context context-type="linenumber">526,527</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/confirm-dialog.component.ts</context>
@@ -383,7 +391,7 @@
         <source>Create</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">265,266</context>
+          <context context-type="linenumber">269,270</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
@@ -410,14 +418,14 @@
         <source>Token created</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">309,310</context>
+          <context context-type="linenumber">313,314</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Shown_once_copy_it_now" datatype="html">
         <source>Shown once: copy it now, it cannot be retrieved later.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">311,313</context>
+          <context context-type="linenumber">315,317</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
@@ -428,7 +436,7 @@
         <source>Copy</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">315</context>
+          <context context-type="linenumber">319</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
@@ -443,7 +451,7 @@
         <source>Done</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">320,321</context>
+          <context context-type="linenumber">324,325</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
@@ -681,7 +689,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">521,523</context>
+          <context context-type="linenumber">528,530</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
@@ -1047,7 +1055,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">169,170</context>
+          <context context-type="linenumber">186,187</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Search" datatype="html">
@@ -1058,7 +1066,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">187,188</context>
+          <context context-type="linenumber">204,205</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Transfer_ownership" datatype="html">
@@ -1189,7 +1197,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">83,84</context>
+          <context context-type="linenumber">90,91</context>
         </context-group>
       </trans-unit>
       <trans-unit id="by" datatype="html">
@@ -1200,7 +1208,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">203</context>
+          <context context-type="linenumber">222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Owner" datatype="html">
@@ -1312,7 +1320,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">214,215</context>
+          <context context-type="linenumber">221,222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Full_name" datatype="html">
@@ -1337,7 +1345,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
-          <context context-type="linenumber">473</context>
+          <context context-type="linenumber">475</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
@@ -1724,7 +1732,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">474,475</context>
+          <context context-type="linenumber">481,482</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Custom_JavaScript" datatype="html">
@@ -1735,7 +1743,102 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">492,493</context>
+          <context context-type="linenumber">499,500</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Back" datatype="html">
+        <source>Back</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Endpoint_security" datatype="html">
+        <source>Endpoint security</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">6,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Save_apply" datatype="html">
+        <source>Save &amp; apply</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">18,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Deny_by_default" datatype="html">
+        <source>Deny by default</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">36,37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Deny_by_default_hint" datatype="html">
+        <source>
+        Lock every operation with no explicit rule. A new endpoint appearing upstream is then refused until you expose it on purpose.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">39,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_default" datatype="html">
+        <source>Default</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">58,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_public" datatype="html">
+        <source>Public</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">59,60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_authenticated" datatype="html">
+        <source>Authenticated</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">60,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_roles" datatype="html">
+        <source>Roles</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">61,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_operations" datatype="html">
+        <source>This spec exposes no operations.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">82,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Endpoints_secured_summary" datatype="html">
+        <source>
+      <x id="INTERPOLATION" equiv-text="{{ (data()?.operations)?.length || 0 }}"/> operations, <x id="INTERPOLATION_1" equiv-text="{{ securedCount() }}"/> secured
+    </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">87,90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_route_selected" datatype="html">
+        <source>No route selected</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
+          <context context-type="linenumber">101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Endpoint_security_saved" datatype="html">
+        <source>Endpoint security saved and applied</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
+          <context context-type="linenumber">175</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Header_name" datatype="html">
@@ -1750,7 +1853,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">342,343</context>
+          <context context-type="linenumber">349,350</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Value" datatype="html">
@@ -2179,25 +2282,32 @@
           <context context-type="linenumber">78,79</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Edit_endpoint_security" datatype="html">
+        <source>Endpoint security</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">84,88</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Authenticated" datatype="html">
         <source>Authenticated</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">90,91</context>
+          <context context-type="linenumber">97,98</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Required_role" datatype="html">
         <source>Required role</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">95,96</context>
+          <context context-type="linenumber">102,103</context>
         </context-group>
       </trans-unit>
       <trans-unit id="None" datatype="html">
         <source>None</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">97,98</context>
+          <context context-type="linenumber">104,105</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
@@ -2208,7 +2318,7 @@
         <source>Only sessions holding this effective role pass; implies Authenticated</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">102,103</context>
+          <context context-type="linenumber">109,110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Identity_section_hint" datatype="html">
@@ -2218,46 +2328,46 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">119,122</context>
+          <context context-type="linenumber">126,129</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Forward_the_signed_in_user" datatype="html">
         <source>Forward the signed-in user</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">123,125</context>
+          <context context-type="linenumber">130,132</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Mechanism" datatype="html">
         <source>Mechanism</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">128,129</context>
+          <context context-type="linenumber">135,136</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">279,280</context>
+          <context context-type="linenumber">286,287</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Headers" datatype="html">
         <source>Headers</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">130,131</context>
+          <context context-type="linenumber">137,138</context>
         </context-group>
       </trans-unit>
       <trans-unit id="JWT_planned" datatype="html">
         <source>JWT (planned)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">131,132</context>
+          <context context-type="linenumber">138,139</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Signed_JWT_planned" datatype="html">
         <source>Signed JWT (planned)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">132,133</context>
+          <context context-type="linenumber">139,140</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Identity_headers_hint" datatype="html">
@@ -2266,14 +2376,14 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">137,139</context>
+          <context context-type="linenumber">144,146</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_button" datatype="html">
         <source>User button</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">155,156</context>
+          <context context-type="linenumber">162,163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_button_hint" datatype="html">
@@ -2283,91 +2393,91 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">157,160</context>
+          <context context-type="linenumber">164,167</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inject_the_user_button" datatype="html">
         <source>Inject the user button</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">161,162</context>
+          <context context-type="linenumber">168,169</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Height_px" datatype="html">
         <source>Height (px)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">166,167</context>
+          <context context-type="linenumber">173,174</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Position" datatype="html">
         <source>Position</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">177,178</context>
+          <context context-type="linenumber">184,185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Shape" datatype="html">
         <source>Shape</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">185,186</context>
+          <context context-type="linenumber">192,193</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Rounded" datatype="html">
         <source>Rounded</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">187,188</context>
+          <context context-type="linenumber">194,195</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Square" datatype="html">
         <source>Square</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">188,189</context>
+          <context context-type="linenumber">195,196</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Horizontal_gap_px" datatype="html">
         <source>Horizontal gap (px)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">192,193</context>
+          <context context-type="linenumber">199,200</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Vertical_gap_px" datatype="html">
         <source>Vertical gap (px)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">203,204</context>
+          <context context-type="linenumber">210,211</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Hidden" datatype="html">
         <source>Hidden</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">216,217</context>
+          <context context-type="linenumber">223,224</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Before_the_avatar" datatype="html">
         <source>Before the avatar</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">217,218</context>
+          <context context-type="linenumber">224,225</context>
         </context-group>
       </trans-unit>
       <trans-unit id="After_the_avatar" datatype="html">
         <source>After the avatar</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">218,219</context>
+          <context context-type="linenumber">225,226</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Color_scheme" datatype="html">
         <source>Color scheme</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">263,264</context>
+          <context context-type="linenumber">270,271</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scheme_section_hint" datatype="html">
@@ -2378,7 +2488,7 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">265,270</context>
+          <context context-type="linenumber">272,277</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Offer_scheme_switch" datatype="html">
@@ -2387,49 +2497,49 @@
             </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">272,274</context>
+          <context context-type="linenumber">279,281</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scheme_none" datatype="html">
         <source>color-scheme only</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">281,282</context>
+          <context context-type="linenumber">288,289</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scheme_attribute" datatype="html">
         <source>attribute</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">282,283</context>
+          <context context-type="linenumber">289,290</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scheme_class" datatype="html">
         <source>class</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">283,284</context>
+          <context context-type="linenumber">290,291</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Attribute" datatype="html">
         <source>Attribute</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">288,289</context>
+          <context context-type="linenumber">295,296</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Light_value" datatype="html">
         <source>Light value</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">294,295</context>
+          <context context-type="linenumber">301,302</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Dark_value" datatype="html">
         <source>Dark value</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">298,299</context>
+          <context context-type="linenumber">305,306</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Locales_section_hint" datatype="html">
@@ -2439,14 +2549,14 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">309,312</context>
+          <context context-type="linenumber">316,319</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Forwarding" datatype="html">
         <source>Forwarding</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">324,325</context>
+          <context context-type="linenumber">331,332</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Locales_forwarding_hint" datatype="html">
@@ -2456,42 +2566,42 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">326,330</context>
+          <context context-type="linenumber">333,337</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Extra_mechanisms" datatype="html">
         <source>Extra mechanisms</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">331,332</context>
+          <context context-type="linenumber">338,339</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Custom_header" datatype="html">
         <source>Custom header</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">333,334</context>
+          <context context-type="linenumber">340,341</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Query_parameter" datatype="html">
         <source>Query parameter</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">334,335</context>
+          <context context-type="linenumber">341,342</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Path_prefix" datatype="html">
         <source>Path prefix</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">336,337</context>
+          <context context-type="linenumber">343,344</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Parameter_name" datatype="html">
         <source>Parameter name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">353,354</context>
+          <context context-type="linenumber">360,361</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Roles_section_hint" datatype="html">
@@ -2501,90 +2611,90 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">367,371</context>
+          <context context-type="linenumber">374,378</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inject_the_users_roles" datatype="html">
         <source>Inject the user&apos;s roles</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">372,373</context>
+          <context context-type="linenumber">379,380</context>
         </context-group>
       </trans-unit>
       <trans-unit id="As" datatype="html">
         <source>As</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">378,379</context>
+          <context context-type="linenumber">385,386</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">435,436</context>
+          <context context-type="linenumber">442,443</context>
         </context-group>
       </trans-unit>
       <trans-unit id="An_attribute_on_a_tag" datatype="html">
         <source>an attribute on a tag</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">380,381</context>
+          <context context-type="linenumber">387,388</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Classes_on_a_tag" datatype="html">
         <source>classes on a tag</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">381,382</context>
+          <context context-type="linenumber">388,389</context>
         </context-group>
       </trans-unit>
       <trans-unit id="A_meta_tag" datatype="html">
         <source>a meta tag</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">382,383</context>
+          <context context-type="linenumber">389,390</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">438,439</context>
+          <context context-type="linenumber">445,446</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tag_name" datatype="html">
         <source>Tag name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">387,388</context>
+          <context context-type="linenumber">394,395</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">443,444</context>
+          <context context-type="linenumber">450,451</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Attribute_name" datatype="html">
         <source>Attribute name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">398,399</context>
+          <context context-type="linenumber">405,406</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">460,461</context>
+          <context context-type="linenumber">467,468</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Meta_name" datatype="html">
         <source>Meta name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">409,410</context>
+          <context context-type="linenumber">416,417</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">460</context>
+          <context context-type="linenumber">467</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_info" datatype="html">
         <source>User info</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">421,422</context>
+          <context context-type="linenumber">428,429</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_info_hint" datatype="html">
@@ -2595,21 +2705,21 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">423,427</context>
+          <context context-type="linenumber">430,434</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inject_user_info" datatype="html">
         <source>Inject the user info</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">429,430</context>
+          <context context-type="linenumber">436,437</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Attributes_on_a_tag" datatype="html">
         <source>attributes on a tag</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">437,438</context>
+          <context context-type="linenumber">444,445</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Custom_CSS_hint" datatype="html">
@@ -2618,32 +2728,32 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">476,478</context>
+          <context context-type="linenumber">483,485</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Edit_CSS" datatype="html">
         <source>Edit CSS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">482,483</context>
+          <context context-type="linenumber">489,490</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Add_CSS" datatype="html">
         <source>Add CSS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">484,485</context>
+          <context context-type="linenumber">491,492</context>
         </context-group>
       </trans-unit>
       <trans-unit id="N_lines" datatype="html">
         <source><x id="INTERPOLATION" equiv-text="{{ n }}"/> lines</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">488,489</context>
+          <context context-type="linenumber">495,496</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">506,507</context>
+          <context context-type="linenumber">513,514</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Custom_JS_hint" datatype="html">
@@ -2652,35 +2762,35 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">494,496</context>
+          <context context-type="linenumber">501,503</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Edit_JavaScript" datatype="html">
         <source>Edit JavaScript</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">500,501</context>
+          <context context-type="linenumber">507,508</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Add_JavaScript" datatype="html">
         <source>Add JavaScript</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">502,503</context>
+          <context context-type="linenumber">509,510</context>
         </context-group>
       </trans-unit>
       <trans-unit id="A_header_cookie_or_query_matcher_needs_a_name" datatype="html">
         <source>A header, cookie or query matcher needs a name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
-          <context context-type="linenumber">217</context>
+          <context context-type="linenumber">219</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Weight_needs_both_a_group_and_a_weight" datatype="html">
         <source>Weight needs both a group and a weight</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
-          <context context-type="linenumber">223</context>
+          <context context-type="linenumber">225</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Gateway_Routes" datatype="html">
@@ -2698,7 +2808,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">155,156</context>
+          <context context-type="linenumber">172,173</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_route_yet_create_the_first_one" datatype="html">
@@ -2810,56 +2920,56 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">162,165</context>
+          <context context-type="linenumber">179,182</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Target" datatype="html">
         <source>Target</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">167,168</context>
+          <context context-type="linenumber">184,185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Period" datatype="html">
         <source>Period</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">177,178</context>
+          <context context-type="linenumber">194,195</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Last_24h" datatype="html">
         <source>Last 24 hours</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">179,180</context>
+          <context context-type="linenumber">196,197</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Last_7_days" datatype="html">
         <source>Last 7 days</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">180,181</context>
+          <context context-type="linenumber">197,198</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Last_30_days" datatype="html">
         <source>Last 30 days</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">181,182</context>
+          <context context-type="linenumber">198,199</context>
         </context-group>
       </trans-unit>
       <trans-unit id="All_time" datatype="html">
         <source>All time</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">182,183</context>
+          <context context-type="linenumber">199,200</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_audit_events" datatype="html">
         <source>No audit events for this filter.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">228,230</context>
+          <context context-type="linenumber">247,249</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Working_hours_global_hint" datatype="html">

@@ -9,10 +9,49 @@ export interface Spec {
   args?: Record<string, unknown>;
 }
 
-// API-route options (ROUTE-02): the OpenAPI spec this route exposes — the
-// base for endpoint-level security (RBAC-07).
+// API-route options (ROUTE-02): the OpenAPI spec this route exposes, and the
+// per-endpoint access control (RBAC-07) posed on that spec's operations.
 export interface RouteAPIOptions {
   swaggerUrl?: string;
+  security?: EndpointSecurity;
+}
+
+// The three access modes an operation can be given.
+export type EndpointAccess = 'public' | 'authenticated' | 'roles';
+
+// One method+path binding (RBAC-07). method is an upper-case verb or '*'.
+export interface EndpointPolicy {
+  method: string;
+  path: string;
+  access: EndpointAccess;
+  roles?: string[];
+}
+
+// Per-endpoint security posed on a route. denyByDefault locks every operation
+// not listed, so a new upstream endpoint is refused until exposed on purpose.
+export interface EndpointSecurity {
+  denyByDefault?: boolean;
+  endpoints?: EndpointPolicy[];
+}
+
+// One operation projected from the route's OpenAPI spec (Swagger 2.0 or 3.x),
+// reduced to what the endpoint-security editor needs.
+export interface OpenAPIOperation {
+  method: string;
+  path: string;
+  operationId?: string;
+  summary?: string;
+  tags?: string[];
+}
+
+// What the endpoint-security editor loads: the API metadata, the live operation
+// list fetched from the upstream, and the currently saved security to overlay.
+export interface RouteOperations {
+  title?: string;
+  version?: string;
+  format: string;
+  operations: OpenAPIOperation[];
+  security?: EndpointSecurity;
 }
 
 // The injected <meerkat-user-button> web component. The two-word position's
@@ -415,6 +454,17 @@ export class ApiService {
 
   deleteRoute(id: string): Observable<void> {
     return this.http.delete<void>(`/api/routes/${encodeURIComponent(id)}`);
+  }
+
+  // Endpoint security (RBAC-07): the spec is fetched and parsed server-side,
+  // so the console gets a flat operation list, never raw OpenAPI.
+  getRouteOperations(id: string): Observable<RouteOperations> {
+    return this.http.get<RouteOperations>(`/api/routes/${encodeURIComponent(id)}/operations`);
+  }
+
+  // An empty security block (no endpoints, no deny-by-default) clears it.
+  saveRouteSecurity(id: string, security: EndpointSecurity): Observable<EndpointSecurity | null> {
+    return this.http.put<EndpointSecurity | null>(`/api/routes/${encodeURIComponent(id)}/security`, security);
   }
 
   logout(): Observable<unknown> {

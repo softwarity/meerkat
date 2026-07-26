@@ -74,6 +74,16 @@ export const routes: Routes = [
     ],
   },
   {
+    // Endpoint security (RBAC-07): a dedicated full-width, swagger-like editor
+    // for one route's OpenAPI operations. Reached from the route editor.
+    path: 'endpoint-security/:id',
+    canActivate: [gatewayOnly],
+    loadComponent: () =>
+      import('./routes/endpoint-security/endpoint-security.component').then(
+        (m) => m.EndpointSecurityComponent,
+      ),
+  },
+  {
     path: 'theme',
     canActivate: [gatewayOnly],
     loadComponent: () =>

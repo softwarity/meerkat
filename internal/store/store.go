@@ -572,11 +572,83 @@ CREATE TABLE routes (
 // web application — each unlocks its own option section.
 const ()
 
-// RouteAPI holds the API-route options: the OpenAPI spec this route exposes —
-// the base for endpoint-level security (RBAC-07) when the application does
-// not enforce it itself.
+// RouteAPI holds the API-route options: the OpenAPI spec this route exposes,
+// and the endpoint-level security (RBAC-07) posed on that spec's operations,
+// which secures an upstream that does not enforce access itself.
 type RouteAPI struct {
-	SwaggerURL string `json:"swaggerUrl,omitempty"`
+	SwaggerURL string            `json:"swaggerUrl,omitempty"`
+	Security   *EndpointSecurity `json:"security,omitempty"`
+}
+
+// EndpointSecurity is per-operation access control (RBAC-07) for an API route,
+// posed on the route's OpenAPI operations (method + path). It is the way to
+// secure endpoints the upstream does not protect, without touching its code.
+type EndpointSecurity struct {
+	// DenyByDefault locks every operation that is NOT explicitly bound below:
+	// the whole API is closed and only the listed endpoints open. An endpoint
+	// that later appears upstream is therefore refused until an admin exposes
+	// it on purpose — the safe posture for an API one does not control.
+	DenyByDefault bool `json:"denyByDefault,omitempty"`
+	// Endpoints binds a method+path (OpenAPI coordinates, {var} templating) to
+	// an access rule. First match wins, in list order.
+	Endpoints []EndpointPolicy `json:"endpoints,omitempty"`
+}
+
+// Endpoint access modes (RBAC-07).
+const (
+	EndpointPublic        = "public"        // no check
+	EndpointAuthenticated = "authenticated" // a valid session
+	EndpointRoles         = "roles"         // any of Roles (effective, tenant-scoped)
+)
+
+// EndpointPolicy binds one operation to an access rule. Method is an upper-case
+// verb or "*" (any verb on the path).
+type EndpointPolicy struct {
+	Method string   `json:"method"`
+	Path   string   `json:"path"`
+	Access string   `json:"access"`
+	Roles  []string `json:"roles,omitempty"`
+}
+
+// Validate checks an endpoint-security block: every path must compile, every
+// method be a real verb (or *), every access mode be known, and a roles rule
+// name at least one role. It also upper-cases methods in place so enforcement
+// can compare verbs directly.
+func (s *EndpointSecurity) Validate() error {
+	if s == nil {
+		return nil
+	}
+	for i := range s.Endpoints {
+		e := &s.Endpoints[i]
+		e.Method = strings.ToUpper(strings.TrimSpace(e.Method))
+		if e.Method != "*" && !validHTTPMethod(e.Method) {
+			return fmt.Errorf("endpoint %d (%s %s): invalid method %q", i, e.Method, e.Path, e.Method)
+		}
+		if _, err := routing.CompilePath(e.Path); err != nil {
+			return fmt.Errorf("endpoint %d: %w", i, err)
+		}
+		switch e.Access {
+		case EndpointPublic, EndpointAuthenticated:
+		case EndpointRoles:
+			if len(e.Roles) == 0 {
+				return fmt.Errorf("endpoint %d (%s %s): access %q needs at least one role", i, e.Method, e.Path, EndpointRoles)
+			}
+		default:
+			return fmt.Errorf("endpoint %d (%s %s): invalid access %q (allowed: %s, %s, %s)",
+				i, e.Method, e.Path, e.Access, EndpointPublic, EndpointAuthenticated, EndpointRoles)
+		}
+	}
+	return nil
+}
+
+// validHTTPMethod reports whether m is one of the OpenAPI-supported verbs.
+func validHTTPMethod(m string) bool {
+	switch m {
+	case "GET", "PUT", "POST", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE":
+		return true
+	default:
+		return false
+	}
 }
 
 // UserButton configures the <meerkat-user-button> web component injected into

@@ -73,6 +73,23 @@ func splitPath(path string) []string {
 	return strings.Split(path, "/")
 }
 
+// CompiledPath is an exported, precompiled path matcher for callers outside the
+// package (endpoint-level security precompiles each OpenAPI operation path at
+// reload time). It wraps the internal pathPattern so the matching semantics
+// stay identical to route predicates: {name} matches one segment, ** a tail.
+type CompiledPath struct{ p pathPattern }
+
+// CompilePath compiles an OpenAPI operation path template (e.g. /users/{id})
+// into a reusable matcher. Operation paths never carry a ** tail, but the same
+// engine handles them.
+func CompilePath(raw string) (CompiledPath, error) {
+	p, err := compilePathPattern(raw)
+	return CompiledPath{p}, err
+}
+
+// Match reports whether a concrete request path satisfies the template.
+func (c CompiledPath) Match(path string) bool { return c.p.match(path) }
+
 // StripSegments removes the first n segments of a path — the strip-prefix
 // filter. Stripping more segments than the path has yields "/".
 func StripSegments(path string, n int) string {

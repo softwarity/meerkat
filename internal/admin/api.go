@@ -47,6 +47,7 @@ func (a *API) Register(mux *http.ServeMux) {
 	mux.Handle("GET /api/routes/{id}", a.gw(a.getRoute))
 	mux.Handle("PUT /api/routes/{id}", a.gatewayAdmin(a.putRoute))
 	mux.Handle("DELETE /api/routes/{id}", a.gatewayAdmin(a.deleteRoute))
+	a.registerOpenAPI(mux)
 	a.registerIdentity(mux)
 	a.registerThemes(mux)
 	a.registerRBAC(mux)

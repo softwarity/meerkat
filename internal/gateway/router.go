@@ -187,6 +187,22 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 			return compiledRoute{}, err
 		}
 	}
+	// Per-endpoint security (RBAC-07): when an API route poses operation
+	// policies, wrap the handler with the endpoint guard INSIDE the route-level
+	// auth, so a route-wide gate (if any) is applied first and the per-operation
+	// rule refines it. The guard maps the inbound path back to the OpenAPI
+	// coordinate by undoing the route's strip-prefix.
+	if r.API != nil && r.API.Security != nil &&
+		(len(r.API.Security.Endpoints) > 0 || r.API.Security.DenyByDefault) {
+		if rt.sm == nil {
+			return compiledRoute{}, fmt.Errorf("route poses endpoint security but no session manager is configured")
+		}
+		guard, err := rt.endpointGuard(*r.API.Security, r.Filters, handler)
+		if err != nil {
+			return compiledRoute{}, err
+		}
+		handler = guard
+	}
 	if r.RequiredRole != "" {
 		// A required role IMPLIES authentication: same login redirect for
 		// browsers / 401 for API calls, then the role check on top.
@@ -231,6 +247,13 @@ func Validate(r store.Route) error {
 func validateRouteType(r store.Route) error {
 	if r.RequiredRole != "" && !schemeTokenOK.MatchString(r.RequiredRole) {
 		return fmt.Errorf("required role %q is not allowed: letters, digits, - and _ only", r.RequiredRole)
+	}
+	// Endpoint-level security (RBAC-07): paths must compile, methods and access
+	// modes be known. Validate also upper-cases the methods in place.
+	if r.API != nil {
+		if err := r.API.Security.Validate(); err != nil {
+			return err
+		}
 	}
 	// Identity forwarding is valid for BOTH types (an API service wants the
 	// caller too).
@@ -689,6 +712,95 @@ func (rt *Router) requireRole(role string, next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, req)
 	}))
+}
+
+// requireAnyRole passes the request when the caller holds AT LEAST ONE of the
+// named effective roles; otherwise 403 (401/redirect first, via requireSession).
+func (rt *Router) requireAnyRole(roles []string, next http.Handler) http.Handler {
+	return requireSession(rt.sm, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if d, ok := rt.sessionIdentity(req); ok {
+			for _, want := range roles {
+				if slices.Contains(d.Roles, want) {
+					next.ServeHTTP(w, req)
+					return
+				}
+			}
+		}
+		http.Error(w, "forbidden: this endpoint requires one of the roles "+strings.Join(roles, ", "), http.StatusForbidden)
+	}))
+}
+
+// endpointGuard enforces per-operation security (RBAC-07) inside an API route.
+// Every policy path is precompiled once at reload; per request the guard undoes
+// the route's strip-prefix to recover the OpenAPI coordinate, then applies the
+// first matching rule's precomputed gate. With DenyByDefault, an operation with
+// no matching rule is refused (the safe posture for an uncontrolled upstream).
+func (rt *Router) endpointGuard(sec store.EndpointSecurity, filters []routing.Spec, next http.Handler) (http.Handler, error) {
+	type compiledEP struct {
+		method string
+		path   routing.CompiledPath
+		gate   http.Handler
+	}
+	eps := make([]compiledEP, 0, len(sec.Endpoints))
+	for i, e := range sec.Endpoints {
+		cp, err := routing.CompilePath(e.Path)
+		if err != nil {
+			return nil, fmt.Errorf("endpoint %d (%s %s): %w", i, e.Method, e.Path, err)
+		}
+		var gate http.Handler
+		switch e.Access {
+		case store.EndpointAuthenticated:
+			gate = requireSession(rt.sm, next)
+		case store.EndpointRoles:
+			gate = rt.requireAnyRole(e.Roles, next)
+		default: // public (and any unknown value, already refused by Validate)
+			gate = next
+		}
+		eps = append(eps, compiledEP{method: strings.ToUpper(e.Method), path: cp, gate: gate})
+	}
+	strip := stripPrefixCount(filters)
+	deny := sec.DenyByDefault
+
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		specPath := routing.StripSegments(req.URL.Path, strip)
+		for i := range eps {
+			if (eps[i].method == "*" || eps[i].method == req.Method) && eps[i].path.Match(specPath) {
+				eps[i].gate.ServeHTTP(w, req)
+				return
+			}
+		}
+		if deny {
+			http.Error(w, "forbidden: this endpoint is not exposed by the gateway", http.StatusForbidden)
+			return
+		}
+		next.ServeHTTP(w, req)
+	}), nil
+}
+
+// stripPrefixCount sums the leading segments the route's strip-prefix filters
+// remove, so the endpoint guard can map an inbound path back to the OpenAPI
+// coordinate its operation paths live in. A strip-prefix with no explicit
+// "parts" uses the schema default of 1.
+func stripPrefixCount(filters []routing.Spec) int {
+	n := 0
+	for _, f := range filters {
+		if f.Type != "strip-prefix" {
+			continue
+		}
+		parts := 1
+		if v, ok := f.Args["parts"]; ok {
+			switch p := v.(type) {
+			case float64:
+				parts = int(p)
+			case int:
+				parts = p
+			case int64:
+				parts = int(p)
+			}
+		}
+		n += parts
+	}
+	return n
 }
 
 // identityForwardFilter sends the signed-in user upstream as headers: one

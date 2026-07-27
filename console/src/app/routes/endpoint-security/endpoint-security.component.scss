@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -101,9 +103,11 @@
   color: var(--mat-sys-on-surface-variant);
   font-size: 0.7rem;
 }
-// A compact select in the column header filters the rows by tag.
+// A compact select in the column header filters the rows by tag. The density
+// mixin shrinks the Material field so it does not inflate the header row.
 .tagselect {
   width: 150px;
+  @include mat.form-field-density(-5);
 }
 
 .inherits {

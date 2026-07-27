@@ -121,10 +121,7 @@
                 (valueChange)="setOpAccess(o, $event)"
               />
             } @else {
-              <span class="inherits">
-                <span i18n="@@Inherits_route_default">Inherits the route default</span>
-                <app-access-badges [access]="routeAccess()" />
-              </span>
+              <span class="inherits" i18n="@@Inherits_route_default">Inherits the route config</span>
             }
           </div>
         </td>

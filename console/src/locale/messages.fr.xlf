@@ -75,8 +75,8 @@
         <target>Surcharger la config de la route</target>
       </trans-unit>
       <trans-unit id="Inherits_route_default" datatype="html">
-        <source>Inherits the route default</source>
-        <target>Hérite du défaut de la route</target>
+        <source>Inherits the route config</source>
+        <target>Hérite de la config de la route</target>
       </trans-unit>
       <trans-unit id="Method" datatype="html">
         <source>Method</source>

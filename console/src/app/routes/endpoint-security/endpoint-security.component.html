@@ -18,16 +18,6 @@
       }
     </mat-select>
   </mat-form-field>
-
-  <span class="spacer"></span>
-  <button
-    matButton="filled"
-    (click)="save()"
-    [disabled]="saving() || loadingOps() || !selectedId() || !data()"
-  >
-    <mat-icon>save</mat-icon>
-    <span i18n="@@Save">Save</span>
-  </button>
 </header>
 
 @if (loadingRoutes() || loadingOps()) {
@@ -48,32 +38,67 @@
     <span>{{ error() }}</span>
   </div>
 } @else if (!loadingOps() && data()) {
-  <div class="content">
-    <!-- Deny-by-default: the safe posture for an API one does not control. -->
-    <section class="deny">
-      <mat-slide-toggle [checked]="denyByDefault()" (change)="denyByDefault.set($event.checked)">
-        <span i18n="@@Deny_by_default">Deny by default</span>
-      </mat-slide-toggle>
-      <p class="hint" i18n="@@Deny_by_default_hint">
-        Lock every operation with no explicit rule. A new endpoint appearing upstream is then refused until you expose it on purpose.
-      </p>
-    </section>
+  <!-- Deny-by-default: the safe posture for an API one does not control. -->
+  <section class="deny">
+    <mat-slide-toggle [checked]="denyByDefault()" (change)="denyByDefault.set($event.checked)">
+      <span i18n="@@Deny_by_default">Deny by default</span>
+    </mat-slide-toggle>
+    <span class="hint" i18n="@@Deny_by_default_hint">
+      Lock every operation with no explicit rule. A new endpoint appearing upstream is then refused until you expose it on purpose.
+    </span>
+  </section>
 
-    @for (g of groups(); track g.tag) {
-      <section class="group">
-        <h3 class="tag">{{ g.tag || 'default' }}</h3>
-        <ul class="ops">
-          @for (o of g.operations; track o.method + ' ' + o.path) {
-            <li class="op" [class.secured]="stateOf(o).access !== 'default'">
-              <span class="method m-{{ o.method.toLowerCase() }}">{{ o.method }}</span>
-              <span class="path">{{ o.path }}</span>
-              @if (o.summary) {<span class="summary">{{ o.summary }}</span>}
+  <div class="table-wrap">
+    <table mat-table [dataSource]="operations()" multiTemplateDataRows class="ops">
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef class="c-status"></th>
+        <td mat-cell *matCellDef="let o" class="c-status">
+          <mat-icon class="acc acc-{{ stateOf(o).access }}" [matTooltip]="accessTip(o)">{{ accessIcon(o) }}</mat-icon>
+        </td>
+      </ng-container>
 
+      <ng-container matColumnDef="method">
+        <th mat-header-cell *matHeaderCellDef class="c-method" i18n="@@Method">Method</th>
+        <td mat-cell *matCellDef="let o" class="c-method">
+          <span class="method m-{{ o.method.toLowerCase() }}">{{ o.method }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="path">
+        <th mat-header-cell *matHeaderCellDef i18n="@@Path">Path</th>
+        <td mat-cell *matCellDef="let o"><span class="path">{{ o.path }}</span></td>
+      </ng-container>
+
+      <ng-container matColumnDef="summary">
+        <th mat-header-cell *matHeaderCellDef i18n="@@Description">Description</th>
+        <td mat-cell *matCellDef="let o"><span class="summary">{{ o.summary }}</span></td>
+      </ng-container>
+
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef class="c-expand"></th>
+        <td mat-cell *matCellDef="let o" class="c-expand">
+          <mat-icon class="chev" [class.open]="isExpanded(o)">expand_more</mat-icon>
+        </td>
+      </ng-container>
+
+      <!-- Inline editor, shown only under an expanded row. -->
+      <ng-container matColumnDef="detail">
+        <td mat-cell *matCellDef="let o" [attr.colspan]="columns.length" class="detail-cell">
+          <div class="detail">
+            <div class="detail-meta">
+              @if (o.operationId) {
+                <span class="k" i18n="@@Operation_ID">Operation ID</span>
+                <code>{{ o.operationId }}</code>
+              }
+              @if (o.tags?.length) {
+                <span class="k" i18n="@@Tags">Tags</span>
+                <span class="tags">@for (t of o.tags; track t) {<span class="tag-chip">{{ t }}</span>}</span>
+              }
+            </div>
+            <div class="detail-controls">
               <mat-form-field class="access" subscriptSizing="dynamic">
-                <mat-select
-                  [value]="stateOf(o).access"
-                  (selectionChange)="setAccess(o, $event.value)"
-                >
+                <mat-label i18n="@@Access">Access</mat-label>
+                <mat-select [value]="stateOf(o).access" (selectionChange)="setAccess(o, $event.value)">
                   <mat-option value="default" i18n="@@Access_default">Default</mat-option>
                   <mat-option value="public" i18n="@@Access_public">Public</mat-option>
                   <mat-option value="authenticated" i18n="@@Access_authenticated">Authenticated</mat-option>
@@ -91,19 +116,32 @@
                   </mat-select>
                 </mat-form-field>
               }
-            </li>
-          }
-        </ul>
-      </section>
-    } @empty {
-      <div class="notice">
-        <mat-icon>info</mat-icon>
-        <span i18n="@@No_operations">This spec exposes no operations.</span>
-      </div>
-    }
+            </div>
+          </div>
+        </td>
+      </ng-container>
 
-    <footer class="summary" i18n="@@Endpoints_secured_summary">
-      {{ (data()?.operations)?.length || 0 }} operations, {{ securedCount() }} secured
-    </footer>
+      <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+      <tr
+        mat-row
+        *matRowDef="let o; columns: columns"
+        class="op-row"
+        [class.secured]="stateOf(o).access !== 'default'"
+        [class.open]="isExpanded(o)"
+        (click)="toggle(o)"
+      ></tr>
+      <tr mat-row *matRowDef="let o; columns: ['detail']; when: isDetailRow" class="detail-row"></tr>
+    </table>
   </div>
+
+  <footer class="foot">
+    <span class="count" i18n="@@Endpoints_secured_summary">
+      {{ (data()?.operations)?.length || 0 }} operations, {{ securedCount() }} secured
+    </span>
+    <span class="spacer"></span>
+    <button matButton="filled" (click)="save()" [disabled]="saving() || !selectedId()">
+      <mat-icon>save</mat-icon>
+      <span i18n="@@Save">Save</span>
+    </button>
+  </footer>
 }

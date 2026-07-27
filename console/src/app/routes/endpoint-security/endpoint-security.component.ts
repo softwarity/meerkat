@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,6 +7,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTable, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -34,11 +36,12 @@ function opKey(method: string, path: string): string {
 }
 
 // Endpoint security (RBAC-07): a dedicated Gateway page. Pick a route that
-// exposes an OpenAPI spec, and its operations load as a swagger-ui-like list,
-// each given an access rule. The spec is fetched and parsed SERVER-SIDE (Swagger
-// 2.0 or OpenAPI 3.x), so this screen only ever sees a flat operation list.
-// Saving PUTs the assembled security to the admin API, which validates by
-// compiling and reloads the data plane (saving IS applying).
+// exposes an OpenAPI spec, and its operations load as a table (sticky header,
+// scrolling rows, global Save in the footer). A row shows the method, path,
+// description and an access icon; clicking it expands an inline editor. The
+// spec is fetched and parsed SERVER-SIDE, so this screen only ever sees a flat
+// operation list. Saving PUTs the assembled security to the admin API, which
+// validates by compiling and reloads the data plane (saving IS applying).
 @Component({
   selector: 'app-endpoint-security',
   imports: [
@@ -49,6 +52,8 @@ function opKey(method: string, path: string): string {
     MatProgressBarModule,
     MatSelectModule,
     MatSlideToggleModule,
+    MatTableModule,
+    MatTooltipModule,
   ],
   templateUrl: './endpoint-security.component.html',
   styleUrl: './endpoint-security.component.scss',
@@ -56,6 +61,7 @@ function opKey(method: string, path: string): string {
 export class EndpointSecurityComponent {
   private readonly api = inject(ApiService);
   private readonly snack = inject(MatSnackBar);
+  private readonly table = viewChild(MatTable);
 
   protected readonly loadingRoutes = signal(true);
   protected readonly loadingOps = signal(false);
@@ -72,25 +78,16 @@ export class EndpointSecurityComponent {
   // Saved policies that match no listed operation (wildcards, endpoints since
   // removed upstream): kept aside so a save never silently drops policy.
   private readonly extras = signal<EndpointPolicy[]>([]);
+  // Which rows are expanded (opKey set).
+  private readonly expanded = signal<Set<string>>(new Set());
 
   // The routes that expose an OpenAPI spec are the ones that can be secured
   // per endpoint; the selector lists exactly those.
   protected readonly apiRoutes = computed(() => this.routes().filter((r) => !!r.api?.swaggerUrl));
 
-  // Operations grouped by their first tag, tags alphabetical, untagged last.
-  protected readonly groups = computed(() => {
-    const ops = this.data()?.operations ?? [];
-    const byTag = new Map<string, OpenAPIOperation[]>();
-    for (const o of ops) {
-      const tag = o.tags?.[0] ?? '';
-      const list = byTag.get(tag);
-      if (list) list.push(o);
-      else byTag.set(tag, [o]);
-    }
-    return [...byTag.entries()]
-      .sort((a, b) => (a[0] === '' ? 1 : b[0] === '' ? -1 : a[0].localeCompare(b[0])))
-      .map(([tag, operations]) => ({ tag, operations }));
-  });
+  // Flat operation list backing the table.
+  protected readonly operations = computed(() => this.data()?.operations ?? []);
+  protected readonly columns = ['status', 'method', 'path', 'summary', 'expand'];
 
   // Count of operations carrying an explicit rule, plus the preserved extras.
   protected readonly securedCount = computed(() => {
@@ -128,6 +125,7 @@ export class EndpointSecurityComponent {
   protected async selectRoute(id: string): Promise<void> {
     this.selectedId.set(id);
     this.data.set(null);
+    this.expanded.set(new Set());
     this.error.set('');
     if (!id) return;
     this.loadingOps.set(true);
@@ -164,8 +162,55 @@ export class EndpointSecurityComponent {
     this.extras.set((sec.endpoints ?? []).filter((e) => !matched.has(opKey(e.method, e.path))));
   }
 
+  // Expand / collapse a row. mat-table only re-evaluates the detail-row
+  // predicate on renderRows, so nudge it (state/cell content stay reactive on
+  // their own).
+  protected toggle(o: OpenAPIOperation): void {
+    const k = opKey(o.method, o.path);
+    this.expanded.update((s) => {
+      const next = new Set(s);
+      if (!next.delete(k)) next.add(k);
+      return next;
+    });
+    this.table()?.renderRows();
+  }
+
+  protected isExpanded(o: OpenAPIOperation): boolean {
+    return this.expanded().has(opKey(o.method, o.path));
+  }
+
+  // Row predicate: a detail row exists only under an expanded operation.
+  protected readonly isDetailRow = (_: number, o: OpenAPIOperation): boolean => this.isExpanded(o);
+
   protected stateOf(o: OpenAPIOperation): OpState {
     return this.state()[opKey(o.method, o.path)] ?? { access: 'default', roles: [] };
+  }
+
+  protected accessIcon(o: OpenAPIOperation): string {
+    switch (this.stateOf(o).access) {
+      case 'public':
+        return 'public';
+      case 'authenticated':
+        return 'lock';
+      case 'roles':
+        return 'badge';
+      default:
+        return 'radio_button_unchecked';
+    }
+  }
+
+  protected accessTip(o: OpenAPIOperation): string {
+    const s = this.stateOf(o);
+    switch (s.access) {
+      case 'public':
+        return $localize`:@@Access_public:Public`;
+      case 'authenticated':
+        return $localize`:@@Access_authenticated:Authenticated`;
+      case 'roles':
+        return $localize`:@@Access_roles:Roles` + (s.roles.length ? ': ' + s.roles.join(', ') : '');
+      default:
+        return $localize`:@@Access_default:Default`;
+    }
   }
 
   protected setAccess(o: OpenAPIOperation, access: Access): void {

@@ -42,6 +42,22 @@
         <source><x id="INTERPOLATION"/> operations, <x id="INTERPOLATION_1"/> secured</source>
         <target><x id="INTERPOLATION" equiv-text="{{ (data()?.operations)?.length || 0 }}"/> opérations, <x id="INTERPOLATION_1" equiv-text="{{ securedCount() }}"/> sécurisées</target>
       </trans-unit>
+      <trans-unit id="Access" datatype="html">
+        <source>Access</source>
+        <target>Accès</target>
+      </trans-unit>
+      <trans-unit id="Method" datatype="html">
+        <source>Method</source>
+        <target>Méthode</target>
+      </trans-unit>
+      <trans-unit id="Path" datatype="html">
+        <source>Path</source>
+        <target>Chemin</target>
+      </trans-unit>
+      <trans-unit id="Operation_ID" datatype="html">
+        <source>Operation ID</source>
+        <target>ID d'opération</target>
+      </trans-unit>
       <trans-unit id="Access_default" datatype="html">
         <source>Default</source>
         <target>Défaut</target>

@@ -44,11 +44,17 @@
 } @else if (!loadingOps() && data()) {
   <!-- Route-wide default: the access applied to every operation with no
        override. An authenticated/role default locks the whole API. -->
-  <section class="route-default">
-    <div class="rd-head">
-      <span class="rd-title" i18n="@@Whole_route_default">Whole route (default for every operation)</span>
-      <app-access-badges [access]="routeAccess()" />
-    </div>
+  <mat-expansion-panel
+    class="route-default"
+    [expanded]="view.$routeOpen()"
+    (expandedChange)="view.routeOpen = $event"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n="@@Whole_route_default">Whole route (default for every operation)</mat-panel-title>
+      <mat-panel-description>
+        <app-access-badges [access]="routeAccess()" />
+      </mat-panel-description>
+    </mat-expansion-panel-header>
     <app-access-editor
       [value]="routeAccess()"
       [users]="users()"
@@ -58,7 +64,7 @@
     <p class="rd-hint" i18n="@@Delegation_hint">
       Rules set here are enforced by the gateway. Where nothing is set, security stays delegated to the API backend.
     </p>
-  </section>
+  </mat-expansion-panel>
 
   <div class="table-wrap">
     <table

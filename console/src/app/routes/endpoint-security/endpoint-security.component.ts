@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -71,6 +72,7 @@ function fromWire(a: { authenticated?: boolean; users?: string[]; roles?: string
   imports: [
     RouterLink,
     MatButtonModule,
+    MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
     MatProgressBarModule,
@@ -126,8 +128,14 @@ export class EndpointSecurityComponent {
   // Sort + method/tag filters persisted in sessionStorage: they survive a page
   // refresh (not the session). $prop() signals drive the template and computeds.
   protected readonly view = sessionStored(
-    { sortActive: '', sortDir: '' as '' | 'asc' | 'desc', methods: [] as string[], tags: [] as string[] },
-    { storageKey: 'endpoint-security-view.v2' },
+    {
+      sortActive: '',
+      sortDir: '' as '' | 'asc' | 'desc',
+      methods: [] as string[],
+      tags: [] as string[],
+      routeOpen: true, // the "whole route" panel is expanded by default
+    },
+    { storageKey: 'endpoint-security-view.v3' },
   );
 
   // Distinct methods present, in conventional verb order, for the header filter.

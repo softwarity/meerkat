@@ -23,18 +23,23 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   `Fetch(ctx, client, url)` récupère la spec côté serveur (limite 12 Mo) et rend spec +
   octets bruts. `Rewrite(raw, exposedBase)` = UIF-07 (JSON) : 2.0 pose `basePath` et
   retire `host`/`schemes` ; 3.x pose un `server` relatif unique.
-- **Modèle store** : `RouteAPI.Security = *EndpointSecurity{denyByDefault, endpoints[]}`,
-  chaque `EndpointPolicy{method, path, access, roles}`, access = `public` |
-  `authenticated` | `roles`. PAS de bump de schéma (`RouteAPI` voyage déjà en JSON dans
-  la colonne `api`). `EndpointSecurity.Validate()` (paths compilent, méthodes/access
-  connus, majuscule les méthodes).
+- **Modèle store — accès UNIFIÉ** (revu selon François 2026-07-27, le deny-by-default
+  l'ayant perdu) : `store.Access{Authenticated bool, Users []string, Roles []string}`,
+  sémantique = PUBLIC si rien de posé, sinon session requise et si Users/Roles nommés,
+  l'appelant doit être **un des Users OU avoir un des Roles** (users et roles
+  indépendants, OU ; nommer un user/role implique authentifié). Helpers `Public()` /
+  `Grants(authed, username, roles)`. `EndpointSecurity{Route *Access, Endpoints
+  []EndpointPolicy}` où `Route` = **défaut appliqué à toute opération sans surcharge**
+  (remplace deny-by-default : un défaut authentifié/rôle verrouille toute l'API, un
+  nouvel endpoint amont est couvert d'office) et `EndpointPolicy{Method, Path, Access}`
+  (Access embarqué) = surcharge par opération. PAS de bump de schéma (`RouteAPI` voyage
+  en JSON dans la colonne `api`). `Validate()` : paths compilent, méthodes valides.
 - **Enforcement routeur** : `endpointGuard` greffé dans `compile`, à l'INTÉRIEUR de
-  l'auth de route (la garde de route passe d'abord). Précompile chaque path via
-  `routing.CompilePath` (export du matcher de prédicat, gère `{var}`). Par requête :
-  ramène le path entrant à la coordonnée de la spec en défaisant le strip-prefix
-  (`stripPrefixCount`), matche méthode+path, applique la règle. **deny-by-default** :
-  opération sans règle refusée (posture sûre pour un amont non maîtrisé) ; sans deny,
-  retombe sur la garde de route. `requireAnyRole` ajouté (union de rôles).
+  l'auth de route. Précompile chaque path via `routing.CompilePath` (`{var}`) et un
+  `accessGate(Access)` par surcharge + un pour le défaut de route. Par requête : ramène
+  le path entrant à la coordonnée de la spec (`stripPrefixCount`), matche la surcharge,
+  sinon applique le défaut de route, sinon retombe sur la garde de route. `accessGate`
+  = public → passe ; sinon `requireSession` + `Access.Grants(username, roles)`.
 - **Admin API** (`internal/admin/openapi.go`, scope GATEWAY) : `GET
   /api/routes/{id}/operations` (fetch+parse live, renvoie métadonnées + operations + la
   sécurité sauvée) et `PUT /api/routes/{id}/security` (valide via `gateway.Validate`,
@@ -43,14 +48,17 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 - **Console** : page dédiée `/endpoint-security` dans le **rail Gateway** (« Endpoint
   security », icône `security`), avec un **sélecteur de route** en tête (liste les routes
   exposant une spec OpenAPI, c.-à-d. `api.swaggerUrl` renseigné). Choisir une route charge
-  ses opérations dans une **mat-table** : colonnes icône d'état d'accès (public/lock/badge/
-  muet) + méthode colorée + path + description + chevron ; **clic sur la ligne = expand-row**
-  avec l'éditeur inline (select d'accès + multiselect de rôles, plus operationId/tags) ;
-  **header sticky, lignes scrollables**, toggle deny-by-default au-dessus, **Save global en
-  footer**. Expand géré via `multiTemplateDataRows` + prédicat `when` + `table.renderRows()`
-  au toggle (l'état des cellules reste réactif par signaux). Présélection via `?route=<id>`
-  (bouton « Endpoint security » de l'éditeur de route). Signal-first, Material sur
-  `--mat-sys`, zéro ngModel. `api.service` : types + `getRouteOperations`/`saveRouteSecurity`.
+  ses opérations dans une **mat-table** : icône d'état d'accès (public/lock/badge) + méthode
+  colorée + path + description + chevron ; **clic sur la ligne = expand-row**. En **en-tête**,
+  un **défaut de route** éditable via le composant réutilisable `AccessEditor` (case
+  « authentifié » + chips users + chips roles, users/roles cochant/verrouillant authentifié).
+  Chaque opération peut **surcharger** le défaut (toggle « Override the route default » dans
+  l'expand → le même `AccessEditor` ; sinon « hérite du défaut »). **Header sticky, lignes
+  scrollables, Save global en footer**. Expand via `multiTemplateDataRows` + prédicat `when` +
+  `table.renderRows()`. `listRoles`/`listUsers` (app-scope) chargés en tolérant le 403 (un
+  gateway_admin pur aura les listes vides mais peut poser « authentifié »). Présélection via
+  `?route=<id>`. Signal-first, Material sur `--mat-sys`, zéro ngModel. `api.service` :
+  `Access`/`EndpointPolicy`/`EndpointSecurity` + `getRouteOperations`/`saveRouteSecurity`.
   i18n fr complet.
 - **Vert** : `go test -race ./...`, `go vet`, `golangci-lint` (0 issue), build console
   (0 erreur, 0 warning i18n). **Live** : fetch+parse du VRAI httpbin sur :80 (Swagger

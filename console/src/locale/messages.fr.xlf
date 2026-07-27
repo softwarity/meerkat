@@ -46,6 +46,22 @@
         <source>Access</source>
         <target>Accès</target>
       </trans-unit>
+      <trans-unit id="Whole_route_default" datatype="html">
+        <source>Whole route (default for every operation)</source>
+        <target>Toute la route (défaut pour chaque opération)</target>
+      </trans-unit>
+      <trans-unit id="Overridden" datatype="html">
+        <source>overridden</source>
+        <target>surchargé</target>
+      </trans-unit>
+      <trans-unit id="Override_route_default" datatype="html">
+        <source>Override the route default</source>
+        <target>Surcharger le défaut de la route</target>
+      </trans-unit>
+      <trans-unit id="Inherits_route_default" datatype="html">
+        <source>Inherits the route default</source>
+        <target>Hérite du défaut de la route</target>
+      </trans-unit>
       <trans-unit id="Method" datatype="html">
         <source>Method</source>
         <target>Méthode</target>

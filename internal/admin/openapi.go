@@ -87,7 +87,7 @@ func (a *API) putRouteSecurity(w http.ResponseWriter, r *http.Request, actor sto
 	if route.API != nil {
 		api = *route.API // keep swaggerUrl and any future API options
 	}
-	if len(sec.Endpoints) == 0 && !sec.DenyByDefault {
+	if len(sec.Endpoints) == 0 && sec.Route == nil {
 		api.Security = nil
 	} else {
 		api.Security = &sec

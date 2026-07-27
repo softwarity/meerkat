@@ -16,21 +16,27 @@ export interface RouteAPIOptions {
   security?: EndpointSecurity;
 }
 
-// The three access modes an operation can be given.
-export type EndpointAccess = 'public' | 'authenticated' | 'roles';
-
-// One method+path binding (RBAC-07). method is an upper-case verb or '*'.
-export interface EndpointPolicy {
-  method: string;
-  path: string;
-  access: EndpointAccess;
+// A unified access rule (RBAC-06/07), used as a route-wide default and as a
+// per-endpoint override. Public when nothing is set; otherwise a session is
+// required, and when users or roles are named the caller must be one of the
+// users OR hold one of the roles. Naming a user or role implies authentication.
+export interface Access {
+  authenticated?: boolean;
+  users?: string[];
   roles?: string[];
 }
 
-// Per-endpoint security posed on a route. denyByDefault locks every operation
-// not listed, so a new upstream endpoint is refused until exposed on purpose.
+// One method+path override (RBAC-07): the access fields are inlined next to the
+// operation coordinates. method is an upper-case verb or '*'.
+export interface EndpointPolicy extends Access {
+  method: string;
+  path: string;
+}
+
+// Endpoint security posed on a route: a route-wide default applied to every
+// operation with no explicit override, plus the per-operation overrides.
 export interface EndpointSecurity {
-  denyByDefault?: boolean;
+  route?: Access;
   endpoints?: EndpointPolicy[];
 }
 

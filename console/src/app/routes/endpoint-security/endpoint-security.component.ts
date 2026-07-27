@@ -10,38 +10,52 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, of } from 'rxjs';
 import {
   ApiService,
-  EndpointAccess,
   EndpointPolicy,
   EndpointSecurity,
   OpenAPIOperation,
   Role,
   Route,
   RouteOperations,
+  User,
 } from '../../api.service';
+import { AccessEditorComponent, AccessState, emptyAccess, isPublic } from './access-editor.component';
 
-// Editable per-operation state. 'default' means no explicit rule: the operation
-// then follows deny-by-default (refused) or, without it, falls through open.
-type Access = 'default' | EndpointAccess;
+// One operation's editable state: whether it overrides the route-wide default,
+// and (when it does) its own access rule.
 interface OpState {
-  access: Access;
-  roles: string[];
+  override: boolean;
+  access: AccessState;
 }
 
-// Stable key for an operation: upper-case verb + path.
 function opKey(method: string, path: string): string {
   return `${method.toUpperCase()} ${path}`;
 }
 
+// Turn the editor's non-optional access into the wire shape (empty lists and a
+// false flag are simply omitted).
+function toPolicy(method: string, path: string, a: AccessState): EndpointPolicy {
+  const ep: EndpointPolicy = { method: method.toUpperCase(), path };
+  if (a.authenticated) ep.authenticated = true;
+  if (a.users.length) ep.users = a.users;
+  if (a.roles.length) ep.roles = a.roles;
+  return ep;
+}
+
+function fromWire(a: { authenticated?: boolean; users?: string[]; roles?: string[] } | undefined): AccessState {
+  return { authenticated: !!a?.authenticated, users: a?.users ?? [], roles: a?.roles ?? [] };
+}
+
 // Endpoint security (RBAC-07): a dedicated Gateway page. Pick a route that
-// exposes an OpenAPI spec, and its operations load as a table (sticky header,
-// scrolling rows, global Save in the footer). A row shows the method, path,
-// description and an access icon; clicking it expands an inline editor. The
-// spec is fetched and parsed SERVER-SIDE, so this screen only ever sees a flat
-// operation list. Saving PUTs the assembled security to the admin API, which
-// validates by compiling and reloads the data plane (saving IS applying).
+// exposes an OpenAPI spec; its operations load in a table (sticky header,
+// scrolling rows, global Save in the footer). One access rule (authenticated /
+// users / roles) is set for the WHOLE route in the header, and any operation
+// can override it by expanding its row. The spec is fetched and parsed
+// SERVER-SIDE, so this screen only ever sees a flat operation list. Saving PUTs
+// the assembled security to the admin API, which validates by compiling and
+// reloads the data plane (saving IS applying).
 @Component({
   selector: 'app-endpoint-security',
   imports: [
@@ -54,6 +68,7 @@ function opKey(method: string, path: string): string {
     MatSlideToggleModule,
     MatTableModule,
     MatTooltipModule,
+    AccessEditorComponent,
   ],
   templateUrl: './endpoint-security.component.html',
   styleUrl: './endpoint-security.component.scss',
@@ -69,31 +84,27 @@ export class EndpointSecurityComponent {
   protected readonly error = signal('');
   protected readonly routes = signal<Route[]>([]);
   protected readonly roles = signal<Role[]>([]);
+  protected readonly users = signal<User[]>([]);
   protected readonly selectedId = signal('');
   protected readonly data = signal<RouteOperations | null>(null);
 
-  protected readonly denyByDefault = signal(false);
+  // The route-wide default rule (applies to every operation with no override).
+  protected readonly routeAccess = signal<AccessState>(emptyAccess());
   // Per-operation edits, keyed by opKey.
   private readonly state = signal<Record<string, OpState>>({});
-  // Saved policies that match no listed operation (wildcards, endpoints since
-  // removed upstream): kept aside so a save never silently drops policy.
+  // Saved overrides that match no listed operation: kept so a save never
+  // silently drops policy.
   private readonly extras = signal<EndpointPolicy[]>([]);
-  // Which rows are expanded (opKey set).
   private readonly expanded = signal<Set<string>>(new Set());
 
-  // The routes that expose an OpenAPI spec are the ones that can be secured
-  // per endpoint; the selector lists exactly those.
   protected readonly apiRoutes = computed(() => this.routes().filter((r) => !!r.api?.swaggerUrl));
-
-  // Flat operation list backing the table.
   protected readonly operations = computed(() => this.data()?.operations ?? []);
   protected readonly columns = ['status', 'method', 'path', 'summary', 'expand'];
 
-  // Count of operations carrying an explicit rule, plus the preserved extras.
+  // Operations whose EFFECTIVE access gates something, plus the preserved extras.
   protected readonly securedCount = computed(() => {
-    const st = this.state();
     let n = this.extras().length;
-    for (const k of Object.keys(st)) if (st[k].access !== 'default') n++;
+    for (const o of this.operations()) if (!isPublic(this.effective(o))) n++;
     return n;
   });
 
@@ -106,11 +117,15 @@ export class EndpointSecurityComponent {
     this.loadingRoutes.set(true);
     this.error.set('');
     try {
-      const [routes, roles] = await Promise.all([
+      // Roles and users are app-scoped: tolerate a 403 for a pure gateway admin
+      // (the rule can still be set to plain authenticated).
+      const [routes, roles, users] = await Promise.all([
         firstValueFrom(this.api.listRoutes()),
-        firstValueFrom(this.api.listRoles()),
+        firstValueFrom(this.api.listRoles().pipe(catchError(() => of<Role[]>([])))),
+        firstValueFrom(this.api.listUsers().pipe(catchError(() => of<User[]>([])))),
       ]);
       this.roles.set(roles);
+      this.users.set(users);
       this.routes.set(routes);
       const exposing = routes.filter((r) => !!r.api?.swaggerUrl);
       const pick = exposing.find((r) => r.id === preselect)?.id ?? exposing[0]?.id ?? '';
@@ -142,7 +157,7 @@ export class EndpointSecurityComponent {
 
   private seed(ops: RouteOperations): void {
     const sec = ops.security ?? {};
-    this.denyByDefault.set(!!sec.denyByDefault);
+    this.routeAccess.set(fromWire(sec.route));
     const saved = new Map<string, EndpointPolicy>();
     for (const e of sec.endpoints ?? []) saved.set(opKey(e.method, e.path), e);
 
@@ -152,19 +167,17 @@ export class EndpointSecurityComponent {
       const k = opKey(o.method, o.path);
       const p = saved.get(k);
       if (p) {
-        st[k] = { access: p.access, roles: p.roles ?? [] };
+        st[k] = { override: true, access: fromWire(p) };
         matched.add(k);
       } else {
-        st[k] = { access: 'default', roles: [] };
+        st[k] = { override: false, access: emptyAccess() };
       }
     }
     this.state.set(st);
     this.extras.set((sec.endpoints ?? []).filter((e) => !matched.has(opKey(e.method, e.path))));
   }
 
-  // Expand / collapse a row. mat-table only re-evaluates the detail-row
-  // predicate on renderRows, so nudge it (state/cell content stay reactive on
-  // their own).
+  // ── Row expand / collapse ──────────────────────────────────────────────────
   protected toggle(o: OpenAPIOperation): void {
     const k = opKey(o.method, o.path);
     this.expanded.update((s) => {
@@ -179,63 +192,77 @@ export class EndpointSecurityComponent {
     return this.expanded().has(opKey(o.method, o.path));
   }
 
-  // Row predicate: a detail row exists only under an expanded operation.
   protected readonly isDetailRow = (_: number, o: OpenAPIOperation): boolean => this.isExpanded(o);
 
+  // ── Access state ───────────────────────────────────────────────────────────
   protected stateOf(o: OpenAPIOperation): OpState {
-    return this.state()[opKey(o.method, o.path)] ?? { access: 'default', roles: [] };
+    return this.state()[opKey(o.method, o.path)] ?? { override: false, access: emptyAccess() };
   }
 
-  protected accessIcon(o: OpenAPIOperation): string {
-    switch (this.stateOf(o).access) {
-      case 'public':
-        return 'public';
-      case 'authenticated':
-        return 'lock';
-      case 'roles':
-        return 'badge';
-      default:
-        return 'radio_button_unchecked';
-    }
-  }
-
-  protected accessTip(o: OpenAPIOperation): string {
+  // The rule actually in force for an operation: its override, or the route default.
+  protected effective(o: OpenAPIOperation): AccessState {
     const s = this.stateOf(o);
-    switch (s.access) {
-      case 'public':
-        return $localize`:@@Access_public:Public`;
-      case 'authenticated':
-        return $localize`:@@Access_authenticated:Authenticated`;
-      case 'roles':
-        return $localize`:@@Access_roles:Roles` + (s.roles.length ? ': ' + s.roles.join(', ') : '');
-      default:
-        return $localize`:@@Access_default:Default`;
-    }
+    return s.override ? s.access : this.routeAccess();
   }
 
-  protected setAccess(o: OpenAPIOperation, access: Access): void {
+  protected setOpAccess(o: OpenAPIOperation, access: AccessState): void {
     const k = opKey(o.method, o.path);
-    this.state.update((s) => ({ ...s, [k]: { ...(s[k] ?? { access: 'default', roles: [] }), access } }));
+    this.state.update((s) => ({ ...s, [k]: { override: true, access } }));
   }
 
-  protected setRoles(o: OpenAPIOperation, roles: string[]): void {
+  // Toggle whether an operation overrides the route default. Turning it on seeds
+  // from the route default so the admin edits a concrete starting point.
+  protected setOverride(o: OpenAPIOperation, on: boolean): void {
     const k = opKey(o.method, o.path);
-    this.state.update((s) => ({ ...s, [k]: { ...(s[k] ?? { access: 'default', roles: [] }), roles } }));
+    this.state.update((s) => {
+      const cur = s[k] ?? { override: false, access: emptyAccess() };
+      if (!on) return { ...s, [k]: { override: false, access: emptyAccess() } };
+      const seed = isPublic(cur.access) ? { ...this.routeAccess() } : cur.access;
+      return { ...s, [k]: { override: true, access: seed } };
+    });
   }
 
+  // ── Icons / tooltips ───────────────────────────────────────────────────────
+  protected iconFor(a: AccessState): string {
+    if (isPublic(a)) return 'public';
+    if (a.users.length === 0 && a.roles.length === 0) return 'lock';
+    return 'badge';
+  }
+
+  protected classFor(a: AccessState): string {
+    if (isPublic(a)) return 'public';
+    if (a.users.length === 0 && a.roles.length === 0) return 'authenticated';
+    return 'roles';
+  }
+
+  protected tipFor(a: AccessState): string {
+    if (isPublic(a)) return $localize`:@@Access_public:Public`;
+    const parts: string[] = [];
+    if (a.users.length) parts.push($localize`:@@Users:Users` + ': ' + a.users.join(', '));
+    if (a.roles.length) parts.push($localize`:@@Roles:Roles` + ': ' + a.roles.join(', '));
+    return parts.length ? parts.join(' · ') : $localize`:@@Authenticated:Authenticated`;
+  }
+
+  // ── Save ───────────────────────────────────────────────────────────────────
   protected async save(): Promise<void> {
     const id = this.selectedId();
     if (!id) return;
     const endpoints: EndpointPolicy[] = [];
-    for (const o of this.data()?.operations ?? []) {
+    for (const o of this.operations()) {
       const s = this.state()[opKey(o.method, o.path)];
-      if (!s || s.access === 'default') continue;
-      const ep: EndpointPolicy = { method: o.method.toUpperCase(), path: o.path, access: s.access };
-      if (s.access === 'roles') ep.roles = s.roles;
-      endpoints.push(ep);
+      if (!s?.override) continue;
+      endpoints.push(toPolicy(o.method, o.path, s.access));
     }
     endpoints.push(...this.extras());
-    const security: EndpointSecurity = { denyByDefault: this.denyByDefault(), endpoints };
+    const route = this.routeAccess();
+    const security: EndpointSecurity = { endpoints };
+    if (!isPublic(route)) {
+      security.route = {
+        ...(route.authenticated ? { authenticated: true } : {}),
+        ...(route.users.length ? { users: route.users } : {}),
+        ...(route.roles.length ? { roles: route.roles } : {}),
+      };
+    }
 
     this.saving.set(true);
     try {

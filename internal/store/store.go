@@ -12,6 +12,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -580,40 +581,69 @@ type RouteAPI struct {
 	Security   *EndpointSecurity `json:"security,omitempty"`
 }
 
-// EndpointSecurity is per-operation access control (RBAC-07) for an API route,
-// posed on the route's OpenAPI operations (method + path). It is the way to
-// secure endpoints the upstream does not protect, without touching its code.
+// Access is a unified access rule (RBAC-06/07), used both as a route-wide
+// default and as a per-endpoint override. Semantics: PUBLIC when nothing is
+// set; otherwise a valid session is required, and when Users or Roles are
+// named the caller must be ONE of the Users OR hold ONE of the Roles (the two
+// lists are independent, combined with OR). Naming a user or a role therefore
+// implies authentication.
+type Access struct {
+	Authenticated bool     `json:"authenticated,omitempty"`
+	Users         []string `json:"users,omitempty"` // allowed usernames
+	Roles         []string `json:"roles,omitempty"` // allowed effective role names
+}
+
+// Public reports whether the rule gates nothing (open to anonymous callers).
+func (a Access) Public() bool {
+	return !a.Authenticated && len(a.Users) == 0 && len(a.Roles) == 0
+}
+
+// Grants reports whether a caller satisfies the rule. authenticated says a
+// valid session was resolved; username and roles are that caller's identity.
+func (a Access) Grants(authenticated bool, username string, roles []string) bool {
+	if a.Public() {
+		return true
+	}
+	if !authenticated {
+		return false
+	}
+	if len(a.Users) == 0 && len(a.Roles) == 0 {
+		return true // any authenticated user
+	}
+	if slices.Contains(a.Users, username) {
+		return true
+	}
+	for _, r := range a.Roles {
+		if slices.Contains(roles, r) {
+			return true
+		}
+	}
+	return false
+}
+
+// EndpointSecurity secures the operations of a route's OpenAPI spec (RBAC-07),
+// the way to gate an upstream one does not control without touching its code.
 type EndpointSecurity struct {
-	// DenyByDefault locks every operation that is NOT explicitly bound below:
-	// the whole API is closed and only the listed endpoints open. An endpoint
-	// that later appears upstream is therefore refused until an admin exposes
-	// it on purpose — the safe posture for an API one does not control.
-	DenyByDefault bool `json:"denyByDefault,omitempty"`
-	// Endpoints binds a method+path (OpenAPI coordinates, {var} templating) to
-	// an access rule. First match wins, in list order.
+	// Route is the DEFAULT rule applied to every operation with no explicit
+	// override below. An authenticated/role default locks the whole API by
+	// default, so a new upstream endpoint is covered automatically; specific
+	// operations are then opened or tightened via Endpoints.
+	Route *Access `json:"route,omitempty"`
+	// Endpoints override the default for specific operations (method+path,
+	// OpenAPI coordinates, {var} templating). First match wins, in list order.
 	Endpoints []EndpointPolicy `json:"endpoints,omitempty"`
 }
 
-// Endpoint access modes (RBAC-07).
-const (
-	EndpointPublic        = "public"        // no check
-	EndpointAuthenticated = "authenticated" // a valid session
-	EndpointRoles         = "roles"         // any of Roles (effective, tenant-scoped)
-)
-
-// EndpointPolicy binds one operation to an access rule. Method is an upper-case
-// verb or "*" (any verb on the path).
+// EndpointPolicy is one operation's access override. Method is an upper-case
+// verb or "*" (any verb on the path). The access fields are embedded.
 type EndpointPolicy struct {
-	Method string   `json:"method"`
-	Path   string   `json:"path"`
-	Access string   `json:"access"`
-	Roles  []string `json:"roles,omitempty"`
+	Method string `json:"method"`
+	Path   string `json:"path"`
+	Access
 }
 
-// Validate checks an endpoint-security block: every path must compile, every
-// method be a real verb (or *), every access mode be known, and a roles rule
-// name at least one role. It also upper-cases methods in place so enforcement
-// can compare verbs directly.
+// Validate checks an endpoint-security block: every override path must compile
+// and every method be a real verb (or *). Methods are upper-cased in place.
 func (s *EndpointSecurity) Validate() error {
 	if s == nil {
 		return nil
@@ -626,16 +656,6 @@ func (s *EndpointSecurity) Validate() error {
 		}
 		if _, err := routing.CompilePath(e.Path); err != nil {
 			return fmt.Errorf("endpoint %d: %w", i, err)
-		}
-		switch e.Access {
-		case EndpointPublic, EndpointAuthenticated:
-		case EndpointRoles:
-			if len(e.Roles) == 0 {
-				return fmt.Errorf("endpoint %d (%s %s): access %q needs at least one role", i, e.Method, e.Path, EndpointRoles)
-			}
-		default:
-			return fmt.Errorf("endpoint %d (%s %s): invalid access %q (allowed: %s, %s, %s)",
-				i, e.Method, e.Path, e.Access, EndpointPublic, EndpointAuthenticated, EndpointRoles)
 		}
 	}
 	return nil

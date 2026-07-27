@@ -91,13 +91,14 @@ func TestPutRouteSecurityEnforced(t *testing.T) {
 		t.Fatalf("put route: %d %s", code, out)
 	}
 
+	// The route-wide default locks the API; GET /orders is reopened to anonymous.
+	sec := `{"route":{"authenticated":true},"endpoints":[{"method":"GET","path":"/orders"}]}`
 	// Non-root cannot pose security.
-	sec := `{"denyByDefault":true,"endpoints":[{"method":"GET","path":"/orders","access":"public"}]}`
 	if code, _ := f.call(t, "PUT", "/api/routes/r1/security", sec, f.plainC); code != http.StatusForbidden {
 		t.Fatalf("security authz: %d, want 403", code)
 	}
 	// A bad policy is refused with the engine's 422.
-	bad := `{"endpoints":[{"method":"GET","path":"/x","access":"bogus"}]}`
+	bad := `{"endpoints":[{"method":"FOO","path":"/x"}]}`
 	if code, out := f.call(t, "PUT", "/api/routes/r1/security", bad, f.rootC); code != http.StatusUnprocessableEntity {
 		t.Fatalf("bad policy: %d %s, want 422", code, out)
 	}
@@ -107,7 +108,7 @@ func TestPutRouteSecurityEnforced(t *testing.T) {
 	}
 
 	// Enforced on the data plane: /api/orders -> /orders is public; anything
-	// else is refused by deny-by-default.
+	// else is caught by the authenticated route default (anonymous -> 401).
 	get := func(path string) int {
 		res, err := http.Get(f.appSrv.URL + path)
 		if err != nil {
@@ -119,8 +120,8 @@ func TestPutRouteSecurityEnforced(t *testing.T) {
 	if code := get("/api/orders"); code != http.StatusOK {
 		t.Fatalf("public /api/orders: %d, want 200", code)
 	}
-	if code := get("/api/secret"); code != http.StatusForbidden {
-		t.Fatalf("deny-by-default /api/secret: %d, want 403", code)
+	if code := get("/api/secret"); code != http.StatusUnauthorized {
+		t.Fatalf("route-default /api/secret: %d, want 401", code)
 	}
 
 	// Clearing security reopens everything (route has no other gate).

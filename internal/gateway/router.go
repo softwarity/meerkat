@@ -193,7 +193,7 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 	// rule refines it. The guard maps the inbound path back to the OpenAPI
 	// coordinate by undoing the route's strip-prefix.
 	if r.API != nil && r.API.Security != nil &&
-		(len(r.API.Security.Endpoints) > 0 || r.API.Security.DenyByDefault) {
+		(len(r.API.Security.Endpoints) > 0 || r.API.Security.Route != nil) {
 		if rt.sm == nil {
 			return compiledRoute{}, fmt.Errorf("route poses endpoint security but no session manager is configured")
 		}
@@ -714,27 +714,28 @@ func (rt *Router) requireRole(role string, next http.Handler) http.Handler {
 	}))
 }
 
-// requireAnyRole passes the request when the caller holds AT LEAST ONE of the
-// named effective roles; otherwise 403 (401/redirect first, via requireSession).
-func (rt *Router) requireAnyRole(roles []string, next http.Handler) http.Handler {
+// accessGate wraps next with a unified access rule (RBAC-06/07): a public rule
+// passes through; otherwise a valid session is required and the caller must
+// satisfy the rule's users/roles (401/redirect first, via requireSession).
+func (rt *Router) accessGate(a store.Access, next http.Handler) http.Handler {
+	if a.Public() {
+		return next
+	}
 	return requireSession(rt.sm, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		if d, ok := rt.sessionIdentity(req); ok {
-			for _, want := range roles {
-				if slices.Contains(d.Roles, want) {
-					next.ServeHTTP(w, req)
-					return
-				}
-			}
+		d, ok := rt.sessionIdentity(req)
+		if ok && a.Grants(true, d.Username, d.Roles) {
+			next.ServeHTTP(w, req)
+			return
 		}
-		http.Error(w, "forbidden: this endpoint requires one of the roles "+strings.Join(roles, ", "), http.StatusForbidden)
+		http.Error(w, "forbidden: you may not call this endpoint", http.StatusForbidden)
 	}))
 }
 
 // endpointGuard enforces per-operation security (RBAC-07) inside an API route.
-// Every policy path is precompiled once at reload; per request the guard undoes
-// the route's strip-prefix to recover the OpenAPI coordinate, then applies the
-// first matching rule's precomputed gate. With DenyByDefault, an operation with
-// no matching rule is refused (the safe posture for an uncontrolled upstream).
+// Every override path is precompiled once at reload; per request the guard
+// undoes the route's strip-prefix to recover the OpenAPI coordinate, then
+// applies the first matching override, or the route-wide default when none
+// matches. Operations with neither fall through to the route's own auth.
 func (rt *Router) endpointGuard(sec store.EndpointSecurity, filters []routing.Spec, next http.Handler) (http.Handler, error) {
 	type compiledEP struct {
 		method string
@@ -747,19 +748,13 @@ func (rt *Router) endpointGuard(sec store.EndpointSecurity, filters []routing.Sp
 		if err != nil {
 			return nil, fmt.Errorf("endpoint %d (%s %s): %w", i, e.Method, e.Path, err)
 		}
-		var gate http.Handler
-		switch e.Access {
-		case store.EndpointAuthenticated:
-			gate = requireSession(rt.sm, next)
-		case store.EndpointRoles:
-			gate = rt.requireAnyRole(e.Roles, next)
-		default: // public (and any unknown value, already refused by Validate)
-			gate = next
-		}
-		eps = append(eps, compiledEP{method: strings.ToUpper(e.Method), path: cp, gate: gate})
+		eps = append(eps, compiledEP{method: strings.ToUpper(e.Method), path: cp, gate: rt.accessGate(e.Access, next)})
 	}
 	strip := stripPrefixCount(filters)
-	deny := sec.DenyByDefault
+	var routeGate http.Handler
+	if sec.Route != nil {
+		routeGate = rt.accessGate(*sec.Route, next)
+	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		specPath := routing.StripSegments(req.URL.Path, strip)
@@ -769,8 +764,8 @@ func (rt *Router) endpointGuard(sec store.EndpointSecurity, filters []routing.Sp
 				return
 			}
 		}
-		if deny {
-			http.Error(w, "forbidden: this endpoint is not exposed by the gateway", http.StatusForbidden)
+		if routeGate != nil {
+			routeGate.ServeHTTP(w, req)
 			return
 		}
 		next.ServeHTTP(w, req)

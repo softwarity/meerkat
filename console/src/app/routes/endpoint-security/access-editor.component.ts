@@ -40,6 +40,7 @@ export function isEmpty(a: AccessState): boolean {
     <mat-form-field class="field" subscriptSizing="dynamic">
       <mat-label i18n="@@Users_any_of">Users (any one grants access)</mat-label>
       <mat-select multiple [value]="value().users" (selectionChange)="patch({ users: $event.value })">
+        <mat-select-trigger>{{ value().users.join(', ') }}</mat-select-trigger>
         @for (u of users(); track u.id) {
           <mat-option [value]="u.username">
             <span class="opt-main">{{ u.username }}</span>
@@ -54,6 +55,7 @@ export function isEmpty(a: AccessState): boolean {
     <mat-form-field class="field" subscriptSizing="dynamic">
       <mat-label i18n="@@Roles_any_of">Roles (any one grants access)</mat-label>
       <mat-select multiple [value]="value().roles" (selectionChange)="patch({ roles: $event.value })">
+        <mat-select-trigger>{{ value().roles.join(', ') }}</mat-select-trigger>
         @for (r of roles(); track r.id) {
           <mat-option [value]="r.name">
             <span class="opt-main">{{ r.name }}</span>

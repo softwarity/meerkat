@@ -71,8 +71,8 @@
         <target>surchargé</target>
       </trans-unit>
       <trans-unit id="Override_route_default" datatype="html">
-        <source>Override the route default</source>
-        <target>Surcharger le défaut de la route</target>
+        <source>Override the route config</source>
+        <target>Surcharger la config de la route</target>
       </trans-unit>
       <trans-unit id="Inherits_route_default" datatype="html">
         <source>Inherits the route default</source>

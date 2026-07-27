@@ -1810,7 +1810,7 @@
         <source>Roles (any one grants access)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">55,56</context>
+          <context context-type="linenumber">56,57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Route_exposing_OpenAPI" datatype="html">
@@ -1881,7 +1881,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="Override_route_default" datatype="html">
-        <source>Override the route default</source>
+        <source>Override the route config</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
           <context context-type="linenumber">113,114</context>

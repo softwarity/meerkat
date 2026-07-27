@@ -110,7 +110,7 @@
             </div>
 
             <mat-slide-toggle [checked]="stateOf(o).override" (change)="setOverride(o, $event.checked)">
-              <span i18n="@@Override_route_default">Override the route default</span>
+              <span i18n="@@Override_route_default">Override the route config</span>
             </mat-slide-toggle>
 
             @if (stateOf(o).override) {

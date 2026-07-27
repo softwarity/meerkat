@@ -63,7 +63,11 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   liseré override sur la 1re cellule pour survivre au hover). `AccessEditor` : options users
   = username + email, options roles = name + description ; labels « (l'un d'eux suffit) » (OU).
   **Header sticky, lignes scrollables, mat-table TRIABLE par méthode/path** (tri manuel via
-  `matSortChange` + `computed`). **AUTO-SAVE débouncé 500 ms** (plus de bouton Save : chaque
+  `matSortChange` + `computed`) + **colonne Tags** (chips multi-lignes) filtrable par un
+  **select en en-tête** (trigger = juste le compte, `mat-select-trigger` ; champ densifié
+  `mat.form-field-density(-5)`). **Tri + filtre tags persistés** via **`@softwarity/store`**
+  (`sessionStored`, survit au refresh pas à la session ; `provideStore()` dans app.config ;
+  élagage des tags au changement de route). **AUTO-SAVE débouncé 500 ms** (plus de bouton Save : chaque
   changement PUT tout le bloc `EndpointSecurity`, petit ; statut en footer
   Enregistrement…/Enregistré/erreur). Expand via `multiTemplateDataRows` + prédicat `when` +
   `table.renderRows()`. `listRoles`/`listUsers` (app-scope) chargés en tolérant le 403 (un

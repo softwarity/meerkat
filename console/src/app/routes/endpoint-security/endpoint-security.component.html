@@ -57,7 +57,16 @@
   </section>
 
   <div class="table-wrap">
-    <table mat-table [dataSource]="sortedOps()" matSort (matSortChange)="onSort($event)" multiTemplateDataRows class="ops">
+    <table
+      mat-table
+      [dataSource]="sortedOps()"
+      matSort
+      [matSortActive]="view.$sortActive()"
+      [matSortDirection]="view.$sortDir()"
+      (matSortChange)="onSort($event)"
+      multiTemplateDataRows
+      class="ops"
+    >
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef class="c-status"></th>
         <td mat-cell *matCellDef="let o" class="c-status">
@@ -84,8 +93,8 @@
           @if (allTags().length) {
             <mat-form-field class="tagselect" subscriptSizing="dynamic">
               <mat-label i18n="@@Tags">Tags</mat-label>
-              <mat-select multiple [value]="tagFilterArray()" (selectionChange)="setTagFilter($event.value)">
-                <mat-select-trigger>{{ tagFilterArray().length }}</mat-select-trigger>
+              <mat-select multiple [value]="view.$tags()" (selectionChange)="setTagFilter($event.value)">
+                <mat-select-trigger>{{ view.$tags().length }}</mat-select-trigger>
                 @for (t of allTags(); track t) {
                   <mat-option [value]="t">{{ t }}</mat-option>
                 }

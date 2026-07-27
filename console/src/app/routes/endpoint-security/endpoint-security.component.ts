@@ -11,6 +11,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { sessionStored } from '@softwarity/store';
 import { Subject, catchError, debounceTime, firstValueFrom, of } from 'rxjs';
 import {
   ApiService,
@@ -122,32 +123,36 @@ export class EndpointSecurityComponent {
     for (const o of this.operations()) for (const t of o.tags ?? []) set.add(t);
     return [...set].sort((a, b) => a.localeCompare(b));
   });
-  protected readonly tagFilter = signal<Set<string>>(new Set());
-  protected readonly tagFilterArray = computed(() => [...this.tagFilter()]);
+  // Sort + tag filter persisted in sessionStorage: they survive a page refresh
+  // (but not the session). $prop() signals drive the template and computeds.
+  protected readonly view = sessionStored(
+    { sortActive: '', sortDir: '' as '' | 'asc' | 'desc', tags: [] as string[] },
+    { storageKey: 'endpoint-security-view' },
+  );
+
   protected setTagFilter(tags: string[]): void {
-    this.tagFilter.set(new Set(tags));
+    this.view.tags = tags;
     this.table()?.renderRows();
   }
-
-  // Table sort (by method or path); spec order until a header is clicked.
-  protected readonly sortState = signal<Sort>({ active: '', direction: '' });
   protected onSort(s: Sort): void {
-    this.sortState.set(s);
+    this.view.sortActive = s.active;
+    this.view.sortDir = s.direction;
     this.table()?.renderRows();
   }
   // The rows the table shows: filtered by the active tags, then sorted.
   protected readonly sortedOps = computed(() => {
-    const filter = this.tagFilter();
+    const selected = this.view.$tags();
     let ops = this.operations();
-    if (filter.size) ops = ops.filter((o) => (o.tags ?? []).some((t) => filter.has(t)));
+    if (selected.length) ops = ops.filter((o) => (o.tags ?? []).some((t) => selected.includes(t)));
     ops = [...ops];
-    const s = this.sortState();
-    if (!s.direction) return ops;
-    const dir = s.direction === 'asc' ? 1 : -1;
+    const active = this.view.$sortActive();
+    const dir = this.view.$sortDir();
+    if (!dir) return ops;
+    const mul = dir === 'asc' ? 1 : -1;
     ops.sort((a, b) => {
       const byMethod = methodRank(a.method) - methodRank(b.method) || a.path.localeCompare(b.path);
       const byPath = a.path.localeCompare(b.path) || methodRank(a.method) - methodRank(b.method);
-      return (s.active === 'method' ? byMethod : byPath) * dir;
+      return (active === 'method' ? byMethod : byPath) * mul;
     });
     return ops;
   });
@@ -200,7 +205,6 @@ export class EndpointSecurityComponent {
     this.selectedId.set(id);
     this.data.set(null);
     this.expanded.set('');
-    this.tagFilter.set(new Set());
     this.error.set('');
     if (!id) return;
     this.loadingOps.set(true);
@@ -208,6 +212,10 @@ export class EndpointSecurityComponent {
       const ops = await firstValueFrom(this.api.getRouteOperations(id));
       this.seed(ops);
       this.data.set(ops);
+      // Keep only the persisted tag filters that this route actually has.
+      const known = new Set<string>();
+      for (const o of ops.operations) for (const t of o.tags ?? []) known.add(t);
+      this.view.tags = this.view.tags.filter((t) => known.has(t));
     } catch (e) {
       this.error.set(this.message(e));
     } finally {

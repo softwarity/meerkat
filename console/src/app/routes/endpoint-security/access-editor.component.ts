@@ -38,7 +38,7 @@ export function isEmpty(a: AccessState): boolean {
     </mat-checkbox>
 
     <mat-form-field class="field" subscriptSizing="dynamic">
-      <mat-label i18n="@@Users">Users</mat-label>
+      <mat-label i18n="@@Users_any_of">Users (any one grants access)</mat-label>
       <mat-select multiple [value]="value().users" (selectionChange)="patch({ users: $event.value })">
         @for (u of users(); track u.id) {
           <mat-option [value]="u.username">{{ u.username }}</mat-option>
@@ -47,7 +47,7 @@ export function isEmpty(a: AccessState): boolean {
     </mat-form-field>
 
     <mat-form-field class="field" subscriptSizing="dynamic">
-      <mat-label i18n="@@Roles">Roles</mat-label>
+      <mat-label i18n="@@Roles_any_of">Roles (any one grants access)</mat-label>
       <mat-select multiple [value]="value().roles" (selectionChange)="patch({ roles: $event.value })">
         @for (r of roles(); track r.id) {
           <mat-option [value]="r.name">{{ r.name }}</mat-option>

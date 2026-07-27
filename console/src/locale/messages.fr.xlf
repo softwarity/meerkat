@@ -58,6 +58,14 @@
         <source>Rules set here are enforced by the gateway. Where nothing is set, security stays delegated to the API backend.</source>
         <target>Les règles posées ici sont appliquées par la gateway. Là où rien n'est posé, la sécurité reste déléguée au backend de l'API.</target>
       </trans-unit>
+      <trans-unit id="Users_any_of" datatype="html">
+        <source>Users (any one grants access)</source>
+        <target>Users (l'un d'eux suffit)</target>
+      </trans-unit>
+      <trans-unit id="Roles_any_of" datatype="html">
+        <source>Roles (any one grants access)</source>
+        <target>Roles (l'un d'eux suffit)</target>
+      </trans-unit>
       <trans-unit id="Overridden" datatype="html">
         <source>overridden</source>
         <target>surchargé</target>

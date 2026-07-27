@@ -1,38 +1,25 @@
 import { Component, computed, input } from '@angular/core';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AccessState, isEmpty } from './access-editor.component';
 
 // The three access dimensions shown at a glance: authentication, named users,
 // named roles. Each icon is always present and lights up when its dimension is
-// set; the users/roles counts ride as overlay badges (matBadge) so showing a
-// number never shifts the layout. All three dim means no gateway rule
-// (delegated to the API backend).
+// set; the users/roles counts sit in a FIXED-WIDTH slot (two digits) right of
+// the icon, so a count is always visible yet never shifts the layout. All three
+// dim means no gateway rule (delegated to the API backend).
 @Component({
   selector: 'app-access-badges',
-  imports: [MatBadgeModule, MatIconModule, MatTooltipModule],
+  imports: [MatIconModule, MatTooltipModule],
   template: `
     <span class="set" [class.delegated]="empty()" [matTooltip]="empty() ? delegatedTip : ''">
       <mat-icon class="d d-auth" [class.on]="access().authenticated" [matTooltip]="authTip">lock</mat-icon>
-      <mat-icon
-        class="d d-users"
-        [class.on]="access().users.length > 0"
-        [matBadge]="access().users.length"
-        [matBadgeHidden]="access().users.length === 0"
-        matBadgeSize="small"
-        [matTooltip]="usersTip()"
-        >group</mat-icon
-      >
-      <mat-icon
-        class="d d-roles"
-        [class.on]="access().roles.length > 0"
-        [matBadge]="access().roles.length"
-        [matBadgeHidden]="access().roles.length === 0"
-        matBadgeSize="small"
-        [matTooltip]="rolesTip()"
-        >badge</mat-icon
-      >
+      <span class="d d-users" [class.on]="access().users.length > 0" [matTooltip]="usersTip()">
+        <mat-icon>group</mat-icon><span class="n">{{ access().users.length || '' }}</span>
+      </span>
+      <span class="d d-roles" [class.on]="access().roles.length > 0" [matTooltip]="rolesTip()">
+        <mat-icon>badge</mat-icon><span class="n">{{ access().roles.length || '' }}</span>
+      </span>
     </span>
   `,
   styles: [
@@ -40,15 +27,26 @@ import { AccessState, isEmpty } from './access-editor.component';
       .set {
         display: inline-flex;
         align-items: center;
-        gap: 12px;
-        padding-right: 6px;
+        gap: 10px;
       }
       .d {
+        display: inline-flex;
+        align-items: center;
         color: var(--mat-sys-outline);
         opacity: 0.5;
+      }
+      .d mat-icon {
         font-size: 20px;
         width: 20px;
         height: 20px;
+      }
+      .n {
+        display: inline-block;
+        width: 2ch;
+        text-align: left;
+        margin-left: 2px;
+        font-size: 0.7rem;
+        font-weight: 700;
       }
       .set.delegated .d {
         opacity: 0.32;

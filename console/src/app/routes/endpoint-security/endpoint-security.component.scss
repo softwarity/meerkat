@@ -103,10 +103,10 @@
   color: var(--mat-sys-on-surface-variant);
   font-size: 0.7rem;
 }
-// A compact select in the column header filters the rows by tag. The density
-// mixin shrinks the Material field so it does not inflate the header row.
-.tagselect {
-  width: 150px;
+// A compact select in a column header filters the rows (by method or by tag).
+// The density mixin shrinks the Material field so it does not inflate the header.
+.colfilter {
+  width: 130px;
   @include mat.form-field-density(-5);
 }
 
@@ -144,9 +144,6 @@ table.ops {
   }
   .c-status {
     width: 116px;
-  }
-  .c-method {
-    width: 92px;
   }
   .c-expand {
     width: 44px;

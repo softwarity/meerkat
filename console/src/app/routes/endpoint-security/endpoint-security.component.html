@@ -75,7 +75,21 @@
       </ng-container>
 
       <ng-container matColumnDef="method">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="c-method" i18n="@@Method">Method</th>
+        <th mat-header-cell *matHeaderCellDef class="c-method">
+          @if (allMethods().length) {
+            <mat-form-field class="colfilter" subscriptSizing="dynamic">
+              <mat-label i18n="@@Method">Method</mat-label>
+              <mat-select multiple [value]="view.$methods()" (selectionChange)="setMethodFilter($event.value)">
+                <mat-select-trigger>{{ view.$methods().length }}</mat-select-trigger>
+                @for (m of allMethods(); track m) {
+                  <mat-option [value]="m">{{ m }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          } @else {
+            <span i18n="@@Method">Method</span>
+          }
+        </th>
         <td mat-cell *matCellDef="let o" class="c-method">
           <span class="method m-{{ o.method.toLowerCase() }}">{{ o.method }}</span>
         </td>
@@ -91,7 +105,7 @@
       <ng-container matColumnDef="tags">
         <th mat-header-cell *matHeaderCellDef class="c-tags">
           @if (allTags().length) {
-            <mat-form-field class="tagselect" subscriptSizing="dynamic">
+            <mat-form-field class="colfilter" subscriptSizing="dynamic">
               <mat-label i18n="@@Tags">Tags</mat-label>
               <mat-select multiple [value]="view.$tags()" (selectionChange)="setTagFilter($event.value)">
                 <mat-select-trigger>{{ view.$tags().length }}</mat-select-trigger>

@@ -123,15 +123,26 @@ export class EndpointSecurityComponent {
     for (const o of this.operations()) for (const t of o.tags ?? []) set.add(t);
     return [...set].sort((a, b) => a.localeCompare(b));
   });
-  // Sort + tag filter persisted in sessionStorage: they survive a page refresh
-  // (but not the session). $prop() signals drive the template and computeds.
+  // Sort + method/tag filters persisted in sessionStorage: they survive a page
+  // refresh (not the session). $prop() signals drive the template and computeds.
   protected readonly view = sessionStored(
-    { sortActive: '', sortDir: '' as '' | 'asc' | 'desc', tags: [] as string[] },
-    { storageKey: 'endpoint-security-view' },
+    { sortActive: '', sortDir: '' as '' | 'asc' | 'desc', methods: [] as string[], tags: [] as string[] },
+    { storageKey: 'endpoint-security-view.v2' },
   );
+
+  // Distinct methods present, in conventional verb order, for the header filter.
+  protected readonly allMethods = computed(() => {
+    const set = new Set<string>();
+    for (const o of this.operations()) set.add(o.method.toUpperCase());
+    return [...set].sort((a, b) => methodRank(a) - methodRank(b));
+  });
 
   protected setTagFilter(tags: string[]): void {
     this.view.tags = tags;
+    this.table()?.renderRows();
+  }
+  protected setMethodFilter(methods: string[]): void {
+    this.view.methods = methods;
     this.table()?.renderRows();
   }
   protected onSort(s: Sort): void {
@@ -139,11 +150,13 @@ export class EndpointSecurityComponent {
     this.view.sortDir = s.direction;
     this.table()?.renderRows();
   }
-  // The rows the table shows: filtered by the active tags, then sorted.
+  // The rows the table shows: filtered by method and tags, then sorted (path only).
   protected readonly sortedOps = computed(() => {
-    const selected = this.view.$tags();
+    const methods = this.view.$methods();
+    const tags = this.view.$tags();
     let ops = this.operations();
-    if (selected.length) ops = ops.filter((o) => (o.tags ?? []).some((t) => selected.includes(t)));
+    if (methods.length) ops = ops.filter((o) => methods.includes(o.method.toUpperCase()));
+    if (tags.length) ops = ops.filter((o) => (o.tags ?? []).some((t) => tags.includes(t)));
     ops = [...ops];
     const active = this.view.$sortActive();
     const dir = this.view.$sortDir();
@@ -212,10 +225,15 @@ export class EndpointSecurityComponent {
       const ops = await firstValueFrom(this.api.getRouteOperations(id));
       this.seed(ops);
       this.data.set(ops);
-      // Keep only the persisted tag filters that this route actually has.
-      const known = new Set<string>();
-      for (const o of ops.operations) for (const t of o.tags ?? []) known.add(t);
-      this.view.tags = this.view.tags.filter((t) => known.has(t));
+      // Keep only the persisted filters that this route actually has.
+      const knownTags = new Set<string>();
+      const knownMethods = new Set<string>();
+      for (const o of ops.operations) {
+        knownMethods.add(o.method.toUpperCase());
+        for (const t of o.tags ?? []) knownTags.add(t);
+      }
+      this.view.tags = this.view.tags.filter((t) => knownTags.has(t));
+      this.view.methods = this.view.methods.filter((m) => knownMethods.has(m));
     } catch (e) {
       this.error.set(this.message(e));
     } finally {

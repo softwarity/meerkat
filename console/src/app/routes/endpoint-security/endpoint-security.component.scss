@@ -72,10 +72,16 @@
   .rd-head {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
   }
   .rd-title {
     font-weight: 600;
+  }
+  .rd-hint {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.8rem;
+    max-width: 90ch;
   }
 }
 
@@ -124,9 +130,7 @@ table.ops {
     border-bottom-color: var(--mat-sys-outline-variant);
   }
   .c-status {
-    width: 44px;
-    text-align: center;
-    padding-right: 0;
+    width: 116px;
   }
   .c-method {
     width: 92px;
@@ -150,25 +154,6 @@ table.ops {
   &.open {
     background: var(--mat-sys-surface-container);
   }
-}
-
-.acc {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-}
-.acc-default {
-  color: var(--mat-sys-outline);
-}
-.acc-public {
-  color: #22a06b;
-}
-.acc-authenticated {
-  color: #d98420;
-}
-.acc-roles {
-  color: var(--mk-signal);
 }
 
 .method {

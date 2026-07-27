@@ -21,7 +21,8 @@ import {
   RouteOperations,
   User,
 } from '../../api.service';
-import { AccessEditorComponent, AccessState, emptyAccess, isPublic } from './access-editor.component';
+import { AccessBadgesComponent } from './access-badges.component';
+import { AccessEditorComponent, AccessState, emptyAccess, isEmpty } from './access-editor.component';
 
 // One operation's editable state: whether it overrides the route-wide default,
 // and (when it does) its own access rule.
@@ -69,6 +70,7 @@ function fromWire(a: { authenticated?: boolean; users?: string[]; roles?: string
     MatTableModule,
     MatTooltipModule,
     AccessEditorComponent,
+    AccessBadgesComponent,
   ],
   templateUrl: './endpoint-security.component.html',
   styleUrl: './endpoint-security.component.scss',
@@ -95,7 +97,8 @@ export class EndpointSecurityComponent {
   // Saved overrides that match no listed operation: kept so a save never
   // silently drops policy.
   private readonly extras = signal<EndpointPolicy[]>([]);
-  private readonly expanded = signal<Set<string>>(new Set());
+  // Exclusive expand: at most one row is open for editing at a time.
+  private readonly expanded = signal<string>('');
 
   protected readonly apiRoutes = computed(() => this.routes().filter((r) => !!r.api?.swaggerUrl));
   protected readonly operations = computed(() => this.data()?.operations ?? []);
@@ -104,7 +107,7 @@ export class EndpointSecurityComponent {
   // Operations whose EFFECTIVE access gates something, plus the preserved extras.
   protected readonly securedCount = computed(() => {
     let n = this.extras().length;
-    for (const o of this.operations()) if (!isPublic(this.effective(o))) n++;
+    for (const o of this.operations()) if (!isEmpty(this.effective(o))) n++;
     return n;
   });
 
@@ -140,7 +143,7 @@ export class EndpointSecurityComponent {
   protected async selectRoute(id: string): Promise<void> {
     this.selectedId.set(id);
     this.data.set(null);
-    this.expanded.set(new Set());
+    this.expanded.set('');
     this.error.set('');
     if (!id) return;
     this.loadingOps.set(true);
@@ -177,19 +180,15 @@ export class EndpointSecurityComponent {
     this.extras.set((sec.endpoints ?? []).filter((e) => !matched.has(opKey(e.method, e.path))));
   }
 
-  // ── Row expand / collapse ──────────────────────────────────────────────────
+  // ── Row expand / collapse (exclusive: one open at a time) ───────────────────
   protected toggle(o: OpenAPIOperation): void {
     const k = opKey(o.method, o.path);
-    this.expanded.update((s) => {
-      const next = new Set(s);
-      if (!next.delete(k)) next.add(k);
-      return next;
-    });
+    this.expanded.set(this.expanded() === k ? '' : k);
     this.table()?.renderRows();
   }
 
   protected isExpanded(o: OpenAPIOperation): boolean {
-    return this.expanded().has(opKey(o.method, o.path));
+    return this.expanded() === opKey(o.method, o.path);
   }
 
   protected readonly isDetailRow = (_: number, o: OpenAPIOperation): boolean => this.isExpanded(o);
@@ -217,30 +216,9 @@ export class EndpointSecurityComponent {
     this.state.update((s) => {
       const cur = s[k] ?? { override: false, access: emptyAccess() };
       if (!on) return { ...s, [k]: { override: false, access: emptyAccess() } };
-      const seed = isPublic(cur.access) ? { ...this.routeAccess() } : cur.access;
+      const seed = isEmpty(cur.access) ? { ...this.routeAccess() } : cur.access;
       return { ...s, [k]: { override: true, access: seed } };
     });
-  }
-
-  // ── Icons / tooltips ───────────────────────────────────────────────────────
-  protected iconFor(a: AccessState): string {
-    if (isPublic(a)) return 'public';
-    if (a.users.length === 0 && a.roles.length === 0) return 'lock';
-    return 'badge';
-  }
-
-  protected classFor(a: AccessState): string {
-    if (isPublic(a)) return 'public';
-    if (a.users.length === 0 && a.roles.length === 0) return 'authenticated';
-    return 'roles';
-  }
-
-  protected tipFor(a: AccessState): string {
-    if (isPublic(a)) return $localize`:@@Access_public:Public`;
-    const parts: string[] = [];
-    if (a.users.length) parts.push($localize`:@@Users:Users` + ': ' + a.users.join(', '));
-    if (a.roles.length) parts.push($localize`:@@Roles:Roles` + ': ' + a.roles.join(', '));
-    return parts.length ? parts.join(' · ') : $localize`:@@Authenticated:Authenticated`;
   }
 
   // ── Save ───────────────────────────────────────────────────────────────────
@@ -256,7 +234,7 @@ export class EndpointSecurityComponent {
     endpoints.push(...this.extras());
     const route = this.routeAccess();
     const security: EndpointSecurity = { endpoints };
-    if (!isPublic(route)) {
+    if (!isEmpty(route)) {
       security.route = {
         ...(route.authenticated ? { authenticated: true } : {}),
         ...(route.users.length ? { users: route.users } : {}),

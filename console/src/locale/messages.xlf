@@ -87,12 +87,16 @@
           <context context-type="linenumber">199,200</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">48,49</context>
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">84</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
-          <context context-type="linenumber">242</context>
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">50,51</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
@@ -110,12 +114,16 @@
           <context context-type="linenumber">4,5</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">39,40</context>
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">80</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
-          <context context-type="linenumber">241</context>
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">41,42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Security" datatype="html">
@@ -227,7 +235,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
-          <context context-type="linenumber">287</context>
+          <context context-type="linenumber">265</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
@@ -569,7 +577,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">83,84</context>
+          <context context-type="linenumber">86,87</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_roles_catalogue" datatype="html">
@@ -716,7 +724,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">151,152</context>
+          <context context-type="linenumber">153,154</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
@@ -986,7 +994,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">104,105</context>
+          <context context-type="linenumber">107,108</context>
         </context-group>
       </trans-unit>
       <trans-unit id="New_role" datatype="html">
@@ -1784,16 +1792,23 @@
       <trans-unit id="Authenticated" datatype="html">
         <source>Authenticated</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">35,37</context>
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">76</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
-          <context context-type="linenumber">243</context>
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">37,39</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
           <context context-type="linenumber">102,103</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delegated_to_backend" datatype="html">
+        <source>No gateway rule — delegated to the API backend</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">77</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Route_exposing_OpenAPI" datatype="html">
@@ -1823,49 +1838,58 @@
         <source>Whole route (default for every operation)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">46,48</context>
+          <context context-type="linenumber">45,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delegation_hint" datatype="html">
+        <source>
+      Rules set here are enforced by the gateway. Where nothing is set, security stays delegated to the API backend.
+    </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">55,59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Method" datatype="html">
         <source>Method</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">66,67</context>
+          <context context-type="linenumber">69,70</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Path" datatype="html">
         <source>Path</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">73,74</context>
+          <context context-type="linenumber">76,77</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Overridden" datatype="html">
         <source>overridden</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">77,79</context>
+          <context context-type="linenumber">80,82</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Operation_ID" datatype="html">
         <source>Operation ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">100,101</context>
+          <context context-type="linenumber">103,104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Override_route_default" datatype="html">
         <source>Override the route default</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">110,111</context>
+          <context context-type="linenumber">113,114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inherits_route_default" datatype="html">
         <source>Inherits the route default</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">123,124</context>
+          <context context-type="linenumber">125,126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Endpoints_secured_summary" datatype="html">
@@ -1874,21 +1898,14 @@
     </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">146,148</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Access_public" datatype="html">
-        <source>Public</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
-          <context context-type="linenumber">239</context>
+          <context context-type="linenumber">148,150</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Endpoint_security_saved" datatype="html">
         <source>Endpoint security saved and applied</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
-          <context context-type="linenumber">271</context>
+          <context context-type="linenumber">249</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Header_name" datatype="html">

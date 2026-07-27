@@ -714,11 +714,12 @@ func (rt *Router) requireRole(role string, next http.Handler) http.Handler {
 	}))
 }
 
-// accessGate wraps next with a unified access rule (RBAC-06/07): a public rule
-// passes through; otherwise a valid session is required and the caller must
-// satisfy the rule's users/roles (401/redirect first, via requireSession).
+// accessGate wraps next with a unified access rule (RBAC-06/07): an empty rule
+// passes through (delegated to the backend); otherwise a valid session is
+// required and the caller must satisfy the rule's users/roles (401/redirect
+// first, via requireSession).
 func (rt *Router) accessGate(a store.Access, next http.Handler) http.Handler {
-	if a.Public() {
+	if a.Empty() {
 		return next
 	}
 	return requireSession(rt.sm, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {

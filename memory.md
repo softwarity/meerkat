@@ -25,7 +25,10 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   retire `host`/`schemes` ; 3.x pose un `server` relatif unique.
 - **Modèle store — accès UNIFIÉ** (revu selon François 2026-07-27, le deny-by-default
   l'ayant perdu) : `store.Access{Authenticated bool, Users []string, Roles []string}`,
-  sémantique = PUBLIC si rien de posé, sinon session requise et si Users/Roles nommés,
+  sémantique = **rien de posé => délégué au backend de l'API** (PAS « public » : la
+  gateway ne rajoute pas de garde, le backend décide ; c'est le sens de la feature, 3 cas
+  = dev/consolidation des rôles, centralisation, backend non modifiable). Sinon session
+  requise et si Users/Roles nommés,
   l'appelant doit être **un des Users OU avoir un des Roles** (users et roles
   indépendants, OU ; nommer un user/role implique authentifié). Helpers `Public()` /
   `Grants(authed, username, roles)`. `EndpointSecurity{Route *Access, Endpoints
@@ -48,8 +51,11 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 - **Console** : page dédiée `/endpoint-security` dans le **rail Gateway** (« Endpoint
   security », icône `security`), avec un **sélecteur de route** en tête (liste les routes
   exposant une spec OpenAPI, c.-à-d. `api.swaggerUrl` renseigné). Choisir une route charge
-  ses opérations dans une **mat-table** : icône d'état d'accès (public/lock/badge) + méthode
-  colorée + path + description + chevron ; **clic sur la ligne = expand-row**. En **en-tête**,
+  ses opérations dans une **mat-table** : colonne d'état = **3 badges permanents** (auth/users/
+  roles via le composant `AccessBadges`, chacun éteint par défaut, allumé quand posé, le
+  compte users/roles en `matBadge` superposé pour ne pas décaler le layout ; tout éteint =
+  délégué au backend) + méthode colorée + path + description + chevron ; **clic = expand-row
+  EXCLUSIF** (une seule ligne ouverte à la fois). En **en-tête**,
   un **défaut de route** éditable via le composant réutilisable `AccessEditor` (case
   « authentifié » + chips users + chips roles, users/roles cochant/verrouillant authentifié).
   Chaque opération peut **surcharger** le défaut (toggle « Override the route default » dans

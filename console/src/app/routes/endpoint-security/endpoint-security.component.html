@@ -42,8 +42,8 @@
        override. An authenticated/role default locks the whole API. -->
   <section class="route-default">
     <div class="rd-head">
-      <mat-icon class="acc acc-{{ classFor(routeAccess()) }}">{{ iconFor(routeAccess()) }}</mat-icon>
       <span class="rd-title" i18n="@@Whole_route_default">Whole route (default for every operation)</span>
+      <app-access-badges [access]="routeAccess()" />
     </div>
     <app-access-editor
       [value]="routeAccess()"
@@ -51,6 +51,9 @@
       [roles]="roles()"
       (valueChange)="routeAccess.set($event)"
     />
+    <p class="rd-hint" i18n="@@Delegation_hint">
+      Rules set here are enforced by the gateway. Where nothing is set, security stays delegated to the API backend.
+    </p>
   </section>
 
   <div class="table-wrap">
@@ -58,7 +61,7 @@
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef class="c-status"></th>
         <td mat-cell *matCellDef="let o" class="c-status">
-          <mat-icon class="acc acc-{{ classFor(effective(o)) }}" [matTooltip]="tipFor(effective(o))">{{ iconFor(effective(o)) }}</mat-icon>
+          <app-access-badges [access]="effective(o)" />
         </td>
       </ng-container>
 
@@ -119,9 +122,8 @@
               />
             } @else {
               <span class="inherits">
-                <mat-icon class="acc acc-{{ classFor(routeAccess()) }}">{{ iconFor(routeAccess()) }}</mat-icon>
                 <span i18n="@@Inherits_route_default">Inherits the route default</span>
-                <span class="muted">({{ tipFor(routeAccess()) }})</span>
+                <app-access-badges [access]="routeAccess()" />
               </span>
             }
           </div>

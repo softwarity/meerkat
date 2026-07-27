@@ -582,26 +582,30 @@ type RouteAPI struct {
 }
 
 // Access is a unified access rule (RBAC-06/07), used both as a route-wide
-// default and as a per-endpoint override. Semantics: PUBLIC when nothing is
-// set; otherwise a valid session is required, and when Users or Roles are
-// named the caller must be ONE of the Users OR hold ONE of the Roles (the two
-// lists are independent, combined with OR). Naming a user or a role therefore
-// implies authentication.
+// default and as a per-endpoint override. When it is EMPTY the gateway adds no
+// gate and the request is DELEGATED to the API backend's own security (this is
+// the point of the feature: gate at the edge only what you choose to). When it
+// is set, a valid session is required, and when Users or Roles are named the
+// caller must be ONE of the Users OR hold ONE of the Roles (the two lists are
+// independent, combined with OR). Naming a user or role implies authentication.
 type Access struct {
 	Authenticated bool     `json:"authenticated,omitempty"`
 	Users         []string `json:"users,omitempty"` // allowed usernames
 	Roles         []string `json:"roles,omitempty"` // allowed effective role names
 }
 
-// Public reports whether the rule gates nothing (open to anonymous callers).
-func (a Access) Public() bool {
+// Empty reports whether NO gateway rule is set (the request is then delegated
+// to the API backend, not made public).
+func (a Access) Empty() bool {
 	return !a.Authenticated && len(a.Users) == 0 && len(a.Roles) == 0
 }
 
-// Grants reports whether a caller satisfies the rule. authenticated says a
-// valid session was resolved; username and roles are that caller's identity.
+// Grants reports whether the gateway lets a caller through. An empty rule
+// always passes (delegated to the backend); otherwise a valid session plus the
+// users/roles test is required. authenticated says a valid session was
+// resolved; username and roles are that caller's identity.
 func (a Access) Grants(authenticated bool, username string, roles []string) bool {
-	if a.Public() {
+	if a.Empty() {
 		return true
 	}
 	if !authenticated {

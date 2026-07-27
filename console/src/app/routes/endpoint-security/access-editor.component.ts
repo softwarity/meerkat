@@ -15,7 +15,9 @@ export function emptyAccess(): AccessState {
   return { authenticated: false, users: [], roles: [] };
 }
 
-export function isPublic(a: AccessState): boolean {
+// Empty means no gateway rule: the request is delegated to the API backend's
+// own security, NOT made public.
+export function isEmpty(a: AccessState): boolean {
   return !a.authenticated && a.users.length === 0 && a.roles.length === 0;
 }
 

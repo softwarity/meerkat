@@ -50,6 +50,14 @@
         <source>Whole route (default for every operation)</source>
         <target>Toute la route (défaut pour chaque opération)</target>
       </trans-unit>
+      <trans-unit id="Delegated_to_backend" datatype="html">
+        <source>No gateway rule — delegated to the API backend</source>
+        <target>Aucune règle gateway, délégué au backend de l'API</target>
+      </trans-unit>
+      <trans-unit id="Delegation_hint" datatype="html">
+        <source>Rules set here are enforced by the gateway. Where nothing is set, security stays delegated to the API backend.</source>
+        <target>Les règles posées ici sont appliquées par la gateway. Là où rien n'est posé, la sécurité reste déléguée au backend de l'API.</target>
+      </trans-unit>
       <trans-unit id="Overridden" datatype="html">
         <source>overridden</source>
         <target>surchargé</target>

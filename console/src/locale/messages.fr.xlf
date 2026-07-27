@@ -6,6 +6,18 @@
         <source>Endpoint security</source>
         <target>Sécurité par endpoint</target>
       </trans-unit>
+      <trans-unit id="Route_exposing_OpenAPI" datatype="html">
+        <source>Route exposing an OpenAPI spec</source>
+        <target>Route exposant une spec OpenAPI</target>
+      </trans-unit>
+      <trans-unit id="No_api_routes_with_spec" datatype="html">
+        <source>No route exposes an OpenAPI spec yet. Add a Swagger URL to an API route, then come back here.</source>
+        <target>Aucune route n'expose de spec OpenAPI pour l'instant. Renseignez un Swagger URL sur une route API, puis revenez ici.</target>
+      </trans-unit>
+      <trans-unit id="Go_to_routes" datatype="html">
+        <source>Go to routes</source>
+        <target>Aller aux routes</target>
+      </trans-unit>
       <trans-unit id="Edit_endpoint_security" datatype="html">
         <source>Endpoint security</source>
         <target>Sécurité par endpoint</target>

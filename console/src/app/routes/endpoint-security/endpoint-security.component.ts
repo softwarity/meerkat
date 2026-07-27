@@ -16,6 +16,7 @@ import {
   EndpointSecurity,
   OpenAPIOperation,
   Role,
+  Route,
   RouteOperations,
 } from '../../api.service';
 
@@ -32,11 +33,12 @@ function opKey(method: string, path: string): string {
   return `${method.toUpperCase()} ${path}`;
 }
 
-// Endpoint security editor (RBAC-07): a swagger-ui-like listing of a route's
-// OpenAPI operations, each given an access rule. The spec is fetched and parsed
-// SERVER-SIDE (Swagger 2.0 or OpenAPI 3.x), so this screen only ever sees a
-// flat operation list. Saving PUTs the assembled security to the admin API,
-// which validates by compiling and reloads the data plane (saving IS applying).
+// Endpoint security (RBAC-07): a dedicated Gateway page. Pick a route that
+// exposes an OpenAPI spec, and its operations load as a swagger-ui-like list,
+// each given an access rule. The spec is fetched and parsed SERVER-SIDE (Swagger
+// 2.0 or OpenAPI 3.x), so this screen only ever sees a flat operation list.
+// Saving PUTs the assembled security to the admin API, which validates by
+// compiling and reloads the data plane (saving IS applying).
 @Component({
   selector: 'app-endpoint-security',
   imports: [
@@ -54,13 +56,15 @@ function opKey(method: string, path: string): string {
 export class EndpointSecurityComponent {
   private readonly api = inject(ApiService);
   private readonly snack = inject(MatSnackBar);
-  protected readonly routeId = inject(ActivatedRoute).snapshot.paramMap.get('id') ?? '';
 
-  protected readonly loading = signal(true);
+  protected readonly loadingRoutes = signal(true);
+  protected readonly loadingOps = signal(false);
   protected readonly saving = signal(false);
   protected readonly error = signal('');
-  protected readonly data = signal<RouteOperations | null>(null);
+  protected readonly routes = signal<Route[]>([]);
   protected readonly roles = signal<Role[]>([]);
+  protected readonly selectedId = signal('');
+  protected readonly data = signal<RouteOperations | null>(null);
 
   protected readonly denyByDefault = signal(false);
   // Per-operation edits, keyed by opKey.
@@ -68,6 +72,10 @@ export class EndpointSecurityComponent {
   // Saved policies that match no listed operation (wildcards, endpoints since
   // removed upstream): kept aside so a save never silently drops policy.
   private readonly extras = signal<EndpointPolicy[]>([]);
+
+  // The routes that expose an OpenAPI spec are the ones that can be secured
+  // per endpoint; the selector lists exactly those.
+  protected readonly apiRoutes = computed(() => this.routes().filter((r) => !!r.api?.swaggerUrl));
 
   // Operations grouped by their first tag, tags alphabetical, untagged last.
   protected readonly groups = computed(() => {
@@ -93,29 +101,44 @@ export class EndpointSecurityComponent {
   });
 
   constructor() {
-    void this.load();
+    const preselect = inject(ActivatedRoute).snapshot.queryParamMap.get('route') ?? '';
+    void this.init(preselect);
   }
 
-  private async load(): Promise<void> {
-    if (!this.routeId) {
-      this.error.set($localize`:@@No_route_selected:No route selected`);
-      this.loading.set(false);
-      return;
-    }
-    this.loading.set(true);
+  private async init(preselect: string): Promise<void> {
+    this.loadingRoutes.set(true);
     this.error.set('');
     try {
-      const [ops, roles] = await Promise.all([
-        firstValueFrom(this.api.getRouteOperations(this.routeId)),
+      const [routes, roles] = await Promise.all([
+        firstValueFrom(this.api.listRoutes()),
         firstValueFrom(this.api.listRoles()),
       ]);
       this.roles.set(roles);
+      this.routes.set(routes);
+      const exposing = routes.filter((r) => !!r.api?.swaggerUrl);
+      const pick = exposing.find((r) => r.id === preselect)?.id ?? exposing[0]?.id ?? '';
+      if (pick) await this.selectRoute(pick);
+    } catch (e) {
+      this.error.set(this.message(e));
+    } finally {
+      this.loadingRoutes.set(false);
+    }
+  }
+
+  protected async selectRoute(id: string): Promise<void> {
+    this.selectedId.set(id);
+    this.data.set(null);
+    this.error.set('');
+    if (!id) return;
+    this.loadingOps.set(true);
+    try {
+      const ops = await firstValueFrom(this.api.getRouteOperations(id));
       this.seed(ops);
       this.data.set(ops);
     } catch (e) {
       this.error.set(this.message(e));
     } finally {
-      this.loading.set(false);
+      this.loadingOps.set(false);
     }
   }
 
@@ -156,7 +179,8 @@ export class EndpointSecurityComponent {
   }
 
   protected async save(): Promise<void> {
-    if (!this.routeId) return;
+    const id = this.selectedId();
+    if (!id) return;
     const endpoints: EndpointPolicy[] = [];
     for (const o of this.data()?.operations ?? []) {
       const s = this.state()[opKey(o.method, o.path)];
@@ -170,7 +194,7 @@ export class EndpointSecurityComponent {
 
     this.saving.set(true);
     try {
-      await firstValueFrom(this.api.saveRouteSecurity(this.routeId, security));
+      await firstValueFrom(this.api.saveRouteSecurity(id, security));
       this.snack.open(
         $localize`:@@Endpoint_security_saved:Endpoint security saved and applied`,
         undefined,

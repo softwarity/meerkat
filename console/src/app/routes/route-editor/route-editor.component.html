@@ -79,8 +79,13 @@
         </mat-form-field>
 
         @if (route()?.id && draft().swaggerUrl) {
-          <a matButton="tonal" class="endpoint-security-link" [routerLink]="['/endpoint-security', route()!.id]">
-            <mat-icon>shield</mat-icon>
+          <a
+            matButton="tonal"
+            class="endpoint-security-link"
+            [routerLink]="['/endpoint-security']"
+            [queryParams]="{ route: route()!.id }"
+          >
+            <mat-icon>security</mat-icon>
             <span i18n="@@Edit_endpoint_security">Endpoint security</span>
           </a>
         }

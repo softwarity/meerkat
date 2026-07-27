@@ -203,6 +203,10 @@ import { UserMenuComponent } from './shared/user-menu.component';
         <mat-icon>web</mat-icon>
         <span i18n="@@Built_in_pages">Built-in pages</span>
       </a>
+      <a routerLink="/endpoint-security" routerLinkActive="active" class="drawer-item">
+        <mat-icon>security</mat-icon>
+        <span i18n="@@Endpoint_security">Endpoint security</span>
+      </a>
       <a routerLink="/access-tokens" routerLinkActive="active" class="drawer-item" any-role="root">
         <mat-icon>key</mat-icon>
         <span i18n="@@Access_tokens">Access tokens</span>
@@ -275,6 +279,7 @@ export class AppComponent {
     () =>
       this.url().startsWith('/routes') ||
       this.url().startsWith('/theme') ||
+      this.url().startsWith('/endpoint-security') ||
       this.url().startsWith('/access-tokens'),
   );
   // Audit is a transverse section of its own (not under Application): it scopes

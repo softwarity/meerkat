@@ -40,12 +40,14 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   sécurité sauvée) et `PUT /api/routes/{id}/security` (valide via `gateway.Validate`,
   sauve, reload à chaud, audit `route.security`). Une politique orpheline (path hors
   spec) est préservée par la console au save.
-- **Console** : page dédiée pleine largeur `/endpoint-security/:id` (swagger-like),
-  atteinte depuis l'éditeur de route (bouton « Endpoint security » dès que la route est
-  sauvée et porte un swagger URL). Opérations groupées par tag, chip méthode coloré,
-  select d'accès + multiselect de rôles, toggle deny-by-default, save = apply.
-  Signal-first, Material sur `--mat-sys`, zéro ngModel. `api.service` : types +
-  `getRouteOperations`/`saveRouteSecurity`. i18n fr complet.
+- **Console** : page dédiée `/endpoint-security` dans le **rail Gateway** (« Endpoint
+  security », icône `security`), avec un **sélecteur de route** en tête (liste les routes
+  exposant une spec OpenAPI, c.-à-d. `api.swaggerUrl` renseigné). Choisir une route charge
+  ses opérations, groupées par tag, chip méthode coloré, select d'accès + multiselect de
+  rôles, toggle deny-by-default, bouton **Save**. Présélection possible via `?route=<id>`
+  (le bouton « Endpoint security » de l'éditeur de route y renvoie). Signal-first, Material
+  sur `--mat-sys`, zéro ngModel. `api.service` : types + `getRouteOperations`/
+  `saveRouteSecurity`. i18n fr complet.
 - **Vert** : `go test -race ./...`, `go vet`, `golangci-lint` (0 issue), build console
   (0 erreur, 0 warning i18n). **Live** : fetch+parse du VRAI httpbin sur :80 (Swagger
   2.0, 73 opérations) + rewrite, validés par un test jetable (non commité). Chaîne

@@ -1,7 +1,4 @@
 <header class="bar">
-  <a matIconButton [routerLink]="['/routes', routeId, 'general']" i18n-aria-label="@@Back" aria-label="Back">
-    <mat-icon>arrow_back</mat-icon>
-  </a>
   <div class="title">
     <h2 i18n="@@Endpoint_security">Endpoint security</h2>
     @if (data(); as d) {
@@ -12,23 +9,45 @@
       </span>
     }
   </div>
+
+  <mat-form-field class="picker" subscriptSizing="dynamic">
+    <mat-label i18n="@@Route_exposing_OpenAPI">Route exposing an OpenAPI spec</mat-label>
+    <mat-select [value]="selectedId()" (selectionChange)="selectRoute($event.value)" [disabled]="loadingRoutes()">
+      @for (r of apiRoutes(); track r.id) {
+        <mat-option [value]="r.id">{{ r.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
   <span class="spacer"></span>
-  <button matButton="filled" (click)="save()" [disabled]="saving() || loading() || !!error()">
+  <button
+    matButton="filled"
+    (click)="save()"
+    [disabled]="saving() || loadingOps() || !selectedId() || !data()"
+  >
     <mat-icon>save</mat-icon>
-    <span i18n="@@Save_apply">Save &amp; apply</span>
+    <span i18n="@@Save">Save</span>
   </button>
 </header>
 
-@if (loading()) {
+@if (loadingRoutes() || loadingOps()) {
   <mat-progress-bar mode="indeterminate" />
 }
 
-@if (error()) {
+@if (!loadingRoutes() && apiRoutes().length === 0) {
+  <div class="notice">
+    <mat-icon>info</mat-icon>
+    <span i18n="@@No_api_routes_with_spec">
+      No route exposes an OpenAPI spec yet. Add a Swagger URL to an API route, then come back here.
+    </span>
+    <a matButton [routerLink]="['/routes']" i18n="@@Go_to_routes">Go to routes</a>
+  </div>
+} @else if (error()) {
   <div class="notice error">
     <mat-icon>error_outline</mat-icon>
     <span>{{ error() }}</span>
   </div>
-} @else if (!loading()) {
+} @else if (!loadingOps() && data()) {
   <div class="content">
     <!-- Deny-by-default: the safe posture for an API one does not control. -->
     <section class="deny">

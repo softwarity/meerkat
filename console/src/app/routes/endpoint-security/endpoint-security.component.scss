@@ -8,9 +8,14 @@
 .bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 12px 16px;
   padding: 12px 20px;
   border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  .picker {
+    min-width: 260px;
+  }
 
   .title {
     display: flex;

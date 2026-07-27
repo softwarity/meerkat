@@ -75,7 +75,6 @@ export function isEmpty(a: AccessState): boolean {
       }
       .field {
         width: 100%;
-        max-width: 440px;
       }
       .opt-sub {
         margin-left: 8px;

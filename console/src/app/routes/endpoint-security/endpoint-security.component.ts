@@ -114,7 +114,20 @@ export class EndpointSecurityComponent {
 
   protected readonly apiRoutes = computed(() => this.routes().filter((r) => !!r.api?.swaggerUrl));
   protected readonly operations = computed(() => this.data()?.operations ?? []);
-  protected readonly columns = ['status', 'method', 'path', 'summary', 'expand'];
+  protected readonly columns = ['status', 'method', 'path', 'tags', 'summary', 'expand'];
+
+  // Distinct tags across the spec, for the column-header filter.
+  protected readonly allTags = computed(() => {
+    const set = new Set<string>();
+    for (const o of this.operations()) for (const t of o.tags ?? []) set.add(t);
+    return [...set].sort((a, b) => a.localeCompare(b));
+  });
+  protected readonly tagFilter = signal<Set<string>>(new Set());
+  protected readonly tagFilterArray = computed(() => [...this.tagFilter()]);
+  protected setTagFilter(tags: string[]): void {
+    this.tagFilter.set(new Set(tags));
+    this.table()?.renderRows();
+  }
 
   // Table sort (by method or path); spec order until a header is clicked.
   protected readonly sortState = signal<Sort>({ active: '', direction: '' });
@@ -122,8 +135,12 @@ export class EndpointSecurityComponent {
     this.sortState.set(s);
     this.table()?.renderRows();
   }
+  // The rows the table shows: filtered by the active tags, then sorted.
   protected readonly sortedOps = computed(() => {
-    const ops = [...this.operations()];
+    const filter = this.tagFilter();
+    let ops = this.operations();
+    if (filter.size) ops = ops.filter((o) => (o.tags ?? []).some((t) => filter.has(t)));
+    ops = [...ops];
     const s = this.sortState();
     if (!s.direction) return ops;
     const dir = s.direction === 'asc' ? 1 : -1;
@@ -183,6 +200,7 @@ export class EndpointSecurityComponent {
     this.selectedId.set(id);
     this.data.set(null);
     this.expanded.set('');
+    this.tagFilter.set(new Set());
     this.error.set('');
     if (!id) return;
     this.loadingOps.set(true);

@@ -76,8 +76,27 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@Path">Path</th>
         <td mat-cell *matCellDef="let o">
           <span class="path">{{ o.path }}</span>
-          @if (stateOf(o).override) {
-            <span class="ovr" i18n="@@Overridden">overridden</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="tags">
+        <th mat-header-cell *matHeaderCellDef class="c-tags">
+          @if (allTags().length) {
+            <mat-form-field class="tagselect" subscriptSizing="dynamic">
+              <mat-label i18n="@@Tags">Tags</mat-label>
+              <mat-select multiple [value]="tagFilterArray()" (selectionChange)="setTagFilter($event.value)">
+                @for (t of allTags(); track t) {
+                  <mat-option [value]="t">{{ t }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          } @else {
+            <span i18n="@@Tags">Tags</span>
+          }
+        </th>
+        <td mat-cell *matCellDef="let o" class="c-tags">
+          @for (t of o.tags ?? []; track t) {
+            <span class="rowtag">{{ t }}</span>
           }
         </td>
       </ng-container>
@@ -98,16 +117,12 @@
       <ng-container matColumnDef="detail">
         <td mat-cell *matCellDef="let o" [attr.colspan]="columns.length" class="detail-cell">
           <div class="detail">
-            <div class="detail-meta">
-              @if (o.operationId) {
+            @if (o.operationId) {
+              <div class="detail-meta">
                 <span class="k" i18n="@@Operation_ID">Operation ID</span>
                 <code>{{ o.operationId }}</code>
-              }
-              @if (o.tags?.length) {
-                <span class="k" i18n="@@Tags">Tags</span>
-                <span class="tags">@for (t of o.tags; track t) {<span class="tag-chip">{{ t }}</span>}</span>
-              }
-            </div>
+              </div>
+            }
 
             <mat-slide-toggle [checked]="stateOf(o).override" (change)="setOverride(o, $event.checked)">
               <span i18n="@@Override_route_default">Override the route config</span>

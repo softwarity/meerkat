@@ -85,16 +85,25 @@
   }
 }
 
-.ovr {
-  margin-left: 8px;
-  padding: 0 6px;
+// Tags cell: chips wrap onto several lines within the column width.
+.c-tags {
+  max-width: 240px;
+  white-space: normal;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.rowtag {
+  display: inline-block;
+  margin: 1px 4px 1px 0;
+  padding: 1px 8px;
   border-radius: 999px;
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--mat-sys-on-secondary-container);
-  background: var(--mat-sys-secondary-container);
-  vertical-align: middle;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.7rem;
+}
+// A compact select in the column header filters the rows by tag.
+.tagselect {
+  width: 150px;
 }
 
 .inherits {

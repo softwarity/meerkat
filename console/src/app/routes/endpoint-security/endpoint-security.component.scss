@@ -43,6 +43,13 @@
     min-width: 280px;
     margin-left: auto;
   }
+  .intro {
+    flex-basis: 100%;
+    margin: 2px 0 0;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.82rem;
+    max-width: 110ch;
+  }
 }
 
 .notice {

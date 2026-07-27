@@ -6,6 +6,10 @@
         <source>Endpoint security</source>
         <target>Sécurité par endpoint</target>
       </trans-unit>
+      <trans-unit id="Endpoint_security_intro" datatype="html">
+        <source>Gate an API's operations at the gateway, straight from its OpenAPI spec: prototype roles before wiring them into the backend, centralize access control, or protect a backend you cannot modify. An operation you leave untouched keeps being secured by the backend itself.</source>
+        <target>Sécurisez les opérations d'une API au niveau de la gateway, directement depuis sa spec OpenAPI : prototypez les rôles avant de les câbler dans le backend, centralisez le contrôle d'accès, ou protégez un backend que vous ne pouvez pas modifier. Une opération laissée telle quelle reste sécurisée par le backend lui-même.</target>
+      </trans-unit>
       <trans-unit id="Route_exposing_OpenAPI" datatype="html">
         <source>Route exposing an OpenAPI spec</source>
         <target>Route exposant une spec OpenAPI</target>

@@ -49,7 +49,7 @@
       [value]="routeAccess()"
       [users]="users()"
       [roles]="roles()"
-      (valueChange)="routeAccess.set($event)"
+      (valueChange)="setRouteAccess($event)"
     />
     <p class="rd-hint" i18n="@@Delegation_hint">
       Rules set here are enforced by the gateway. Where nothing is set, security stays delegated to the API backend.
@@ -57,7 +57,7 @@
   </section>
 
   <div class="table-wrap">
-    <table mat-table [dataSource]="operations()" multiTemplateDataRows class="ops">
+    <table mat-table [dataSource]="sortedOps()" matSort (matSortChange)="onSort($event)" multiTemplateDataRows class="ops">
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef class="c-status"></th>
         <td mat-cell *matCellDef="let o" class="c-status">
@@ -66,14 +66,14 @@
       </ng-container>
 
       <ng-container matColumnDef="method">
-        <th mat-header-cell *matHeaderCellDef class="c-method" i18n="@@Method">Method</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="c-method" i18n="@@Method">Method</th>
         <td mat-cell *matCellDef="let o" class="c-method">
           <span class="method m-{{ o.method.toLowerCase() }}">{{ o.method }}</span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="path">
-        <th mat-header-cell *matHeaderCellDef i18n="@@Path">Path</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@Path">Path</th>
         <td mat-cell *matCellDef="let o">
           <span class="path">{{ o.path }}</span>
           @if (stateOf(o).override) {
@@ -148,9 +148,25 @@
       {{ (data()?.operations)?.length || 0 }} operations, {{ securedCount() }} secured
     </span>
     <span class="spacer"></span>
-    <button matButton="filled" (click)="save()" [disabled]="saving() || !selectedId()">
-      <mat-icon>save</mat-icon>
-      <span i18n="@@Save">Save</span>
-    </button>
+    @switch (saveState()) {
+      @case ('saving') {
+        <span class="save-state">
+          <mat-icon class="spin">progress_activity</mat-icon>
+          <span i18n="@@Saving">Saving…</span>
+        </span>
+      }
+      @case ('saved') {
+        <span class="save-state ok">
+          <mat-icon>check_circle</mat-icon>
+          <span i18n="@@All_changes_saved">All changes saved</span>
+        </span>
+      }
+      @case ('error') {
+        <span class="save-state err">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ saveError() }}</span>
+        </span>
+      }
+    }
   </footer>
 }

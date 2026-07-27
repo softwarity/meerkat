@@ -41,7 +41,12 @@ export function isEmpty(a: AccessState): boolean {
       <mat-label i18n="@@Users_any_of">Users (any one grants access)</mat-label>
       <mat-select multiple [value]="value().users" (selectionChange)="patch({ users: $event.value })">
         @for (u of users(); track u.id) {
-          <mat-option [value]="u.username">{{ u.username }}</mat-option>
+          <mat-option [value]="u.username">
+            <span class="opt-main">{{ u.username }}</span>
+            @if (u.email) {
+              <span class="opt-sub">{{ u.email }}</span>
+            }
+          </mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -50,7 +55,12 @@ export function isEmpty(a: AccessState): boolean {
       <mat-label i18n="@@Roles_any_of">Roles (any one grants access)</mat-label>
       <mat-select multiple [value]="value().roles" (selectionChange)="patch({ roles: $event.value })">
         @for (r of roles(); track r.id) {
-          <mat-option [value]="r.name">{{ r.name }}</mat-option>
+          <mat-option [value]="r.name">
+            <span class="opt-main">{{ r.name }}</span>
+            @if (r.description) {
+              <span class="opt-sub">{{ r.description }}</span>
+            }
+          </mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -59,12 +69,18 @@ export function isEmpty(a: AccessState): boolean {
     `
       :host {
         display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 12px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
       }
       .field {
-        min-width: 200px;
+        width: 100%;
+        max-width: 440px;
+      }
+      .opt-sub {
+        margin-left: 8px;
+        color: var(--mat-sys-on-surface-variant);
+        font-size: 0.8rem;
       }
     `,
   ],

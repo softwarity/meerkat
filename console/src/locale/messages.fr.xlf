@@ -118,6 +118,14 @@
         <source>Endpoint security saved and applied</source>
         <target>Sécurité par endpoint enregistrée et appliquée</target>
       </trans-unit>
+      <trans-unit id="Saving" datatype="html">
+        <source>Saving…</source>
+        <target>Enregistrement…</target>
+      </trans-unit>
+      <trans-unit id="All_changes_saved" datatype="html">
+        <source>All changes saved</source>
+        <target>Toutes les modifications sont enregistrées</target>
+      </trans-unit>
       <trans-unit id="Routes" datatype="html">
         <source>Routes</source>
         <target>Routes</target>

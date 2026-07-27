@@ -148,11 +148,13 @@ table.ops {
   &:hover {
     background: var(--mat-sys-surface-container-low);
   }
-  &.secured {
-    box-shadow: inset 3px 0 0 0 var(--mk-signal);
-  }
   &.open {
     background: var(--mat-sys-surface-container);
+  }
+  // The override accent rides the first CELL (not the row): a cell box-shadow
+  // paints above the row's hover background, so it survives hover.
+  &.secured .c-status {
+    box-shadow: inset 3px 0 0 0 var(--mk-signal);
   }
 }
 
@@ -258,5 +260,33 @@ table.ops {
   }
   .spacer {
     flex: 1;
+  }
+  .save-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--mat-sys-on-surface-variant);
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    &.ok {
+      color: #22a06b;
+    }
+    &.err {
+      color: var(--mat-sys-error);
+    }
+  }
+  .spin {
+    animation: es-spin 1s linear infinite;
+  }
+}
+
+@keyframes es-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

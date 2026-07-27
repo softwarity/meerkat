@@ -59,8 +59,13 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   un **défaut de route** éditable via le composant réutilisable `AccessEditor` (case
   « authentifié » + chips users + chips roles, users/roles cochant/verrouillant authentifié).
   Chaque opération peut **surcharger** le défaut (toggle « Override the route default » dans
-  l'expand → le même `AccessEditor` ; sinon « hérite du défaut »). **Header sticky, lignes
-  scrollables, Save global en footer**. Expand via `multiTemplateDataRows` + prédicat `when` +
+  l'expand → le même `AccessEditor`, case + 2 selects EMPILÉS ; sinon « hérite du défaut » ;
+  liseré override sur la 1re cellule pour survivre au hover). `AccessEditor` : options users
+  = username + email, options roles = name + description ; labels « (l'un d'eux suffit) » (OU).
+  **Header sticky, lignes scrollables, mat-table TRIABLE par méthode/path** (tri manuel via
+  `matSortChange` + `computed`). **AUTO-SAVE débouncé 500 ms** (plus de bouton Save : chaque
+  changement PUT tout le bloc `EndpointSecurity`, petit ; statut en footer
+  Enregistrement…/Enregistré/erreur). Expand via `multiTemplateDataRows` + prédicat `when` +
   `table.renderRows()`. `listRoles`/`listUsers` (app-scope) chargés en tolérant le 403 (un
   gateway_admin pur aura les listes vides mais peut poser « authentifié »). Présélection via
   `?route=<id>`. Signal-first, Material sur `--mat-sys`, zéro ngModel. `api.service` :

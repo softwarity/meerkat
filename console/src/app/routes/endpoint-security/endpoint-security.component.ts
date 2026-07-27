@@ -1,16 +1,17 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, firstValueFrom, of } from 'rxjs';
+import { Subject, catchError, debounceTime, firstValueFrom, of } from 'rxjs';
 import {
   ApiService,
   EndpointPolicy,
@@ -33,6 +34,13 @@ interface OpState {
 
 function opKey(method: string, path: string): string {
   return `${method.toUpperCase()} ${path}`;
+}
+
+// Conventional verb order for the method sort.
+const METHOD_ORDER = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+function methodRank(m: string): number {
+  const i = METHOD_ORDER.indexOf(m.toUpperCase());
+  return i < 0 ? METHOD_ORDER.length : i;
 }
 
 // Turn the editor's non-optional access into the wire shape (empty lists and a
@@ -67,6 +75,7 @@ function fromWire(a: { authenticated?: boolean; users?: string[]; roles?: string
     MatProgressBarModule,
     MatSelectModule,
     MatSlideToggleModule,
+    MatSortModule,
     MatTableModule,
     MatTooltipModule,
     AccessEditorComponent,
@@ -77,13 +86,16 @@ function fromWire(a: { authenticated?: boolean; users?: string[]; roles?: string
 })
 export class EndpointSecurityComponent {
   private readonly api = inject(ApiService);
-  private readonly snack = inject(MatSnackBar);
   private readonly table = viewChild(MatTable);
 
   protected readonly loadingRoutes = signal(true);
   protected readonly loadingOps = signal(false);
-  protected readonly saving = signal(false);
   protected readonly error = signal('');
+  // Auto-save: every change persists on its own (debounced); the footer shows
+  // the state rather than a Save button.
+  protected readonly saveState = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  protected readonly saveError = signal('');
+  private readonly saveTrigger = new Subject<void>();
   protected readonly routes = signal<Route[]>([]);
   protected readonly roles = signal<Role[]>([]);
   protected readonly users = signal<User[]>([]);
@@ -104,6 +116,25 @@ export class EndpointSecurityComponent {
   protected readonly operations = computed(() => this.data()?.operations ?? []);
   protected readonly columns = ['status', 'method', 'path', 'summary', 'expand'];
 
+  // Table sort (by method or path); spec order until a header is clicked.
+  protected readonly sortState = signal<Sort>({ active: '', direction: '' });
+  protected onSort(s: Sort): void {
+    this.sortState.set(s);
+    this.table()?.renderRows();
+  }
+  protected readonly sortedOps = computed(() => {
+    const ops = [...this.operations()];
+    const s = this.sortState();
+    if (!s.direction) return ops;
+    const dir = s.direction === 'asc' ? 1 : -1;
+    ops.sort((a, b) => {
+      const byMethod = methodRank(a.method) - methodRank(b.method) || a.path.localeCompare(b.path);
+      const byPath = a.path.localeCompare(b.path) || methodRank(a.method) - methodRank(b.method);
+      return (s.active === 'method' ? byMethod : byPath) * dir;
+    });
+    return ops;
+  });
+
   // Operations whose EFFECTIVE access gates something, plus the preserved extras.
   protected readonly securedCount = computed(() => {
     let n = this.extras().length;
@@ -113,7 +144,15 @@ export class EndpointSecurityComponent {
 
   constructor() {
     const preselect = inject(ActivatedRoute).snapshot.queryParamMap.get('route') ?? '';
+    // Coalesce rapid edits (e.g. picking several roles) into one PUT.
+    this.saveTrigger.pipe(debounceTime(500), takeUntilDestroyed()).subscribe(() => void this.persist());
     void this.init(preselect);
+  }
+
+  // A user edit happened: reflect it immediately, then persist after the debounce.
+  private scheduleSave(): void {
+    this.saveState.set('saving');
+    this.saveTrigger.next();
   }
 
   private async init(preselect: string): Promise<void> {
@@ -204,9 +243,16 @@ export class EndpointSecurityComponent {
     return s.override ? s.access : this.routeAccess();
   }
 
+  // The route-wide default changed.
+  protected setRouteAccess(a: AccessState): void {
+    this.routeAccess.set(a);
+    this.scheduleSave();
+  }
+
   protected setOpAccess(o: OpenAPIOperation, access: AccessState): void {
     const k = opKey(o.method, o.path);
     this.state.update((s) => ({ ...s, [k]: { override: true, access } }));
+    this.scheduleSave();
   }
 
   // Toggle whether an operation overrides the route default. Turning it on seeds
@@ -219,10 +265,11 @@ export class EndpointSecurityComponent {
       const seed = isEmpty(cur.access) ? { ...this.routeAccess() } : cur.access;
       return { ...s, [k]: { override: true, access: seed } };
     });
+    this.scheduleSave();
   }
 
   // ── Save ───────────────────────────────────────────────────────────────────
-  protected async save(): Promise<void> {
+  private async persist(): Promise<void> {
     const id = this.selectedId();
     if (!id) return;
     const endpoints: EndpointPolicy[] = [];
@@ -242,18 +289,13 @@ export class EndpointSecurityComponent {
       };
     }
 
-    this.saving.set(true);
+    this.saveState.set('saving');
     try {
       await firstValueFrom(this.api.saveRouteSecurity(id, security));
-      this.snack.open(
-        $localize`:@@Endpoint_security_saved:Endpoint security saved and applied`,
-        undefined,
-        { duration: 2500 },
-      );
+      this.saveState.set('saved');
     } catch (e) {
-      this.snack.open(this.message(e), undefined, { duration: 4000 });
-    } finally {
-      this.saving.set(false);
+      this.saveError.set(this.message(e));
+      this.saveState.set('error');
     }
   }
 

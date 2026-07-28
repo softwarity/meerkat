@@ -109,8 +109,12 @@
           <context context-type="linenumber">305</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.ts</context>
+          <context context-type="linenumber">122</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">227</context>
+          <context context-type="linenumber">237</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-danger.component.ts</context>
@@ -296,8 +300,8 @@
           <context context-type="linenumber">49,50</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/role-dialog.component.ts</context>
-          <context context-type="linenumber">89,90</context>
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">76,77</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
@@ -347,8 +351,8 @@
           <context context-type="linenumber">246</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">149</context>
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">79,80</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
@@ -514,8 +518,8 @@
           <context context-type="linenumber">267</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">161</context>
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">81,82</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.html</context>
@@ -745,8 +749,12 @@
           <context context-type="linenumber">289</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">188</context>
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">69,70</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.ts</context>
+          <context context-type="linenumber">109</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-danger.component.ts</context>
@@ -874,12 +882,12 @@
           <context context-type="linenumber">44,45</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/role-dialog.component.ts</context>
-          <context context-type="linenumber">60,62</context>
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">31,33</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">47,48</context>
+          <context context-type="linenumber">56,57</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
@@ -915,11 +923,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">2,3</context>
+          <context context-type="linenumber">4,5</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">31,32</context>
+          <context context-type="linenumber">33,34</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
@@ -1033,6 +1041,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/login-history-dialog.component.ts</context>
           <context context-type="linenumber">26,27</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">11</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
@@ -1230,18 +1242,48 @@
           <context context-type="linenumber">40,41</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="New_role" datatype="html">
+        <source>New role</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">3,5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
+          <context context-type="linenumber">101,102</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
+          <context context-type="linenumber">103,105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="system" datatype="html">
+        <source>system</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">8,10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
+          <context context-type="linenumber">48,49</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Role_name" datatype="html">
         <source>Role name</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/role-dialog.component.ts</context>
-          <context context-type="linenumber">51,53</context>
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">16,18</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tags" datatype="html">
         <source>Tags</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/role-dialog.component.ts</context>
-          <context context-type="linenumber">69,70</context>
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
+          <context context-type="linenumber">63,64</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
@@ -1256,15 +1298,42 @@
           <context context-type="linenumber">128,129</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Danger_zone" datatype="html">
+        <source>Danger zone</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">63,64</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">21,24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_role_hint" datatype="html">
+        <source>
+        A role still granted by a group cannot be deleted: remove it from the groups first.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
+          <context context-type="linenumber">65,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_role_NAME" datatype="html">
+        <source>Delete role &quot;<x id="NAME" equiv-text="current.name"/>&quot;?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.ts</context>
+          <context context-type="linenumber">108</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Refresh" datatype="html">
         <source>Refresh</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">3</context>
+          <context context-type="linenumber">5</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">3,4</context>
+          <context context-type="linenumber">5,6</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
@@ -1283,69 +1352,28 @@
         <source>No role yet, create the first one.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">12,14</context>
+          <context context-type="linenumber">14,16</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Drop_here_for_top_level" datatype="html">
         <source>Drop here to make it a top-level role</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">18,20</context>
+          <context context-type="linenumber">20,22</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="system" datatype="html">
-        <source>system</source>
+      <trans-unit id="Drag_to_re_parent" datatype="html">
+        <source>Drag to re-parent</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">39,40</context>
+          <context context-type="linenumber">41,42</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Edit_role" datatype="html">
-        <source>Edit role</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">68,69</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">70,72</context>
-        </context-group>
+      <trans-unit id="Role_NAME_saved" datatype="html">
+        <source>Role &quot;<x id="NAME" equiv-text="saved.name"/>&quot; saved</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">160</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Delete_role" datatype="html">
-        <source>Delete role</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">79,80</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">81,83</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="New_role" datatype="html">
-        <source>New role</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">113,114</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">115,117</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">148</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Delete_role_NAME" datatype="html">
-        <source>Delete role &quot;<x id="NAME" equiv-text="role.name"/>&quot;?</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">187</context>
+          <context context-type="linenumber">129</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tenant_name" datatype="html">
@@ -1437,13 +1465,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
           <context context-type="linenumber">17,19</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Danger_zone" datatype="html">
-        <source>Danger zone</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">21,24</context>
         </context-group>
       </trans-unit>
       <trans-unit id="All" datatype="html">

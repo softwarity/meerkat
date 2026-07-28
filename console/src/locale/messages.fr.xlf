@@ -2,6 +2,18 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="Role_NAME_saved" datatype="html">
+        <source>Role "<x id="NAME" equiv-text="saved.name"/>" saved</source>
+        <target>Rôle « <x id="NAME" equiv-text="saved.name"/> » enregistré</target>
+      </trans-unit>
+      <trans-unit id="Delete_role_hint" datatype="html">
+        <source>A role still granted by a group cannot be deleted: remove it from the groups first.</source>
+        <target>Un rôle encore accordé par un groupe ne peut pas être supprimé : retirez-le d'abord des groupes.</target>
+      </trans-unit>
+      <trans-unit id="Drag_to_re_parent" datatype="html">
+        <source>Drag to re-parent</source>
+        <target>Glisser pour changer de parent</target>
+      </trans-unit>
       <trans-unit id="Replaces_the_stored_password" datatype="html">
         <source>Replaces the stored password</source>
         <target>Remplace le mot de passe enregistré</target>

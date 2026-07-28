@@ -1,18 +1,17 @@
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
-import { RowActionsDirective } from '@softwarity/row-actions';
-import { firstValueFrom } from 'rxjs';
 import { ApiService, Role } from '../../api.service';
-import { DialogsService } from '../../shared/dialogs.service';
-import { RoleDialogComponent, RoleDialogResult } from '../role-dialog.component';
 import { TreeGuide, TreePrefixComponent } from '../../shared/tree-prefix.component';
+import { RoleEditorComponent } from '../role-editor/role-editor.component';
 
 // One row of the flattened tree: the role plus the guide glyphs materializing
 // its position in the hierarchy.
@@ -23,23 +22,27 @@ interface RoleNode {
 
 // The GLOBAL role catalogue (RBAC-01), root only — archway's roles tree: a
 // flat mat-table ordered as a depth-first walk of the parentId hierarchy,
-// with SVG guide lines materializing the branches. The hierarchy is edited by
-// DRAG AND DROP: drag a row onto another row to make it that role's child,
-// or onto the drop zone above the table to make it top-level. Dropping a role
-// onto itself, its current parent or one of its descendants is refused.
-// Per-tenant GROUPS assemble subsets of this catalogue (in the tenant drawer).
-// System roles are protected from deletion.
+// with SVG guide lines materializing the branches.
+//
+// TWO gestures, two meanings. Clicking a row opens it in the right drawer (the
+// URL drives it: roles/new, roles/:id) where the name, description, tags and
+// the deletion live — the table itself carries no action. Dragging a row BY
+// ITS HANDLE onto another one re-parents it, or onto the drop zone above the
+// table to make it top-level; dropping a role onto itself, its current parent
+// or one of its descendants is refused. Per-tenant GROUPS assemble subsets of
+// this catalogue. System roles are protected from renaming and deletion.
 @Component({
   selector: 'app-roles-page',
   imports: [
     DragDropModule,
     MatButtonModule,
     MatIconModule,
+    MatSidenavModule,
     MatTableModule,
     MatTooltipModule,
     LoadingIndicatorComponent,
-    RowActionsDirective,
     TreePrefixComponent,
+    RoleEditorComponent,
   ],
   templateUrl: './roles-page.component.html',
   styleUrl: './roles-page.component.scss',
@@ -47,8 +50,8 @@ interface RoleNode {
 export class RolesPageComponent {
   private readonly api = inject(ApiService);
   private readonly snack = inject(MatSnackBar);
-  private readonly dialogs = inject(DialogsService);
-  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
+  private readonly ar = inject(ActivatedRoute);
 
   protected readonly loading = signal(true);
   protected readonly roles = signal<Role[]>([]);
@@ -56,6 +59,21 @@ export class RolesPageComponent {
 
   // Depth-first walk of the parentId hierarchy — the table shows the TREE.
   protected readonly nodes = computed(() => flattenTree(this.roles()));
+
+  // The URL drives the drawer (F5-proof): roles/new = creating, roles/:id =
+  // editing that role.
+  private readonly params = toSignal(this.ar.paramMap);
+  private readonly urlSegs = toSignal(this.ar.url);
+  protected readonly editing = computed<Role | 'new' | null>(() => {
+    if (this.urlSegs()?.some((s) => s.path === 'new')) return 'new';
+    const id = this.params()?.get('id');
+    if (!id) return null;
+    return this.roles().find((r) => r.id === id) ?? null;
+  });
+  protected readonly editingRole = computed(() => {
+    const e = this.editing();
+    return e === null || e === 'new' ? null : e;
+  });
 
   // Drag state: the role in flight, and the currently valid drop target
   // (a role = becomes its child; 'root' = becomes top-level).
@@ -65,6 +83,9 @@ export class RolesPageComponent {
     const t = this.target();
     return t && t !== 'root' ? t.id : null;
   });
+  // A drag ends with a click on the row underneath: swallow that one, or every
+  // re-parenting would also open the drawer.
+  private suppressClick = false;
 
   private readonly parentOf = computed(() => {
     const map = new Map<string, string>();
@@ -87,6 +108,38 @@ export class RolesPageComponent {
     });
   }
 
+  // ── the drawer ────────────────────────────────────────────────────────────
+
+  protected openRole(role: Role): void {
+    if (this.suppressClick) return;
+    void this.router.navigate(['/application/roles', role.id]);
+  }
+
+  protected openNew(): void {
+    void this.router.navigate(['/application/roles', 'new']);
+  }
+
+  protected closeEditor(): void {
+    if (this.editing() !== null) void this.router.navigate(['/application/roles']);
+  }
+
+  // Save keeps the drawer open: the URL gains the fresh id after a creation,
+  // and the reloaded list rebinds the fresh role into the editor.
+  protected onSaved(saved: Role): void {
+    this.snack.open($localize`:@@Role_NAME_saved:Role "${saved.name}:NAME:" saved`, undefined, {
+      duration: 2500,
+    });
+    if (this.editing() === 'new') {
+      void this.router.navigate(['/application/roles', saved.id], { replaceUrl: true });
+    }
+    this.load();
+  }
+
+  protected onDeleted(): void {
+    void this.router.navigate(['/application/roles']);
+    this.load();
+  }
+
   // ── drag & drop re-parenting ──────────────────────────────────────────────
 
   protected dragStarted(role: Role): void {
@@ -100,7 +153,9 @@ export class RolesPageComponent {
   // would silently do nothing. Defer it: a drag released with no valid target
   // still clears, one that lands lets drop() read the state first.
   protected dragEnded(): void {
+    this.suppressClick = true;
     queueMicrotask(() => this.clearDrag());
+    setTimeout(() => (this.suppressClick = false));
   }
 
   private clearDrag(): void {
@@ -147,60 +202,6 @@ export class RolesPageComponent {
         this.snack.open(errMsg(err), undefined, { duration: 4000 });
         this.load(); // a rejected cycle rolls the tree back to server truth
       },
-    });
-  }
-
-  // ── CRUD ──────────────────────────────────────────────────────────────────
-
-  protected async create(): Promise<void> {
-    const res = await this.openRoleDialog({
-      title: $localize`:@@New_role:New role`,
-      confirmLabel: $localize`:@@Create:Create`,
-    });
-    if (!res) return;
-    this.api.createRole({ name: res.name, description: res.description, tags: res.tags }).subscribe({
-      next: (r) => this.roles.update((list) => [...list, r]),
-      error: (err) => this.snack.open(errMsg(err), undefined, { duration: 4000 }),
-    });
-  }
-
-  protected async edit(role: Role): Promise<void> {
-    const res = await this.openRoleDialog({
-      title: $localize`:@@Edit_role:Edit role`,
-      confirmLabel: $localize`:@@Save:Save`,
-      name: role.name,
-      description: role.description,
-      tags: role.tags,
-    });
-    if (!res) return;
-    this.api.updateRole({ ...role, name: res.name, description: res.description, tags: res.tags }).subscribe({
-      next: (saved) => this.roles.update((list) => list.map((r) => (r.id === saved.id ? saved : r))),
-      error: (err) => this.snack.open(errMsg(err), undefined, { duration: 4000 }),
-    });
-  }
-
-  private openRoleDialog(data: {
-    title: string;
-    confirmLabel: string;
-    name?: string;
-    description?: string;
-    tags?: string[];
-  }): Promise<RoleDialogResult | undefined> {
-    return firstValueFrom(
-      this.dialog.open(RoleDialogComponent, { data, width: '480px', restoreFocus: true }).afterClosed(),
-    );
-  }
-
-  protected async remove(role: Role): Promise<void> {
-    const ok = await this.dialogs.confirm({
-      title: $localize`:@@Delete_role_NAME:Delete role "${role.name}:NAME:"?`,
-      confirmLabel: $localize`:@@Delete:Delete`,
-      danger: true,
-    });
-    if (!ok) return;
-    this.api.deleteRole(role.id).subscribe({
-      next: () => this.load(),
-      error: (err) => this.snack.open(errMsg(err), undefined, { duration: 4000 }),
     });
   }
 }

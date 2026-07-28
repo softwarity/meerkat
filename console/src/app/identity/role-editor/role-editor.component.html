@@ -1,0 +1,84 @@
+<header>
+  @if (creating()) {
+    <h2 i18n="@@New_role">New role</h2>
+  } @else {
+    <h2 class="mono">{{ role()?.name }}</h2>
+  }
+  @if (locked()) {
+    <span class="sys" i18n="@@system">system</span>
+  }
+  <button matIconButton (click)="closed.emit()" i18n-aria-label="@@Close" aria-label="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+</header>
+
+<div class="body">
+  <app-form-field i18n-label="@@Role_name" label="Role name">
+    <textarea
+      matInput
+      rows="1"
+      class="oneline mono"
+      spellcheck="false"
+      autocapitalize="off"
+      autocorrect="off"
+      [value]="name()"
+      [disabled]="locked()"
+      (input)="name.set($any($event.target).value)"
+      (keydown.enter)="$event.preventDefault()"
+    ></textarea>
+  </app-form-field>
+
+  <app-form-field i18n-label="@@Description" label="Description">
+    <textarea
+      matInput
+      rows="3"
+      [value]="description()"
+      (input)="description.set($any($event.target).value)"
+    ></textarea>
+  </app-form-field>
+
+  <mat-form-field>
+    <mat-label i18n="@@Tags">Tags</mat-label>
+    <!-- the input lives INSIDE the grid so it flows on the chips' line -->
+    <mat-chip-grid #chipGrid>
+      @for (t of tags(); track t) {
+        <mat-chip-row (removed)="removeTag(t)">
+          {{ t }}
+          <button matChipRemove [attr.aria-label]="t" type="button">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+      }
+      <input
+        [matChipInputFor]="chipGrid"
+        [matChipInputSeparatorKeyCodes]="separators"
+        (matChipInputTokenEnd)="addTag($event)"
+      />
+    </mat-chip-grid>
+  </mat-form-field>
+
+  @if (!creating()) {
+    <mat-divider />
+    <section>
+      <h3 i18n="@@Danger_zone">Danger zone</h3>
+      <p class="hint text-muted" i18n="@@Delete_role_hint">
+        A role still granted by a group cannot be deleted: remove it from the groups first.
+      </p>
+      <button matButton class="danger" [disabled]="locked()" (click)="remove()">
+        <mat-icon>delete</mat-icon>
+        <ng-container i18n="@@Delete">Delete</ng-container>
+      </button>
+    </section>
+  }
+</div>
+
+<footer class="flex justify-end gap-2">
+  <button matButton (click)="closed.emit()" i18n="@@Cancel">Cancel</button>
+  <button matButton="filled" [disabled]="!canSave()" (click)="save()">
+    @if (creating()) {
+      <ng-container i18n="@@Create">Create</ng-container>
+    } @else {
+      <ng-container i18n="@@Save">Save</ng-container>
+    }
+  </button>
+</footer>

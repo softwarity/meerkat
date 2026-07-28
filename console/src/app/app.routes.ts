@@ -34,6 +34,14 @@ function usersMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   return { consumed: segments, posParams };
 }
 
+// roles, roles/new and roles/:id — same one-config trick.
+function rolesMatcher(segments: UrlSegment[]): UrlMatchResult | null {
+  if (segments.length === 0 || segments[0].path !== 'roles' || segments.length > 2) return null;
+  const posParams: Record<string, UrlSegment> = {};
+  if (segments.length === 2 && segments[1].path !== 'new') posParams['id'] = segments[1];
+  return { consumed: segments, posParams };
+}
+
 export const routes: Routes = [
   // "/" resolves to the first section the user may use (infra admin →
   // routes, app admin → general, others → tenants).
@@ -100,7 +108,9 @@ export const routes: Routes = [
         loadComponent: () => import('./settings/locales-page.component').then((m) => m.LocalesPageComponent),
       },
       {
-        path: 'roles',
+        // The role drawer is URL-driven too: roles/new opens a blank one,
+        // roles/:id opens that role.
+        matcher: rolesMatcher,
         canActivate: [appOnly],
         loadComponent: () =>
           import('./identity/roles-page/roles-page.component').then((m) => m.RolesPageComponent),

@@ -1,11 +1,24 @@
 /* Same shape as the other table screens: a fixed banner, a scrolling table
-   whose header sticks, and a FAB floating over the bottom-right corner. */
+   whose header sticks, a FAB over the bottom-right corner, and the detail in a
+   right drawer opened by clicking a row. */
 :host {
-  position: relative;
+  display: block;
+  height: 100%;
+}
+mat-drawer-container {
+  height: 100%;
+  background: transparent;
+}
+mat-drawer-content {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+}
+mat-drawer {
+  width: min(560px, 96vw);
+  border-left: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-high);
 }
 .banner {
   display: flex;
@@ -41,7 +54,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 24px 8px;
+  margin-bottom: 8px;
   padding: 10px 16px;
   border: 1px dashed var(--mat-sys-outline);
   border-radius: var(--mat-sys-corner-medium, 8px);
@@ -53,8 +66,16 @@
   color: var(--mat-sys-secondary);
   background: color-mix(in srgb, var(--mat-sys-secondary) 12%, transparent);
 }
+/* A click on the row opens its drawer, so the row reads as clickable. Only the
+   handle offers to be grabbed: the rest of the line is not a drag surface. */
 mat-row {
-  cursor: grab;
+  cursor: pointer;
+}
+mat-row:hover {
+  background: var(--mat-sys-surface-container-high);
+}
+mat-row.selected {
+  background: var(--mat-sys-secondary-container);
 }
 mat-row.drop-target {
   background: color-mix(in srgb, var(--mat-sys-secondary) 14%, transparent);
@@ -109,7 +130,6 @@ mat-row.dragged {
 .mat-column-description {
   flex: 1 1 42%;
 }
-/* read-only tag pills, roomy now that the table spans the full width */
 .mat-column-tags {
   flex: 1 1 24%;
   justify-content: flex-start;

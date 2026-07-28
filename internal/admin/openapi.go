@@ -19,21 +19,31 @@ var specClient = &http.Client{Timeout: 20 * time.Second}
 
 // registerOpenAPI mounts the endpoint-security surface (RBAC-07): read the
 // route's OpenAPI operations, and pose per-endpoint access rules. Routing plane
-// (GATEWAY scope): root or gateway-admin.
+// (GATEWAY scope): root or infra-admin.
 func (a *API) registerOpenAPI(mux *http.ServeMux) {
 	mux.Handle("GET /api/routes/{id}/operations", a.gw(a.getRouteOperations))
-	mux.Handle("PUT /api/routes/{id}/security", a.gatewayAdmin(a.putRouteSecurity))
+	mux.Handle("PUT /api/routes/{id}/security", a.infraAdmin(a.putRouteSecurity))
 }
 
 // routeOperations is what the console consumes to draw the swagger-like editor:
 // the API metadata, the flat operation list fetched live from the upstream, and
 // the currently saved per-endpoint security to overlay onto it.
 type routeOperations struct {
-	Title      string                  `json:"title,omitempty"`
-	Version    string                  `json:"version,omitempty"`
-	Format     string                  `json:"format"`
+	Title   string `json:"title,omitempty"`
+	Version string `json:"version,omitempty"`
+	Format  string `json:"format"`
+	// Access is the route's base security (the "whole route" default); Endpoints
+	// override it per operation.
+	Access     store.Access            `json:"access"`
 	Operations []openapi.Operation     `json:"operations"`
 	Security   *store.EndpointSecurity `json:"security,omitempty"`
+}
+
+// routeSecurityPayload is the endpoint-security screen's PUT body: the route's
+// base Access plus the per-operation overrides.
+type routeSecurityPayload struct {
+	Access    store.Access           `json:"access"`
+	Endpoints []store.EndpointPolicy `json:"endpoints"`
 }
 
 // getRouteOperations fetches the route's OpenAPI spec, parses it (Swagger 2.0 or

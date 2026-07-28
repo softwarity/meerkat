@@ -11,17 +11,19 @@ import (
 
 // Theme administration (THEME-04): several saved themes, one active; the
 // editor previews any of them as the REAL login page before activating.
-// Root scope — the theme is a global setting.
+// APPLICATION plane (RBAC-05): a theme is the product's visual identity — its
+// name, tagline, logo and colours. The gateway merely SERVES those pages; who
+// serves them is not who owns them.
 func (a *API) registerThemes(mux *http.ServeMux) {
-	mux.Handle("GET /api/themes", a.gatewayAdmin(a.listThemes))
-	mux.Handle("GET /api/themes/presets", a.gatewayAdmin(a.listPresets))
-	mux.Handle("POST /api/themes", a.gatewayAdmin(a.createTheme))
-	mux.Handle("PUT /api/themes/{id}", a.gatewayAdmin(a.updateTheme))
-	mux.Handle("DELETE /api/themes/{id}", a.gatewayAdmin(a.deleteTheme))
-	mux.Handle("POST /api/themes/{id}/activate", a.gatewayAdmin(a.activateTheme))
-	mux.Handle("GET /api/themes/{id}/preview", a.gatewayAdmin(a.previewTheme))
-	mux.Handle("GET /api/branding", a.gatewayAdmin(a.getBranding))
-	mux.Handle("PUT /api/branding", a.gatewayAdmin(a.putBranding))
+	mux.Handle("GET /api/themes", a.appAdmin(a.listThemes))
+	mux.Handle("GET /api/themes/presets", a.appAdmin(a.listPresets))
+	mux.Handle("POST /api/themes", a.appAdmin(a.createTheme))
+	mux.Handle("PUT /api/themes/{id}", a.appAdmin(a.updateTheme))
+	mux.Handle("DELETE /api/themes/{id}", a.appAdmin(a.deleteTheme))
+	mux.Handle("POST /api/themes/{id}/activate", a.appAdmin(a.activateTheme))
+	mux.Handle("GET /api/themes/{id}/preview", a.appAdmin(a.previewTheme))
+	mux.Handle("GET /api/branding", a.appAdmin(a.getBranding))
+	mux.Handle("PUT /api/branding", a.appAdmin(a.putBranding))
 }
 
 // Branding (THEME-02) is GLOBAL — one application identity whatever theme is

@@ -17,7 +17,7 @@ export class MeService {
   readonly isRoot = computed(() => this.user()?.root ?? false);
   readonly isTenantCreator = computed(() => this.user()?.tenantCreator ?? false);
   // Split administration (RBAC-05): root implies both scopes.
-  readonly isGatewayAdmin = computed(() => this.isRoot() || (this.user()?.gatewayAdmin ?? false));
+  readonly isInfraAdmin = computed(() => this.isRoot() || (this.user()?.infraAdmin ?? false));
   readonly isAppAdmin = computed(() => this.isRoot() || (this.user()?.appAdmin ?? false));
   // Administers at least one tenant (owner or ADMIN), computed server-side and
   // carried on /api/me (a non-member owner would be missed by the memberships).
@@ -64,7 +64,7 @@ export class MeService {
       dev: has('dev'),
       tester: has('tester'),
       tenantCreator: has('tenant-creator'),
-      gatewayAdmin: has('gateway-admin'),
+      infraAdmin: has('infra-admin'),
       appAdmin: has('app-admin'),
     } as User;
     return { user, tenants: [] };
@@ -77,7 +77,7 @@ export class MeService {
     if (me.user.dev) roles.push('dev');
     if (me.user.tester) roles.push('tester');
     if (me.user.tenantCreator) roles.push('tenant-creator');
-    if (me.user.gatewayAdmin) roles.push('gateway-admin');
+    if (me.user.infraAdmin) roles.push('infra-admin');
     if (me.user.appAdmin) roles.push('app-admin');
     // Ownership is decoupled from membership, so the server computes this
     // (owner-or-admin of any tenant) — the memberships list alone can miss a
@@ -88,7 +88,7 @@ export class MeService {
       'dev',
       'tester',
       'tenant-creator',
-      'gateway-admin',
+      'infra-admin',
       'app-admin',
       'tenant-admin',
     );

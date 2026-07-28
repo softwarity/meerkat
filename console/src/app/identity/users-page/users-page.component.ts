@@ -104,9 +104,9 @@ export class UsersPageComponent {
       tooltip: $localize`:@@Tooltip_root:Administers the whole gateway: routes, users, tenants, settings`,
     },
     {
-      key: 'gatewayAdmin' as const,
-      label: $localize`:@@gateway_admin:gateway admin`,
-      tooltip: $localize`:@@Tooltip_gateway_admin:Administers the routing plane: routes and the built-in pages`,
+      key: 'infraAdmin' as const,
+      label: $localize`:@@infra_admin:infra admin`,
+      tooltip: $localize`:@@Tooltip_infra_admin:Administers the routing plane: routes and the built-in pages`,
     },
     {
       key: 'appAdmin' as const,
@@ -132,11 +132,32 @@ export class UsersPageComponent {
 
   protected toggleCapability(
     u: User,
-    key: 'root' | 'dev' | 'tester' | 'tenantCreator' | 'gatewayAdmin' | 'appAdmin',
+    key: 'root' | 'dev' | 'tester' | 'tenantCreator' | 'infraAdmin' | 'appAdmin',
     event: Event,
   ): void {
     event.stopPropagation(); // the row click opens the drawer — not this
-    this.api.updateUser({ ...u, [key]: !u[key] }).subscribe({
+    this.patchUser(u, { [key]: !u[key] });
+  }
+
+  // Enabling/disabling belongs to the row (like a route's pause/play), not to
+  // the detail panel: it is a list-level decision, one click from the table.
+  // Disabling locks someone out, so it asks first; enabling does not.
+  protected async toggleEnabled(u: User, event: Event): Promise<void> {
+    event.stopPropagation();
+    if (u.enabled) {
+      const ok = await this.dialogs.confirm({
+        title: $localize`:@@Disable_user_USERNAME:Disable user "${u.username}:USERNAME:"?`,
+        message: $localize`:@@Disable_user_message:They will be signed out and will not be able to sign in again until you enable them.`,
+        confirmLabel: $localize`:@@Disable:Disable`,
+        danger: true,
+      });
+      if (!ok) return;
+    }
+    this.patchUser(u, { enabled: !u.enabled });
+  }
+
+  private patchUser(u: User, patch: Partial<User>): void {
+    this.api.updateUser({ ...u, ...patch }).subscribe({
       next: (fresh) => this.users.update((list) => list.map((x) => (x.id === fresh.id ? fresh : x))),
       error: (err) => {
         const e = err as { error?: { error?: string } };

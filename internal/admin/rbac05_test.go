@@ -8,13 +8,14 @@ import (
 	"github.com/softwarity/meerkat/internal/store"
 )
 
-// TestSplitAdministrationScopes locks the RBAC-05 access matrix: the routing
-// plane answers to root or gateway-admin, the application identity to root or
-// app-admin, and neither capability leaks into the other scope.
+// TestSplitAdministrationScopes locks the RBAC-05 access matrix: the INFRA
+// plane (routes, mail relay) answers to root or infra-admin, the APPLICATION
+// (identity, theme, branding) to root or app-admin, and neither capability
+// leaks into the other scope.
 func TestSplitAdministrationScopes(t *testing.T) {
 	f := setup(t)
 	ctx := context.Background()
-	if err := f.api.st.CreateUser(ctx, store.User{ID: "gwa", Username: "gwa", PasswordHash: "x", GatewayAdmin: true, Enabled: true}); err != nil {
+	if err := f.api.st.CreateUser(ctx, store.User{ID: "gwa", Username: "gwa", PasswordHash: "x", InfraAdmin: true, Enabled: true}); err != nil {
 		t.Fatal(err)
 	}
 	if err := f.api.st.CreateUser(ctx, store.User{ID: "apa", Username: "apa", PasswordHash: "x", AppAdmin: true, Enabled: true}); err != nil {
@@ -47,7 +48,7 @@ func TestSplitAdministrationScopes(t *testing.T) {
 		get func(p probe) int
 	}{
 		{"root", f.rootC, func(p probe) int { return p.root }},
-		{"gateway-admin", gwC, func(p probe) int { return p.gw }},
+		{"infra-admin", gwC, func(p probe) int { return p.gw }},
 		{"app-admin", apC, func(p probe) int { return p.app }},
 		{"plain", f.plainC, func(p probe) int { return p.plain }},
 	}

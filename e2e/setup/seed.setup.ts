@@ -45,7 +45,7 @@ setup('seed profiles and tenant', async () => {
     return { id: body.user.id, oneTime: body.password };
   };
 
-  const gwadmin = await create({ username: 'gwadmin', enabled: true, gatewayAdmin: true });
+  const gwadmin = await create({ username: 'gwadmin', enabled: true, infraAdmin: true });
   const appadmin = await create({ username: 'appadmin', enabled: true, appAdmin: true });
   const tadmin = await create({ username: 'tadmin', enabled: true });
   const alice = await create({ username: 'alice', enabled: true, fullname: 'Alice Martin' });
@@ -80,7 +80,7 @@ setup('seed profiles and tenant', async () => {
     root: { id: 'root', username: 'admin', password: ROOT_PASSWORD },
   };
   for (const [profile, u] of [
-    ['gateway-admin', { ...gwadmin, username: 'gwadmin' }],
+    ['infra-admin', { ...gwadmin, username: 'gwadmin' }],
     ['app-admin', { ...appadmin, username: 'appadmin' }],
     ['tenant-admin', { ...tadmin, username: 'tadmin' }],
     ['user', { ...alice, username: 'alice' }],

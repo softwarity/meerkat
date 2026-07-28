@@ -39,14 +39,14 @@ func New(st *store.Store, sm *session.Manager, router *gateway.Router) *API {
 }
 
 // Register mounts the API on mux. The routing plane is GATEWAY scope
-// (RBAC-05): root or the gateway-admin capability.
+// (RBAC-05): root or the infra-admin capability.
 func (a *API) Register(mux *http.ServeMux) {
 	mux.Handle("GET /api/catalog", a.gw(a.catalog))
 	mux.Handle("GET /api/routes", a.gw(a.listRoutes))
-	mux.Handle("POST /api/routes/reorder", a.gatewayAdmin(a.reorderRoutes))
+	mux.Handle("POST /api/routes/reorder", a.infraAdmin(a.reorderRoutes))
 	mux.Handle("GET /api/routes/{id}", a.gw(a.getRoute))
-	mux.Handle("PUT /api/routes/{id}", a.gatewayAdmin(a.putRoute))
-	mux.Handle("DELETE /api/routes/{id}", a.gatewayAdmin(a.deleteRoute))
+	mux.Handle("PUT /api/routes/{id}", a.infraAdmin(a.putRoute))
+	mux.Handle("DELETE /api/routes/{id}", a.infraAdmin(a.deleteRoute))
 	a.registerOpenAPI(mux)
 	a.registerIdentity(mux)
 	a.registerThemes(mux)
@@ -55,10 +55,10 @@ func (a *API) Register(mux *http.ServeMux) {
 	a.auditRegisterViewer(mux)
 }
 
-// gw adapts a plain handler to the gateway-admin guard (the routing-plane
+// gw adapts a plain handler to the infra-admin guard (the routing-plane
 // handlers predate the userHandler signature and never need the actor).
 func (a *API) gw(next http.HandlerFunc) http.Handler {
-	return a.gatewayAdmin(func(w http.ResponseWriter, r *http.Request, _ store.User) { next(w, r) })
+	return a.infraAdmin(func(w http.ResponseWriter, r *http.Request, _ store.User) { next(w, r) })
 }
 
 func (a *API) catalog(w http.ResponseWriter, _ *http.Request) {

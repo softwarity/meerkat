@@ -12,7 +12,7 @@ $applyRoles: true !default;
 // attribute must be listed here or it won't match. The superpowers (RBAC-05)
 // plus tenant-admin (derived from an OWNER/ADMIN membership — TENANT-02).
 // MeService mirrors them onto <body> from /api/me.
-$known-roles: (root, dev, tester, tenant-creator, gateway-admin, app-admin, tenant-admin);
+$known-roles: (root, dev, tester, tenant-creator, infra-admin, app-admin, tenant-admin);
 
 // The superuser sees EVERYTHING regardless of an element's any-role — the admin
 // has access to all shared screens, while a dev sees only what targets them.

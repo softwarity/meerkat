@@ -64,7 +64,7 @@ func (s *Store) Close() error { return s.db.Close() }
 // databases are recreated, the model and schema just move together);
 // v16 route types API/UI + per-type options (ROUTE-02);
 // v17 sign-in history (login_events: one row per completed login, pruned);
-// v18 split administration (RBAC-05): gateway_admin (routing plane, built-in
+// v18 split administration (RBAC-05): infra_admin (routing plane, built-in
 // pages) and app_admin (users, roles, identity settings) capabilities — root
 // keeps implying both; tenant administration stays the membership type;
 // v19 self-registration (AUTH-20): users carry email_verified +
@@ -369,7 +369,7 @@ var userColumns = []columnDef{
 	{"tenant_creator", `INTEGER NOT NULL DEFAULT 0`},
 	// Split administration (v18, RBAC-05): the routing plane and the
 	// application's identity are separate concerns with separate admins.
-	{"gateway_admin", `INTEGER NOT NULL DEFAULT 0`},
+	{"infra_admin", `INTEGER NOT NULL DEFAULT 0`},
 	{"app_admin", `INTEGER NOT NULL DEFAULT 0`},
 	{"locale", `TEXT NOT NULL DEFAULT ''`},
 	{"timezone", `TEXT NOT NULL DEFAULT 'UTC'`},
@@ -1013,10 +1013,10 @@ type User struct {
 	Dev           bool   `json:"dev"`
 	Tester        bool   `json:"tester"`
 	TenantCreator bool   `json:"tenantCreator"`
-	// Split administration (RBAC-05): GatewayAdmin runs the routing plane
+	// Split administration (RBAC-05): InfraAdmin runs the routing plane
 	// (routes, built-in pages), AppAdmin runs the application's identity
 	// (users, roles, settings). Root implies both.
-	GatewayAdmin     bool   `json:"gatewayAdmin"`
+	InfraAdmin       bool   `json:"infraAdmin"`
 	AppAdmin         bool   `json:"appAdmin"`
 	Locale           string `json:"locale"`
 	Timezone         string `json:"timezone"`
@@ -1037,14 +1037,14 @@ type User struct {
 }
 
 const userCols = `id, username, password_hash, fullname, email, enabled,
-	root, dev, tester, tenant_creator, gateway_admin, app_admin, locale, timezone,
+	root, dev, tester, tenant_creator, infra_admin, app_admin, locale, timezone,
 	created_at, updated_at, last_connection_at, must_change_password, mfa_required,
 	email_verified, self_registered`
 
 func scanUser(row interface{ Scan(...any) error }) (User, error) {
 	var u User
 	err := row.Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Fullname, &u.Email, &u.Enabled,
-		&u.Root, &u.Dev, &u.Tester, &u.TenantCreator, &u.GatewayAdmin, &u.AppAdmin, &u.Locale, &u.Timezone,
+		&u.Root, &u.Dev, &u.Tester, &u.TenantCreator, &u.InfraAdmin, &u.AppAdmin, &u.Locale, &u.Timezone,
 		&u.CreatedAt, &u.UpdatedAt, &u.LastConnectionAt, &u.MustChangePassword, &u.MFARequired,
 		&u.EmailVerified, &u.SelfRegistered)
 	return u, err
@@ -1061,12 +1061,12 @@ func (s *Store) CreateUser(ctx context.Context, u User) error {
 	}
 	_, err := s.db.ExecContext(ctx,
 		`INSERT INTO users (id, username, password_hash, fullname, email, enabled,
-		   root, dev, tester, tenant_creator, gateway_admin, app_admin, locale, timezone,
+		   root, dev, tester, tenant_creator, infra_admin, app_admin, locale, timezone,
 		   created_at, updated_at, must_change_password, mfa_required,
 		   email_verified, self_registered)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		u.ID, u.Username, u.PasswordHash, u.Fullname, u.Email, u.Enabled,
-		u.Root, u.Dev, u.Tester, u.TenantCreator, u.GatewayAdmin, u.AppAdmin, u.Locale, u.Timezone,
+		u.Root, u.Dev, u.Tester, u.TenantCreator, u.InfraAdmin, u.AppAdmin, u.Locale, u.Timezone,
 		now, now, u.MustChangePassword, u.MFARequired,
 		u.EmailVerified, u.SelfRegistered)
 	if err != nil {
@@ -1083,11 +1083,11 @@ func (s *Store) UpdateUser(ctx context.Context, u User) error {
 	}
 	res, err := s.db.ExecContext(ctx,
 		`UPDATE users SET username = ?, fullname = ?, email = ?, enabled = ?,
-		   root = ?, dev = ?, tester = ?, tenant_creator = ?, gateway_admin = ?, app_admin = ?,
+		   root = ?, dev = ?, tester = ?, tenant_creator = ?, infra_admin = ?, app_admin = ?,
 		   locale = ?, timezone = ?, mfa_required = ?, updated_at = ?
 		 WHERE id = ?`,
 		u.Username, u.Fullname, u.Email, u.Enabled,
-		u.Root, u.Dev, u.Tester, u.TenantCreator, u.GatewayAdmin, u.AppAdmin, u.Locale, u.Timezone,
+		u.Root, u.Dev, u.Tester, u.TenantCreator, u.InfraAdmin, u.AppAdmin, u.Locale, u.Timezone,
 		u.MFARequired, time.Now().Unix(), u.ID)
 	if err != nil {
 		return fmt.Errorf("store: update user %q: %w", u.Username, err)

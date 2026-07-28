@@ -100,21 +100,19 @@ import { UserMenuComponent } from './shared/user-menu.component';
     <rail-nav-container>
       <rail-nav title="meerkat" subtitle="console">
         <rail-nav-item
-          i18n-label="@@Gateway"
-          label="Gateway"
-          [for]="gatewayDrawer"
-          [active]="inGateway()"
-          (click)="go('/routes')"
-          any-role="root gateway-admin"
+          i18n-label="@@Infra"
+          label="Infra"
+          routerLink="/infra"
+          [active]="inInfra()"
+          any-role="root infra-admin"
         >
           <mat-icon>dns</mat-icon>
         </rail-nav-item>
         <rail-nav-item
           i18n-label="@@Application"
           label="Application"
-          [for]="appDrawer"
+          routerLink="/application"
           [active]="inApp()"
-          (click)="go('/general')"
           any-role="root app-admin"
         >
           <mat-icon>tune</mat-icon>

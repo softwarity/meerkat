@@ -17,7 +17,7 @@ export default defineConfig({
     baseURL: ADMIN_URL,
   },
   projects: [
-    // Seeds the profiles (root, gateway-admin, app-admin, tenant-admin, user)
+    // Seeds the profiles (root, infra-admin, app-admin, tenant-admin, user)
     // through the real HTTP flows and saves one storage state per profile.
     { name: 'setup', testMatch: /setup\/.*\.setup\.ts/ },
     {

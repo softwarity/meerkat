@@ -194,7 +194,7 @@ export interface User {
   tester: boolean;
   tenantCreator: boolean;
   // Split administration (RBAC-05): routing plane vs application identity.
-  gatewayAdmin: boolean;
+  infraAdmin: boolean;
   appAdmin: boolean;
   locale: string;
   timezone: string;

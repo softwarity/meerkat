@@ -182,8 +182,8 @@ func consoleBodyAttrs(r *http.Request, st *store.Store, sm *session.Manager) str
 	if user.TenantCreator {
 		roles = append(roles, "tenant-creator")
 	}
-	if user.GatewayAdmin {
-		roles = append(roles, "gateway-admin")
+	if user.InfraAdmin {
+		roles = append(roles, "infra-admin")
 	}
 	if user.AppAdmin {
 		roles = append(roles, "app-admin")

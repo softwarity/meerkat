@@ -4,14 +4,14 @@ import { catchError, firstValueFrom, map, of } from 'rxjs';
 import { ApiService } from './api.service';
 import { MeService } from './me.service';
 
-// Where a user lands and falls back to (CONSOLE-02): a gateway admin starts on
+// Where a user lands and falls back to (CONSOLE-02): an infra admin starts on
 // the routing plane, an app admin on the application, everyone else on Tenants
 // (any authenticated console user may open it — the API scopes the content).
 // These guards are navigation comfort; the admin API enforces the same scopes
 // server-side (RBAC-05).
 function landing(me: MeService): string {
-  if (me.isGatewayAdmin()) return '/routes';
-  if (me.isAppAdmin()) return '/general';
+  if (me.isInfraAdmin()) return '/infra/routes';
+  if (me.isAppAdmin()) return '/application/general';
   return '/tenants';
 }
 
@@ -24,13 +24,13 @@ export const rootOnly: CanActivateFn = async () => {
   return me.isRoot() ? true : router.parseUrl(landing(me));
 };
 
-// gatewayOnly gates the routing plane (routes, built-in pages): root or the
-// gateway-admin capability; others are redirected to their landing.
-export const gatewayOnly: CanActivateFn = async () => {
+// infraOnly gates the routing plane (routes, built-in pages): root or the
+// infra-admin capability; others are redirected to their landing.
+export const infraOnly: CanActivateFn = async () => {
   const me = inject(MeService);
   const router = inject(Router);
   await me.ensureLoaded();
-  return me.isGatewayAdmin() ? true : router.parseUrl(landing(me));
+  return me.isInfraAdmin() ? true : router.parseUrl(landing(me));
 };
 
 // appOnly gates the application scope (general, users, roles, security): root

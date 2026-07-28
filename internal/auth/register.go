@@ -487,7 +487,7 @@ func (h *Handler) showAccountPending(w http.ResponseWriter, r *http.Request) {
 // waitingRoom reports whether a fresh session has nothing to reach: no
 // membership, no capability — the default landing would only hit the traps.
 func waitingRoom(user store.User, memberships int) bool {
-	return memberships == 0 && !user.Root && !user.GatewayAdmin && !user.AppAdmin &&
+	return memberships == 0 && !user.Root && !user.InfraAdmin && !user.AppAdmin &&
 		!user.Dev && !user.TenantCreator
 }
 

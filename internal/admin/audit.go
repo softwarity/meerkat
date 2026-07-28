@@ -32,18 +32,18 @@ var auditIgnore = map[string]bool{
 }
 
 // The audit domains (RBAC-05): each administrative capability sees its own
-// slice of the trail. gateway-admin runs the routing plane (routes, themes);
+// slice of the trail. infra-admin runs the routing plane (routes, themes);
 // app-admin runs the application's identity (users, roles, settings); a tenant
 // admin sees their tenants' events (scoped by tenant_id, not by target). Root
 // sees everything. A user who administers nothing sees nothing.
 var (
-	gatewayTargets = []string{"route", "theme", "token"}
-	appTargets     = []string{"user", "role", "settings"}
+	infraTargets = []string{"route", "theme", "token"}
+	appTargets   = []string{"user", "role", "settings"}
 )
 
 // auditRegisterViewer mounts the read-only audit endpoint. It is a section of
 // its own (not under Application): the handler scopes each caller to the
-// domains their capabilities cover, so routes show to gateway admins and
+// domains their capabilities cover, so routes show to infra admins and
 // identity changes to app admins.
 func (a *API) auditRegisterViewer(mux *http.ServeMux) {
 	mux.Handle("GET /api/audit", a.authed(a.listAudit))
@@ -185,14 +185,14 @@ func (a *API) listAudit(w http.ResponseWriter, r *http.Request, actor store.User
 		Limit:    int(atoi64(r.URL.Query().Get("limit"))),
 	}
 	// Scope by capability (RBAC-05): root sees all; otherwise the union of the
-	// domains the caller administers. gateway-admin → routing plane targets,
+	// domains the caller administers. infra-admin → routing plane targets,
 	// app-admin → identity targets, tenant admin → their tenants (by tenant_id).
 	// Administering nothing → 403 (the trail is an administrative view, not an
 	// empty page).
 	if !actor.Root {
 		scope := &store.AuditScope{}
-		if actor.GatewayAdmin {
-			scope.Targets = append(scope.Targets, gatewayTargets...)
+		if actor.InfraAdmin {
+			scope.Targets = append(scope.Targets, infraTargets...)
 		}
 		if actor.AppAdmin {
 			scope.Targets = append(scope.Targets, appTargets...)

@@ -469,3 +469,39 @@ func (s *Store) SetSetting(ctx context.Context, key string, value any) error {
 
 // ErrNoRows re-exports the sentinel for callers that translate absence to 404.
 var ErrNoRows = sql.ErrNoRows
+
+// renameGatewayAdminColumn carries the RBAC-05 capability rename (gateway_admin
+// became infra_admin, matching the vault's "infra" scope). Without it the new
+// column would appear empty and silently STRIP the capability from everyone who
+// held it — a rename is not a schema addition. Drop this once no v29 database
+// is left in the wild.
+func (s *Store) renameGatewayAdminColumn() error {
+	var old int
+	if err := s.db.QueryRow(
+		`SELECT COUNT(*) FROM pragma_table_info('users') WHERE name = 'gateway_admin'`).Scan(&old); err != nil {
+		return fmt.Errorf("store: inspect users schema: %w", err)
+	}
+	if old == 0 {
+		return nil
+	}
+	var renamed int
+	if err := s.db.QueryRow(
+		`SELECT COUNT(*) FROM pragma_table_info('users') WHERE name = 'infra_admin'`).Scan(&renamed); err != nil {
+		return fmt.Errorf("store: inspect users schema: %w", err)
+	}
+	if renamed > 0 {
+		// Both exist: the new one was just added empty, so carry the values over.
+		if _, err := s.db.Exec(`UPDATE users SET infra_admin = gateway_admin`); err != nil {
+			return fmt.Errorf("store: carry gateway_admin over: %w", err)
+		}
+		_, err := s.db.Exec(`ALTER TABLE users DROP COLUMN gateway_admin`)
+		if err != nil {
+			return fmt.Errorf("store: drop gateway_admin: %w", err)
+		}
+		return nil
+	}
+	if _, err := s.db.Exec(`ALTER TABLE users RENAME COLUMN gateway_admin TO infra_admin`); err != nil {
+		return fmt.Errorf("store: rename gateway_admin: %w", err)
+	}
+	return nil
+}

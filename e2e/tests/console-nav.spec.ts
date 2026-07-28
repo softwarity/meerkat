@@ -31,7 +31,7 @@ for (const sc of scenarios.filter((s) => s.kind === 'ui')) {
 // ui-landing (kind=flow, spec=console-nav): each profile's landing screen.
 const LANDING: Record<string, RegExp> = {
   root: /\/routes$/,
-  'gateway-admin': /\/routes$/,
+  'infra-admin': /\/routes$/,
   'app-admin': /\/general$/,
   'tenant-admin': /\/tenants\/[^/]+/,
   user: /\/tenants(\/[^/]+)?/,

@@ -11,7 +11,7 @@ import { ApiService, AuditChange, AuditEvent } from '../api.service';
 
 // The audit trail (phase 2): who changed what, with the exact field-level diff.
 // Its own transverse section (not under Application). Read-only and scoped
-// server-side by capability (RBAC-05): root sees all, gateway-admin the routing
+// server-side by capability (RBAC-05): root sees all, infra-admin the routing
 // plane, app-admin the identity, a tenant admin their tenants. Target + period
 // filter on the server; a free-text box narrows the loaded page.
 @Component({

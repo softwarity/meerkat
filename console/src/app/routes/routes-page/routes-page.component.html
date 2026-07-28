@@ -1,13 +1,18 @@
 <mat-drawer-container>
   <mat-drawer-content>
     <div class="banner">
-      <h1 i18n="@@Gateway_Routes">Gateway · Routes</h1>
+      <h1 i18n="@@Routes">Routes</h1>
       <button matIconButton (click)="load()" i18n-aria-label="@@Refresh" aria-label="Refresh">
         <mat-icon>refresh</mat-icon>
       </button>
-      <button matButton="filled" (click)="openNew()">
-        <mat-icon>add</mat-icon>
-        <ng-container i18n="@@New_route">New route</ng-container>
+      <button
+        matButton="tonal"
+        (click)="openSigningKeys()"
+        i18n-matTooltip="@@JWT_signing_keys"
+        matTooltip="JWT signing keys"
+      >
+        <mat-icon svgIcon="jwt" />
+        <ng-container i18n="@@Signing_keys">Signing keys</ng-container>
       </button>
     </div>
 

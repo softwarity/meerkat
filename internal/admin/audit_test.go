@@ -112,13 +112,13 @@ func TestAuditViewerScope(t *testing.T) {
 	}
 }
 
-// Each capability sees its own domain (RBAC-05): a gateway-admin sees routing
+// Each capability sees its own domain (RBAC-05): a infra-admin sees routing
 // events but not identity ones, an app-admin the reverse, and a plain user is
 // refused outright.
 func TestAuditDomainScope(t *testing.T) {
 	f := setup(t)
 	ctx := context.Background()
-	if err := f.api.st.CreateUser(ctx, store.User{ID: "gwa", Username: "gwa", PasswordHash: "x", GatewayAdmin: true, Enabled: true}); err != nil {
+	if err := f.api.st.CreateUser(ctx, store.User{ID: "gwa", Username: "gwa", PasswordHash: "x", InfraAdmin: true, Enabled: true}); err != nil {
 		t.Fatal(err)
 	}
 	if err := f.api.st.CreateUser(ctx, store.User{ID: "apa", Username: "apa", PasswordHash: "x", AppAdmin: true, Enabled: true}); err != nil {
@@ -135,10 +135,10 @@ func TestAuditDomainScope(t *testing.T) {
 		t.Fatalf("create user: %d %s", code, body)
 	}
 
-	// gateway-admin sees the route, not the user.
+	// infra-admin sees the route, not the user.
 	_, gw := f.call(t, "GET", "/api/audit", "", gwC)
 	if !strings.Contains(gw, `"route.create"`) || strings.Contains(gw, `"user.create"`) {
-		t.Fatalf("gateway-admin must see routes, not identity: %s", gw)
+		t.Fatalf("infra-admin must see routes, not identity: %s", gw)
 	}
 	// app-admin sees the user, not the route.
 	_, ap := f.call(t, "GET", "/api/audit", "", apC)

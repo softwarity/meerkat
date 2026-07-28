@@ -63,12 +63,12 @@ func (a *API) rootOnly(next userHandler) http.Handler {
 	})
 }
 
-// gatewayAdmin restricts a handler to root or gateway-admin users (RBAC-05):
+// infraAdmin restricts a handler to root or infra-admin users (RBAC-05):
 // the routing plane — routes, catalog, reload, built-in pages.
-func (a *API) gatewayAdmin(next userHandler) http.Handler {
+func (a *API) infraAdmin(next userHandler) http.Handler {
 	return a.authed(func(w http.ResponseWriter, r *http.Request, actor store.User) {
-		if !actor.Root && !actor.GatewayAdmin {
-			writeErr(w, http.StatusForbidden, "gateway administration requires root or the gateway-admin capability")
+		if !actor.Root && !actor.InfraAdmin {
+			writeErr(w, http.StatusForbidden, "infrastructure administration requires root or the infra-admin capability")
 			return
 		}
 		next(w, r, actor)

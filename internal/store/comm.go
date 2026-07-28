@@ -19,16 +19,20 @@ import (
 // expanded here, so the stored setting keeps the reference and the password
 // never sits in the settings table.
 //
-// The two halves resolve in THEIR OWN scope, matching who owns them: the
-// transport (host, username, password) is infrastructure, the sender is the
-// application's. Resolving the relay's password against the app scope would
-// let an app admin decide what the relay authenticates with.
+// The two halves resolve in THEIR OWN scope, matching who owns them. The relay
+// (host, credentials AND the sender address, which providers tie to the
+// authenticated account) is infrastructure; only the display name is the
+// application's. Resolving the relay's password against the app scope would let
+// an app admin decide what the relay authenticates with.
 func (s *Store) GetSMTP(ctx context.Context) mail.Config {
 	var cfg mail.Config
 	_ = s.GetSetting(ctx, SettingSMTP, &cfg)
 	cfg.Host, cfg.Username, cfg.Password = s.expandRelay(ctx, cfg.Host, cfg.Username, cfg.Password)
-	if values, err := s.VaultValues(ctx, vault.ScopeApp); err == nil {
+	if values, err := s.VaultValues(ctx, vault.ScopeInfra); err == nil {
 		cfg.From, _ = vault.Expand(cfg.From, func(n string) (string, bool) { v, ok := values[n]; return v, ok })
+	}
+	if values, err := s.VaultValues(ctx, vault.ScopeApp); err == nil {
+		cfg.FromName, _ = vault.Expand(cfg.FromName, func(n string) (string, bool) { v, ok := values[n]; return v, ok })
 	}
 	return cfg
 }
@@ -38,6 +42,17 @@ func (s *Store) GetSMTP(ctx context.Context) mail.Config {
 // carry "${smtp-password}", which has to become the real secret to connect.
 func (s *Store) ExpandRelay(ctx context.Context, host, username, password string) (string, string, string) {
 	return s.expandRelay(ctx, host, username, password)
+}
+
+// ExpandInfra resolves the INFRA-scope references of one value (the relay's
+// sender address, tested before being saved like the rest of the transport).
+func (s *Store) ExpandInfra(ctx context.Context, value string) string {
+	values, err := s.VaultValues(ctx, vault.ScopeInfra)
+	if err != nil {
+		return value
+	}
+	out, _ := vault.Expand(value, func(n string) (string, bool) { v, ok := values[n]; return v, ok })
+	return out
 }
 
 func (s *Store) expandRelay(ctx context.Context, host, username, password string) (string, string, string) {

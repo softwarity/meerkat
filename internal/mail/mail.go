@@ -23,12 +23,41 @@ type Config struct {
 	Security string `json:"security"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	// From is the sender, either "addr@dom" or "Name <addr@dom>".
+	// From is the sender ADDRESS. It belongs to the relay, not to the product:
+	// most providers refuse (or silently rewrite) a MAIL FROM that is not the
+	// account they authenticated, so it is set with the transport. Empty falls
+	// back to Username when that is itself an address, the common case.
 	From string `json:"from"`
+	// FromName is the display name in front of the address ("Meerkat" in
+	// `Meerkat <no-reply@acme.io>`). THIS is the product's to choose: it is
+	// what the recipient reads, and no relay constrains it.
+	FromName string `json:"fromName"`
+}
+
+// Address is the envelope sender: the explicit From, or the relay account when
+// it is an address (a provider that only lets you send as yourself).
+func (c Config) Address() string {
+	if c.From != "" {
+		return c.From
+	}
+	if strings.Contains(c.Username, "@") {
+		return c.Username
+	}
+	return ""
+}
+
+// Sender renders the From header: the address alone, or the display name in
+// front of it (RFC 2047-encoded, so an accent never breaks the header).
+func (c Config) Sender() string {
+	addr := c.Address()
+	if addr == "" || c.FromName == "" {
+		return addr
+	}
+	return (&netmail.Address{Name: c.FromName, Address: addr}).String()
 }
 
 // Configured reports whether the config can send at all.
-func (c Config) Configured() bool { return c.Host != "" && c.From != "" }
+func (c Config) Configured() bool { return c.Host != "" && c.Address() != "" }
 
 // Message is one outbound e-mail: text always, HTML optionally alongside.
 type Message struct {
@@ -42,11 +71,12 @@ type Message struct {
 // step so an admin can act on it.
 func Send(ctx context.Context, cfg Config, msg Message) error {
 	if !cfg.Configured() {
-		return fmt.Errorf("mail: SMTP is not configured (host and from are required)")
+		return fmt.Errorf("mail: SMTP is not configured (a host and a sender address are required; " +
+			"the address defaults to the relay account when that is an e-mail)")
 	}
-	from, err := netmail.ParseAddress(cfg.From)
+	from, err := netmail.ParseAddress(cfg.Address())
 	if err != nil {
-		return fmt.Errorf("mail: bad from address %q: %w", cfg.From, err)
+		return fmt.Errorf("mail: bad from address %q: %w", cfg.Address(), err)
 	}
 	port := cfg.Port
 	if port == 0 {
@@ -97,7 +127,7 @@ func Send(ctx context.Context, cfg Config, msg Message) error {
 	if err != nil {
 		return fmt.Errorf("mail: DATA refused: %w", err)
 	}
-	if _, err := w.Write(Build(cfg.From, msg)); err != nil {
+	if _, err := w.Write(Build(cfg.Sender(), msg)); err != nil {
 		return fmt.Errorf("mail: write body: %w", err)
 	}
 	if err := w.Close(); err != nil {

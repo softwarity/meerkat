@@ -11,8 +11,13 @@ import (
 // The mail relay (AUTH-20) is INFRASTRUCTURE: a third-party service reached by
 // host and port, with credentials. It belongs to the infra plane for the same
 // reason a route's upstream does, and an app admin has no business holding a
-// relay's password just to word an account e-mail. What the recipient SEES —
-// the sender address — stays with the application (see settingsPayload.SMTP).
+// relay's password just to word an account e-mail.
+//
+// The sender ADDRESS lives here too, because it is not really a free choice: a
+// provider refuses (or rewrites) a MAIL FROM that is not the account it just
+// authenticated, so the address travels with the credentials. What the product
+// does choose is the display NAME in front of it, and that stays with the
+// application (see settingsPayload.SMTP).
 func (a *API) registerMailRelay(mux *http.ServeMux) {
 	mux.Handle("GET /api/settings/mail-relay", a.infraAdmin(a.getMailRelay))
 	mux.Handle("PUT /api/settings/mail-relay", a.infraAdmin(a.putMailRelay))
@@ -28,14 +33,21 @@ type mailRelayPayload struct {
 	Username    string `json:"username"`
 	Password    string `json:"password"`
 	PasswordSet bool   `json:"passwordSet"`
-	// From is read-only here: it is the application's to set.
-	From string `json:"from,omitempty"`
+	// From is the sender ADDRESS, editable here. Empty means "the account", as
+	// long as Username is itself an address.
+	From string `json:"from"`
+	// FromName is read-only here: the display name is the application's to set.
+	FromName string `json:"fromName,omitempty"`
+	// Sender is what the recipient will actually see, address and name
+	// combined — the console shows it rather than making an admin guess.
+	Sender string `json:"sender,omitempty"`
 }
 
 func (a *API) relayView(cfg mail.Config) mailRelayPayload {
 	return mailRelayPayload{
 		Host: cfg.Host, Port: cfg.Port, Security: cfg.Security,
-		Username: cfg.Username, PasswordSet: cfg.Password != "", From: cfg.From,
+		Username: cfg.Username, PasswordSet: cfg.Password != "",
+		From: cfg.From, FromName: cfg.FromName, Sender: cfg.Sender(),
 	}
 }
 
@@ -55,11 +67,12 @@ func (a *API) putMailRelay(w http.ResponseWriter, r *http.Request, actor store.U
 		writeErr(w, http.StatusUnprocessableEntity, "mail relay security must be starttls, tls or none")
 		return
 	}
-	// The SENDER is not ours to change: carry the stored one forward.
+	// The display NAME is not ours to change: carry the stored one forward.
 	stored := a.st.GetSMTP(r.Context())
 	cfg := mail.Config{
 		Host: strings.TrimSpace(p.Host), Port: p.Port, Security: p.Security,
-		Username: p.Username, From: stored.From, Password: p.Password,
+		Username: p.Username, From: strings.TrimSpace(p.From),
+		FromName: stored.FromName, Password: p.Password,
 	}
 	if cfg.Password == "" {
 		cfg.Password = stored.Password
@@ -114,7 +127,8 @@ func (a *API) testMailRelay(w http.ResponseWriter, r *http.Request, actor store.
 		strings.TrimSpace(body.Host), body.Username, body.Password)
 	cfg := mail.Config{
 		Host: host, Port: body.Port, Security: body.Security,
-		Username: username, From: stored.From, Password: password,
+		Username: username, From: a.st.ExpandInfra(r.Context(), strings.TrimSpace(body.From)),
+		FromName: stored.FromName, Password: password,
 	}
 	if cfg.Password == "" {
 		cfg.Password = stored.Password
@@ -123,9 +137,9 @@ func (a *API) testMailRelay(w http.ResponseWriter, r *http.Request, actor store.
 		writeErr(w, http.StatusUnprocessableEntity, "set a relay host before testing")
 		return
 	}
-	if cfg.From == "" {
+	if cfg.Address() == "" {
 		writeErr(w, http.StatusUnprocessableEntity,
-			"no sender address: an app admin sets it in the application settings")
+			"no sender address: set one, or use a relay account that is an e-mail address")
 		return
 	}
 	send := a.MailerWith

@@ -9,7 +9,8 @@
     <mat-card appearance="outlined">
       <p class="hint text-muted" i18n="@@Mail_relay_hint">
         The SMTP server that delivers account e-mails: confirmations, password resets,
-        administrator notifications. The sender address is set in the application settings.
+        administrator notifications. The sender address lives here because a provider only
+        accepts the account it authenticated.
       </p>
       <div class="fields grid grid-cols-2">
         <mat-form-field>
@@ -66,6 +67,38 @@
           ></textarea>
         </app-form-field>
       </div>
+
+      <app-form-field
+        i18n-label="@@Sender_address"
+        label="Sender address"
+        i18n-hint="@@Sender_address_hint"
+        hint="Leave empty to send as the relay account"
+        allowVault="secret/values"
+        vaultScope="infra"
+      >
+        <textarea
+          matInput
+          rows="1"
+          class="oneline"
+          spellcheck="false"
+          autocapitalize="off"
+          autocorrect="off"
+          [value]="from()"
+          (input)="from.set($any($event.target).value)"
+          (keydown.enter)="$event.preventDefault()"
+          [placeholder]="username().includes('@') ? username() : 'no-reply@example.com'"
+        ></textarea>
+      </app-form-field>
+
+      @if (senderPreview()) {
+        <p class="hint text-muted">
+          <ng-container i18n="@@Recipients_will_see">Recipients will see</ng-container>
+          <span class="mono"> {{ senderPreview() }}</span>
+          <ng-container i18n="@@Sender_name_set_in_application">
+            . The name in front of the address is set in the application settings.
+          </ng-container>
+        </p>
+      }
 
       <div class="test">
         <mat-form-field class="field" subscriptSizing="dynamic">

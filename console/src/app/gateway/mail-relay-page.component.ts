@@ -49,6 +49,9 @@ export class MailRelayPageComponent {
   protected readonly username = signal('');
   protected readonly password = signal('');
   protected readonly passwordSet = signal(false);
+  protected readonly from = signal('');
+  // The display name comes from the application plane: shown, never edited.
+  protected readonly fromName = signal('');
   protected readonly testTo = signal('');
 
   // The stored password is never sent back, so the field looks empty even when
@@ -63,6 +66,24 @@ export class MailRelayPageComponent {
   // Nothing to send to, nothing to test: the button stays off until the address
   // is at least shaped like one.
   protected readonly recipientOK = computed(() => EMAIL_RE.test(this.testTo().trim()));
+
+  // The address that will actually be used: the explicit one, or the account
+  // when it is an e-mail (most providers only accept that one anyway).
+  protected readonly effectiveFrom = computed(() => {
+    const explicit = this.from().trim();
+    if (explicit) return explicit;
+    const user = this.username().trim();
+    return user.includes('@') ? user : '';
+  });
+
+  // What the recipient will read, once the application's display name is put
+  // in front of the address.
+  protected readonly senderPreview = computed(() => {
+    const addr = this.effectiveFrom();
+    if (!addr) return '';
+    const name = this.fromName().trim();
+    return name ? `${name} <${addr}>` : addr;
+  });
 
   constructor() {
     // One's own address is the obvious recipient: prefill it, so testing a relay
@@ -82,6 +103,8 @@ export class MailRelayPageComponent {
     this.port.set(r.port || 587);
     this.security.set(r.security || 'starttls');
     this.username.set(r.username ?? '');
+    this.from.set(r.from ?? '');
+    this.fromName.set(r.fromName ?? '');
     this.passwordSet.set(!!r.passwordSet);
     this.password.set('');
   }
@@ -94,6 +117,7 @@ export class MailRelayPageComponent {
       security: this.security(),
       username: this.username().trim(),
       password: this.password(), // '' keeps the stored one
+      from: this.from().trim(), // '' sends as the account, when it is an address
     };
   }
 

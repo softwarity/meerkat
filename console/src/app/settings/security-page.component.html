@@ -34,14 +34,23 @@
     <mat-card appearance="outlined">
       <h3 i18n="@@Email_sender">Email sender</h3>
       <p class="hint text-muted" i18n="@@Email_sender_hint">
-        The address account e-mails come from. The relay that actually delivers them is
-        infrastructure and lives under Infra, Mail relay.
+        The name shown in front of the sender address. The address itself belongs to the mail
+        relay, because a provider only lets you send as the account it authenticated.
       </p>
       <mat-form-field class="field">
-        <mat-label i18n="@@SMTP_from">From</mat-label>
-        <input matInput [value]="smtpFrom()" (input)="smtpFrom.set($any($event.target).value)" placeholder="My App <no-reply@example.com>" />
+        <mat-label i18n="@@Sender_name">Sender name</mat-label>
+        <input
+          matInput
+          [value]="smtpFromName()"
+          (input)="smtpFromName.set($any($event.target).value)"
+          placeholder="My App"
+        />
       </mat-form-field>
       @if (relayConfigured()) {
+        <p class="hint text-muted">
+          <ng-container i18n="@@Recipients_will_see">Recipients will see</ng-container>
+          <span class="mono"> {{ preview() }}</span>
+        </p>
         <p class="hint text-muted" i18n="@@Relay_ready">Mail relay: configured ({{ relayHost() }}).</p>
       } @else {
         <p class="hint text-error" i18n="@@Relay_missing">

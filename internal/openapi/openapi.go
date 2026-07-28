@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -143,11 +144,15 @@ func Fetch(ctx context.Context, client *http.Client, url string) (*Spec, []byte,
 }
 
 // Rewrite adjusts a raw spec so a swagger-ui served BEHIND the gateway calls
-// operations through the exposed base path (UIF-07). Swagger 2.0 gets its
-// basePath set (host and schemes dropped so the browser uses the current
-// origin); OpenAPI 3.x gets a single relative server. The spec is treated as
-// JSON; a YAML-only spec is returned unchanged (swagger-ui still loads it,
-// only same-origin resolution is lost) with a non-nil error the caller may log.
+// operations through the exposed base (UIF-07). A relative base keeps the
+// current origin: Swagger 2.0 gets its basePath set (host and schemes dropped);
+// OpenAPI 3.x gets a single relative server. An absolute base
+// (scheme://host[/path]) points at ANOTHER origin — the API-docs page serves
+// from the admin plane while the routes answer on the data plane — so 2.0 gets
+// it decomposed into host/schemes/basePath and 3.x carries it verbatim. The
+// spec is treated as JSON; a YAML-only spec is returned unchanged (swagger-ui
+// still loads it, only gateway targeting is lost) with a non-nil error the
+// caller may log.
 func Rewrite(raw []byte, exposedBase string) ([]byte, error) {
 	if exposedBase == "" {
 		exposedBase = "/"
@@ -159,7 +164,17 @@ func Rewrite(raw []byte, exposedBase string) ([]byte, error) {
 	if _, isV2 := doc["swagger"]; isV2 {
 		delete(doc, "host")
 		delete(doc, "schemes")
-		doc["basePath"] = exposedBase
+		if u, err := url.Parse(exposedBase); err == nil && u.Scheme != "" && u.Host != "" {
+			doc["host"] = u.Host
+			doc["schemes"] = []any{u.Scheme}
+			if u.Path == "" {
+				doc["basePath"] = "/"
+			} else {
+				doc["basePath"] = u.Path
+			}
+		} else {
+			doc["basePath"] = exposedBase
+		}
 	} else {
 		doc["servers"] = []any{map[string]any{"url": exposedBase}}
 	}

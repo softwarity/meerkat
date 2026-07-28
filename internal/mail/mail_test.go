@@ -51,3 +51,32 @@ func TestSendRefusesUnconfigured(t *testing.T) {
 		t.Fatalf("want explicit not-configured error, got %v", err)
 	}
 }
+
+// TestSenderHeaderCarriesTheDisplayName: the address is the relay's (a provider
+// only accepts the account it authenticated), the name in front of it is the
+// product's. A non-ASCII name must be encoded, or the header breaks.
+func TestSenderHeaderCarriesTheDisplayName(t *testing.T) {
+	cases := []struct {
+		cfg  Config
+		want string
+	}{
+		{Config{From: "no-reply@acme.io"}, "no-reply@acme.io"},
+		{Config{From: "no-reply@acme.io", FromName: "Acme"}, `"Acme" <no-reply@acme.io>`},
+		{Config{Username: "robot@acme.io"}, "robot@acme.io"},
+		{Config{Username: "robot", From: ""}, ""},
+	}
+	for _, c := range cases {
+		if got := c.cfg.Sender(); got != c.want {
+			t.Fatalf("Sender() for %+v = %q, want %q", c.cfg, got, c.want)
+		}
+	}
+	// An accent survives as an RFC 2047 encoded word, and the address stays raw.
+	got := Config{From: "no-reply@acme.io", FromName: "Sécurité"}.Sender()
+	if !strings.Contains(got, "=?utf-8?") || !strings.HasSuffix(got, "<no-reply@acme.io>") {
+		t.Fatalf("accented display name not encoded: %q", got)
+	}
+	// And that header is the one the message carries.
+	if body := string(Build(got, Message{To: []string{"a@b.c"}, Subject: "s", Text: "t"})); !strings.Contains(body, "From: "+got) {
+		t.Fatalf("the built message does not carry the sender header:\n%s", body)
+	}
+}

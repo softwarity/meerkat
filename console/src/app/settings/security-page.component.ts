@@ -74,12 +74,19 @@ export class SecurityPageComponent {
       : SESSION_TTL_CHOICES;
   });
 
-  // Outbound e-mail (AUTH-20). The password field stays empty unless changed:
-  // '' on save keeps the stored one (write-only server-side).
-  protected readonly smtpFrom = signal('');
-  // Read-only: the relay belongs to the infra plane.
+  // Outbound e-mail (AUTH-20): this plane owns the display name only.
+  protected readonly smtpFromName = signal('');
+  // Read-only: the relay, sender address included, belongs to the infra plane.
   protected readonly relayHost = signal('');
+  protected readonly relayFrom = signal('');
   protected readonly relayConfigured = signal(false);
+
+  // What the recipient reads once the name and the relay's address are joined.
+  protected readonly preview = computed(() => {
+    const addr = this.relayFrom();
+    const name = this.smtpFromName().trim();
+    return name ? `${name} <${addr}>` : addr;
+  });
 
   constructor() {
     this.api.settings().subscribe({
@@ -96,8 +103,9 @@ export class SecurityPageComponent {
         this.trustAllowed.set(s.trustedBrowser?.allowed ?? false);
         this.trustTtl.set(s.trustedBrowser?.ttl || 'P7D');
         this.sessionTTL.set(s.sessionTTL);
-        this.smtpFrom.set(s.smtp?.from ?? '');
+        this.smtpFromName.set(s.smtp?.fromName ?? '');
         this.relayHost.set(s.smtp?.relayHost ?? '');
+        this.relayFrom.set(s.smtp?.relayFrom ?? '');
         this.relayConfigured.set(s.smtp?.relayConfigured ?? false);
         this.loading.set(false);
       },
@@ -120,12 +128,13 @@ export class SecurityPageComponent {
         selfRegisterCaptcha: this.selfRegisterCaptcha(),
         trustedBrowser: { allowed: this.trustAllowed(), ttl: this.trustTtl() },
         sessionTTL: this.sessionTTL().trim(),
-        smtp: { from: this.smtpFrom().trim() },
+        smtp: { fromName: this.smtpFromName().trim() },
       })
       .subscribe({
         next: (saved) => {
           this.settings.set(saved);
           this.relayHost.set(saved.smtp?.relayHost ?? '');
+          this.relayFrom.set(saved.smtp?.relayFrom ?? '');
           this.relayConfigured.set(saved.smtp?.relayConfigured ?? false);
           this.saving.set(false);
           this.snack.open($localize`:@@Settings_saved:Settings saved`, undefined, { duration: 2500 });

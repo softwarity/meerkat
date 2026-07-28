@@ -99,9 +99,13 @@ func (a *API) apidocsAdminSpec(w http.ResponseWriter, _ *http.Request, _ store.U
 }
 
 // apidocsRouteSpec fetches a route's declared OpenAPI spec server-side and
-// hands the raw bytes to the page: same origin for the browser, and the
-// upstream stays reachable even when only the gateway can see it. The spec's
-// own `servers` are served untouched — Try it out targets what the spec says.
+// hands it to the page: same origin for the browser, and the upstream stays
+// reachable even when only the gateway can see it. The spec's own server
+// information (httpbin ships its literal host, for instance) is REWRITTEN to
+// the route's public base, so the display and Try it out both cross the
+// gateway — and its endpoint security — instead of calling the upstream
+// directly. A YAML spec passes through untouched (only gateway targeting is
+// lost).
 func (a *API) apidocsRouteSpec(w http.ResponseWriter, r *http.Request) {
 	route, err := a.st.GetRoute(r.Context(), r.PathValue("id"))
 	if err != nil {
@@ -130,11 +134,125 @@ func (a *API) apidocsRouteSpec(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusBadGateway, "spec fetch failed: upstream answered "+res.Status)
 		return
 	}
+	body, err := io.ReadAll(io.LimitReader(res.Body, 8<<20))
+	if err != nil {
+		writeErr(w, http.StatusBadGateway, "spec fetch failed: "+err.Error())
+		return
+	}
 	contentType := res.Header.Get("Content-Type")
+	if rewritten, err := openapi.Rewrite(body, a.routeExposedBase(r, route)); err == nil {
+		body, contentType = rewritten, "application/json; charset=utf-8"
+	}
 	if contentType == "" {
 		contentType = "application/json; charset=utf-8"
 	}
 	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Cache-Control", "no-cache")
-	_, _ = io.Copy(w, io.LimitReader(res.Body, 8<<20))
+	_, _ = w.Write(body)
+}
+
+// routeExposedBase derives the public URL the route answers on. Host: a
+// literal host predicate when the route pins one, otherwise this admin
+// request's hostname on the data plane's port (DataAddr) — the two planes ride
+// the same machine. Path: the static prefix of the route's path pattern, kept
+// only when a strip-prefix filter removes exactly that prefix (otherwise the
+// upstream sees the full path and the spec's paths already carry it). A
+// rewrite-path filter makes the mapping non-derivable: origin only.
+func (a *API) routeExposedBase(r *http.Request, route store.Route) string {
+	scheme := "http"
+	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+		scheme = "https"
+	}
+	host := routeLiteralHost(route)
+	if host == "" {
+		hostname := r.Host
+		if h, _, err := net.SplitHostPort(r.Host); err == nil {
+			hostname = h
+		}
+		host = hostname
+		if _, port, err := net.SplitHostPort(a.DataAddr); err == nil && port != "" {
+			host = net.JoinHostPort(hostname, port)
+		}
+	}
+	return scheme + "://" + host + routePathPrefix(route)
+}
+
+// routeLiteralHost returns the first wildcard-free host the route matches on,
+// or "".
+func routeLiteralHost(route store.Route) string {
+	for _, p := range route.Predicates {
+		if p.Type != "host" {
+			continue
+		}
+		for _, h := range specStrings(p.Args["hosts"]) {
+			if h != "" && !strings.Contains(h, "*") {
+				return h
+			}
+		}
+	}
+	return ""
+}
+
+// routePathPrefix returns the static prefix of the route's first path pattern
+// ("/demo/**" → "/demo") when a strip-prefix filter removes exactly those
+// segments; otherwise "" (see routeExposedBase).
+func routePathPrefix(route store.Route) string {
+	var prefix string
+	for _, p := range route.Predicates {
+		if p.Type != "path" {
+			continue
+		}
+		if patterns := specStrings(p.Args["patterns"]); len(patterns) > 0 {
+			prefix = staticPrefix(patterns[0])
+		}
+		break
+	}
+	if prefix == "" {
+		return ""
+	}
+	stripped := 0
+	for _, f := range route.Filters {
+		switch f.Type {
+		case "rewrite-path":
+			return ""
+		case "strip-prefix":
+			if n, ok := f.Args["parts"].(float64); ok {
+				stripped = int(n)
+			} else {
+				stripped = 1 // the filter's default
+			}
+		}
+	}
+	if stripped != strings.Count(prefix, "/") {
+		return ""
+	}
+	return prefix
+}
+
+// staticPrefix keeps the pattern's leading literal segments: "/demo/v1/**" →
+// "/demo/v1", "/{tenant}/api/**" → "".
+func staticPrefix(pattern string) string {
+	var kept []string
+	for _, seg := range strings.Split(strings.Trim(pattern, "/"), "/") {
+		if seg == "" || strings.ContainsAny(seg, "*{") {
+			break
+		}
+		kept = append(kept, seg)
+	}
+	if len(kept) == 0 {
+		return ""
+	}
+	return "/" + strings.Join(kept, "/")
+}
+
+// specStrings coerces a decoded JSON list into its string items.
+func specStrings(v any) []string {
+	items, _ := v.([]any)
+	out := make([]string, 0, len(items))
+	for _, it := range items {
+		if s, ok := it.(string); ok {
+			out = append(out, s)
+		}
+	}
+	return out
 }

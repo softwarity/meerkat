@@ -463,16 +463,25 @@ export interface MailRelay {
   username: string;
   password?: string;
   passwordSet?: boolean;
-  // Read-only here: the sender belongs to the application settings.
-  from?: string;
+  // The sender ADDRESS: part of the relay, because a provider only accepts the
+  // account it authenticated. Empty sends as the account when that is itself
+  // an address.
+  from: string;
+  // Read-only here: the display name belongs to the application settings.
+  fromName?: string;
+  // What the recipient will read, name and address combined.
+  sender?: string;
 }
 
-// The APPLICATION's side of outbound e-mail: the sender the recipient sees.
-// The relay lives in the infra plane (see MailRelay); the two read-only fields
-// tell this page whether mail can go out at all.
+// The APPLICATION's side of outbound e-mail: the display NAME the recipient
+// reads. The address travels with the relay in the infra plane (see MailRelay);
+// the read-only fields tell this page what the sender resolves to and whether
+// mail can go out at all.
 export interface SMTPSettings {
-  from: string;
+  fromName: string;
   relayHost?: string;
+  relayFrom?: string;
+  sender?: string;
   relayConfigured?: boolean;
 }
 

@@ -756,15 +756,18 @@ type settingsPayload struct {
 	Languages []string `json:"languages"`
 }
 
-// smtpPayload is the APPLICATION's side of outbound e-mail: the sender the
-// recipient sees. The RELAY (host, credentials) is infrastructure and lives
-// behind /api/settings/mail-relay — an app admin should not hold a third
-// party's credentials to change a From address. The relay fields here are
-// read-only context, so this page can say whether mail can go out at all.
+// smtpPayload is the APPLICATION's side of outbound e-mail: the display NAME
+// the recipient reads. The address is not a free choice — a provider only lets
+// you send as the account it authenticated — so it travels with the relay
+// (host, credentials) behind /api/settings/mail-relay, which an infra admin
+// owns. The relay fields here are read-only context, so this page can show the
+// resulting sender and say whether mail can go out at all.
 type smtpPayload struct {
-	From string `json:"from"`
+	FromName string `json:"fromName"`
 	// Read-only mirrors of the relay, for context.
 	RelayHost       string `json:"relayHost,omitempty"`
+	RelayFrom       string `json:"relayFrom,omitempty"`
+	Sender          string `json:"sender,omitempty"`
 	RelayConfigured bool   `json:"relayConfigured"`
 }
 
@@ -793,7 +796,8 @@ func (a *API) loadSettingsPayload(ctx context.Context) (settingsPayload, error) 
 	_ = a.st.GetSetting(ctx, store.SettingLanguages, &p.Languages)
 	smtp := a.st.GetSMTP(ctx)
 	p.SMTP = smtpPayload{
-		From: smtp.From, RelayHost: smtp.Host, RelayConfigured: smtp.Configured(),
+		FromName: smtp.FromName, RelayHost: smtp.Host, RelayFrom: smtp.Address(),
+		Sender: smtp.Sender(), RelayConfigured: smtp.Configured(),
 	}
 	reg := a.st.GetRegistrationPolicy(ctx)
 	p.SelfRegistration = reg.LocalEnabled
@@ -868,12 +872,13 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 	}
 	// Outbound e-mail (AUTH-20). An empty password keeps the stored one — the
 	// console never sees or resends it.
-	// Only the SENDER is this plane's to change: the relay is kept verbatim.
+	// Only the display NAME is this plane's to change: the relay, address
+	// included, is kept verbatim.
 	smtp := a.st.GetSMTP(r.Context())
-	smtp.From = strings.TrimSpace(p.SMTP.From)
+	smtp.FromName = strings.TrimSpace(p.SMTP.FromName)
 	if p.SelfRegistration && !smtp.Configured() {
 		writeErr(w, http.StatusUnprocessableEntity,
-			"self-registration needs outbound e-mail: set a sender here, and ask an infra admin to configure the mail relay")
+			"self-registration needs outbound e-mail: ask an infra admin to configure the mail relay (Infra, Mail relay)")
 		return
 	}
 	if err := a.st.SetSetting(r.Context(), store.SettingSMTP, smtp); err != nil {
@@ -902,7 +907,10 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 		a.internal(w, err)
 		return
 	}
-	p.SMTP = smtpPayload{From: smtp.From, RelayHost: smtp.Host, RelayConfigured: smtp.Configured()}
+	p.SMTP = smtpPayload{
+		FromName: smtp.FromName, RelayHost: smtp.Host, RelayFrom: smtp.Address(),
+		Sender: smtp.Sender(), RelayConfigured: smtp.Configured(),
+	}
 	if err := a.st.SetSetting(r.Context(), store.SettingLanguages, p.Languages); err != nil {
 		a.internal(w, err)
 		return

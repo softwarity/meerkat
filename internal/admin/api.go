@@ -31,6 +31,11 @@ type API struct {
 	// on screen, not what is stored. Defaults to mail.Send; faked in tests.
 	MailerWith func(ctx context.Context, cfg mail.Config, msg mail.Message) error
 
+	// DataAddr is the data plane's listen address (main's -addr): the API-docs
+	// page derives from it the origin Try it out must target, since the routes
+	// answer there and not on this admin port. Empty keeps the admin hostname.
+	DataAddr string
+
 	st     *store.Store
 	sm     *session.Manager
 	router *gateway.Router

@@ -2,6 +2,26 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="Sender_address" datatype="html">
+        <source>Sender address</source>
+        <target>Adresse d'expédition</target>
+      </trans-unit>
+      <trans-unit id="Sender_address_hint" datatype="html">
+        <source>Leave empty to send as the relay account</source>
+        <target>Laisser vide pour expédier depuis le compte du relais</target>
+      </trans-unit>
+      <trans-unit id="Recipients_will_see" datatype="html">
+        <source>Recipients will see</source>
+        <target>Les destinataires verront</target>
+      </trans-unit>
+      <trans-unit id="Sender_name_set_in_application" datatype="html">
+        <source>. The name in front of the address is set in the application settings.</source>
+        <target>. Le nom affiché devant l'adresse se règle dans les paramètres de l'application.</target>
+      </trans-unit>
+      <trans-unit id="Sender_name" datatype="html">
+        <source>Sender name</source>
+        <target>Nom d'expéditeur</target>
+      </trans-unit>
       <trans-unit id="Role_NAME_saved" datatype="html">
         <source>Role "<x id="NAME" equiv-text="saved.name"/>" saved</source>
         <target>Rôle « <x id="NAME" equiv-text="saved.name"/> » enregistré</target>
@@ -407,7 +427,7 @@
             The SMTP server that delivers account e-mails: confirmations, password resets,
             administrator notifications. The sender address is set in the application settings.
           </source>
-        <target>Le serveur SMTP qui délivre les e-mails de compte : confirmations, réinitialisations de mot de passe, notifications aux administrateurs. L'adresse d'expéditeur se règle dans les paramètres de l'application.</target>
+        <target>Le serveur SMTP qui délivre les e-mails de compte : confirmations, réinitialisations de mot de passe, notifications aux administrateurs. L'adresse d'expédition se règle ici, car un fournisseur n'accepte que le compte authentifié.</target>
       </trans-unit>
       <trans-unit id="Email_sender" datatype="html">
         <source>Email sender</source>
@@ -418,7 +438,7 @@
             The address account e-mails come from. The relay that actually delivers them is
             infrastructure and lives under Infra, Mail relay.
           </source>
-        <target>L'adresse d'où partent les e-mails de compte. Le relais qui les délivre relève de l'infrastructure et se règle dans Infra, Relais mail.</target>
+        <target>Le nom affiché devant l'adresse d'expédition. L'adresse elle-même relève du relais mail, car un fournisseur n'autorise l'envoi que depuis le compte authentifié.</target>
       </trans-unit>
       <trans-unit id="Relay_ready" datatype="html">
         <source>Mail relay: configured (<x id="INTERPOLATION" equiv-text="{{ relayHost() }}"/>).</source>

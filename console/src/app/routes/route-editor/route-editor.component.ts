@@ -1,25 +1,33 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { FormField, type ValidationError, form, required, validate } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
-import { RouterLink } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { LOCALE_ID } from '@angular/core';
-import { ApiService, CatalogEntry, IDENTITY_FIELDS, PAGE_USER_FIELDS, Role, Route, USER_BUTTON_POSITIONS } from '../../api.service';
+import { Access, ApiService, CatalogEntry, IDENTITY_FIELDS, IdentityAttr, IdentityForward, PAGE_USER_FIELDS, Role, Route, User, USER_BUTTON_POSITIONS } from '../../api.service';
+import { MeService } from '../../me.service';
+import { humanDuration } from '../../shared/duration';
+import { UrlInputComponent } from '../../shared/url-input.component';
+import { AccessEditorComponent, AccessState, emptyAccess } from '../endpoint-security/access-editor.component';
 import { FiltersComponent } from '../filters/filters.component';
+import { IdentityPreviewData, IdentityPreviewDialogComponent } from '../identity-preview-dialog.component';
 import { argStr, cleanSpecs } from '../predicates/args';
 import { PredicatesComponent } from '../predicates/predicates.component';
 
 type Section =
   | 'general'
+  | 'security'
   | 'predicates'
   | 'modin'
   | 'modout'
@@ -164,13 +172,27 @@ export class RouteEditorComponent {
     localesParam: this.route()?.locales?.param ?? '',
     customCss: this.route()?.ui?.customCss ?? '',
     customJs: this.route()?.ui?.customJs ?? '',
-    identityEnabled: this.route()?.identity?.enabled ?? false,
-    identityMechanism: this.route()?.identity?.mechanism || 'headers',
-    // Prefilled with the DEFAULT names: what each fact travels under, for the
-    // headers today and the JWT claims later.
-    identityHeaders: Object.fromEntries(
-      IDENTITY_FIELDS.map((f) => [f, this.route()?.identity?.headers?.[f] || f]),
-    ) as Record<string, string>,
+    // The app's menu label: when set, the route shows in the user's apps menu
+    // (subject to access). Empty = the app is reachable but not listed.
+    uiLink: this.route()?.ui?.link ?? '',
+    identityMechanism: this.route()?.identity?.mechanism ?? '',
+    identityTtl: this.route()?.identity?.ttl || 'PT2M',
+    identityAlgorithm: this.route()?.identity?.algorithm || 'ES256',
+    // One row per forwardable fact. On a route that already forwards, a fact is
+    // selected when it appears in attributes (with its stored mapping); on a
+    // fresh route everything is selected by default (nothing hidden from the
+    // upstream unless the admin opts a fact out).
+    identityAttrs: Object.fromEntries(
+      IDENTITY_FIELDS.map((f) => {
+        const stored = this.route()?.identity?.attributes;
+        const found = stored?.find((a) => a.field === f);
+        const selected = stored ? !!found : true;
+        // The mapping input starts on the attribute's own name (the default a
+        // fact travels under); the admin overwrites it to rename. buildRoute
+        // drops it again when it still equals the field name.
+        return [f, { selected, as: found?.as || f, asJson: found?.asJson ?? false }];
+      }),
+    ) as Record<string, { selected: boolean; as: string; asJson: boolean }>,
   }));
 
   // The APPLICATION's locale offer, shown read-only (managed in Application
@@ -206,8 +228,59 @@ export class RouteEditorComponent {
     }
   }
 
-  protected setIdentityHeader(field: string, value: string): void {
-    this.draft.update((d) => ({ ...d, identityHeaders: { ...d.identityHeaders, [field]: value } }));
+  private readonly me = inject(MeService);
+
+  protected setMechanism(v: string): void {
+    this.draft.update((d) => ({ ...d, identityMechanism: v as '' | 'headers' | 'jwt' | 'signed-jwt' }));
+  }
+
+  // The roles format button states: what the value looks like right now.
+  protected readonly stringTip = $localize`:@@Roles_as_string_tip:Sent as a comma-separated string (click for a JSON array)`;
+  protected readonly jsonTip = $localize`:@@Roles_as_json_tip:Sent as a JSON array (click for a comma-separated string)`;
+
+  protected toggleAttr(field: string, selected: boolean): void {
+    this.draft.update((d) => ({
+      ...d,
+      identityAttrs: { ...d.identityAttrs, [field]: { ...d.identityAttrs[field], selected } },
+    }));
+  }
+  protected setAttrAs(field: string, as: string): void {
+    this.draft.update((d) => ({
+      ...d,
+      identityAttrs: { ...d.identityAttrs, [field]: { ...d.identityAttrs[field], as } },
+    }));
+  }
+  protected setAttrJson(field: string, asJson: boolean): void {
+    this.draft.update((d) => ({
+      ...d,
+      identityAttrs: { ...d.identityAttrs, [field]: { ...d.identityAttrs[field], asJson } },
+    }));
+  }
+
+  // A live example of the forwarded value, from the editor's OWN session. The
+  // facts the console cannot see here (tenant, tenantid, timezone, roles) show
+  // an illustrative placeholder — the mapping and the list format are what the
+  // preview is really about.
+  protected mappedExample(field: string, asJson: boolean): string {
+    if (field === 'roles') return asJson ? '["role-a","role-b"]' : 'role-a,role-b';
+    const u = this.me.user();
+    switch (field) {
+      case 'username':
+        return u?.username || 'admin';
+      case 'userid':
+        return u?.id || 'usr_123';
+      case 'fullname':
+        return u?.fullname || 'Ada Lovelace';
+      case 'email':
+        return u?.email || 'admin@example.com';
+      case 'tenant':
+        return 'acme';
+      case 'tenantid':
+        return 'tnt_123';
+      case 'timezone':
+        return 'Europe/Paris';
+    }
+    return '';
   }
   protected readonly f = form(this.draft, (p) => {
     required(p.name);
@@ -476,5 +549,45 @@ export class RouteEditorComponent {
         this.error.set(msg);
       },
     });
+  }
+
+  // Identity forwarding as the wire shape: only when a transport is picked,
+  // only the selected facts, a mapping equal to the field name dropped (it is
+  // the default), asJson only on roles. Shared by Save and the preview dialog.
+  private buildIdentity(): IdentityForward | null {
+    const d = this.draft();
+    if (!d.identityMechanism) return null;
+    const attributes: IdentityAttr[] = IDENTITY_FIELDS.filter((f) => d.identityAttrs[f].selected).map((f) => {
+      const a: IdentityAttr = { field: f };
+      const as = d.identityAttrs[f].as.trim();
+      if (as && as !== f) a.as = as;
+      if (f === 'roles' && d.identityAttrs[f].asJson) a.asJson = true;
+      return a;
+    });
+    const identity: IdentityForward = { mechanism: d.identityMechanism, attributes };
+    if (d.identityMechanism === 'jwt' || d.identityMechanism === 'signed-jwt') {
+      if (d.identityTtl.trim()) identity.ttl = d.identityTtl.trim();
+    }
+    if (d.identityMechanism === 'signed-jwt' && d.identityAlgorithm) {
+      identity.algorithm = d.identityAlgorithm;
+    }
+    return identity;
+  }
+
+  // Show what the upstream would receive, from the DRAFT config (no save).
+  protected openIdentityPreview(): void {
+    const identity = this.buildIdentity();
+    if (!identity) return;
+    this.dialog.open<IdentityPreviewDialogComponent, IdentityPreviewData>(IdentityPreviewDialogComponent, {
+      width: '700px',
+      restoreFocus: true,
+      data: { routeName: this.draft().name.trim(), identity },
+    });
+  }
+
+  // Save the route, then jump to its endpoint-security screen (which needs the
+  // route persisted, with its OpenAPI url, to fetch the operations).
+  protected goEndpointSecurity(): void {
+    this.save((out) => void this.router.navigate(['/infra/endpoint-security'], { queryParams: { route: out.id } }));
   }
 }

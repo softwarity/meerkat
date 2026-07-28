@@ -2,7 +2,13 @@ package gateway
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/json"
 	"io"
+	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -508,23 +514,45 @@ func TestPromoteLocale(t *testing.T) {
 	}
 }
 
-// Identity forwarding validates its mechanism, fields and header names.
+// Identity forwarding validates its mechanism, attributes and mapped names.
 func TestValidateIdentity(t *testing.T) {
-	mk := func(mech string, headers map[string]string) store.Route {
+	mk := func(mech string, attrs ...store.IdentityAttr) store.Route {
 		return store.Route{Upstream: "http://up",
-			Identity: &store.IdentityForward{Enabled: true, Mechanism: mech, Headers: headers}}
+			Identity: &store.IdentityForward{Mechanism: mech, Attributes: attrs}}
 	}
-	if err := Validate(mk("headers", map[string]string{"username": "X-User"})); err != nil {
-		t.Fatalf("valid identity refused: %v", err)
+	if err := Validate(mk("headers", store.IdentityAttr{Field: "username", As: "X-User"})); err != nil {
+		t.Fatalf("valid headers identity refused: %v", err)
 	}
-	if err := Validate(mk("jwt", nil)); err == nil {
-		t.Fatal("jwt mechanism accepted before it exists")
+	if err := Validate(mk("jwt", store.IdentityAttr{Field: "roles", As: "role_list", AsJSON: true})); err != nil {
+		t.Fatalf("valid jwt identity refused: %v", err)
 	}
-	if err := Validate(mk("", map[string]string{"shoesize": "X"})); err == nil {
-		t.Fatal("unknown identity field accepted")
+	if err := Validate(mk("signed-jwt", store.IdentityAttr{Field: "username"})); err != nil {
+		t.Fatalf("valid signed-jwt refused: %v", err)
 	}
-	if err := Validate(mk("", map[string]string{"email": "not a header"})); err == nil {
+	badAlg := mk("signed-jwt", store.IdentityAttr{Field: "username"})
+	badAlg.Identity.Algorithm = "HS256"
+	if err := Validate(badAlg); err == nil {
+		t.Fatal("bad signature algorithm accepted")
+	}
+	if err := Validate(mk("carrier-pigeon")); err == nil {
+		t.Fatal("unknown mechanism accepted")
+	}
+	if err := Validate(mk("headers", store.IdentityAttr{Field: "shoesize"})); err == nil {
+		t.Fatal("unknown identity attribute accepted")
+	}
+	if err := Validate(mk("headers", store.IdentityAttr{Field: "email", As: "not a header"})); err == nil {
 		t.Fatal("bad header name accepted")
+	}
+	if err := Validate(mk("jwt", store.IdentityAttr{Field: "email", As: "bad claim"})); err == nil {
+		t.Fatal("bad claim name accepted")
+	}
+	if err := Validate(mk("headers", store.IdentityAttr{Field: "username"}, store.IdentityAttr{Field: "username"})); err == nil {
+		t.Fatal("duplicate attribute accepted")
+	}
+	bad := mk("jwt", store.IdentityAttr{Field: "username"})
+	bad.Identity.TTL = "banana"
+	if err := Validate(bad); err == nil {
+		t.Fatal("bad ttl accepted")
 	}
 }
 
@@ -555,7 +583,9 @@ func TestIdentityForwardHeadersReachUpstream(t *testing.T) {
 
 	route := store.Route{ID: "r", Name: "r", Enabled: true, Upstream: upstream.URL,
 		Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{"/**"}}}},
-		Identity:   &store.IdentityForward{Enabled: true, Headers: map[string]string{"email": "X-Mail"}}}
+		Identity: &store.IdentityForward{Mechanism: "headers", Attributes: []store.IdentityAttr{
+			{Field: "username"}, {Field: "email", As: "X-Mail"},
+		}}}
 	if err := st.SaveRoute(ctx, route); err != nil {
 		t.Fatal(err)
 	}
@@ -589,10 +619,222 @@ func TestIdentityForwardHeadersReachUpstream(t *testing.T) {
 		return string(body)
 	}
 
-	if got := call(true); got != "user=neo;remote=neo;mail=neo@io;tenant=" {
+	// Only the selected attributes travel: username (default name) and email
+	// (mapped to X-Mail). No implicit Remote-User, and the unselected tenant is
+	// purged (the inbound spoof is dropped and nothing is written back).
+	if got := call(true); got != "user=neo;remote=;mail=neo@io;tenant=" {
 		t.Fatalf("signed-in forwarding wrong: %q", got)
 	}
 	if got := call(false); got != "user=;remote=;mail=;tenant=" {
 		t.Fatalf("anonymous request must carry no identity: %q", got)
 	}
+}
+
+// TestIdentityForwardJWT: the jwt mechanism carries the selected attributes as
+// claims in an Authorization: Bearer token, purges an inbound Authorization
+// spoof, and writes nothing for an anonymous caller.
+func TestIdentityForwardJWT(t *testing.T) {
+	st, err := store.Open(t.TempDir())
+	if err != nil {
+		t.Fatalf("store.Open: %v", err)
+	}
+	t.Cleanup(func() { _ = st.Close() })
+	ctx := context.Background()
+	if err := st.CreateUser(ctx, store.User{ID: "u1", Username: "neo", Email: "neo@io",
+		Enabled: true, PasswordHash: "x"}); err != nil {
+		t.Fatal(err)
+	}
+	sm := session.NewManager(st)
+
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.WriteString(w, r.Header.Get("Authorization"))
+	}))
+	t.Cleanup(upstream.Close)
+
+	route := store.Route{ID: "r", Name: "orders", Enabled: true, Upstream: upstream.URL,
+		Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{"/**"}}}},
+		Identity: &store.IdentityForward{Mechanism: "jwt", Attributes: []store.IdentityAttr{
+			{Field: "username", As: "preferred_username"},
+		}}}
+	if err := st.SaveRoute(ctx, route); err != nil {
+		t.Fatal(err)
+	}
+	rt := New(st, sm)
+	if err := rt.Reload(ctx); err != nil {
+		t.Fatal(err)
+	}
+	srv := httptest.NewServer(rt)
+	t.Cleanup(srv.Close)
+
+	rec := httptest.NewRecorder()
+	if _, err := sm.Issue(ctx, rec, httptest.NewRequest("POST", "/login", nil), "u1"); err != nil {
+		t.Fatalf("Issue: %v", err)
+	}
+	cookie := rec.Result().Cookies()[0]
+
+	req, _ := http.NewRequest("GET", srv.URL+"/get", nil)
+	req.Header.Set("Authorization", "Bearer spoofed") // must be purged
+	req.AddCookie(cookie)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(res.Body)
+	_ = res.Body.Close()
+
+	got := string(body)
+	if !strings.HasPrefix(got, "Bearer ") {
+		t.Fatalf("no bearer token forwarded: %q", got)
+	}
+	parts := strings.Split(strings.TrimPrefix(got, "Bearer "), ".")
+	if len(parts) != 3 || parts[2] != "" {
+		t.Fatalf("not an unsigned JWT (header.payload.): %q", got)
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		t.Fatalf("decode payload: %v", err)
+	}
+	var claims map[string]any
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		t.Fatalf("payload not json: %v", err)
+	}
+	if claims["iss"] != "meerkat" || claims["sub"] != "u1" || claims["aud"] != "orders" {
+		t.Fatalf("registered claims wrong: %+v", claims)
+	}
+	if claims["preferred_username"] != "neo" {
+		t.Fatalf("mapped attribute claim wrong: %+v", claims)
+	}
+	if _, ok := claims["exp"]; !ok {
+		t.Fatalf("missing exp claim: %+v", claims)
+	}
+
+	// Anonymous: no token at all, and the inbound spoof is gone.
+	anon, _ := http.NewRequest("GET", srv.URL+"/get", nil)
+	anon.Header.Set("Authorization", "Bearer spoofed")
+	res2, err := http.DefaultClient.Do(anon)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body2, _ := io.ReadAll(res2.Body)
+	_ = res2.Body.Close()
+	if strings.TrimSpace(string(body2)) != "" {
+		t.Fatalf("anonymous request must carry no Authorization: %q", string(body2))
+	}
+}
+
+// TestIdentityForwardSignedJWT proves the whole signed-jwt chain: the route
+// forwards a token the gateway signed (ES256), and that token verifies against
+// the very key the gateway publishes at /.well-known/jwks.json.
+func TestIdentityForwardSignedJWT(t *testing.T) {
+	st, err := store.Open(t.TempDir())
+	if err != nil {
+		t.Fatalf("store.Open: %v", err)
+	}
+	t.Cleanup(func() { _ = st.Close() })
+	ctx := context.Background()
+	if err := st.CreateUser(ctx, store.User{ID: "u1", Username: "neo", Enabled: true, PasswordHash: "x"}); err != nil {
+		t.Fatal(err)
+	}
+	sm := session.NewManager(st)
+
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.WriteString(w, r.Header.Get("Authorization"))
+	}))
+	t.Cleanup(upstream.Close)
+
+	route := store.Route{ID: "r", Name: "orders", Enabled: true, Upstream: upstream.URL,
+		Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{"/**"}}}},
+		Identity: &store.IdentityForward{Mechanism: "signed-jwt", Algorithm: "ES256",
+			Attributes: []store.IdentityAttr{{Field: "username", As: "preferred_username"}}}}
+	if err := st.SaveRoute(ctx, route); err != nil {
+		t.Fatal(err)
+	}
+	rt := New(st, sm)
+	if err := rt.Reload(ctx); err != nil {
+		t.Fatal(err)
+	}
+	srv := httptest.NewServer(rt)
+	t.Cleanup(srv.Close)
+
+	// The JWKS is public and carries an ES256 EC key.
+	pub, kid := fetchES256JWK(t, srv.URL+JWKSPath)
+
+	rec := httptest.NewRecorder()
+	if _, err := sm.Issue(ctx, rec, httptest.NewRequest("POST", "/login", nil), "u1"); err != nil {
+		t.Fatalf("Issue: %v", err)
+	}
+	cookie := rec.Result().Cookies()[0]
+	req, _ := http.NewRequest("GET", srv.URL+"/get", nil)
+	req.AddCookie(cookie)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(res.Body)
+	_ = res.Body.Close()
+
+	token := strings.TrimPrefix(string(body), "Bearer ")
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 || parts[2] == "" {
+		t.Fatalf("expected a signed JWT (three non-empty segments): %q", string(body))
+	}
+	var header map[string]any
+	if err := json.Unmarshal(mustB64(t, parts[0]), &header); err != nil {
+		t.Fatalf("header: %v", err)
+	}
+	if header["alg"] != "ES256" || header["kid"] != kid {
+		t.Fatalf("header alg/kid wrong: %+v (jwks kid %q)", header, kid)
+	}
+	// The signature verifies against the JWKS-published key.
+	h := sha256.Sum256([]byte(parts[0] + "." + parts[1]))
+	sig := mustB64(t, parts[2])
+	r := new(big.Int).SetBytes(sig[:32])
+	s := new(big.Int).SetBytes(sig[32:])
+	if !ecdsa.Verify(pub, h[:], r, s) {
+		t.Fatal("forwarded token does not verify against the published JWKS key")
+	}
+	var claims map[string]any
+	if err := json.Unmarshal(mustB64(t, parts[1]), &claims); err != nil {
+		t.Fatalf("claims: %v", err)
+	}
+	if claims["sub"] != "u1" || claims["aud"] != "orders" || claims["preferred_username"] != "neo" {
+		t.Fatalf("claims wrong: %+v", claims)
+	}
+}
+
+func mustB64(t *testing.T, s string) []byte {
+	t.Helper()
+	b, err := base64.RawURLEncoding.DecodeString(s)
+	if err != nil {
+		t.Fatalf("base64url %q: %v", s, err)
+	}
+	return b
+}
+
+// fetchES256JWK pulls the JWKS and rebuilds the ES256 EC public key.
+func fetchES256JWK(t *testing.T, url string) (*ecdsa.PublicKey, string) {
+	t.Helper()
+	res, err := http.Get(url)
+	if err != nil {
+		t.Fatalf("GET jwks: %v", err)
+	}
+	defer func() { _ = res.Body.Close() }()
+	var doc struct {
+		Keys []map[string]string `json:"keys"`
+	}
+	if err := json.NewDecoder(res.Body).Decode(&doc); err != nil {
+		t.Fatalf("jwks decode: %v", err)
+	}
+	for _, k := range doc.Keys {
+		if k["alg"] != "ES256" {
+			continue
+		}
+		return &ecdsa.PublicKey{
+			Curve: elliptic.P256(),
+			X:     new(big.Int).SetBytes(mustB64(t, k["x"])),
+			Y:     new(big.Int).SetBytes(mustB64(t, k["y"])),
+		}, k["kid"]
+	}
+	t.Fatal("no ES256 key in JWKS")
+	return nil, ""
 }

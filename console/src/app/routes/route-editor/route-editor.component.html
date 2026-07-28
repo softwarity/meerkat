@@ -128,37 +128,105 @@
       }
       @case ('identity') {
         <p class="section-hint" i18n="@@Identity_section_hint">
-          Sends the signed-in user to the service behind this route; Remote-User always carries
-          the username, the cross-server standard.
+          Forwards the signed-in caller to the service behind this route. Pick a transport, then
+          choose which facts travel and, optionally, the name each one takes on the way out.
         </p>
-        <mat-checkbox [checked]="draft().identityEnabled" (change)="setFlag('identityEnabled', $event.checked)">
-          <ng-container i18n="@@Forward_the_signed_in_user">Forward the signed-in user</ng-container>
-        </mat-checkbox>
-        @if (draft().identityEnabled) {
-          <div class="btn-row">
+        <div class="btn-row">
+          <mat-form-field class="position-field">
+            <mat-label i18n="@@Mechanism">Mechanism</mat-label>
+            <mat-select [value]="draft().identityMechanism" (selectionChange)="setMechanism($event.value)">
+              <mat-option value="" i18n="@@None">None</mat-option>
+              <mat-option value="headers" i18n="@@Headers">Headers</mat-option>
+              <mat-option value="jwt" i18n="@@JWT">JWT</mat-option>
+              <mat-option value="signed-jwt" i18n="@@Signed_JWT">Signed JWT</mat-option>
+            </mat-select>
+          </mat-form-field>
+          @if (draft().identityMechanism) {
+            <!-- Shown as soon as a transport is picked, DISABLED when it does
+                 not apply: the reader sees the whole contract, not a form that
+                 grows and shrinks. -->
             <mat-form-field class="position-field">
-              <mat-label i18n="@@Mechanism">Mechanism</mat-label>
-              <mat-select [value]="draft().identityMechanism" (selectionChange)="patch('identityMechanism', $event.value)">
-                <mat-option value="headers" i18n="@@Headers">Headers</mat-option>
-                <mat-option value="jwt" disabled i18n="@@JWT_planned">JWT (planned)</mat-option>
-                <mat-option value="signed-jwt" disabled i18n="@@Signed_JWT_planned">Signed JWT (planned)</mat-option>
+              <mat-label i18n="@@Signature_algorithm">Signature algorithm</mat-label>
+              <mat-select
+                [value]="draft().identityAlgorithm"
+                [disabled]="draft().identityMechanism !== 'signed-jwt'"
+                (selectionChange)="patch('identityAlgorithm', $event.value)"
+              >
+                <mat-option value="ES256">ES256</mat-option>
+                <mat-option value="EdDSA">EdDSA</mat-option>
+                <mat-option value="RS256">RS256</mat-option>
               </mat-select>
             </mat-form-field>
+          }
+        </div>
+
+        @if (draft().identityMechanism) {
+          <div class="ttl-row">
+            <mat-form-field class="position-field" subscriptSizing="dynamic">
+              <mat-label i18n="@@Token_TTL">Token TTL</mat-label>
+              <mat-select
+                [value]="draft().identityTtl"
+                [disabled]="draft().identityMechanism === 'headers'"
+                (selectionChange)="patch('identityTtl', $event.value)"
+              >
+                @for (c of ttlChoices(); track c) {
+                  <mat-option [value]="c">{{ humanTtl(c) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button matButton="tonal" type="button" (click)="openIdentityPreview()">
+              <mat-icon>visibility</mat-icon>
+              <span i18n="@@Preview">Preview</span>
+            </button>
           </div>
-          <p class="section-hint id-hint" i18n="@@Identity_headers_hint">
-            The name each fact travels under: the header names today, the JWT claims later.
+        }
+        @if (draft().identityMechanism === 'signed-jwt') {
+          <p class="section-hint id-hint" i18n="@@Signed_jwt_hint">
+            The gateway signs each token; backends verify it against the published JWKS. Manage the
+            keys with "Signing keys" on the Routes page.
           </p>
-          <div class="btn-row">
+        }
+
+        @if (draft().identityMechanism) {
+          <p class="section-hint id-hint" i18n="@@Identity_include_hint">
+            What to include in the payload (everything by default):
+          </p>
+          <div class="id-attrs">
             @for (field of identityFields; track field) {
-              <mat-form-field class="height-field wide">
-                <mat-label>{{ field }}</mat-label>
-                <input
-                  matInput
-                  [placeholder]="field"
-                  [value]="draft().identityHeaders[field] || ''"
-                  (input)="setIdentityHeader(field, $any($event.target).value)"
-                />
-              </mat-form-field>
+              <div class="id-attr" [class.off]="!draft().identityAttrs[field].selected">
+                <mat-checkbox
+                  class="id-field"
+                  [checked]="draft().identityAttrs[field].selected"
+                  (change)="toggleAttr(field, $event.checked)"
+                >{{ field }}</mat-checkbox>
+                <mat-form-field class="id-map" subscriptSizing="dynamic">
+                  <mat-label i18n="@@Send_as">Send as</mat-label>
+                  <input
+                    matInput
+                    [placeholder]="field"
+                    [disabled]="!draft().identityAttrs[field].selected"
+                    [value]="draft().identityAttrs[field].as"
+                    (input)="setAttrAs(field, $any($event.target).value)"
+                  />
+                  <!-- Multi-valued attributes carry a two-state format button
+                       (string / JSON array). It rides EVERY row and is hidden
+                       elsewhere: an @if here would break the suffix projection. -->
+                  <button
+                    matIconButton
+                    matSuffix
+                    type="button"
+                    class="fmt-btn"
+                    [class.shown]="field === 'roles'"
+                    [disabled]="!draft().identityAttrs[field].selected"
+                    (click)="setAttrJson('roles', !draft().identityAttrs['roles'].asJson)"
+                    [matTooltip]="draft().identityAttrs['roles'].asJson ? jsonTip : stringTip"
+                  >
+                    <mat-icon>{{ draft().identityAttrs['roles'].asJson ? 'data_array' : 'abc' }}</mat-icon>
+                  </button>
+                </mat-form-field>
+                <span class="id-eq">=</span>
+                <code class="id-sample">{{ mappedExample(field, draft().identityAttrs[field].asJson) }}</code>
+              </div>
             }
           </div>
         }

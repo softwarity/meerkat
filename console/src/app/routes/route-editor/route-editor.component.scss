@@ -154,6 +154,66 @@ mat-form-field {
   margin-top: 12px;
 }
 
+/* Identity: one row per selected fact — its name, the mapping input, then a
+   live example of what actually travels. */
+.id-attrs {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.id-attr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.id-attr .id-field {
+  width: 140px;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+/* An unchecked attribute does not travel: its row reads as inactive. */
+.id-attr.off .id-eq,
+.id-attr.off .id-sample {
+  opacity: 0.4;
+}
+.id-attr .id-map {
+  width: 200px;
+}
+.id-attr .id-eq {
+  color: var(--mat-sys-outline);
+}
+.id-attr .id-sample {
+  font-family: monospace;
+  font-size: 0.82rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+/* The token lifetime gets its own line, the preview closing it on the right.
+   The field is subscript-less (dynamic), so both really center on each other. */
+.ttl-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* No top margin: the row above already reserves its form-field subscript. */
+}
+
+/* The two-state format button lives in every mapping field (an @if would break
+   the matSuffix projection) and only shows on multi-valued attributes. */
+.id-attr .fmt-btn {
+  display: none;
+}
+.id-attr .fmt-btn.shown {
+  display: inline-flex;
+}
+
 /* user-button preview: a mock page; the button anchors per the configured
    corner and the ghost menu opens away from the anchored edge. */
 .preview {

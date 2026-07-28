@@ -6,6 +6,7 @@ package gateway
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -24,6 +25,7 @@ import (
 	filtering "github.com/softwarity/meerkat/internal/filters"
 	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
+	"github.com/softwarity/meerkat/internal/signing"
 	"github.com/softwarity/meerkat/internal/store"
 	"github.com/softwarity/meerkat/internal/vault"
 )
@@ -41,6 +43,9 @@ type Router struct {
 	mu       sync.RWMutex
 	routes   []compiledRoute
 	needDraw bool // at least one route uses weight predicates
+	// signing holds the gateway's identity signing keys (signed-jwt). Loaded
+	// at Reload; nil until a route uses signed-jwt or the admin generates them.
+	signing *signing.Set
 }
 
 type compiledRoute struct {
@@ -102,14 +107,58 @@ func (rt *Router) Reload(ctx context.Context) error {
 	if err := routing.ResolveWeights(allPreds); err != nil {
 		return fmt.Errorf("gateway: %w", err)
 	}
+	// Identity signing keys (signed-jwt): generate them the first time a route
+	// actually needs them; otherwise just load what already exists (so the JWKS
+	// keeps serving), leaving fresh installs that never sign untouched.
+	needSigning := false
+	for _, r := range stored {
+		if r.Enabled && r.Identity != nil && r.Identity.Mechanism == "signed-jwt" {
+			needSigning = true
+			break
+		}
+	}
+	var sset *signing.Set
+	if needSigning {
+		if sset, err = rt.st.EnsureSigningSet(ctx); err != nil {
+			return fmt.Errorf("gateway: identity signing keys: %w", err)
+		}
+	} else if loaded, ok, e := rt.st.GetSigningSet(ctx); e == nil && ok {
+		sset = loaded
+	}
 	rt.mu.Lock()
 	rt.routes = compiled
 	rt.needDraw = needDraw
+	rt.signing = sset
 	rt.mu.Unlock()
 	slog.Info("routes reloaded", "count", len(compiled))
 	return nil
 }
 
+// currentSigning returns the active signing set (nil when none). Read under the
+// lock so a Reload swap is race-free.
+func (rt *Router) currentSigning() *signing.Set {
+	rt.mu.RLock()
+	defer rt.mu.RUnlock()
+	return rt.signing
+}
+
+// serveJWKS publishes the public halves of the signing keys. Empty (but valid)
+// when no key exists yet, so a backend can always fetch and cache it.
+func (rt *Router) serveJWKS(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "public, max-age=300")
+	set := rt.currentSigning()
+	if set == nil {
+		_, _ = w.Write([]byte(`{"keys":[]}`))
+		return
+	}
+	body, err := set.JWKS()
+	if err != nil {
+		http.Error(w, "jwks unavailable", http.StatusInternalServerError)
+		return
+	}
+	_, _ = w.Write(body)
+}
 
 // ExpandRoute resolves the $name references a route carries (VAULT-01) against
 // values, returning the route the engine will actually run plus the names that
@@ -141,10 +190,21 @@ func ExpandRoute(r store.Route, values map[string]string) (store.Route, []string
 	}
 	return resolved, missing, nil
 }
+
+// JWKSPath is the well-known location where the gateway publishes the public
+// halves of its identity signing keys, for upstreams verifying signed-jwt.
+const JWKSPath = "/.well-known/jwks.json"
+
 // ServeHTTP dispatches to the first route whose predicates all match; nothing
 // matched is a plain 404. The TRAP (ROUTE-10) is not a special case: it is an
 // ordinary catch-all route ("/**") the admin orders last.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	// The JWKS is a gateway-internal endpoint: it wins over any route (a
+	// catch-all trap must never swallow it).
+	if req.Method == http.MethodGet && req.URL.Path == JWKSPath {
+		rt.serveJWKS(w)
+		return
+	}
 	rt.mu.RLock()
 	routes, needDraw := rt.routes, rt.needDraw
 	rt.mu.RUnlock()
@@ -211,8 +271,8 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 	}
 	// Identity forwarding (both route types): the signed-in user rides
 	// upstream headers; inbound values are purged first (spoofing guard).
-	if r.Identity != nil && r.Identity.Enabled {
-		filters.Request = append(filters.Request, rt.identityForwardFilter(*r.Identity))
+	if r.Identity != nil && r.Identity.Mechanism != "" {
+		filters.Request = append(filters.Request, rt.identityForwardFilter(*r.Identity, r.Name))
 	}
 	// A UI route's custom CSS rides a <style> tag ("</style" is refused at
 	// validation, so the block cannot break out).
@@ -305,19 +365,39 @@ func validateRouteType(r store.Route) error {
 	}
 	// Identity forwarding is valid for BOTH types (an API service wants the
 	// caller too).
-	if id := r.Identity; id != nil {
+	if id := r.Identity; id != nil && id.Mechanism != "" {
 		switch id.Mechanism {
-		case "", "headers":
-		default:
-			return fmt.Errorf("identity mechanism %q is not allowed: only headers is available today (jwt and signed-jwt come later)", id.Mechanism)
-		}
-		for field, header := range id.Headers {
-			if !slices.Contains(store.IdentityFields, field) {
-				return fmt.Errorf("identity field %q is not allowed: allowed fields are %s",
-					field, strings.Join(store.IdentityFields, ", "))
+		case "headers", "jwt":
+		case "signed-jwt":
+			if id.Algorithm != "" && !signing.Valid(id.Algorithm) {
+				return fmt.Errorf("identity signature algorithm %q is not allowed: allowed algorithms are %s",
+					id.Algorithm, strings.Join(signing.Algorithms, ", "))
 			}
-			if header != "" && !headerNameOK.MatchString(header) {
-				return fmt.Errorf("identity header %q for %s is not allowed: letters, digits and - only", header, field)
+		default:
+			return fmt.Errorf("identity mechanism %q is not allowed: allowed mechanisms are headers, jwt, signed-jwt", id.Mechanism)
+		}
+		seen := make(map[string]bool, len(id.Attributes))
+		for _, a := range id.Attributes {
+			if !slices.Contains(store.IdentityFields, a.Field) {
+				return fmt.Errorf("identity attribute %q is not allowed: allowed attributes are %s",
+					a.Field, strings.Join(store.IdentityFields, ", "))
+			}
+			if seen[a.Field] {
+				return fmt.Errorf("identity attribute %q is set twice", a.Field)
+			}
+			seen[a.Field] = true
+			if a.As != "" {
+				if id.Mechanism == "headers" && !headerNameOK.MatchString(a.As) {
+					return fmt.Errorf("identity header %q for %s is not allowed: letters, digits and - only", a.As, a.Field)
+				}
+				if (id.Mechanism == "jwt" || id.Mechanism == "signed-jwt") && !claimNameOK.MatchString(a.As) {
+					return fmt.Errorf("identity claim %q for %s is not allowed: letters, digits, and _ - . only", a.As, a.Field)
+				}
+			}
+		}
+		if id.TTL != "" {
+			if _, err := store.ParseISODuration(id.TTL); err != nil {
+				return fmt.Errorf("identity token ttl %q is not a valid ISO-8601 duration: %w", id.TTL, err)
 			}
 		}
 	}
@@ -446,6 +526,9 @@ var schemeTokenOK = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 // headerNameOK bounds the upstream header names a route may configure.
 var headerNameOK = regexp.MustCompile(`^[A-Za-z0-9-]+$`)
+
+// claimNameOK bounds the JWT claim names a route may map an attribute onto.
+var claimNameOK = regexp.MustCompile(`^[A-Za-z0-9_.-]+$`)
 
 // tagNameOK bounds the page tag a stamp may target (custom elements included).
 var tagNameOK = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9-]*$`)
@@ -847,42 +930,192 @@ func stripPrefixCount(filters []routing.Spec) int {
 	return n
 }
 
-// identityForwardFilter sends the signed-in user upstream as headers: one
-// per field (names from cfg.Headers, the field name itself as default), plus
-// the standard Remote-User always carrying the username. Inbound values are
-// purged first so a client can never spoof them.
-func (rt *Router) identityForwardFilter(cfg store.IdentityForward) routing.RequestFilter {
-	name := func(field string) string {
-		if n := cfg.Headers[field]; n != "" {
-			return n
+// gatewayIssuer is the "iss" claim of identity tokens: this gateway is the
+// authority the upstream trusts. A configurable issuer arrives with the signing
+// identity (signed-jwt, Lot 2).
+const gatewayIssuer = "meerkat"
+
+// identityForwardFilter sends the signed-in caller upstream, per the mechanism.
+// Only the SELECTED attributes travel, each optionally renamed. Inbound values
+// are purged first so a client can never spoof them: the header transport drops
+// every catalogue header (and each mapped target); the jwt transport drops the
+// Authorization it is about to write.
+func (rt *Router) identityForwardFilter(cfg store.IdentityForward, routeName string) routing.RequestFilter {
+	if cfg.Mechanism == "jwt" || cfg.Mechanism == "signed-jwt" {
+		signed := cfg.Mechanism == "signed-jwt"
+		alg := cfg.Algorithm
+		if alg == "" {
+			alg = signing.ES256
 		}
-		return field
+		return func(pr *httputil.ProxyRequest) {
+			pr.Out.Header.Del("Authorization")
+			d, ok := rt.sessionIdentity(pr.In)
+			if !ok {
+				return
+			}
+			claims := identityClaims(cfg, routeName, d)
+			var tok string
+			var err error
+			if signed {
+				set := rt.currentSigning()
+				if set == nil {
+					return
+				}
+				tok, err = set.SignJWT(alg, claims)
+			} else {
+				tok, err = mintUnsignedJWT(claims)
+			}
+			if err != nil {
+				return
+			}
+			pr.Out.Header.Set("Authorization", "Bearer "+tok)
+		}
 	}
 	return func(pr *httputil.ProxyRequest) {
-		pr.Out.Header.Del("Remote-User")
 		for _, f := range store.IdentityFields {
-			pr.Out.Header.Del(name(f))
+			pr.Out.Header.Del(f)
+		}
+		for _, a := range cfg.Attributes {
+			if a.As != "" {
+				pr.Out.Header.Del(a.As)
+			}
 		}
 		d, ok := rt.sessionIdentity(pr.In)
 		if !ok {
 			return
 		}
-		set := func(field, value string) {
-			if value != "" {
-				pr.Out.Header.Set(name(field), value)
-			}
-		}
-		set("username", d.Username)
-		set("userid", d.UserID)
-		set("tenant", d.Tenant)
-		set("tenantid", d.TenantID)
-		set("email", d.Email)
-		set("timezone", d.Timezone)
-		set("roles", strings.Join(d.Roles, ","))
-		if d.Username != "" {
-			pr.Out.Header.Set("Remote-User", d.Username)
+		for _, h := range identityHeaderPairs(cfg, d) {
+			pr.Out.Header.Set(h.Name, h.Value)
 		}
 	}
+}
+
+// IdentityHeader is one header the "headers" mechanism emits.
+type IdentityHeader struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+// identityHeaderPairs renders the headers cfg emits for the caller d, in
+// attribute order: each selected fact under its mapped name, roles as a JSON
+// array or a comma-separated string. Shared by the forwarding filter and the
+// admin preview, so what the console shows is what the upstream receives.
+func identityHeaderPairs(cfg store.IdentityForward, d identityData) []IdentityHeader {
+	out := make([]IdentityHeader, 0, len(cfg.Attributes))
+	for _, a := range cfg.Attributes {
+		name := a.As
+		if name == "" {
+			name = a.Field
+		}
+		if a.Field == "roles" {
+			if len(d.Roles) == 0 {
+				continue
+			}
+			if a.AsJSON {
+				b, err := json.Marshal(d.Roles)
+				if err != nil {
+					continue
+				}
+				out = append(out, IdentityHeader{Name: name, Value: string(b)})
+			} else {
+				out = append(out, IdentityHeader{Name: name, Value: strings.Join(d.Roles, ",")})
+			}
+			continue
+		}
+		if v := userFieldValue(d, a.Field); v != "" {
+			out = append(out, IdentityHeader{Name: name, Value: v})
+		}
+	}
+	return out
+}
+
+// sampleIdentity is the FICTIONAL caller the identity preview describes. It is
+// fixed here on purpose: the preview mints a real (and, for signed-jwt, really
+// signed) token, so letting a caller choose the claim values would let a
+// infra admin forge a token for anyone the upstream trusts.
+var sampleIdentity = identityData{
+	UserID: "usr_123", Username: "jdoe", Fullname: "Jane Doe",
+	Email: "jdoe@example.com", Timezone: "Europe/Paris",
+	TenantID: "tnt_123", Tenant: "acme", Roles: []string{"role-a", "role-b"},
+}
+
+// PreviewHeaders renders the headers cfg would send for the sample caller.
+func PreviewHeaders(cfg store.IdentityForward) []IdentityHeader {
+	return identityHeaderPairs(cfg, sampleIdentity)
+}
+
+// PreviewClaims builds the JWT payload cfg would send for the sample caller.
+func PreviewClaims(cfg store.IdentityForward, routeName string) map[string]any {
+	return identityClaims(cfg, routeName, sampleIdentity)
+}
+
+// MintUnsignedJWT encodes an unsigned (alg:none) token, the "jwt" mechanism's
+// wire form. Exported for the admin preview.
+func MintUnsignedJWT(claims map[string]any) (string, error) {
+	return mintUnsignedJWT(claims)
+}
+
+// identityClaims builds the JWT payload: the registered claims (iss/sub/aud/
+// iat/exp) plus one custom claim per selected attribute, under its mapped name.
+func identityClaims(cfg store.IdentityForward, routeName string, d identityData) map[string]any {
+	now := time.Now()
+	ttl := 2 * time.Minute
+	if cfg.TTL != "" {
+		if parsed, err := store.ParseISODuration(cfg.TTL); err == nil {
+			ttl = parsed
+		}
+	}
+	claims := map[string]any{
+		"iss": gatewayIssuer,
+		"iat": now.Unix(),
+		"exp": now.Add(ttl).Unix(),
+	}
+	if routeName != "" {
+		claims["aud"] = routeName
+	}
+	if d.UserID != "" {
+		claims["sub"] = d.UserID
+	}
+	for _, a := range cfg.Attributes {
+		name := a.As
+		if name == "" {
+			name = a.Field
+		}
+		if a.Field == "roles" {
+			if a.AsJSON {
+				claims[name] = d.Roles
+			} else {
+				claims[name] = strings.Join(d.Roles, ",")
+			}
+			continue
+		}
+		if v := userFieldValue(d, a.Field); v != "" {
+			claims[name] = v
+		}
+	}
+	return claims
+}
+
+// mintUnsignedJWT encodes an unsigned (alg:none) JWT: header.payload with an
+// empty signature. It carries structure, not trust — the verifiable variant is
+// signed-jwt (Lot 2).
+func mintUnsignedJWT(claims map[string]any) (string, error) {
+	seg := func(v any) (string, error) {
+		b, err := json.Marshal(v)
+		if err != nil {
+			return "", err
+		}
+		return base64.RawURLEncoding.EncodeToString(b), nil
+	}
+	header, err := seg(map[string]string{"alg": "none", "typ": "JWT"})
+	if err != nil {
+		return "", err
+	}
+	payload, err := seg(claims)
+	if err != nil {
+		return "", err
+	}
+	return header + "." + payload + ".", nil
 }
 
 func orDefault(v, fallback string) string {

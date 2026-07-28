@@ -131,17 +131,84 @@ export interface RouteUIOptions {
   userButton: UserButtonOptions;
   customCss?: string;
   customJs?: string;
+  // The app's menu label: when set, the route shows in the user's apps menu
+  // (subject to access), under this name. Empty = reachable but unlisted.
+  link?: string;
 }
 
 // The signed-in user's facts a route may forward to its upstream service;
 // each header name is configurable, the field name itself is the default.
 // Remote-User always carries the username besides (cross-server standard).
-export const IDENTITY_FIELDS = ['username', 'userid', 'tenant', 'tenantid', 'email', 'timezone', 'roles'] as const;
+export const IDENTITY_FIELDS = ['username', 'userid', 'fullname', 'tenant', 'tenantid', 'email', 'timezone', 'roles'] as const;
 
+// One caller fact forwarded to the upstream, optionally renamed (as = the
+// target header/claim name). asJson only bears on the multi-valued 'roles':
+// true renders a JSON array, false a comma-separated string.
+export interface IdentityAttr {
+  field: string;
+  as?: string;
+  asJson?: boolean;
+}
+
+// mechanism picks the transport: '' (off), headers (one per attribute), jwt
+// (unsigned) or signed-jwt, the token carried by Authorization: Bearer. ttl is
+// the token lifetime (ISO-8601); algorithm is the signed-jwt signature (Lot 2).
 export interface IdentityForward {
-  enabled: boolean;
-  mechanism?: '' | 'headers';
-  headers?: Record<string, string>;
+  mechanism?: '' | 'headers' | 'jwt' | 'signed-jwt';
+  attributes?: IdentityAttr[];
+  ttl?: string;
+  algorithm?: string;
+}
+
+// What an upstream would receive for a fictional caller, given a (possibly
+// unsaved) identity config: the headers, or the bearer token with its decoded
+// claims and, for signed-jwt, the key material that verifies it.
+export interface IdentityPreview {
+  mechanism: string;
+  headers?: { name: string; value: string }[];
+  token?: string;
+  claims?: Record<string, unknown>;
+  algorithm?: string;
+  kid?: string;
+  publicPem?: string;
+}
+
+// A vault entry (VAULT-01): a named value the configuration references by
+// $name. A secret is encrypted at rest and its value NEVER comes back from the
+// server (hasValue says it holds one); a plain value is readable.
+export interface VaultEntry {
+  name: string;
+  kind: 'value' | 'secret';
+  // The scope the entry belongs to: 'infra', 'app', or 'tenant:<id>'. A name
+  // is unique PER SCOPE, so a tenant may shadow a global entry (GitHub's org
+  // vs repo model). Routes resolve infra, settings app, a tenant its own
+  // entries then the app ones.
+  scope: string;
+  value?: string;
+  hasValue: boolean;
+  description?: string;
+  tags?: string[];
+  createdAt: number;
+  updatedAt: number;
+  // Inherited from a wider scope: visible so one knows what $name resolves to,
+  // but only shadowable, not editable.
+  readOnly?: boolean;
+  // Where the entry is referenced ("route: api"), so a leftover is obvious.
+  usedBy?: string[];
+}
+
+// One algorithm's public signing key, as shown in the signing-keys dialog.
+export interface SigningKey {
+  algorithm: string;
+  kid: string;
+  publicPem: string;
+}
+
+// The gateway's identity signing keys: where the JWKS is served and the public
+// key per algorithm for backends that prefer a static key.
+export interface SigningKeys {
+  jwksPath: string;
+  keys: SigningKey[];
 }
 
 export interface Route {

@@ -798,21 +798,40 @@ type RouteUI struct {
 	CustomCSS string `json:"customCss,omitempty"`
 	// CustomJS is injected verbatim inside a <script> tag after <head>.
 	CustomJS string `json:"customJs,omitempty"`
+	// Link is the app's menu label. When set, the route is listed in the user's
+	// apps menu (subject to access) under this name; empty = reachable but
+	// unlisted.
+	Link string `json:"link,omitempty"`
 }
 
 // IdentityFields are the signed-in user's facts a route may forward to its
-// upstream service; each one's header name is configurable, the field name
-// itself is the default.
-var IdentityFields = []string{"username", "userid", "tenant", "tenantid", "email", "timezone", "roles"}
+// upstream service. "roles" is the only multi-valued one (see IdentityAttr).
+var IdentityFields = []string{"username", "userid", "fullname", "tenant", "tenantid", "email", "timezone", "roles"}
 
-// IdentityForward sends the signed-in user to the upstream service. The
-// "headers" mechanism sends one header per field (Headers overrides the
-// name per field); Remote-User ALWAYS carries the username besides, the
-// cross-server standard. JWT and signed-JWT mechanisms come later.
+// IdentityForward sends the signed-in caller to the upstream service. Mechanism
+// picks the transport; the SAME selected Attributes (and their per-attribute
+// mapping) feed every transport: the "headers" mechanism writes one header per
+// attribute, the "jwt"/"signed-jwt" mechanisms write one claim per attribute in
+// a token carried by Authorization: Bearer. An empty Mechanism forwards nothing.
 type IdentityForward struct {
-	Enabled   bool              `json:"enabled"`
-	Mechanism string            `json:"mechanism,omitempty"` // headers (default)
-	Headers   map[string]string `json:"headers,omitempty"`   // field -> header name
+	Mechanism  string         `json:"mechanism,omitempty"` // "" (off) | headers | jwt | signed-jwt
+	Attributes []IdentityAttr `json:"attributes,omitempty"`
+	// TTL is the token lifetime (exp) for the jwt/signed-jwt transports, an
+	// ISO-8601 duration; empty means the default (2 minutes).
+	TTL string `json:"ttl,omitempty"`
+	// Algorithm is the signature algorithm for signed-jwt (ES256|EdDSA|RS256);
+	// unused by the header and unsigned-jwt transports.
+	Algorithm string `json:"algorithm,omitempty"`
+}
+
+// IdentityAttr is one caller fact to forward, optionally renamed on the way out
+// (As is the target header name or claim name; the field name is the default).
+// AsJSON only bears on the multi-valued "roles": true renders a JSON array,
+// false a comma-separated string.
+type IdentityAttr struct {
+	Field  string `json:"field"`
+	As     string `json:"as,omitempty"`
+	AsJSON bool   `json:"asJson,omitempty"`
 }
 
 // Route is one declarative routing rule: predicates match a request, filters

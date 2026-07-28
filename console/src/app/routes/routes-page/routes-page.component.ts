@@ -1,9 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
 import { forkJoin } from 'rxjs';
@@ -11,6 +13,7 @@ import { ApiService, CatalogEntry, Route } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
 import { RouteEditorComponent } from '../route-editor/route-editor.component';
 import { RoutesTableComponent } from '../routes-table/routes-table.component';
+import { SigningKeysDialogComponent } from '../signing-keys-dialog.component';
 
 @Component({
   selector: 'app-routes-page',
@@ -29,6 +32,7 @@ export class RoutesPageComponent {
   private readonly api = inject(ApiService);
   private readonly snack = inject(MatSnackBar);
   private readonly dialogs = inject(DialogsService);
+  private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly ar = inject(ActivatedRoute);
 

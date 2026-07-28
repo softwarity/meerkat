@@ -18,14 +18,18 @@ import (
 	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
+	"github.com/softwarity/meerkat/internal/vault"
 )
 
 // API serves the admin endpoints. Every endpoint requires a session whose
 // user is root.
 type API struct {
-	// Mailer sends outbound e-mail (the SMTP test); nil answers "not
+	// Mailer sends outbound e-mail through the STORED config; nil answers "not
 	// configured". Wired by main, faked in tests.
 	Mailer func(ctx context.Context, msg mail.Message) error
+	// MailerWith sends through an EXPLICIT config — the relay test tries what is
+	// on screen, not what is stored. Defaults to mail.Send; faked in tests.
+	MailerWith func(ctx context.Context, cfg mail.Config, msg mail.Message) error
 
 	st     *store.Store
 	sm     *session.Manager
@@ -48,6 +52,7 @@ func (a *API) Register(mux *http.ServeMux) {
 	mux.Handle("PUT /api/routes/{id}", a.infraAdmin(a.putRoute))
 	mux.Handle("DELETE /api/routes/{id}", a.infraAdmin(a.deleteRoute))
 	a.registerOpenAPI(mux)
+	a.registerVault(mux)
 	a.registerIdentity(mux)
 	a.registerThemes(mux)
 	a.registerRBAC(mux)
@@ -128,7 +133,7 @@ func (a *API) putRoute(w http.ResponseWriter, r *http.Request, actor store.User)
 		writeErr(w, http.StatusUnprocessableEntity, "a route needs at least one predicate")
 		return
 	}
-	if err := gateway.Validate(route); err != nil {
+	if err := a.validateRoute(r.Context(), route); err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
@@ -153,6 +158,25 @@ func (a *API) putRoute(w http.ResponseWriter, r *http.Request, actor store.User)
 		a.auditEvent(r.Context(), actor, "route.create", "route", route.ID, route.Name, "", "")
 	}
 	writeJSON(w, http.StatusOK, route)
+}
+
+// validateRoute compiles the route the ENGINE will run: the stored route with
+// its $name references expanded (VAULT-01). Validating the raw form would
+// reject a perfectly good "upstream: $api-host"; validating the expansion also
+// catches a typo in a reference at save time rather than at reload time.
+func (a *API) validateRoute(ctx context.Context, route store.Route) error {
+	values, err := a.st.VaultValues(ctx, vault.ScopeInfra)
+	if err != nil {
+		return fmt.Errorf("vault unavailable: %w", err)
+	}
+	expanded, missing, err := gateway.ExpandRoute(route, values)
+	if err != nil {
+		return err
+	}
+	if len(missing) > 0 {
+		return fmt.Errorf("unknown vault entries: %s", strings.Join(missing, ", "))
+	}
+	return gateway.Validate(expanded)
 }
 
 func (a *API) deleteRoute(w http.ResponseWriter, r *http.Request, actor store.User) {

@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -19,11 +20,15 @@ import (
 	_ "modernc.org/sqlite" // registers the "sqlite" database/sql driver
 
 	"github.com/softwarity/meerkat/internal/routing"
+	"github.com/softwarity/meerkat/internal/vault"
 )
 
 // Store wraps the embedded database.
 type Store struct {
 	db *sql.DB
+	// vaultCipher seals the vault's secret entries at rest (VAULT-01). The
+	// master key comes from MEERKAT_VAULT_KEY, or a 0600 key file in dataDir.
+	vaultCipher *vault.Cipher
 }
 
 // Open opens (creating if needed) the embedded database inside dataDir and
@@ -40,6 +45,15 @@ func Open(dataDir string) (*Store, error) {
 	db.SetMaxOpenConns(1)
 	s := &Store{db: db}
 	if err := s.migrate(); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	key, err := vault.LoadOrCreateKey(dataDir, os.Getenv("MEERKAT_VAULT_KEY"))
+	if err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	if s.vaultCipher, err = vault.NewCipher(key); err != nil {
 		_ = db.Close()
 		return nil, err
 	}
@@ -123,6 +137,21 @@ CREATE TABLE IF NOT EXISTS users (
   username      TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   root          INTEGER NOT NULL DEFAULT 0
+);
+
+-- v27 the vault (VAULT-01): named entries the configuration references by
+-- $name. The value column holds clear text for a "value" entry, and the sealed
+-- blob (base64 nonce||ciphertext, AES-256-GCM) for a "secret" one.
+CREATE TABLE IF NOT EXISTS vault_entries (
+  name        TEXT NOT NULL,
+  kind        TEXT NOT NULL DEFAULT 'value',
+  scope       TEXT NOT NULL DEFAULT 'infra',
+  value       TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  tags        TEXT NOT NULL DEFAULT '[]',
+  created_at  INTEGER NOT NULL DEFAULT 0,
+  updated_at  INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (scope, name)
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -334,6 +363,12 @@ CREATE INDEX IF NOT EXISTS audit_events_actor ON audit_events(actor_id, at);`)
 		return err
 	}
 	if err := s.addMissingColumns("routes", routeColumns); err != nil {
+		return err
+	}
+	if err := s.recreateVaultIfSingleKeyed(); err != nil {
+		return err
+	}
+	if err := s.renameGatewayAdminColumn(); err != nil {
 		return err
 	}
 	if err := s.addMissingColumns("groups", groupColumns); err != nil {

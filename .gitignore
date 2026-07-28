@@ -23,3 +23,6 @@ coverage.out
 
 # local db folder
 data
+
+# vault master key (VAULT-01) — never commit, whatever the data dir
+vault.key

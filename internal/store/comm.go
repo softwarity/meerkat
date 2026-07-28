@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/softwarity/meerkat/internal/mail"
+	"github.com/softwarity/meerkat/internal/vault"
 )
 
 // Outbound e-mail + self-registration (AUTH-20): the SMTP config is a
@@ -14,11 +15,44 @@ import (
 // only today — external providers will carry their own knob).
 
 // GetSMTP reads the SMTP config; an unset key means "not configured" (zero
-// value), which mail.Send refuses explicitly.
+// value), which mail.Send refuses explicitly. Vault references ($name) are
+// expanded here, so the stored setting keeps the reference and the password
+// never sits in the settings table.
+//
+// The two halves resolve in THEIR OWN scope, matching who owns them: the
+// transport (host, username, password) is infrastructure, the sender is the
+// application's. Resolving the relay's password against the app scope would
+// let an app admin decide what the relay authenticates with.
 func (s *Store) GetSMTP(ctx context.Context) mail.Config {
 	var cfg mail.Config
 	_ = s.GetSetting(ctx, SettingSMTP, &cfg)
+	cfg.Host, cfg.Username, cfg.Password = s.expandRelay(ctx, cfg.Host, cfg.Username, cfg.Password)
+	if values, err := s.VaultValues(ctx, vault.ScopeApp); err == nil {
+		cfg.From, _ = vault.Expand(cfg.From, func(n string) (string, bool) { v, ok := values[n]; return v, ok })
+	}
 	return cfg
+}
+
+// ExpandRelay resolves the INFRA-scope references of a mail relay's transport
+// fields. Exported so a relay can be TESTED before being saved: the form may
+// carry "${smtp-password}", which has to become the real secret to connect.
+func (s *Store) ExpandRelay(ctx context.Context, host, username, password string) (string, string, string) {
+	return s.expandRelay(ctx, host, username, password)
+}
+
+func (s *Store) expandRelay(ctx context.Context, host, username, password string) (string, string, string) {
+	values, err := s.VaultValues(ctx, vault.ScopeInfra)
+	if err != nil {
+		return host, username, password
+	}
+	lookup := func(name string) (string, bool) {
+		v, ok := values[name]
+		return v, ok
+	}
+	host, _ = vault.Expand(host, lookup)
+	username, _ = vault.Expand(username, lookup)
+	password, _ = vault.Expand(password, lookup)
+	return host, username, password
 }
 
 // RegistrationPolicy says who may create their own account (AUTH-20).

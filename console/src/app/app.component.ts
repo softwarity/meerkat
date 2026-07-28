@@ -128,11 +128,29 @@ import { UserMenuComponent } from './shared/user-menu.component';
           <mat-icon>domain</mat-icon>
         </rail-nav-item>
         <rail-nav-item
+          i18n-label="@@API"
+          label="API"
+          routerLink="/api"
+          [active]="inApiDocs()"
+          any-role="root infra-admin app-admin"
+        >
+          <mat-icon>api</mat-icon>
+        </rail-nav-item>
+        <rail-nav-item
+          i18n-label="@@Vault"
+          label="Vault"
+          routerLink="/vault"
+          [active]="inVault()"
+          any-role="root infra-admin app-admin"
+        >
+          <mat-icon>key</mat-icon>
+        </rail-nav-item>
+        <rail-nav-item
           i18n-label="@@Audit"
           label="Audit"
           routerLink="/audit"
           [active]="inAudit()"
-          any-role="root gateway-admin app-admin tenant-admin"
+          any-role="root infra-admin app-admin tenant-admin"
         >
           <mat-icon>history_edu</mat-icon>
         </rail-nav-item>

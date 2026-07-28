@@ -42,14 +42,36 @@ export const appOnly: CanActivateFn = async () => {
   return me.isAppAdmin() ? true : router.parseUrl(landing(me));
 };
 
+// vaultAccess gates the transverse Vault section: anyone administering a plane
+// that holds entries (gateway or application). The API scopes the CONTENT to
+// that plane; this only guards the page.
+export const vaultAccess: CanActivateFn = async () => {
+  const me = inject(MeService);
+  const router = inject(Router);
+  await me.ensureLoaded();
+  const ok = me.isRoot() || me.isInfraAdmin() || me.isAppAdmin();
+  return ok ? true : router.parseUrl(landing(me));
+};
+
 // auditAccess gates the transverse Audit section: anyone who administers a
-// domain may open it (root, gateway-admin, app-admin, or a tenant admin). The
+// domain may open it (root, infra-admin, app-admin, or a tenant admin). The
 // API scopes the CONTENT to that domain; this only guards the page itself.
 export const auditAccess: CanActivateFn = async () => {
   const me = inject(MeService);
   const router = inject(Router);
   await me.ensureLoaded();
-  const ok = me.isRoot() || me.isGatewayAdmin() || me.isAppAdmin() || me.isTenantAdmin();
+  const ok = me.isRoot() || me.isInfraAdmin() || me.isAppAdmin() || me.isTenantAdmin();
+  return ok ? true : router.parseUrl(landing(me));
+};
+
+// apiDocsAccess gates the API-docs screen: the capabilities that consume the
+// control plane (root, infra-admin, app-admin). The spec LIST is scoped
+// again server-side — route-declared specs need the routing plane.
+export const apiDocsAccess: CanActivateFn = async () => {
+  const me = inject(MeService);
+  const router = inject(Router);
+  await me.ensureLoaded();
+  const ok = me.isRoot() || me.isInfraAdmin() || me.isAppAdmin();
   return ok ? true : router.parseUrl(landing(me));
 };
 

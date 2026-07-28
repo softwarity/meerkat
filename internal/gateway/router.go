@@ -6,6 +6,7 @@ package gateway
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"html"
 	"log/slog"
@@ -24,6 +25,7 @@ import (
 	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
+	"github.com/softwarity/meerkat/internal/vault"
 )
 
 // Router matches incoming requests against the compiled routes, first match
@@ -67,12 +69,27 @@ func (rt *Router) Reload(ctx context.Context) error {
 	// and the user button shows no language submenu.
 	var appLangs []string
 	_ = rt.st.GetSetting(ctx, store.SettingLanguages, &appLangs)
+	// Vault values feed the $name expansion below. A vault that cannot be read
+	// is not a reason to stop serving: routes without references still work,
+	// and the ones with references will report their unresolved names.
+	values, err := rt.st.VaultValues(ctx, vault.ScopeInfra)
+	if err != nil {
+		slog.Warn("vault unavailable, route references will not resolve", "err", err)
+		values = map[string]string{}
+	}
 	compiled := make([]compiledRoute, 0, len(stored))
 	var allPreds []*routing.CompiledPredicates
 	needDraw := false
-	for _, r := range stored {
-		if !r.Enabled {
+	for _, raw := range stored {
+		if !raw.Enabled {
 			continue
+		}
+		r, missing, err := ExpandRoute(raw, values)
+		if err != nil {
+			return fmt.Errorf("gateway: route %q: %w", raw.Name, err)
+		}
+		if len(missing) > 0 {
+			slog.Warn("route references unknown vault entries", "route", raw.Name, "names", missing)
 		}
 		cr, err := rt.compile(r, appLangs)
 		if err != nil {
@@ -93,6 +110,37 @@ func (rt *Router) Reload(ctx context.Context) error {
 	return nil
 }
 
+
+// ExpandRoute resolves the $name references a route carries (VAULT-01) against
+// values, returning the route the engine will actually run plus the names that
+// did not resolve. The expansion is IN MEMORY only: the stored route keeps its
+// references, so a secret never lands in the database or in an export.
+//
+// It walks the route's decoded JSON, so a reference works in any string field
+// (upstream, filter arguments, header names…) without listing them one by one.
+func ExpandRoute(r store.Route, values map[string]string) (store.Route, []string, error) {
+	raw, err := json.Marshal(r)
+	if err != nil {
+		return r, nil, fmt.Errorf("gateway: route %q: %w", r.Name, err)
+	}
+	var doc any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return r, nil, fmt.Errorf("gateway: route %q: %w", r.Name, err)
+	}
+	expanded, missing := vault.ExpandAny(doc, func(name string) (string, bool) {
+		v, ok := values[name]
+		return v, ok
+	})
+	out, err := json.Marshal(expanded)
+	if err != nil {
+		return r, missing, fmt.Errorf("gateway: route %q: %w", r.Name, err)
+	}
+	var resolved store.Route
+	if err := json.Unmarshal(out, &resolved); err != nil {
+		return r, missing, fmt.Errorf("gateway: route %q: %w", r.Name, err)
+	}
+	return resolved, missing, nil
+}
 // ServeHTTP dispatches to the first route whose predicates all match; nothing
 // matched is a plain 404. The TRAP (ROUTE-10) is not a special case: it is an
 // ordinary catch-all route ("/**") the admin orders last.

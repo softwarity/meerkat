@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/softwarity/meerkat/internal/gateway"
 	"github.com/softwarity/meerkat/internal/openapi"
 	"github.com/softwarity/meerkat/internal/store"
 )
@@ -106,7 +105,7 @@ func (a *API) putRouteSecurity(w http.ResponseWriter, r *http.Request, actor sto
 
 	// Compile the whole route (predicates, filters, endpoint security) before
 	// persisting, so a bad policy is refused with the engine's precise error.
-	if err := gateway.Validate(route); err != nil {
+	if err := a.validateRoute(r.Context(), route); err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}

@@ -468,9 +468,69 @@ export class ApiService {
     return this.http.get<RouteOperations>(`/api/routes/${encodeURIComponent(id)}/operations`);
   }
 
-  // An empty security block (no endpoints, no deny-by-default) clears it.
-  saveRouteSecurity(id: string, security: EndpointSecurity): Observable<EndpointSecurity | null> {
-    return this.http.put<EndpointSecurity | null>(`/api/routes/${encodeURIComponent(id)}/security`, security);
+  // Saves the route's base Access ("whole route") plus the per-operation
+  // overrides. No override and an empty Access clears security entirely.
+  saveRouteSecurity(id: string, security: RouteSecurity): Observable<RouteSecurity> {
+    return this.http.put<RouteSecurity>(`/api/routes/${encodeURIComponent(id)}/security`, security);
+  }
+
+  // Identity signing keys (signed-jwt): the gateway-wide public keys backends
+  // verify against, and their JWKS location. The private halves never leave.
+  getSigningKeys(): Observable<SigningKeys> {
+    return this.http.get<SigningKeys>('/api/identity/signing-keys');
+  }
+
+  // Rotate every algorithm's pair; the old public keys linger in the JWKS for a
+  // grace window so in-flight tokens keep verifying.
+  renewSigningKeys(): Observable<SigningKeys> {
+    return this.http.post<SigningKeys>('/api/identity/signing-keys/renew', null);
+  }
+
+  // ── mail relay (infra plane) ───────────────────────────────────────────────
+
+  mailRelay(): Observable<MailRelay> {
+    return this.http.get<MailRelay>('/api/settings/mail-relay');
+  }
+
+  // An empty password keeps the stored one.
+  saveMailRelay(relay: MailRelay): Observable<MailRelay> {
+    return this.http.put<MailRelay>('/api/settings/mail-relay', relay);
+  }
+
+  // Tries the relay ON SCREEN without saving it: the config travels in the
+  // body. A blank password falls back to the stored one, and the sender comes
+  // from the application settings.
+  testMailRelay(relay: MailRelay, to: string): Observable<{ sent: string }> {
+    return this.http.post<{ sent: string }>('/api/settings/mail-relay/test', { ...relay, to });
+  }
+
+  // ── vault ──────────────────────────────────────────────────────────────────
+
+  listVault(): Observable<VaultEntry[]> {
+    return this.http.get<VaultEntry[]>('/api/vault');
+  }
+
+  // Creates or replaces an entry. On an existing SECRET, an empty value keeps
+  // the stored one (the console never receives it, so it cannot resend it).
+  saveVaultEntry(entry: Partial<VaultEntry> & { name: string; scope: string }): Observable<VaultEntry> {
+    const { name, scope, ...body } = entry;
+    return this.http.put<VaultEntry>(
+      `/api/vault/${encodeURIComponent(scope)}/${encodeURIComponent(name)}`,
+      body,
+    );
+  }
+
+  // Refused with 409 while the configuration still references the entry.
+  deleteVaultEntry(scope: string, name: string): Observable<void> {
+    return this.http.delete<void>(
+      `/api/vault/${encodeURIComponent(scope)}/${encodeURIComponent(name)}`,
+    );
+  }
+
+  // Previews an identity config WITHOUT saving it (the editor's draft). The
+  // caller values are the server's fixed sample: only the shape is ours.
+  previewIdentity(routeName: string, identity: IdentityForward): Observable<IdentityPreview> {
+    return this.http.post<IdentityPreview>('/api/identity/preview', { routeName, identity });
   }
 
   logout(): Observable<unknown> {

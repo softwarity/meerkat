@@ -94,7 +94,16 @@ export class RolesPageComponent {
     this.target.set(null);
   }
 
+  // The CDK emits `ended` BEFORE the drop list's `dropped` (drag-ref.ts:
+  // `ended.next(...)` then `container.drop(...)`), so clearing the drag state
+  // here would wipe the target `drop()` is about to read, and the re-parenting
+  // would silently do nothing. Defer it: a drag released with no valid target
+  // still clears, one that lands lets drop() read the state first.
   protected dragEnded(): void {
+    queueMicrotask(() => this.clearDrag());
+  }
+
+  private clearDrag(): void {
     this.dragged.set(null);
     this.target.set(null);
   }
@@ -129,7 +138,7 @@ export class RolesPageComponent {
   protected drop(): void {
     const dragged = this.dragged();
     const target = this.target();
-    this.dragEnded();
+    this.clearDrag();
     if (!dragged || !target) return;
     const parentId = target === 'root' ? '' : target.id;
     this.api.updateRole({ ...dragged, parentId }).subscribe({

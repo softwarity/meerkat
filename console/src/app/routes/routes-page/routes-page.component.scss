@@ -32,7 +32,7 @@ mat-drawer-content {
   min-height: 0;
   overflow-y: auto;
   // Clear the floating FAB so the last row is never hidden under it.
-  padding: 0 0px 88px;
+  padding: 0 24px 88px;
 }
 .fab-new {
   position: absolute;

@@ -1,4 +1,4 @@
-import { Component, inject, LOCALE_ID, signal } from '@angular/core';
+import { Component, computed, inject, LOCALE_ID, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,12 +12,17 @@ import { ApiService, Settings } from '../api.service';
 import { humanDuration } from '../shared/duration';
 
 const TRUST_TTL_CHOICES = ['P1D', 'P7D', 'P14D', 'P30D'];
+const SESSION_TTL_CHOICES = ['PT15M', 'PT30M', 'PT1H', 'PT2H', 'PT4H', 'PT8H', 'PT12H', 'P1D'];
 
-// Gateway-wide security policy (root only): second factor (MFA-04), passkeys
-// (AUTH-15), API tokens (AUTH-16), self-registration (AUTH-20), rate limiting
-// (SEC-10), trusted browsers (MFA-03), and the outbound e-mail (SMTP) the
-// account flows rely on. A full PUT of /api/settings — the other fields ride
-// along untouched.
+// Application-wide security policy (root only): how long a session lives, second
+// factor (MFA-04), passkeys (AUTH-15), API tokens (AUTH-16), self-registration
+// (AUTH-20), rate limiting (SEC-10), trusted browsers (MFA-03), and the outbound
+// e-mail sender the account flows use. A full PUT of /api/settings — the other
+// fields ride along untouched.
+//
+// The session TTL sits here, not on General: how long one stays signed in is a
+// security policy, next to the second factor and the trusted browsers that gate
+// the very same session.
 @Component({
   selector: 'app-security-page',
   imports: [
@@ -115,57 +120,37 @@ const TRUST_TTL_CHOICES = ['P1D', 'P7D', 'P14D', 'P30D'];
         </mat-card>
 
         <mat-card appearance="outlined">
-          <h3 i18n="@@Email_SMTP">Email (SMTP)</h3>
-          <p class="hint" i18n="@@SMTP_hint">
-            Outbound email: account confirmations and administrator notifications. Save, then send a test.
+          <h3 i18n="@@Session_TTL">Session TTL</h3>
+          <p class="hint" i18n="@@Session_TTL_hint">
+            How long a session lives before the user must sign in again.
           </p>
-          <div class="smtp-grid">
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_host">Host</mat-label>
-              <input matInput [value]="smtpHost()" (input)="smtpHost.set($any($event.target).value)" placeholder="smtp.example.com" />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_port">Port</mat-label>
-              <input matInput type="number" [value]="smtpPort()" (input)="smtpPort.set(+$any($event.target).value)" placeholder="587" />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_security">Security</mat-label>
-              <mat-select [value]="smtpSecurity()" (selectionChange)="smtpSecurity.set($event.value)">
-                <mat-option value="starttls">STARTTLS</mat-option>
-                <mat-option value="tls">TLS</mat-option>
-                <mat-option value="none" i18n="@@None">None</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_username">Username</mat-label>
-              <input matInput [value]="smtpUsername()" (input)="smtpUsername.set($any($event.target).value)" autocomplete="off" />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_password">Password</mat-label>
-              <input
-                matInput
-                type="password"
-                [value]="smtpPassword()"
-                (input)="smtpPassword.set($any($event.target).value)"
-                autocomplete="new-password"
-                [placeholder]="smtpPasswordSet() ? '••••••••' : ''"
-              />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_from">From</mat-label>
-              <input matInput [value]="smtpFrom()" (input)="smtpFrom.set($any($event.target).value)" placeholder="Meerkat <no-reply@example.com>" />
-            </mat-form-field>
-          </div>
-          <div class="smtp-test">
-            <mat-form-field class="field">
-              <mat-label i18n="@@Test_recipient">Test recipient</mat-label>
-              <input matInput type="email" [value]="smtpTestTo()" (input)="smtpTestTo.set($any($event.target).value)" i18n-placeholder="@@Your_account_email" placeholder="your account email" />
-            </mat-form-field>
-            <button matButton (click)="testSmtp()" [disabled]="saving() || !smtpHost().trim()">
-              <mat-icon>send</mat-icon>
-              <ng-container i18n="@@Save_and_send_test">Save and send a test</ng-container>
-            </button>
-          </div>
+          <mat-form-field class="field">
+            <mat-label i18n="@@Session_TTL">Session TTL</mat-label>
+            <mat-select [value]="sessionTTL()" (selectionChange)="sessionTTL.set($event.value)">
+              @for (c of sessionTtlChoices(); track c) {
+                <mat-option [value]="c">{{ human(c) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </mat-card>
+
+        <mat-card appearance="outlined">
+          <h3 i18n="@@Email_sender">Email sender</h3>
+          <p class="hint" i18n="@@Email_sender_hint">
+            The address account e-mails come from. The relay that actually delivers them is
+            infrastructure and lives under Infra, Mail relay.
+          </p>
+          <mat-form-field class="field">
+            <mat-label i18n="@@SMTP_from">From</mat-label>
+            <input matInput [value]="smtpFrom()" (input)="smtpFrom.set($any($event.target).value)" placeholder="My App <no-reply@example.com>" />
+          </mat-form-field>
+          @if (relayConfigured()) {
+            <p class="hint" i18n="@@Relay_ready">Mail relay: configured ({{ relayHost() }}).</p>
+          } @else {
+            <p class="hint warn" i18n="@@Relay_missing">
+              Mail relay: not configured. Account e-mails cannot go out until an infra admin sets it up.
+            </p>
+          }
         </mat-card>
 
         <mat-card appearance="outlined">
@@ -199,7 +184,7 @@ const TRUST_TTL_CHOICES = ['P1D', 'P7D', 'P14D', 'P30D'];
           <p class="hint" i18n="@@Self_registration_hint">
             Let visitors create their own account on the sign-in page. The address is confirmed by
             email, administrators are notified, and the account waits until someone grants it access.
-            Requires a configured SMTP server (Application, General).
+            Requires a sender address above and a mail relay (Infra, Mail relay).
           </p>
           <mat-slide-toggle [checked]="selfRegistration()" (change)="selfRegistration.set($event.checked)">
             <ng-container i18n="@@Allow_self_registration">Allow self-registration (local accounts)</ng-container>
@@ -285,17 +270,23 @@ export class SecurityPageComponent {
   protected readonly trustAllowed = signal(false);
   protected readonly trustTtl = signal('P7D');
   protected readonly ttlChoices = TRUST_TTL_CHOICES;
+  protected readonly sessionTTL = signal('');
+
+  // The presets, plus whatever non-preset value the store already holds so the
+  // select never silently drops it.
+  protected readonly sessionTtlChoices = computed(() => {
+    const current = this.sessionTTL();
+    return current && !SESSION_TTL_CHOICES.includes(current)
+      ? [current, ...SESSION_TTL_CHOICES]
+      : SESSION_TTL_CHOICES;
+  });
 
   // Outbound e-mail (AUTH-20). The password field stays empty unless changed:
   // '' on save keeps the stored one (write-only server-side).
-  protected readonly smtpHost = signal('');
-  protected readonly smtpPort = signal(587);
-  protected readonly smtpSecurity = signal('starttls');
-  protected readonly smtpUsername = signal('');
-  protected readonly smtpPassword = signal('');
-  protected readonly smtpPasswordSet = signal(false);
   protected readonly smtpFrom = signal('');
-  protected readonly smtpTestTo = signal('');
+  // Read-only: the relay belongs to the infra plane.
+  protected readonly relayHost = signal('');
+  protected readonly relayConfigured = signal(false);
 
   constructor() {
     this.api.settings().subscribe({
@@ -311,12 +302,10 @@ export class SecurityPageComponent {
         this.selfRegisterCaptcha.set(s.selfRegisterCaptcha);
         this.trustAllowed.set(s.trustedBrowser?.allowed ?? false);
         this.trustTtl.set(s.trustedBrowser?.ttl || 'P7D');
-        this.smtpHost.set(s.smtp?.host ?? '');
-        this.smtpPort.set(s.smtp?.port || 587);
-        this.smtpSecurity.set(s.smtp?.security || 'starttls');
-        this.smtpUsername.set(s.smtp?.username ?? '');
-        this.smtpPasswordSet.set(s.smtp?.passwordSet ?? false);
+        this.sessionTTL.set(s.sessionTTL);
         this.smtpFrom.set(s.smtp?.from ?? '');
+        this.relayHost.set(s.smtp?.relayHost ?? '');
+        this.relayConfigured.set(s.smtp?.relayConfigured ?? false);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -337,21 +326,14 @@ export class SecurityPageComponent {
         selfRegistration: this.selfRegistration(),
         selfRegisterCaptcha: this.selfRegisterCaptcha(),
         trustedBrowser: { allowed: this.trustAllowed(), ttl: this.trustTtl() },
-        smtp: {
-          host: this.smtpHost().trim(),
-          port: this.smtpPort() || 587,
-          security: this.smtpSecurity(),
-          username: this.smtpUsername().trim(),
-          from: this.smtpFrom().trim(),
-          password: this.smtpPassword(), // '' keeps the stored one
-          passwordSet: this.smtpPasswordSet(),
-        },
+        sessionTTL: this.sessionTTL().trim(),
+        smtp: { from: this.smtpFrom().trim() },
       })
       .subscribe({
         next: (saved) => {
           this.settings.set(saved);
-          this.smtpPassword.set('');
-          this.smtpPasswordSet.set(saved.smtp?.passwordSet ?? false);
+          this.relayHost.set(saved.smtp?.relayHost ?? '');
+          this.relayConfigured.set(saved.smtp?.relayConfigured ?? false);
           this.saving.set(false);
           this.snack.open($localize`:@@Settings_saved:Settings saved`, undefined, { duration: 2500 });
           then?.();
@@ -366,26 +348,5 @@ export class SecurityPageComponent {
           );
         },
       });
-  }
-
-  // Saves the whole page first, then fires one test message through the
-  // stored config — what is verified is exactly what the flows will use.
-  protected testSmtp(): void {
-    this.save(() =>
-      this.api.testSmtp(this.smtpTestTo().trim()).subscribe({
-        next: ({ sent }) =>
-          this.snack.open($localize`:@@Test_email_sent_to_ADDR:Test email sent to ${sent}:ADDR:`, undefined, {
-            duration: 4000,
-          }),
-        error: (err: unknown) => {
-          const e = err as { error?: { error?: string } };
-          this.snack.open(
-            typeof e?.error?.error === 'string' ? e.error.error : $localize`:@@Request_failed:Request failed`,
-            undefined,
-            { duration: 6000 },
-          );
-        },
-      }),
-    );
   }
 }

@@ -6,10 +6,14 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
+import { RowActionsDirective } from '@softwarity/row-actions';
 import { forkJoin } from 'rxjs';
 import { ApiService, Settings, User } from '../../api.service';
 import { MeService } from '../../me.service';
+import { DialogsService } from '../../shared/dialogs.service';
 import { PasswordDialogComponent } from '../password-dialog.component';
 import { UserDialogComponent } from '../user-dialog.component';
 import { UserEditorComponent } from '../user-editor/user-editor.component';
@@ -31,6 +35,7 @@ function mfaText(required: boolean): string {
     MatTableModule,
     MatTooltipModule,
     LoadingIndicatorComponent,
+    RowActionsDirective,
     UserEditorComponent,
   ],
   templateUrl: './users-page.component.html',
@@ -41,14 +46,25 @@ export class UsersPageComponent {
   private readonly dialog = inject(MatDialog);
   private readonly me = inject(MeService);
   private readonly snack = inject(MatSnackBar);
+  private readonly router = inject(Router);
+  private readonly dialogs = inject(DialogsService);
 
   protected readonly loading = signal(true);
   protected readonly users = signal<User[]>([]);
   private readonly settings = signal<Settings | null>(null);
   protected readonly columns = ['identity', 'summary'];
 
-  // null = drawer closed, a User = editing that one.
-  protected readonly editing = signal<User | null>(null);
+  // The URL owns the drawer (F5-proof): /users/:id edits that user, /users
+  // closes it. The row is looked up in the loaded list.
+  private readonly params = toSignal(inject(ActivatedRoute).paramMap);
+  protected readonly editing = computed(() => {
+    const id = this.params()?.get('id');
+    return id ? (this.users().find((u) => u.id === id) ?? null) : null;
+  });
+
+  protected openUser(u: User): void {
+    void this.router.navigate(['/application/users', u.id]);
+  }
   protected readonly globalMfaLabel = computed(() => mfaText(!!this.settings()?.mfaRequired));
 
   protected meId(): string {
@@ -84,15 +100,17 @@ export class UsersPageComponent {
       });
   }
 
-  // A field changed in the drawer: refresh the row AND keep the drawer bound to
-  // the fresh user so its toggles reflect server truth.
+  // A field changed in the drawer: refresh the row. The drawer follows on its
+  // own — `editing` reads the fresh user out of the list.
   protected onUserSaved(fresh: User): void {
     this.users.update((list) => list.map((u) => (u.id === fresh.id ? fresh : u)));
-    this.editing.set(fresh);
   }
 
+  // Fired both by the editor's close button and by the drawer's own close
+  // (backdrop, escape): act once, when a user is still open.
   protected onClose(): void {
-    this.editing.set(null);
+    if (!this.editing()) return;
+    void this.router.navigate(['/application/users']);
     this.load();
   }
 

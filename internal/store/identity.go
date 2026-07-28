@@ -41,8 +41,8 @@ type Tenant struct {
 	Enabled        bool           `json:"enabled"`
 	BusinessAccess BusinessAccess `json:"businessAccess"`
 	SessionTTL     string         `json:"sessionTTL"`
-	// GroupMode (RBAC-03): "" inherits the gateway-wide setting,
-	// MULTIPLE/SINGLE forces it for this tenant.
+	// GroupMode (RBAC-03), a per-tenant call: "" defaults to cumulative,
+	// MULTIPLE cumulates every group's roles, SINGLE makes the member pick one.
 	GroupMode string `json:"groupMode"`
 	// CreatedBy is the id of the user who created the tenant (audit), set once
 	// and never changed. OwnerID is the current owner (TENANT-02): always set,
@@ -378,10 +378,6 @@ const (
 	// users may register passkeys and sign in with them. Global, never per
 	// tenant: a passkey login happens before the tenant is known.
 	SettingPasskeys = "passkeys_allowed"
-	// SettingGroupMode is the gateway-wide group mode (RBAC-03): MULTIPLE (a
-	// member cumulates every group's roles) or SINGLE (one group, chosen at
-	// login). Decided at the application level, not per tenant.
-	SettingGroupMode = "group_mode"
 	// One-time guard: the theme presets have been topped up into an existing
 	// install (THEME-04). Prevents resurrecting a preset the admin deleted.
 	SettingThemePresetsSeeded = "theme_presets_seeded"
@@ -423,7 +419,6 @@ func (s *Store) seedDefaultSettings() error {
 		SettingMFARequired:    `false`,
 		SettingPasskeys:       `true`,
 		SettingTrustedBrowser: string(trusted),
-		SettingGroupMode:      `"MULTIPLE"`,
 		// The application locale pool ships EMPTY — the integrator declares
 		// their app's languages (flow pages then fall back to English).
 		SettingLanguages: `[]`,

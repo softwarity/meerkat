@@ -5,9 +5,87 @@
 > quand l'état change. Le contrat produit reste `requirements.md` ; les conventions,
 > `CLAUDE.md` ; ici : l'état courant, les chantiers, les pièges.
 
-_Dernière mise à jour : 2026-07-27 : sécurité par endpoint (RBAC-07) livrée sur la
-branche `feat/endpoint-security-openapi` (non mergée). Base : la série « identity
-platform » du 2026-07-26._
+_Dernière mise à jour : 2026-07-28 : plans **infra / app / tenant** (renommage de la
+capacité `gateway-admin` → `infra-admin`, coffre-fort scopé, thème et relais mail
+replacés). Tout sur la branche `feat/endpoint-security-openapi` (non mergée), après le
+coffre-fort (VAULT-01/02), la sécurité par endpoint (RBAC-07) et l'identité JWT._
+
+## Session 2026-07-28 — plans infra / app / tenant
+
+Le coffre-fort a forcé à nommer les plans, et le nom a remonté jusqu'à la capacité.
+
+- **`gateway-admin` devient `infra-admin`** (partout : colonne `infra_admin`, champ JSON
+  `infraAdmin`, classe de rôle CSS, gardes `infraOnly`/`a.infraAdmin`, libellés, spec
+  OpenAPI admin, scénarios e2e + doc). Raison : « gateway » nomme le **produit entier**,
+  donc « scope gateway » était tautologique ; l'échelle **infra → app → tenant** se lit
+  seule. Ce qui reste « gateway » : le paquet `internal/gateway`, le routeur, le moteur.
+  La section du rail est devenue **Infra**.
+  ⚠️ Exception assumée à design-mode-no-migrations : renommer une colonne n'est pas en
+  ajouter une, et le mécanisme additif aurait créé `infra_admin` **vide** en retirant
+  silencieusement la capacité. D'où `renameGatewayAdminColumn` (store/vault.go), six
+  lignes supprimables une fois qu'aucune base v29 ne traîne.
+- **Coffre scopé** (modèle GitHub org/repo, décidé par François) : scopes `infra`, `app`,
+  `tenant:<id>` ; **un nom est unique PAR SCOPE**, donc deux tenants ont chacun leur
+  `db-password`. Résolution avec **héritage** : un tenant lit ses entrées puis retombe sur
+  `app` (masquage par le nom) ; `infra` et `app` ne s'héritent pas. Un tenant admin **voit**
+  les entrées `app` en lecture seule. Test : `TestVaultScopesShadowByName`.
+- **Deux objets ont changé de plan** (question de François, tranchée par « qui *sert* n'est
+  pas qui *possède* ») :
+  - **Thème + branding → app** : `appName`, tagline, logo, couleurs = visage du produit.
+    La gateway ne fait que servir ces pages. Entrée « Built-in pages » déplacée dans le
+    drawer Application.
+  - **Relais SMTP → infra** : un hôte tiers avec identifiants, même nature qu'un upstream.
+    Nouvelle page **Mail relay** (drawer Infra) + `GET/PUT /api/settings/mail-relay` et le
+    test déplacé là. L'**expéditeur** (`from`) reste en app (page Security), avec un état
+    du relais en lecture seule pour ne pas laisser l'app-admin bloqué sans savoir qui
+    appeler. Le blob SMTP est partagé : chaque plan ne réécrit que ses champs.
+  - `TestSplitAdministrationScopes` (rbac05_test.go) verrouille la nouvelle matrice.
+- **Deux pièges de projection Material** recorrigés (même cause) : avec
+  `preserveWhitespaces` (i18n), un `@if` **indenté** autour d'un `matSuffix`/`mat-hint`
+  crée des nœuds texte et le nœud n'atteint pas son slot. Écrire le `@if` **sans espaces**
+  (cf. `form-field.component.ts`). Ça avait tué le bouton OpenAPI puis le hint Upstream.
+- `app-form-field` gagne `hint`, `masked` (masquage CSS pour un textarea, puisqu'un
+  `<textarea>` n'est jamais candidat à l'autofill de Chrome) et `allowVault` + `vaultScope`.
+
+## Session 2026-07-27 (nuit) — coffre-fort (VAULT-01/02)
+
+Décision François : avant l'import/export et les configurations versionnées (CFG-01→05),
+**faire le coffre-fort d'abord**, puisque c'est lui qui rend une configuration portable
+(références `$nom` au lieu des valeurs en dur). Idée reprise d'archway : un champ de
+formulaire qui propose, via un menu, d'utiliser une entrée du coffre ou d'en créer une.
+Extension décidée par François : le coffre ne garde pas que des **secrets** mais aussi
+des **valeurs en clair** (un nom d'hôte, un compte) — l'intérêt étant d'avoir un seul
+endroit pour tout ce que la conf référence, et de savoir ce qui est utilisé.
+
+- **`internal/vault`** : deux genres d'entrée (`secret` chiffré AES-256-GCM / `value` en
+  clair) dans UN espace de noms. Références `$nom` et `${nom}` (la 2e forme colle au
+  texte suivant : `${host}:8080`), `$$` échappe un `$` littéral. `Expand` laisse une
+  référence inconnue **verbatim** et la signale (un typo ne devient jamais une chaîne
+  vide silencieuse). `ExpandAny` marche sur du JSON décodé (donc une valeur contenant
+  un guillemet ne casse rien). Clé maître : `MEERKAT_VAULT_KEY` sinon fichier
+  `data/vault.key` 0600 auto-généré (gitignoré explicitement).
+- **Store** : table `vault_entries` (schéma v27). `ListVaultEntries` blanchit toujours
+  la valeur des secrets ; `VaultValues` déchiffre tout (usage interne gateway) ;
+  sauver un secret sans valeur conserve celui stocké.
+- **Substitution au chargement** : `gateway.ExpandRoute` étend les `$nom` d'une route
+  AVANT compilation (en mémoire seulement : la base garde la référence, donc aucun
+  secret en base ni dans un futur export). `GetSMTP` étend aussi host/username/from/
+  password. L'API admin valide la route **étendue** (sinon `upstream: $api-host` serait
+  refusé), et un `$nom` inconnu est un 422 à la sauvegarde, pas une surprise au reload.
+- **API admin** : `GET /api/vault` (jamais la valeur d'un secret, mais `hasValue` et
+  `usedBy`), `PUT/DELETE /api/vault/{name}` (gateway-admin). Supprimer une entrée encore
+  référencée = **409**. L'audit trace le changement, jamais la valeur.
+- **Console** : page **Vault** (drawer Gateway) + `<app-form-field allowVault="secret/values">`
+  qui ajoute un bouton clé → menu des entrées du bon genre, insertion `${nom}` **au
+  curseur**, et « Nouvelle entrée » sans quitter l'écran. Branché sur le mot de passe
+  SMTP en exemple ; le reste des champs est à brancher au fil de l'eau.
+- **Test qui compte** : `TestVaultReferenceReachesTheDataPlane` (internal/admin) — une
+  route stocke `$api-key`, la base ne contient pas le secret, et le plan data atteint
+  quand même l'amont avec la valeur déchiffrée.
+
+**À reprendre** : brancher `allowVault` sur les autres champs pertinents (upstream de
+route via `app-url-input`, en-têtes de filtres…) ; rotation de clé maître (VAULT-02,
+ré-encryption globale) ; import en masse (VAULT-03). Ensuite seulement CFG-01→05.
 
 ## Session 2026-07-27 — sécurité par endpoint (RBAC-07) + parse OpenAPI
 
@@ -166,6 +244,25 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   Priorité : `--console-url` (dev) > embarqué > page statut JSON. Dockerfile
   multi-stage Node→Go ; le job CI cross-compile embarque la console dans chaque
   binaire ; `go build` sans `make ui` compile toujours (grâce à `dist/.gitkeep`).
+- **API docs embarquées (swagger-ui, 2026-07-28)** : page servie par le port admin
+  sur **`/apidocs/`** — assets `swagger-ui-dist` vendorés dans
+  `internal/admin/apidocs/dist/` par `tools/fetch-swagger-ui.py` (offline, zéro
+  CDN, `validatorUrl:null`), **skin Sentinel's Watch** (`skin.css` posé sur le CSS
+  stock), picker de specs maison (pas la topbar swagger). Specs listées
+  (`/apidocs/specs.json`) : l'**API admin de Meerkat** embarquée
+  (`meerkat-admin.json`, ~36 paths, version stampée `version.Version` au service)
+  pour tout utilisateur connecté, **plus une entrée par route déclarant
+  `api.openapiUrl`** (déjà dans le modèle Route) pour root/gateway-admin — spec
+  récupérée côté serveur (`/apidocs/specs/route/{id}`, même origine → zéro CORS,
+  Try it out envoie le cookie). Page anonyme → redirect `/login?next=`. Console :
+  entrée de rail **API** sous Tenants (`any-role root gateway-admin app-admin`,
+  guard `apiDocsAccess`), route `/api`, **iframe** plein écran (CSS swagger isolé
+  de Material) ; pop-out ⧉ dans le bandeau, visible seulement en iframe. Tests
+  `internal/admin/apidocs_test.go` + scénarios `api-docs-specs`/
+  `api-docs-route-spec`. Validé en navigateur (login → rail API → picker
+  admin/httpbin/petstore → endpoint déplié, Execute stylé). Reste (suites
+  possibles) : réécriture `servers` des specs de routes vers le préfixe public de
+  la route ; YAML upstream accepté tel quel (swagger-ui le parse).
 - **Console Angular 22** (`console/`) : signal-first intégral, **Signal Forms**
   (`[formField]`), zoneless, standalone, `@Service()`, composants fins
   (routes-page → routes-table → route-dialog → brick-list → brick-form), éditeur

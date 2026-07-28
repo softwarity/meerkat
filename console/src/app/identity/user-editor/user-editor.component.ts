@@ -3,7 +3,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService, User } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
@@ -20,7 +19,6 @@ import { PasswordDialogComponent } from '../password-dialog.component';
     MatButtonModule,
     MatDividerModule,
     MatIconModule,
-    MatSlideToggleModule,
     MatTooltipModule,
     LoginHistoryComponent,
     MfaSelectComponent,
@@ -44,10 +42,6 @@ export class UserEditorComponent {
   private readonly dialogs = inject(DialogsService);
 
   protected readonly isMe = () => this.user().id === this.meId();
-
-  protected setPower(key: 'root' | 'dev' | 'tester' | 'tenantCreator' | 'enabled', value: boolean): void {
-    this.apply({ ...this.user(), [key]: value });
-  }
 
   protected setMfa(mfaRequired: string): void {
     this.apply({ ...this.user(), mfaRequired });

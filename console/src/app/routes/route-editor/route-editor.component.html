@@ -51,12 +51,6 @@
   <div class="panel">
     @switch (section()) {
       @case ('general') {
-        <div class="type-row">
-          <mat-slide-toggle [checked]="draft().isUi" (change)="setIsUi($event.checked)">
-            <ng-container i18n="@@UI_serves_pages_in_a_browser">UI (serves pages in a browser)</ng-container>
-          </mat-slide-toggle>
-        </div>
-
         <mat-form-field>
           <mat-label i18n="@@Name">Name</mat-label>
           <input matInput [formField]="f.name" />
@@ -524,7 +518,7 @@
               <mat-label i18n="@@As">As</mat-label>
               <mat-select [value]="draft().userInfoMode" (selectionChange)="patch('userInfoMode', $event.value)">
                 <mat-option value="attribute" i18n="@@Attributes_on_a_tag">attributes on a tag</mat-option>
-                <mat-option value="meta" i18n="@@A_meta_tag">a meta tag</mat-option>
+                <mat-option value="meta" i18n="@@meta_tags">meta tags</mat-option>
               </mat-select>
             </mat-form-field>
             @if (draft().userInfoMode === 'attribute') {

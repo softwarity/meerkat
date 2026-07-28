@@ -16,7 +16,6 @@ import (
 
 	"golang.org/x/text/language"
 
-	"github.com/softwarity/meerkat/internal/mail"
 	"github.com/softwarity/meerkat/internal/store"
 )
 
@@ -140,7 +139,6 @@ func (a *API) registerIdentity(mux *http.ServeMux) {
 
 	mux.Handle("GET /api/settings", a.authed(a.getSettings))
 	mux.Handle("PUT /api/settings", a.appAdmin(a.putSettings))
-	mux.Handle("POST /api/settings/smtp/test", a.appAdmin(a.smtpTest))
 }
 
 // ── me ───────────────────────────────────────────────────────────────────────
@@ -478,6 +476,11 @@ func (a *API) createTenant(w http.ResponseWriter, r *http.Request, actor store.U
 		writeErr(w, http.StatusUnprocessableEntity, "tenant name is required")
 		return
 	}
+	if t.GroupMode != "" && t.GroupMode != store.GroupModeMultiple && t.GroupMode != store.GroupModeSingle {
+		writeErr(w, http.StatusUnprocessableEntity,
+			"group mode must be MULTIPLE, SINGLE, or empty (default cumulative)")
+		return
+	}
 	t.ID = newID()
 	t.CreatedBy = actor.ID // audit: stamped once, never changed
 	// Every tenant has an owner from birth (the creator, root included) —
@@ -556,7 +559,7 @@ func (a *API) updateTenant(w http.ResponseWriter, r *http.Request, actor store.U
 	}
 	if t.GroupMode != "" && t.GroupMode != store.GroupModeMultiple && t.GroupMode != store.GroupModeSingle {
 		writeErr(w, http.StatusUnprocessableEntity,
-			"group mode must be MULTIPLE, SINGLE, or empty (inherit the global setting)")
+			"group mode must be MULTIPLE, SINGLE, or empty (default cumulative)")
 		return
 	}
 	if err := a.st.SaveTenant(r.Context(), t); err != nil {
@@ -748,22 +751,21 @@ type settingsPayload struct {
 	SelfRegisterCaptcha bool `json:"selfRegisterCaptcha"`
 	// RateLimit throttles the credential endpoints (SEC-10).
 	RateLimit store.RateLimitPolicy `json:"rateLimit"`
-	GroupMode string                `json:"groupMode"` // MULTIPLE (cumulate) | SINGLE (choose one) (RBAC-03)
 	// Languages is the APPLICATION's locale pool (free BCP 47). The flow pages
 	// speak its intersection with Meerkat's embedded languages (fallback en).
 	Languages []string `json:"languages"`
 }
 
-// smtpPayload is the SMTP config as the console sees it: the password is
-// WRITE-ONLY — accepted on PUT ("" keeps the stored one), never returned.
+// smtpPayload is the APPLICATION's side of outbound e-mail: the sender the
+// recipient sees. The RELAY (host, credentials) is infrastructure and lives
+// behind /api/settings/mail-relay — an app admin should not hold a third
+// party's credentials to change a From address. The relay fields here are
+// read-only context, so this page can say whether mail can go out at all.
 type smtpPayload struct {
-	Host        string `json:"host"`
-	Port        int    `json:"port"`
-	Security    string `json:"security"` // "" | starttls | tls | none
-	Username    string `json:"username"`
-	From        string `json:"from"`
-	Password    string `json:"password"`
-	PasswordSet bool   `json:"passwordSet"`
+	From string `json:"from"`
+	// Read-only mirrors of the relay, for context.
+	RelayHost       string `json:"relayHost,omitempty"`
+	RelayConfigured bool   `json:"relayConfigured"`
 }
 
 // loadSettingsPayload assembles the current global settings as the console sees
@@ -787,15 +789,11 @@ func (a *API) loadSettingsPayload(ctx context.Context) (settingsPayload, error) 
 	p.TrustedBrowser = tb
 	p.PasskeysAllowed = a.st.PasskeysAllowed(ctx)
 	p.APITokens = a.st.APITokensAllowed(ctx)
-	if err := a.st.GetSetting(ctx, store.SettingGroupMode, &p.GroupMode); err != nil {
-		return p, err
-	}
 	// The application locale pool may legitimately be empty.
 	_ = a.st.GetSetting(ctx, store.SettingLanguages, &p.Languages)
 	smtp := a.st.GetSMTP(ctx)
 	p.SMTP = smtpPayload{
-		Host: smtp.Host, Port: smtp.Port, Security: smtp.Security,
-		Username: smtp.Username, From: smtp.From, PasswordSet: smtp.Password != "",
+		From: smtp.From, RelayHost: smtp.Host, RelayConfigured: smtp.Configured(),
 	}
 	reg := a.st.GetRegistrationPolicy(ctx)
 	p.SelfRegistration = reg.LocalEnabled
@@ -829,13 +827,6 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 		}
 	} else if p.TrustedBrowser.Allowed {
 		writeErr(w, http.StatusUnprocessableEntity, "trusted-browser duration is required when trusted browsers are allowed")
-		return
-	}
-	if p.GroupMode == "" {
-		p.GroupMode = store.GroupModeMultiple // empty defaults to cumulative
-	}
-	if p.GroupMode != store.GroupModeMultiple && p.GroupMode != store.GroupModeSingle {
-		writeErr(w, http.StatusUnprocessableEntity, "group mode must be MULTIPLE or SINGLE")
 		return
 	}
 	// The application locale pool: free BCP 47 tags (fr, fr-FR, pt-BR…),
@@ -877,23 +868,12 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 	}
 	// Outbound e-mail (AUTH-20). An empty password keeps the stored one — the
 	// console never sees or resends it.
-	switch p.SMTP.Security {
-	case "", "starttls", "tls", "none":
-	default:
-		writeErr(w, http.StatusUnprocessableEntity, "smtp security must be starttls, tls or none")
-		return
-	}
-	stored := a.st.GetSMTP(r.Context())
-	smtp := mail.Config{
-		Host: strings.TrimSpace(p.SMTP.Host), Port: p.SMTP.Port, Security: p.SMTP.Security,
-		Username: p.SMTP.Username, From: strings.TrimSpace(p.SMTP.From), Password: p.SMTP.Password,
-	}
-	if smtp.Password == "" {
-		smtp.Password = stored.Password
-	}
+	// Only the SENDER is this plane's to change: the relay is kept verbatim.
+	smtp := a.st.GetSMTP(r.Context())
+	smtp.From = strings.TrimSpace(p.SMTP.From)
 	if p.SelfRegistration && !smtp.Configured() {
 		writeErr(w, http.StatusUnprocessableEntity,
-			"self-registration requires a configured SMTP server (host and from)")
+			"self-registration needs outbound e-mail: set a sender here, and ask an infra admin to configure the mail relay")
 		return
 	}
 	if err := a.st.SetSetting(r.Context(), store.SettingSMTP, smtp); err != nil {
@@ -922,12 +902,8 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 		a.internal(w, err)
 		return
 	}
-	p.SMTP.Password, p.SMTP.PasswordSet = "", smtp.Password != ""
+	p.SMTP = smtpPayload{From: smtp.From, RelayHost: smtp.Host, RelayConfigured: smtp.Configured()}
 	if err := a.st.SetSetting(r.Context(), store.SettingLanguages, p.Languages); err != nil {
-		a.internal(w, err)
-		return
-	}
-	if err := a.st.SetSetting(r.Context(), store.SettingGroupMode, p.GroupMode); err != nil {
 		a.internal(w, err)
 		return
 	}
@@ -939,39 +915,6 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 	// Audit the changed knobs only (SMTP secrets redacted by the differ).
 	a.auditUpdate(r.Context(), actor, "settings.update", "settings", "", "", "", before, p)
 	writeJSON(w, http.StatusOK, p)
-}
-
-// smtpTest sends one test message through the STORED config — save first,
-// then test — so what is verified is exactly what the flows will use.
-func (a *API) smtpTest(w http.ResponseWriter, r *http.Request, actor store.User) {
-	var body struct {
-		To string `json:"to"`
-	}
-	if err := decodeStrict(r, &body); err != nil {
-		writeErr(w, http.StatusBadRequest, "malformed request: "+err.Error())
-		return
-	}
-	to := strings.TrimSpace(body.To)
-	if to == "" {
-		to = actor.Email
-	}
-	if to == "" {
-		writeErr(w, http.StatusUnprocessableEntity, "no recipient: pass one, or set an email on your account")
-		return
-	}
-	if !a.st.GetSMTP(r.Context()).Configured() || a.Mailer == nil {
-		writeErr(w, http.StatusUnprocessableEntity, "SMTP is not configured: set host and from first")
-		return
-	}
-	if err := a.Mailer(r.Context(), mail.Message{
-		To:      []string{to},
-		Subject: "Meerkat SMTP test",
-		Text:    "This is Meerkat's SMTP test message. Outbound e-mail works.",
-	}); err != nil {
-		writeErr(w, http.StatusBadGateway, err.Error())
-		return
-	}
-	writeJSON(w, http.StatusOK, map[string]string{"sent": to})
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────

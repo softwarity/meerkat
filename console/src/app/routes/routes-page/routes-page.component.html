@@ -31,6 +31,18 @@
         />
       }
     </div>
+
+    <button
+      matFab
+      class="fab-new"
+      (click)="openNew()"
+      i18n-matTooltip="@@New_route"
+      matTooltip="New route"
+      i18n-aria-label="@@New_route"
+      aria-label="New route"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
   </mat-drawer-content>
 
   <mat-drawer position="end" mode="over" [opened]="editing() !== null" (closedStart)="closeEditor()">

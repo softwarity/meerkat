@@ -6,11 +6,20 @@ mat-drawer-container {
   height: 100%;
   background: transparent;
 }
+// The content column fills the height: the banner stays put, the table area
+// scrolls (its header is sticky), and the FAB floats over the bottom-right.
+mat-drawer-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
 .banner {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 24px;
+  flex: none;
 }
 .banner h1 {
   font-size: 1.15rem;
@@ -19,7 +28,17 @@ mat-drawer-container {
   flex: 1;
 }
 .content {
-  padding: 0 24px 24px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  // Clear the floating FAB so the last row is never hidden under it.
+  padding: 0 0px 88px;
+}
+.fab-new {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2;
 }
 .empty {
   padding: 48px;

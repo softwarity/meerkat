@@ -94,6 +94,7 @@ export class RouteEditorComponent {
 
   private readonly api = inject(ApiService);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   protected readonly filterEntries = () => this.catalog().filter((e) => e.kind === 'filter');
   protected readonly predicateEntries = () => this.catalog().filter((e) => e.kind === 'predicate');
@@ -138,13 +139,12 @@ export class RouteEditorComponent {
     name: this.route()?.name ?? '',
     upstream: this.route()?.upstream ?? '',
     enabled: this.route()?.enabled ?? true,
-    authenticated: this.route()?.authenticated ?? false,
-    requiredRole: this.route()?.requiredRole ?? '',
+    access: toAccessState(this.route()?.access),
     isUi: this.route()?.isUi ?? false,
     predicates: this.route()?.predicates ?? [],
     filters: this.route()?.filters ?? [],
     // API section
-    swaggerUrl: this.route()?.api?.swaggerUrl ?? '',
+    openapiUrl: this.route()?.api?.openapiUrl ?? '',
     // UI section
     schemeSelect: this.route()?.ui?.scheme?.select ?? false,
     schemeMechanism: this.route()?.ui?.scheme?.mechanism ?? '',
@@ -495,7 +495,7 @@ export class RouteEditorComponent {
     return code ? code.split('\n').length : 0;
   }
 
-  protected save(): void {
+  protected save(after?: (out: Route) => void): void {
     this.error.set('');
     this.saving.set(true);
     const d = this.draft();
@@ -549,13 +549,11 @@ export class RouteEditorComponent {
         },
         customCss: d.customCss,
         customJs: d.customJs,
+        link: d.uiLink.trim(),
       };
     }
-    const headers: Record<string, string> = {};
-    for (const [field, name] of Object.entries(d.identityHeaders)) {
-      if (name.trim()) headers[field] = name.trim();
-    }
-    route.identity = { enabled: d.identityEnabled, mechanism: d.identityMechanism as '' | 'headers', headers };
+    const identity = this.buildIdentity();
+    if (identity) route.identity = identity;
     route.locales = {
       mechanisms: d.localesMechanisms,
       header: d.localesHeader.trim(),
@@ -565,7 +563,8 @@ export class RouteEditorComponent {
     this.api.putRoute(route).subscribe({
       next: (out) => {
         this.saving.set(false);
-        this.saved.emit(out);
+        if (after) after(out);
+        else this.saved.emit(out);
       },
       error: (err: unknown) => {
         this.saving.set(false);

@@ -121,7 +121,6 @@ import { TenantScope } from '../tenant-scope';
     <mat-form-field class="mode-field">
       <mat-label i18n="@@Group_mode">Group mode</mat-label>
       <mat-select [value]="groupMode()" (selectionChange)="groupMode.set($event.value)">
-        <mat-option value="" i18n="@@Inherited_global">Inherited (global setting)</mat-option>
         <mat-option value="MULTIPLE" i18n="@@Cumulative">Cumulative</mat-option>
         <mat-option value="SINGLE" i18n="@@Exclusive">Exclusive</mat-option>
       </mat-select>
@@ -152,7 +151,8 @@ export class TenantGeneralComponent {
   protected readonly enabled = signal(true);
   protected readonly description = signal('');
   protected readonly businessAccess = signal<BusinessAccess>({ inherited: true });
-  protected readonly groupMode = signal('');
+  // '' in the store means "default cumulative"; the select surfaces it as MULTIPLE.
+  protected readonly groupMode = signal('MULTIPLE');
 
   protected readonly globalBusinessAccess = computed<BusinessAccess>(
     () => this.settings()?.businessAccess ?? { inherited: false },
@@ -165,7 +165,7 @@ export class TenantGeneralComponent {
       this.name().trim() !== t.name ||
       this.enabled() !== t.enabled ||
       this.description().trim() !== t.description ||
-      this.groupMode() !== (t.groupMode || '') ||
+      this.groupMode() !== (t.groupMode || 'MULTIPLE') ||
       JSON.stringify(this.businessAccess()) !== JSON.stringify(t.businessAccess)
     );
   });
@@ -177,7 +177,7 @@ export class TenantGeneralComponent {
       this.name.set(t.name);
       this.enabled.set(t.enabled);
       this.description.set(t.description);
-      this.groupMode.set(t.groupMode || '');
+      this.groupMode.set(t.groupMode || 'MULTIPLE');
       this.businessAccess.set(t.businessAccess);
     });
     this.api.settings().subscribe({ next: (s) => this.settings.set(s) });

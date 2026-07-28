@@ -1,0 +1,201 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mat-icon animation hooks
+//
+// Adapted from FontAwesome's `fa-icon` animations (shake / beat / fade / …) to
+// Angular Material's <mat-icon>. Each animation can be triggered EITHER by:
+//
+//   1. an attribute, e.g.  <mat-icon spin>autorenew</mat-icon>
+//   2. a class,     e.g.   <mat-icon class="spin">autorenew</mat-icon>
+//
+// Selectors use the `.mat-icon` class (which Material applies on every
+// `<mat-icon>` host) to bump specificity to 0-2-0 — strong enough to override
+// Material's own component-scoped rules at 0-1-1 (`mat-icon`).
+//
+// `animation:` is written as a single shorthand declaration on purpose: using
+// long-hand `animation-name` / `animation-duration` / … leaves the unspecified
+// properties at their defaults, but several Material themes reset `animation:`
+// shorthand on `mat-icon`, which wipes the whole thing. Writing the shorthand
+// ourselves guarantees the cascade order keeps our animation alive.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Shared base — transforms on inline layout collapse, so force inline-block.
+.mat-icon.spin,
+.mat-icon.pulse,
+.mat-icon.shake,
+.mat-icon.beat,
+.mat-icon.fade,
+.mat-icon.beat-fade,
+.mat-icon.flip-h1,
+.mat-icon.flip-h2,
+.mat-icon.flip-v1,
+.mat-icon.flip-v2,
+.mat-icon[spin]:not([spin='false']),
+.mat-icon[pulse]:not([pulse='false']),
+.mat-icon[shake]:not([shake='false']),
+.mat-icon[beat]:not([beat='false']),
+.mat-icon[fade]:not([fade='false']),
+.mat-icon[beat-fade]:not([beat-fade='false']),
+.mat-icon[flip-h1]:not([flip-h1='false']),
+.mat-icon[flip-h2]:not([flip-h2='false']),
+.mat-icon[flip-v1]:not([flip-v1='false']),
+.mat-icon[flip-v2]:not([flip-v2='false']) {
+  display: inline-block;
+  transform-origin: center;
+}
+
+// ── spin — continuous rotation (e.g. autorenew on `processing`)
+.mat-icon.spin,
+.mat-icon[spin]:not([spin='false']) {
+  animation: mat-icon-spin 2s linear infinite;
+}
+
+@keyframes mat-icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ── pulse — rotation by 8 discrete steps
+.mat-icon.pulse,
+.mat-icon[pulse]:not([pulse='false']) {
+  animation: mat-icon-pulse 1s steps(8) infinite;
+}
+
+@keyframes mat-icon-pulse {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ── shake — alternating rotation, attention-grabber
+.mat-icon.shake,
+.mat-icon[shake]:not([shake='false']) {
+  animation: mat-icon-shake 1s linear infinite;
+}
+
+@keyframes mat-icon-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-25deg);
+  }
+  20% {
+    transform: rotate(28deg);
+  }
+  30% {
+    transform: rotate(-32deg);
+  }
+  40% {
+    transform: rotate(32deg);
+  }
+  50% {
+    transform: rotate(-28deg);
+  }
+  60% {
+    transform: rotate(25deg);
+  }
+  70% {
+    transform: rotate(-18deg);
+  }
+  80% {
+    transform: rotate(15deg);
+  }
+}
+
+// ── beat — heartbeat scale (signal a periodic event)
+.mat-icon.beat,
+.mat-icon[beat]:not([beat='false']) {
+  animation: mat-icon-beat 1s ease-in-out infinite;
+}
+
+@keyframes mat-icon-beat {
+  0%,
+  90% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.25);
+  }
+}
+
+// ── fade — opacity pulse (subtle "alive" hint)
+.mat-icon.fade,
+.mat-icon[fade]:not([fade='false']) {
+  animation: mat-icon-fade 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes mat-icon-fade {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+// ── beat-fade — combined beat + fade
+.mat-icon.beat-fade,
+.mat-icon[beat-fade]:not([beat-fade='false']) {
+  animation: mat-icon-beat-fade 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes mat-icon-beat-fade {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.125);
+  }
+}
+
+// ── flip-h1 / flip-h2 — horizontal flip (rotation around the Y axis) on hover.
+//     `flip-h1` does one full turn, `flip-h2` does two. `perspective(200px)`
+//     gives the rotation a visible 3D depth on small (~24px) icons.
+.mat-icon.flip-h1:hover,
+.mat-icon[flip-h1]:not([flip-h1='false']):hover {
+  animation: mat-icon-flip-h1 0.6s ease-in-out;
+}
+
+.mat-icon.flip-h2:hover,
+.mat-icon[flip-h2]:not([flip-h2='false']):hover {
+  animation: mat-icon-flip-h2 0.8s ease-in-out;
+}
+
+@keyframes mat-icon-flip-h1 {
+  from { transform: perspective(200px) rotateY(0deg); }
+  to { transform: perspective(200px) rotateY(360deg); }
+}
+
+@keyframes mat-icon-flip-h2 {
+  from { transform: perspective(200px) rotateY(0deg); }
+  to { transform: perspective(200px) rotateY(720deg); }
+}
+
+// ── flip-v1 / flip-v2 — vertical flip (rotation around the X axis) on hover.
+.mat-icon.flip-v1:hover,
+.mat-icon[flip-v1]:not([flip-v1='false']):hover {
+  animation: mat-icon-flip-v1 0.6s ease-in-out;
+}
+
+.mat-icon.flip-v2:hover,
+.mat-icon[flip-v2]:not([flip-v2='false']):hover {
+  animation: mat-icon-flip-v2 0.8s ease-in-out;
+}
+
+@keyframes mat-icon-flip-v1 {
+  from { transform: perspective(200px) rotateX(0deg); }
+  to { transform: perspective(200px) rotateX(360deg); }
+}
+
+@keyframes mat-icon-flip-v2 {
+  from { transform: perspective(200px) rotateX(0deg); }
+  to { transform: perspective(200px) rotateX(720deg); }
+}

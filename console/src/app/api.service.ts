@@ -317,7 +317,8 @@ export interface Tenant {
   enabled: boolean;
   businessAccess: BusinessAccess;
   sessionTTL: string;
-  // '' inherits the gateway-wide group mode; MULTIPLE/SINGLE forces it.
+  // Group mode (RBAC-03), a per-tenant call: '' defaults to cumulative,
+  // MULTIPLE cumulates every group's roles, SINGLE makes the member pick one.
   groupMode: string;
   // Audit: who created the tenant (id + display names, the latter GET-only).
   createdBy: string;
@@ -454,14 +455,25 @@ export interface TrustedBrowserPolicy {
 
 // Outbound e-mail config: the password is WRITE-ONLY ('' on PUT keeps the
 // stored one; passwordSet says whether one exists).
-export interface SMTPSettings {
+// The mail RELAY (infra plane): transport only. The password is write-only.
+export interface MailRelay {
   host: string;
   port: number;
-  security: string; // '' | 'starttls' | 'tls' | 'none'
+  security: string;
   username: string;
+  password?: string;
+  passwordSet?: boolean;
+  // Read-only here: the sender belongs to the application settings.
+  from?: string;
+}
+
+// The APPLICATION's side of outbound e-mail: the sender the recipient sees.
+// The relay lives in the infra plane (see MailRelay); the two read-only fields
+// tell this page whether mail can go out at all.
+export interface SMTPSettings {
   from: string;
-  password: string;
-  passwordSet: boolean;
+  relayHost?: string;
+  relayConfigured?: boolean;
 }
 
 export interface Settings {
@@ -474,8 +486,6 @@ export interface Settings {
   // Personal API tokens allowed (AUTH-16).
   apiTokens: boolean;
   trustedBrowser: TrustedBrowserPolicy;
-  // Group mode (RBAC-03): MULTIPLE cumulates, SINGLE picks one at sign-in.
-  groupMode: string;
   // Throttling of the credential endpoints (SEC-10); 0 attempts disables.
   rateLimit: { loginAttempts: number; loginWindow: string; totpAttempts: number };
   // Outbound e-mail (AUTH-20): confirmations, admin notifications.
@@ -799,7 +809,7 @@ export class ApiService {
   // Sends one test message through the STORED SMTP config (save first).
   // Empty recipient: the server falls back to the caller's account email.
   testSmtp(to: string): Observable<{ sent: string }> {
-    return this.http.post<{ sent: string }>('/api/settings/smtp/test', { to });
+    return this.http.post<{ sent: string }>('/api/settings/mail-relay/test', { to });
   }
 
   // The audit trail, scoped server-side to the caller (root/app-admin see all,

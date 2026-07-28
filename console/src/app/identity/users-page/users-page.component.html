@@ -44,17 +44,43 @@
                   </button>
                 }
               </span>
+              <span rowActions="tonal">
+                @if (u.enabled) {
+                  <button
+                    matIconButton
+                    [disabled]="u.id === meId()"
+                    (click)="toggleEnabled(u, $event)"
+                    i18n-matTooltip="@@Disable_user"
+                    matTooltip="Disable user"
+                    i18n-aria-label="@@Disable_user"
+                    aria-label="Disable user"
+                  >
+                    <mat-icon>person_off</mat-icon>
+                  </button>
+                } @else {
+                  <button
+                    matIconButton
+                    (click)="toggleEnabled(u, $event)"
+                    i18n-matTooltip="@@Enable_user"
+                    matTooltip="Enable user"
+                    i18n-aria-label="@@Enable_user"
+                    aria-label="Enable user"
+                  >
+                    <mat-icon>how_to_reg</mat-icon>
+                  </button>
+                }
+              </span>
             </mat-cell>
           </ng-container>
 
           <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: columns" class="clickable" (click)="editing.set(row)"></mat-row>
+          <mat-row *matRowDef="let row; columns: columns" class="clickable" (click)="openUser(row)"></mat-row>
         </mat-table>
       }
     </div>
   </mat-drawer-content>
 
-  <mat-drawer position="end" mode="over" [opened]="editing() !== null" (closedStart)="editing.set(null)">
+  <mat-drawer position="end" mode="over" [opened]="editing() !== null" (closedStart)="onClose()">
     @if (editing(); as u) {
       <app-user-editor
         [user]="u"

@@ -58,9 +58,6 @@ interface RoleNode {
         margin: 0;
         flex: 1;
       }
-      .content {
-        padding: 0 24px 24px;
-      }
       .empty {
         padding: 48px;
         text-align: center;
@@ -173,7 +170,7 @@ interface RoleNode {
       </button>
     </div>
 
-    <div class="content">
+    <div>
       @if (loading()) {
         <loading-indicator withContainer />
       } @else if (nodes().length === 0) {

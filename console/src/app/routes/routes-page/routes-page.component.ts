@@ -21,6 +21,7 @@ import { SigningKeysDialogComponent } from '../signing-keys-dialog.component';
     MatButtonModule,
     MatIconModule,
     MatSidenavModule,
+    MatTooltipModule,
     LoadingIndicatorComponent,
     RoutesTableComponent,
     RouteEditorComponent,
@@ -61,20 +62,26 @@ export class RoutesPageComponent {
   }
 
   protected openEdit(route: Route): void {
-    void this.router.navigate(['/routes', route.id, 'general']);
+    void this.router.navigate(['/infra/routes', route.id, 'general']);
   }
 
   protected openNew(): void {
-    void this.router.navigate(['/routes', 'new']);
+    void this.router.navigate(['/infra/routes', 'new']);
+  }
+
+  // The gateway-wide JWT signing keys (signed-jwt identity forwarding): view the
+  // public keys / JWKS and rotate them.
+  protected openSigningKeys(): void {
+    this.dialog.open(SigningKeysDialogComponent, { width: '680px', restoreFocus: true });
   }
 
   protected closeEditor(): void {
-    if (this.editing() !== null) void this.router.navigate(['/routes']);
+    if (this.editing() !== null) void this.router.navigate(['/infra/routes']);
   }
 
   protected changeSection(s: string): void {
     const e = this.editing();
-    if (e && e !== 'new') void this.router.navigate(['/routes', e.id, s]);
+    if (e && e !== 'new') void this.router.navigate(['/infra/routes', e.id, s]);
   }
 
   load(): void {
@@ -94,7 +101,7 @@ export class RoutesPageComponent {
   onSaved(saved: Route): void {
     this.snack.open($localize`:@@Route_NAME_saved_and_applied:Route "${saved.name}:NAME:" saved and applied`, undefined, { duration: 2500 });
     if (this.editing() === 'new') {
-      void this.router.navigate(['/routes', saved.id, 'general'], { replaceUrl: true });
+      void this.router.navigate(['/infra/routes', saved.id, 'general'], { replaceUrl: true });
     }
     this.load();
   }

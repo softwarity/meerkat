@@ -1,11 +1,13 @@
 @use './styles/fonts';
 @use '@angular/material' as mat;
+@use './styles/icon';
 @use '@softwarity/timezone-select/timezone-select-theme' as timezone-select;
 @use './styles/theme-colors' as brand;
 @use './styles/roles' as roles;
 @use './styles/base';
-@use './styles/utilities';
 @use './styles/overrides';
+@use './styles/material-overrides';
+@use './styles/utilities';
 
 // ── Meerkat console — "The Sentinel's Watch" ─────────────────────────────────
 // Night-blue field, mint-signal accent (the meerkat's alarm call), dark by
@@ -71,11 +73,11 @@ html {
 $mat-inline-flex: '[matButton], [matIconButton], [matFab], [matMiniFab],'
   + 'mat-chip, mat-chip-row, mat-chip-option, mat-basic-chip, mat-form-field';
 $mat-inline-block: 'mat-icon, mat-radio-button, mat-checkbox, mat-slide-toggle';
-// App-level flex containers carrying any-role belong here too: .drawer-item is
-// a plain <a> whose display:flex would otherwise be reverted to inline on
-// reveal (revert goes to the UA default, breaking align-items:center).
+// App-level flex containers carrying any-role belong here too: .drawer-item and
+// .section-link are plain <a>s whose display:flex would otherwise be reverted to
+// inline on reveal (revert goes to the UA default, breaking align-items:center).
 $mat-flex: 'mat-toolbar, mat-toolbar-row, mat-list-item, mat-button-toggle-group,'
-  + '.drawer-item';
+  + '.drawer-item, .section-link';
 $mat-block: 'mat-card, mat-card-header, mat-card-content, mat-card-actions,'
   + 'mat-list, mat-nav-list, mat-action-list, mat-selection-list, mat-divider,'
   + 'mat-expansion-panel, mat-tab-group, mat-paginator, mat-tree, mat-table,'

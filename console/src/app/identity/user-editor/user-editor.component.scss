@@ -1,6 +1,11 @@
+/* A fixed header, then a body that fills the height: the identity/two-factor/
+   account blocks stay put and the sign-in history scrolls on its own, so the
+   drawer itself never scrolls. */
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
 }
 header {
   display: flex;
@@ -16,10 +21,27 @@ header h2 {
   font-weight: 500;
 }
 .body {
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+header {
+  flex: none;
+}
+/* The history takes the remaining height AND the full width, and owns the
+   scroll: the rest of the panel stays in place. */
+section.history {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-items: stretch;
+}
+section.history app-login-history {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 .identity {
   margin: 0;

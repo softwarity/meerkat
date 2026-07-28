@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DomSanitizer } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   RailnavComponent,
@@ -18,10 +19,12 @@ import { TenantDialogComponent, TenantDialogResult } from './identity/tenant-dia
 import { MeService } from './me.service';
 import { UserMenuComponent } from './shared/user-menu.component';
 
-// Console scopes (CONSOLE-01): Application (the product — identity, RBAC, theme,
-// config), Tenants (drill into one org's options), Gateway (routing, vault, SSL).
-// Each is a rail item opening a contextual drawer. Routes are lazy — moving an
-// entry between drawers is just moving a link.
+// Console scopes (CONSOLE-01): Infra (routing, relay, tokens), Application (the
+// product — identity, RBAC, built-in pages), Tenants (drill into one org), plus
+// the transverse screens (API, Vault, Audit). Each is a rail item; the two fixed
+// planes are URL prefixes (/infra, /application) whose sections live in a left
+// nav inside the page, the shape a tenant already had. Only Tenants still opens
+// a drawer, because its entries are data.
 @Component({
   selector: 'app-root',
   imports: [
@@ -162,31 +165,6 @@ import { UserMenuComponent } from './shared/user-menu.component';
       </rail-nav-content>
     </rail-nav-container>
 
-    <!-- Application: the integrator's product — its people, roles, look, config.
-         Tenants have their own rail entry; no list page needed here. -->
-    <ng-template #appDrawer>
-      <a routerLink="/general" routerLinkActive="active" class="drawer-item">
-        <mat-icon>tune</mat-icon>
-        <span i18n="@@Section_general">General</span>
-      </a>
-      <a routerLink="/locales" routerLinkActive="active" class="drawer-item">
-        <mat-icon>translate</mat-icon>
-        <span i18n="@@Locales">Locales</span>
-      </a>
-      <a routerLink="/roles" routerLinkActive="active" class="drawer-item">
-        <mat-icon>badge</mat-icon>
-        <span i18n="@@Roles">Roles</span>
-      </a>
-      <a routerLink="/users" routerLinkActive="active" class="drawer-item">
-        <mat-icon>group</mat-icon>
-        <span i18n="@@Users">Users</span>
-      </a>
-      <a routerLink="/security" routerLinkActive="active" class="drawer-item">
-        <mat-icon>shield</mat-icon>
-        <span i18n="@@Security">Security</span>
-      </a>
-    </ng-template>
-
     <!-- Tenants: drill into a single org's options (members, hours, TTL…).
          Creation happens right here — there is no tenant list page. -->
     <ng-template #tenantsDrawer>
@@ -207,26 +185,6 @@ import { UserMenuComponent } from './shared/user-menu.component';
       } @empty {
         <span class="drawer-empty" i18n="@@No_tenant_yet">No tenant yet</span>
       }
-    </ng-template>
-
-    <!-- Gateway: the routing plane. -->
-    <ng-template #gatewayDrawer>
-      <a routerLink="/routes" routerLinkActive="active" class="drawer-item">
-        <mat-icon>alt_route</mat-icon>
-        <span i18n="@@Routes">Routes</span>
-      </a>
-      <a routerLink="/theme" routerLinkActive="active" class="drawer-item">
-        <mat-icon>web</mat-icon>
-        <span i18n="@@Built_in_pages">Built-in pages</span>
-      </a>
-      <a routerLink="/endpoint-security" routerLinkActive="active" class="drawer-item">
-        <mat-icon>security</mat-icon>
-        <span i18n="@@Endpoint_security">Endpoint security</span>
-      </a>
-      <a routerLink="/access-tokens" routerLinkActive="active" class="drawer-item" any-role="root">
-        <mat-icon>key</mat-icon>
-        <span i18n="@@Access_tokens">Access tokens</span>
-      </a>
     </ng-template>
   `,
 })
@@ -257,20 +215,26 @@ export class AppComponent {
         .afterClosed(),
     );
     if (!res) return;
-    this.api.createTenant({ name: res.name, description: res.description }).subscribe({
-      next: (t) => {
-        this.loadTenants();
-        void this.router.navigate(['/tenants', t.id]);
-      },
-      error: (err) => {
-        const e = err as { error?: { error?: string } };
-        this.snack.open(
-          typeof e?.error?.error === 'string' ? e.error.error : $localize`:@@Request_failed:Request failed`,
-          undefined,
-          { duration: 4000 },
-        );
-      },
-    });
+    this.api
+      .createTenant({
+        name: res.name,
+        description: res.description,
+        groupMode: res.groupMode,
+      })
+      .subscribe({
+        next: (t) => {
+          this.loadTenants();
+          void this.router.navigate(['/tenants', t.id]);
+        },
+        error: (err) => {
+          const e = err as { error?: { error?: string } };
+          this.snack.open(
+            typeof e?.error?.error === 'string' ? e.error.error : $localize`:@@Request_failed:Request failed`,
+            undefined,
+            { duration: 4000 },
+          );
+        },
+      });
   }
 
   private readonly url = toSignal(
@@ -280,39 +244,30 @@ export class AppComponent {
     ),
     { initialValue: this.router.url },
   );
-  protected readonly inApp = computed(() => {
-    const u = this.url();
-    return (
-      u.startsWith('/general') ||
-      u.startsWith('/locales') ||
-      u.startsWith('/users') ||
-      u.startsWith('/security') ||
-      u.startsWith('/roles')
-    );
-  });
+  // A plane is a URL PREFIX now (/infra/…, /application/…), so "which rail entry
+  // is active" is one startsWith, not a list of section names to keep in sync.
+  protected readonly inApp = computed(() => this.url().startsWith('/application'));
   protected readonly inTenants = computed(() => /^\/tenants\/[^/]+/.test(this.url()));
-  protected readonly inGateway = computed(
-    () =>
-      this.url().startsWith('/routes') ||
-      this.url().startsWith('/theme') ||
-      this.url().startsWith('/endpoint-security') ||
-      this.url().startsWith('/access-tokens'),
-  );
+  protected readonly inInfra = computed(() => this.url().startsWith('/infra'));
   // Audit is a transverse section of its own (not under Application): it scopes
   // itself server-side to the caller's domains (gateway/app/tenant).
+  protected readonly inVault = computed(() => this.url().startsWith('/vault'));
   protected readonly inAudit = computed(() => this.url().startsWith('/audit'));
+  protected readonly inApiDocs = computed(() => this.url().startsWith('/api'));
 
   constructor() {
-    inject(MatIconRegistry).setDefaultFontSetClass('material-symbols-outlined');
+    const icons = inject(MatIconRegistry);
+    icons.setDefaultFontSetClass('material-symbols-outlined');
+    // Brand SVG logos from public/, usable as <mat-icon svgIcon="jwt|openapi|swagger-ui">.
+    const sanitizer = inject(DomSanitizer);
+    for (const name of ['jwt', 'openapi', 'swagger-ui']) {
+      icons.addSvgIcon(name, sanitizer.bypassSecurityTrustResourceUrl(`${name}.svg`));
+    }
     // Role-based UI visibility (styles/_roles.scss): MeService loads /api/me and
     // mirrors the user's capabilities and tenant-admin status as classes on
     // <body>; `any-role="…"` elements show accordingly.
     inject(MeService).ensureLoaded();
     this.loadTenants();
-  }
-
-  protected go(url: string): void {
-    void this.router.navigate([url]);
   }
 
   // Clicking "Tenants" lands on the first org's options; the drawer lists the rest.
@@ -321,5 +276,4 @@ export class AppComponent {
     const first = this.tenants()[0];
     if (first) void this.router.navigate(['/tenants', first.id]);
   }
-
 }

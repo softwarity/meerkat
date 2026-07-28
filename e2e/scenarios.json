@@ -2,7 +2,7 @@
   "$comment": "Single source of truth for the integration-test coverage. The Playwright suites execute every scenario listed here (kind api/ui data-driven, kind flow as a dedicated spec named by `spec`); the doc site renders this same file on its Test coverage page. Paths may carry {tenantId} / {aliceId} placeholders resolved from the seeded fixtures.",
   "profiles": [
     { "id": "root", "username": "admin", "en": "Root: full control of the gateway", "fr": "Root : contrôle complet du gateway" },
-    { "id": "gateway-admin", "username": "gwadmin", "en": "Gateway admin: routes and built-in pages only", "fr": "Admin gateway : routes et pages intégrées uniquement" },
+    { "id": "infra-admin", "username": "gwadmin", "en": "Gateway admin: routes and built-in pages only", "fr": "Admin gateway : routes et pages intégrées uniquement" },
     { "id": "app-admin", "username": "appadmin", "en": "Application admin: users, roles and identity settings only", "fr": "Admin appli : utilisateurs, rôles et réglages d'identité uniquement" },
     { "id": "tenant-admin", "username": "tadmin", "en": "Tenant admin: ADMIN member of the acme tenant", "fr": "Admin tenant : membre ADMIN du tenant acme" },
     { "id": "user", "username": "alice", "en": "Plain user: USER member of the acme tenant, no capability", "fr": "Utilisateur simple : membre USER du tenant acme, aucune capacité" }
@@ -13,10 +13,10 @@
       "domain": "gateway",
       "kind": "api",
       "probe": { "method": "GET", "path": "/api/routes" },
-      "allowed": ["root", "gateway-admin"],
+      "allowed": ["root", "infra-admin"],
       "title": { "en": "List the routes", "fr": "Lister les routes" },
       "description": {
-        "en": "The routing plane belongs to the gateway scope: only root and gateway-admin may read the route table; every other profile gets 403.",
+        "en": "The routing plane belongs to the gateway scope: only root and infra-admin may read the route table; every other profile gets 403.",
         "fr": "Le plan de routage appartient au périmètre gateway : seuls root et l'admin gateway lisent la table des routes ; tout autre profil reçoit 403."
       }
     },
@@ -25,7 +25,7 @@
       "domain": "gateway",
       "kind": "api",
       "probe": { "method": "GET", "path": "/api/catalog" },
-      "allowed": ["root", "gateway-admin"],
+      "allowed": ["root", "infra-admin"],
       "title": { "en": "Read the brick catalog", "fr": "Lire le catalogue de briques" },
       "description": {
         "en": "The predicates/modifiers catalog drives the route editor: gateway scope.",
@@ -33,15 +33,15 @@
       }
     },
     {
-      "id": "api-gw-themes",
-      "domain": "gateway",
+      "id": "api-app-themes",
+      "domain": "application",
       "kind": "api",
       "probe": { "method": "GET", "path": "/api/themes" },
-      "allowed": ["root", "gateway-admin"],
+      "allowed": ["root", "app-admin"],
       "title": { "en": "Manage the built-in pages' themes", "fr": "Gérer les thèmes des pages intégrées" },
       "description": {
-        "en": "The flow pages (login, profile) are served by the gateway itself: their themes and branding are gateway scope.",
-        "fr": "Les pages de flux (login, profil) sont servies par le gateway lui-même : leurs thèmes et le branding sont du périmètre gateway."
+        "en": "The flow pages (login, profile) carry the PRODUCT's face — name, logo, colours — so their themes and branding are application scope. The gateway merely serves them.",
+        "fr": "Les pages de flux (login, profil) portent le visage du PRODUIT — nom, logo, couleurs — donc leurs thèmes et le branding sont du périmètre application. Le gateway ne fait que les servir."
       }
     },
     {
@@ -69,15 +69,15 @@
       }
     },
     {
-      "id": "api-app-smtp-test",
-      "domain": "application",
+      "id": "api-infra-mail-relay-test",
+      "domain": "gateway",
       "kind": "api",
-      "probe": { "method": "POST", "path": "/api/settings/smtp/test", "body": { "to": "probe@e2e.test" }, "allowedStatus": [200, 422] },
-      "allowed": ["root", "app-admin"],
-      "title": { "en": "Send an SMTP test message", "fr": "Envoyer un e-mail de test SMTP" },
+      "probe": { "method": "POST", "path": "/api/settings/mail-relay/test", "body": { "to": "probe@e2e.test" }, "allowedStatus": [200, 422] },
+      "allowed": ["root", "infra-admin"],
+      "title": { "en": "Send a mail relay test message", "fr": "Envoyer un e-mail de test du relais" },
       "description": {
-        "en": "Outbound e-mail serves the application's identity flows: only app admins may fire the SMTP test (422 while no server is configured).",
-        "fr": "L'e-mail sortant sert les flux d'identité de l'application : seuls les admins appli déclenchent le test SMTP (422 tant qu'aucun serveur n'est configuré)."
+        "en": "The mail relay is infrastructure (a third party host with credentials): only infra admins may fire the test (422 while it is not configured).",
+        "fr": "Le relais mail est de l'infrastructure (un hôte tiers avec identifiants) : seuls les admins infra déclenchent le test (422 tant qu'il n'est pas configuré)."
       }
     },
     {
@@ -85,10 +85,10 @@
       "domain": "application",
       "kind": "api",
       "probe": { "method": "GET", "path": "/api/audit" },
-      "allowed": ["root", "gateway-admin", "app-admin", "tenant-admin"],
+      "allowed": ["root", "infra-admin", "app-admin", "tenant-admin"],
       "title": { "en": "Read the audit trail", "fr": "Lire la piste d'audit" },
       "description": {
-        "en": "The audit trail is a transverse section scoped by capability (RBAC-05): root sees all, gateway-admin the routing plane (routes, themes), app-admin the identity (users, roles, settings), a tenant admin only their tenants' events. Anyone who administers nothing is refused.",
+        "en": "The audit trail is a transverse section scoped by capability (RBAC-05): root sees all, infra-admin the routing plane (routes, themes), app-admin the identity (users, roles, settings), a tenant admin only their tenants' events. Anyone who administers nothing is refused.",
         "fr": "La piste d'audit est une section transverse cadrée par capacité (RBAC-05) : root voit tout, l'admin gateway le plan de routage (routes, thèmes), l'admin appli l'identité (utilisateurs, rôles, réglages), un admin de tenant seulement les événements de ses tenants. Quiconque n'administre rien est refusé."
       }
     },
@@ -141,11 +141,35 @@
       }
     },
     {
+      "id": "api-docs-specs",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/apidocs/specs.json" },
+      "allowed": ["root", "infra-admin", "app-admin", "tenant-admin", "user"],
+      "title": { "en": "The API-docs spec list follows the session", "fr": "La liste des specs API suit la session" },
+      "description": {
+        "en": "Every signed-in console user may open the swagger-ui page and list the available specifications (the admin API at least); anonymous callers get 401. Route-declared specs only appear for the routing plane.",
+        "fr": "Tout utilisateur connecté à la console peut ouvrir la page swagger-ui et lister les spécifications disponibles (au moins l'API admin) ; un appel anonyme reçoit 401. Les specs déclarées par les routes n'apparaissent que pour le plan de routage."
+      }
+    },
+    {
+      "id": "api-docs-route-spec",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/apidocs/specs/route/ghost", "allowedStatus": [404] },
+      "allowed": ["root", "infra-admin"],
+      "title": { "en": "Route-declared specs stay on the routing plane", "fr": "Les specs déclarées par les routes restent sur le plan de routage" },
+      "description": {
+        "en": "Fetching a route's OpenAPI spec through the gateway is gateway scope: root and infra-admin pass the guard (404 here — the probed route does not exist), everyone else is refused.",
+        "fr": "Récupérer la spec OpenAPI d'une route via la gateway relève du périmètre gateway : root et l'admin gateway passent la garde (404 ici — la route sondée n'existe pas), tous les autres sont refusés."
+      }
+    },
+    {
       "id": "ui-rail-gateway",
       "domain": "console",
       "kind": "ui",
       "check": { "railItem": "Gateway" },
-      "allowed": ["root", "gateway-admin"],
+      "allowed": ["root", "infra-admin"],
       "title": { "en": "The Gateway rail entry shows only for its admins", "fr": "L'entrée Gateway du rail n'apparaît que pour ses admins" },
       "description": {
         "en": "The console rail hides the Gateway scope from profiles that cannot use it (and the API refuses them anyway).",
@@ -181,11 +205,11 @@
       "domain": "console",
       "kind": "flow",
       "spec": "console-nav",
-      "allowed": ["root", "gateway-admin", "app-admin", "tenant-admin", "user"],
+      "allowed": ["root", "infra-admin", "app-admin", "tenant-admin", "user"],
       "title": { "en": "Each profile lands on its own first screen", "fr": "Chaque profil atterrit sur son premier écran" },
       "description": {
-        "en": "Opening the console root: gateway admins land on /routes, app admins on /general, everyone else on their tenant.",
-        "fr": "À l'ouverture de la console : les admins gateway atterrissent sur /routes, les admins appli sur /general, les autres sur leur tenant."
+        "en": "Opening the console root: infra admins land on /infra/routes, app admins on /application/general, everyone else on their tenant.",
+        "fr": "À l'ouverture de la console : les admins infra atterrissent sur /infra/routes, les admins appli sur /application/general, les autres sur leur tenant."
       }
     },
     {

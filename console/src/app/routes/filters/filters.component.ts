@@ -1,4 +1,4 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, computed, input, linkedSignal, model } from '@angular/core';
 import { type FormValueControl, type ValidationError } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,6 +32,9 @@ import { FilterItemComponent } from './filter-item.component';
         width: 380px;
         padding: 16px 14px;
         display: block;
+        box-sizing: border-box;
+        /* The palette scrolls vertically only: entry text wraps (see .b-lines). */
+        overflow-x: hidden;
       }
       .pal h4 {
         margin: 0 0 10px;
@@ -64,12 +67,16 @@ import { FilterItemComponent } from './filter-item.component';
         color: var(--mat-sys-error);
         font-size: 0.85rem;
       }
+      /* border-box: the project has no global reset, so width:100% + padding
+         would otherwise overflow the palette by the padding and raise a
+         horizontal scrollbar on Material's .mat-drawer-inner-container. */
       .cat-entry {
         display: flex;
         gap: 8px;
         align-items: flex-start;
         text-align: left;
         width: 100%;
+        box-sizing: border-box;
         padding: 8px 10px;
         border: 0;
         border-radius: 8px;
@@ -89,14 +96,18 @@ import { FilterItemComponent } from './filter-item.component';
         height: 19px;
         color: var(--mat-sys-primary);
       }
+      /* min-width:0 lets the grid shrink below its longest word, so a long
+         brick name or doc wraps instead of widening the palette. */
       .b-lines {
         display: grid;
         line-height: 1.35;
+        min-width: 0;
       }
       .b-doc {
         font-size: 0.74rem;
         color: var(--mat-sys-on-surface-variant);
         white-space: normal;
+        overflow-wrap: anywhere;
       }
       .planned-title {
         margin: 14px 0 4px;
@@ -116,10 +127,16 @@ import { FilterItemComponent } from './filter-item.component';
   ],
   template: `
     <mat-drawer-container class="pal-wrap" hasBackdrop="true">
-      <mat-drawer #pal position="end" mode="over" class="pal">
+      <mat-drawer
+        position="end"
+        mode="over"
+        class="pal"
+        [opened]="palOpen()"
+        (openedChange)="palOpen.set($event)"
+      >
         <h4 i18n="@@Add_modifier">Add modifier</h4>
         @for (e of phaseEntries(); track e.type) {
-          <button class="cat-entry" (click)="add(e.type); pal.close()">
+          <button class="cat-entry" (click)="add(e.type); palOpen.set(false)">
             <mat-icon>add</mat-icon>
             <span class="b-lines">
               <span>{{ label(e.type) }}</span>
@@ -144,7 +161,7 @@ import { FilterItemComponent } from './filter-item.component';
         <div class="bar">
           <p class="intro">{{ intro() }}</p>
           @if (!full()) {
-            <button matButton="tonal" (click)="pal.open()">
+            <button matButton="tonal" (click)="palOpen.set(true)">
               <mat-icon>add</mat-icon>
               <ng-container i18n="@@Add">Add</ng-container>
             </button>
@@ -193,6 +210,12 @@ export class FiltersComponent implements FormValueControl<Spec[]> {
 
   // A route has at most one terminal (the engine refuses more).
   protected readonly full = computed(() => this.phase() === 'terminal' && this.indexed().length > 0);
+
+  // Nothing posed in this phase? Open the palette straight away — an empty
+  // section has nothing to read, and the next move is always "add one". It
+  // stays closable (openedChange writes back), and reseeds when the phase
+  // empties or gets its first modifier.
+  protected readonly palOpen = linkedSignal(() => this.indexed().length === 0);
 
   protected readonly intro = computed(() => {
     switch (this.phase()) {

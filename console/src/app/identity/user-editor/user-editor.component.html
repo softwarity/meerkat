@@ -23,9 +23,6 @@
 
   <section>
     <h3 i18n="@@Account">Account</h3>
-    <mat-slide-toggle [checked]="user().enabled" [disabled]="isMe()" (change)="setPower('enabled', $event.checked)">
-      <ng-container i18n="@@Enabled">Enabled</ng-container>
-    </mat-slide-toggle>
     <div class="actions">
       <button matButton (click)="resetPassword()">
         <mat-icon>lock_reset</mat-icon>
@@ -40,7 +37,7 @@
 
   <mat-divider />
 
-  <section>
+  <section class="history">
     <h3 i18n="@@Sign_in_history">Sign-in history</h3>
     <app-login-history [userId]="user().id" />
   </section>

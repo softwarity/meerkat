@@ -407,7 +407,7 @@ func (s *Store) MemberGroupIDs(ctx context.Context, tenantID, userID string) ([]
 
 // ── Group mode (per tenant, RBAC-03) ─────────────────────────────────────────
 
-// GetGroupMode returns the tenant's raw group_mode column ("" = inherit).
+// GetGroupMode returns the tenant's raw group_mode column ("" = default cumulative).
 func (s *Store) GetGroupMode(ctx context.Context, tenantID string) (string, error) {
 	var m string
 	err := s.db.QueryRowContext(ctx, `SELECT group_mode FROM tenants WHERE id = ?`, tenantID).Scan(&m)
@@ -418,24 +418,20 @@ func (s *Store) GetGroupMode(ctx context.Context, tenantID string) (string, erro
 }
 
 // EffectiveGroupMode resolves the mode that ACTUALLY applies to a tenant:
-// the tenant's own value when forced, otherwise the gateway-wide setting,
-// otherwise cumulative (the historical behaviour).
+// the tenant's own value when forced, otherwise cumulative. The group mode is a
+// per-tenant responsibility (RBAC-03); there is no gateway-wide default.
 func (s *Store) EffectiveGroupMode(ctx context.Context, tenantID string) string {
 	if m, err := s.GetGroupMode(ctx, tenantID); err == nil && m != "" {
 		return m
 	}
-	var global string
-	if err := s.GetSetting(ctx, SettingGroupMode, &global); err == nil &&
-		(global == GroupModeSingle || global == GroupModeMultiple) {
-		return global
-	}
 	return GroupModeMultiple
 }
 
-// SetGroupMode stores the tenant's group mode (SINGLE, MULTIPLE, "" = inherit).
+// SetGroupMode stores the tenant's group mode (SINGLE, MULTIPLE, "" = default
+// cumulative).
 func (s *Store) SetGroupMode(ctx context.Context, tenantID, mode string) error {
 	if mode != GroupModeSingle && mode != GroupModeMultiple && mode != "" {
-		return fmt.Errorf("store: group mode %q is not allowed: allowed modes are SINGLE, MULTIPLE, or empty (inherit)", mode)
+		return fmt.Errorf("store: group mode %q is not allowed: allowed modes are SINGLE, MULTIPLE, or empty (default cumulative)", mode)
 	}
 	res, err := s.db.ExecContext(ctx,
 		`UPDATE tenants SET group_mode = ?, updated_at = ? WHERE id = ?`, mode, time.Now().Unix(), tenantID)

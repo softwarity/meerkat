@@ -143,33 +143,27 @@ func TestGroupModePerTenant(t *testing.T) {
 	if err := s.SaveTenant(ctx, Tenant{ID: "t1", Name: "acme", Enabled: true}); err != nil {
 		t.Fatalf("SaveTenant: %v", err)
 	}
-	// Tri-state: an unset tenant mode INHERITS the gateway-wide setting
-	// (defaulting to cumulative).
+	// An unset tenant mode defaults to cumulative — the group mode is a
+	// per-tenant responsibility (RBAC-03), there is no gateway-wide default.
 	if m, _ := s.GetGroupMode(ctx, "t1"); m != "" {
-		t.Fatalf("default group mode = %q, want empty (inherit)", m)
+		t.Fatalf("default group mode = %q, want empty", m)
 	}
 	if m := s.EffectiveGroupMode(ctx, "t1"); m != GroupModeMultiple {
 		t.Fatalf("effective default = %q, want MULTIPLE", m)
 	}
-	if err := s.SetSetting(ctx, SettingGroupMode, GroupModeSingle); err != nil {
-		t.Fatalf("SetSetting: %v", err)
-	}
-	if m := s.EffectiveGroupMode(ctx, "t1"); m != GroupModeSingle {
-		t.Fatalf("inherited effective = %q, want SINGLE", m)
-	}
-	// A forced tenant value wins over the global.
-	if err := s.SetGroupMode(ctx, "t1", GroupModeMultiple); err != nil {
+	// A forced tenant value applies as-is.
+	if err := s.SetGroupMode(ctx, "t1", GroupModeSingle); err != nil {
 		t.Fatalf("SetGroupMode: %v", err)
 	}
-	if m := s.EffectiveGroupMode(ctx, "t1"); m != GroupModeMultiple {
-		t.Fatalf("forced effective = %q, want MULTIPLE", m)
-	}
-	// And back to inherit.
-	if err := s.SetGroupMode(ctx, "t1", ""); err != nil {
-		t.Fatalf("SetGroupMode(inherit): %v", err)
-	}
 	if m := s.EffectiveGroupMode(ctx, "t1"); m != GroupModeSingle {
-		t.Fatalf("re-inherited effective = %q, want SINGLE", m)
+		t.Fatalf("forced effective = %q, want SINGLE", m)
+	}
+	// Clearing it falls back to cumulative.
+	if err := s.SetGroupMode(ctx, "t1", ""); err != nil {
+		t.Fatalf("SetGroupMode(clear): %v", err)
+	}
+	if m := s.EffectiveGroupMode(ctx, "t1"); m != GroupModeMultiple {
+		t.Fatalf("cleared effective = %q, want MULTIPLE", m)
 	}
 	if err := s.SetGroupMode(ctx, "t1", "BOGUS"); err == nil {
 		t.Fatal("expected invalid group mode to be rejected")

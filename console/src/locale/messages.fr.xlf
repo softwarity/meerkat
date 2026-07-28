@@ -254,9 +254,9 @@
           <context context-type="linenumber">178</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Gateway_Routes" datatype="html">
-        <source>Gateway · Routes</source>
-        <target>Gateway · Routes</target>
+      <trans-unit id="Infra_Routes" datatype="html">
+        <source>Infra · Routes</source>
+        <target>Infra · Routes</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page.component.ts</context>
           <context context-type="linenumber">41,42</context>
@@ -342,10 +342,6 @@
         <source>Create</source>
         <target>Créer</target>
       </trans-unit>
-      <trans-unit id="Remove" datatype="html">
-        <source>Remove</source>
-        <target>Retirer</target>
-      </trans-unit>
       <trans-unit id="Type_the_tenant_name_to_confirm" datatype="html">
         <source>Type the tenant name to confirm</source>
         <target>Saisissez le nom du tenant pour confirmer</target>
@@ -374,9 +370,45 @@
         <source>Application</source>
         <target>Application</target>
       </trans-unit>
-      <trans-unit id="Gateway" datatype="html">
-        <source>Gateway</source>
-        <target>Gateway</target>
+      <trans-unit id="Send_a_test" datatype="html">
+        <source>Send a test</source>
+        <target>Envoyer un test</target>
+      </trans-unit>
+      <trans-unit id="Mail_relay" datatype="html">
+        <source>Mail relay</source>
+        <target>Relais mail</target>
+      </trans-unit>
+      <trans-unit id="Mail_relay_hint" datatype="html">
+        <source>
+            The SMTP server that delivers account e-mails: confirmations, password resets,
+            administrator notifications. The sender address is set in the application settings.
+          </source>
+        <target>Le serveur SMTP qui délivre les e-mails de compte : confirmations, réinitialisations de mot de passe, notifications aux administrateurs. L'adresse d'expéditeur se règle dans les paramètres de l'application.</target>
+      </trans-unit>
+      <trans-unit id="Email_sender" datatype="html">
+        <source>Email sender</source>
+        <target>Expéditeur des e-mails</target>
+      </trans-unit>
+      <trans-unit id="Email_sender_hint" datatype="html">
+        <source>
+            The address account e-mails come from. The relay that actually delivers them is
+            infrastructure and lives under Infra, Mail relay.
+          </source>
+        <target>L'adresse d'où partent les e-mails de compte. Le relais qui les délivre relève de l'infrastructure et se règle dans Infra, Relais mail.</target>
+      </trans-unit>
+      <trans-unit id="Relay_ready" datatype="html">
+        <source>Mail relay: configured (<x id="INTERPOLATION" equiv-text="{{ relayHost() }}"/>).</source>
+        <target>Relais mail : configuré (<x id="INTERPOLATION" equiv-text="{{ relayHost() }}"/>).</target>
+      </trans-unit>
+      <trans-unit id="Relay_missing" datatype="html">
+        <source>
+              Mail relay: not configured. Account e-mails cannot go out until an infra admin sets it up.
+            </source>
+        <target>Relais mail : non configuré. Les e-mails de compte ne peuvent pas partir tant qu'un admin infra ne l'a pas réglé.</target>
+      </trans-unit>
+      <trans-unit id="Infra" datatype="html">
+        <source>Infra</source>
+        <target>Infra</target>
       </trans-unit>
       <trans-unit id="Glow_hint" datatype="html">
         <source>Decorative flow-page effects — the ambient halo behind the page, logo &amp; button glows, and the app-name gradient. Uncheck for a flat design; this colour then goes unused.</source>
@@ -649,6 +681,258 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
           <context context-type="linenumber">42,44</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="Signing_keys" datatype="html">
+        <source>Signing keys</source>
+        <target>Clés de signature</target>
+      </trans-unit>
+      <trans-unit id="Signing_keys_workflow" datatype="html">
+        <source>
+        The gateway signs each identity token with its private key (which never leaves the server).
+        Backends fetch this JWKS once, cache it, and verify each token by its key id. Rotation is then
+        picked up on its own.
+      </source>
+        <target>Le gateway signe chaque token d'identité avec sa clé privée (qui ne quitte jamais le serveur). Les backends récupèrent ce JWKS une fois, le mettent en cache, et vérifient chaque token par son identifiant de clé. La rotation est alors prise en compte toute seule.</target>
+      </trans-unit>
+      <trans-unit id="Recommended" datatype="html">
+        <source>Recommended</source>
+        <target>Recommandé</target>
+      </trans-unit>
+      <trans-unit id="Protocol" datatype="html">
+        <source>Protocol</source>
+        <target>Protocole</target>
+      </trans-unit>
+      <trans-unit id="Section_security" datatype="html">
+        <source>Security</source>
+        <target>Sécurité</target>
+      </trans-unit>
+      <trans-unit id="Link" datatype="html">
+        <source>Link</source>
+        <target>Lien</target>
+      </trans-unit>
+      <trans-unit id="Preview" datatype="html">
+        <source>Preview</source>
+        <target>Aperçu</target>
+      </trans-unit>
+      <trans-unit id="Vault" datatype="html">
+        <source>Vault</source>
+        <target>Coffre-fort</target>
+      </trans-unit>
+      <trans-unit id="Vault_hint" datatype="html">
+        <source>
+        Every value the configuration refers to, in one place. Use one anywhere with $name: secrets
+        are encrypted and never shown again, plain values stay readable.
+      </source>
+        <target>Toutes les valeurs auxquelles la configuration fait référence, au même endroit. Utilisez-en une partout avec $nom : les secrets sont chiffrés et jamais réaffichés, les valeurs simples restent lisibles.</target>
+      </trans-unit>
+      <trans-unit id="Kind" datatype="html">
+        <source>Kind</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="Scope_infra" datatype="html">
+        <source>Infra</source>
+        <target>Infra</target>
+      </trans-unit>
+      <trans-unit id="Scope_app" datatype="html">
+        <source>Application</source>
+        <target>Application</target>
+      </trans-unit>
+      <trans-unit id="Kind_value" datatype="html">
+        <source>Value</source>
+        <target>Valeur</target>
+      </trans-unit>
+      <trans-unit id="Kind_secret" datatype="html">
+        <source>Secret</source>
+        <target>Secret</target>
+      </trans-unit>
+      <trans-unit id="Kind_value_hint" datatype="html">
+        <source>
+            Stored in clear and readable. Referenced by $name wherever it is needed.
+          </source>
+        <target>Stockée en clair et lisible. Référencée par $nom partout où elle est utile.</target>
+      </trans-unit>
+      <trans-unit id="Kind_secret_hint" datatype="html">
+        <source>
+            Encrypted at rest and never shown again. Referenced by $name wherever it is needed.
+          </source>
+        <target>Chiffré au repos et jamais réaffiché. Référencé par $nom partout où il est utile.</target>
+      </trans-unit>
+      <trans-unit id="Secret_hidden" datatype="html">
+        <source>encrypted, never shown</source>
+        <target>chiffré, jamais affiché</target>
+      </trans-unit>
+      <trans-unit id="Secret_keep_hint" datatype="html">
+        <source>Leave empty to keep the stored secret</source>
+        <target>Laissez vide pour conserver le secret enregistré</target>
+      </trans-unit>
+      <trans-unit id="Vault_name_hint" datatype="html">
+        <source>A letter, then letters, digits, dot, dash or underscore</source>
+        <target>Une lettre, puis lettres, chiffres, point, tiret ou souligné</target>
+      </trans-unit>
+      <trans-unit id="New_vault_entry" datatype="html">
+        <source>New entry</source>
+        <target>Nouvelle entrée</target>
+      </trans-unit>
+      <trans-unit id="Edit_vault_entry" datatype="html">
+        <source>Edit entry</source>
+        <target>Modifier l'entrée</target>
+      </trans-unit>
+      <trans-unit id="No_vault_entry" datatype="html">
+        <source>No entry yet. Add the first one.</source>
+        <target>Aucune entrée. Ajoutez la première.</target>
+      </trans-unit>
+      <trans-unit id="No_vault_entry_yet" datatype="html">
+        <source>No entry yet</source>
+        <target>Aucune entrée</target>
+      </trans-unit>
+      <trans-unit id="Use_a_vault_entry" datatype="html">
+        <source>Use a vault entry</source>
+        <target>Utiliser une entrée du coffre-fort</target>
+      </trans-unit>
+      <trans-unit id="Used_by" datatype="html">
+        <source>Used by</source>
+        <target>Utilisée par</target>
+      </trans-unit>
+      <trans-unit id="Not_used" datatype="html">
+        <source>not used</source>
+        <target>non utilisée</target>
+      </trans-unit>
+      <trans-unit id="Delete_vault_entry_NAME" datatype="html">
+        <source>Delete &quot;<x id="NAME" equiv-text="entry.name"/>&quot;?</source>
+        <target>Supprimer « <x id="NAME" equiv-text="entry.name"/> » ?</target>
+      </trans-unit>
+      <trans-unit id="Disable_user" datatype="html">
+        <source>Disable user</source>
+        <target>Désactiver l'utilisateur</target>
+      </trans-unit>
+      <trans-unit id="Disable" datatype="html">
+        <source>Disable</source>
+        <target>Désactiver</target>
+      </trans-unit>
+      <trans-unit id="Disable_user_USERNAME" datatype="html">
+        <source>Disable user &quot;<x id="USERNAME" equiv-text="u.username"/>&quot;?</source>
+        <target>Désactiver l'utilisateur « <x id="USERNAME" equiv-text="u.username"/> » ?</target>
+      </trans-unit>
+      <trans-unit id="Disable_user_message" datatype="html">
+        <source>They will be signed out and will not be able to sign in again until you enable them.</source>
+        <target>Sa session sera fermée et il ne pourra plus se connecter tant que vous ne l'aurez pas réactivé.</target>
+      </trans-unit>
+      <trans-unit id="Enable_user" datatype="html">
+        <source>Enable user</source>
+        <target>Activer l'utilisateur</target>
+      </trans-unit>
+      <trans-unit id="Identity_preview" datatype="html">
+        <source>Identity preview</source>
+        <target>Aperçu de l'identité</target>
+      </trans-unit>
+      <trans-unit id="Identity_preview_hint" datatype="html">
+        <source>
+        What the upstream receives on every request of this route, for a sample caller. Values are
+        fictional; the shape, the names and the signature are the real ones.
+      </source>
+        <target>Ce que l'upstream reçoit à chaque requête de cette route, pour un appelant fictif. Les valeurs sont inventées ; la structure, les noms et la signature sont les vrais.</target>
+      </trans-unit>
+      <trans-unit id="Decoded_claims" datatype="html">
+        <source>Decoded claims</source>
+        <target>Claims décodés</target>
+      </trans-unit>
+      <trans-unit id="Public_key" datatype="html">
+        <source>Public key</source>
+        <target>Clé publique</target>
+      </trans-unit>
+      <trans-unit id="Check_on_jwt_io" datatype="html">
+        <source>Check on jwt.io</source>
+        <target>Vérifier sur jwt.io</target>
+      </trans-unit>
+      <trans-unit id="Roles_as_string_tip" datatype="html">
+        <source>Sent as a comma-separated string (click for a JSON array)</source>
+        <target>Envoyé comme chaîne séparée par des virgules (cliquez pour un tableau JSON)</target>
+      </trans-unit>
+      <trans-unit id="Roles_as_json_tip" datatype="html">
+        <source>Sent as a JSON array (click for a comma-separated string)</source>
+        <target>Envoyé comme tableau JSON (cliquez pour une chaîne séparée par des virgules)</target>
+      </trans-unit>
+      <trans-unit id="Link_hint" datatype="html">
+        <source>
+              When set, this app shows in the user's apps menu (if their access allows it), under this name.
+            </source>
+        <target>Quand il est renseigné, cette app apparaît dans le menu des applications de l'utilisateur (si son accès le permet), sous ce nom.</target>
+      </trans-unit>
+      <trans-unit id="OpenAPI_URL" datatype="html">
+        <source>OpenAPI URL</source>
+        <target>URL OpenAPI</target>
+      </trans-unit>
+      <trans-unit id="OpenAPI_hint" datatype="html">
+        <source>The OpenAPI spec the service exposes, for endpoint-level security and swagger UI</source>
+        <target>La spec OpenAPI exposée par le service, pour la sécurité au niveau des endpoints et la swagger UI</target>
+      </trans-unit>
+      <trans-unit id="Route_security_hint" datatype="html">
+        <source>
+          The route's base access, applied to the whole route. Leave it empty to delegate security to
+          the upstream; set it to gate at the edge. An API route can refine it per operation in
+          Endpoint security.
+        </source>
+        <target>L'accès de base de la route, appliqué à toute la route. Laissez-le vide pour déléguer la sécurité à l'upstream ; définissez-le pour filtrer au niveau du gateway. Une route API peut l'affiner par opération dans Endpoint security.</target>
+      </trans-unit>
+      <trans-unit id="Static_fallback" datatype="html">
+        <source>
+          Static fallback: paste the PEM of your route's algorithm into that backend.
+        </source>
+        <target>Repli statique : collez le PEM de l'algorithme de votre route dans ce backend.</target>
+      </trans-unit>
+      <trans-unit id="JWT_signing_keys" datatype="html">
+        <source>JWT signing keys</source>
+        <target>Clés de signature JWT</target>
+      </trans-unit>
+      <trans-unit id="Signing_keys_hint" datatype="html">
+        <source>
+        Backends verify signed-JWT identity tokens against these public keys. Point them at the JWKS
+        (recommended, it survives rotation) or paste a PEM for a static setup.
+      </source>
+        <target>Les backends vérifient les tokens d'identité signés avec ces clés publiques. Pointez-les sur le JWKS (recommandé, il survit à la rotation) ou collez un PEM pour une configuration statique.</target>
+      </trans-unit>
+      <trans-unit id="JWKS_endpoint" datatype="html">
+        <source>JWKS (data plane)</source>
+        <target>JWKS (plan data)</target>
+      </trans-unit>
+      <trans-unit id="Copy_PEM" datatype="html">
+        <source>Copy PEM</source>
+        <target>Copier le PEM</target>
+      </trans-unit>
+      <trans-unit id="Renew_keys" datatype="html">
+        <source>Renew keys</source>
+        <target>Renouveler les clés</target>
+      </trans-unit>
+      <trans-unit id="Rotate" datatype="html">
+        <source>Rotate</source>
+        <target>Renouveler</target>
+      </trans-unit>
+      <trans-unit id="Rotate_confirm" datatype="html">
+        <source>Rotate now? Old keys stay valid briefly (grace window).</source>
+        <target>Renouveler maintenant ? Les anciennes clés restent valides un court instant (fenêtre de grâce).</target>
+      </trans-unit>
+      <trans-unit id="Copied" datatype="html">
+        <source>Copied</source>
+        <target>Copié</target>
+      </trans-unit>
+      <trans-unit id="Signing_keys_rotated" datatype="html">
+        <source>Signing keys rotated</source>
+        <target>Clés de signature renouvelées</target>
+      </trans-unit>
+      <trans-unit id="Signed_JWT" datatype="html">
+        <source>Signed JWT</source>
+        <target>JWT signé</target>
+      </trans-unit>
+      <trans-unit id="Signature_algorithm" datatype="html">
+        <source>Signature algorithm</source>
+        <target>Algorithme de signature</target>
+      </trans-unit>
+      <trans-unit id="Signed_jwt_hint" datatype="html">
+        <source>
+            The gateway signs each token; backends verify it against the published JWKS. Manage the
+            keys with "Signing keys" on the Routes page.
+          </source>
+        <target>Le gateway signe chaque token ; les backends le vérifient contre le JWKS publié. Gérez les clés via « Clés de signature » sur la page Routes.</target>
       </trans-unit>
       <trans-unit id="Copy" datatype="html">
         <source>Copy</source>
@@ -1875,7 +2159,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           Sends the signed-in user to the service behind this route. Headers today, JWT and
           signed JWT later; Remote-User always carries the username, the cross-server standard.
         </source>
-        <target>Envoie l'utilisateur connecté au service derrière cette route ; Remote-User porte toujours le username, le standard inter-serveurs.</target>
+        <target>Transmet l'appelant connecté au service derrière cette route. Choisissez un transport, puis les attributs qui voyagent et, au besoin, le nom que chacun prend en sortie.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
           <context context-type="linenumber">83,86</context>
@@ -2584,6 +2868,38 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">97,98</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="JWT" datatype="html">
+        <source>JWT</source>
+        <target>JWT</target>
+      </trans-unit>
+      <trans-unit id="Signed_JWT_soon" datatype="html">
+        <source>Signed JWT (soon)</source>
+        <target>JWT signé (bientôt)</target>
+      </trans-unit>
+      <trans-unit id="Token_TTL" datatype="html">
+        <source>Token TTL</source>
+        <target>Durée de vie du token</target>
+      </trans-unit>
+      <trans-unit id="Attributes" datatype="html">
+        <source>Attributes</source>
+        <target>Attributs</target>
+      </trans-unit>
+      <trans-unit id="Identity_include_hint" datatype="html">
+        <source>What to include in the payload (everything by default):</source>
+        <target>Ce qui est inclus dans le payload (tout par défaut) :</target>
+      </trans-unit>
+      <trans-unit id="Send_as" datatype="html">
+        <source>Send as</source>
+        <target>Envoyer sous</target>
+      </trans-unit>
+      <trans-unit id="As_string" datatype="html">
+        <source>string</source>
+        <target>chaîne</target>
+      </trans-unit>
+      <trans-unit id="As_JSON_array" datatype="html">
+        <source>JSON array</source>
+        <target>tableau JSON</target>
+      </trans-unit>
       <trans-unit id="Required_role_hint" datatype="html">
         <source>Only sessions holding this effective role pass; implies Authenticated</source>
         <target>Seules les sessions portant ce rôle effectif passent ; implique Authentifié</target>
@@ -2778,9 +3094,9 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">96,97</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="gateway_admin" datatype="html">
-        <source>gateway admin</source>
-        <target>admin gateway</target>
+      <trans-unit id="infra_admin" datatype="html">
+        <source>infra admin</source>
+        <target>admin infra</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
           <context context-type="linenumber">108</context>
@@ -2794,7 +3110,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">113</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Tooltip_gateway_admin" datatype="html">
+      <trans-unit id="Tooltip_infra_admin" datatype="html">
         <source>Administers the routing plane: routes and the built-in pages</source>
         <target>Administre le plan de routage : les routes et les pages intégrées</target>
         <context-group purpose="location">
@@ -2922,7 +3238,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
             email, administrators are notified, and the account waits until someone grants it access.
             Requires a configured SMTP server (Application, General).
           </source>
-        <target>Permettre aux visiteurs de créer leur compte depuis la page de connexion. L’adresse est confirmée par e-mail, les administrateurs sont prévenus, et le compte attend qu’on lui accorde des accès. Nécessite un serveur SMTP configuré (Application, General).</target>
+        <target>Permettre aux visiteurs de créer leur compte depuis la page de connexion. L’adresse est confirmée par e-mail, les administrateurs sont prévenus, et le compte attend qu’on lui accorde des accès. Nécessite une adresse d'expéditeur ci-dessus et un relais mail (Infra, Relais mail).</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
           <context context-type="linenumber">93,97</context>
@@ -3060,6 +3376,20 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
           <context context-type="linenumber">131,132</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="API" datatype="html">
+        <source>API</source>
+        <target>API</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="API_documentation" datatype="html">
+        <source>API documentation</source>
+        <target>Documentation des API</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
         </context-group>
       </trans-unit>
       <trans-unit id="API_tokens" datatype="html">

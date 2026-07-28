@@ -26,9 +26,10 @@ func groupSetup(t *testing.T) (*http.ServeMux, *session.Manager, *store.Store) {
 			t.Fatal(err)
 		}
 	}
-	must(st.SetSetting(ctx, store.SettingGroupMode, store.GroupModeSingle))
-	must(st.SaveTenant(ctx, store.Tenant{ID: "t1", Name: "acme", Enabled: true}))
-	must(st.SaveTenant(ctx, store.Tenant{ID: "t2", Name: "globex", Enabled: true}))
+	// Both tenants run in EXCLUSIVE mode via their own column — the group mode
+	// is a per-tenant setting (RBAC-03), there is no gateway-wide default.
+	must(st.SaveTenant(ctx, store.Tenant{ID: "t1", Name: "acme", Enabled: true, GroupMode: store.GroupModeSingle}))
+	must(st.SaveTenant(ctx, store.Tenant{ID: "t2", Name: "globex", Enabled: true, GroupMode: store.GroupModeSingle}))
 	for _, tid := range []string{"t1", "t2"} {
 		must(st.SaveMembership(ctx, store.Membership{
 			UserID: "u1", TenantID: tid, Type: store.MemberUser, Enabled: true,
@@ -137,7 +138,8 @@ func TestExclusiveGroupFlow(t *testing.T) {
 // roles cumulate and no group step ever shows.
 func TestCumulativeModeUnchanged(t *testing.T) {
 	mux, sm, st := groupSetup(t)
-	if err := st.SetSetting(context.Background(), store.SettingGroupMode, store.GroupModeMultiple); err != nil {
+	// Force t1 back to cumulative on its own column (the default when unset).
+	if err := st.SetGroupMode(context.Background(), "t1", store.GroupModeMultiple); err != nil {
 		t.Fatal(err)
 	}
 	login := do(t, mux, "POST", "/login", url.Values{"username": {"admin"}, "password": {"s3cret"}}, nil)

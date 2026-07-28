@@ -33,14 +33,18 @@ func TestSplitAdministrationScopes(t *testing.T) {
 		app, plain int
 	}
 	probes := []probe{
-		// Gateway scope: routes, catalog, built-in pages (themes, branding).
+		// Infra scope: routes, catalog, and the mail RELAY (a third party's
+		// host and credentials).
 		{"catalog", "GET", "/api/catalog", "", 200, 200, 403, 403},
 		{"routes", "GET", "/api/routes", "", 200, 200, 403, 403},
-		{"themes", "GET", "/api/themes", "", 200, 200, 403, 403},
-		{"branding", "GET", "/api/branding", "", 200, 200, 403, 403},
-		// Application scope: users, role catalogue.
+		{"mail relay", "GET", "/api/settings/mail-relay", "", 200, 200, 403, 403},
+		// Application scope: users, roles, and the product's own face — the
+		// built-in pages' theme and branding. The gateway SERVES those pages;
+		// serving them is not owning them.
 		{"users", "GET", "/api/users", "", 200, 403, 200, 403},
 		{"roles", "GET", "/api/roles", "", 200, 403, 200, 403},
+		{"themes", "GET", "/api/themes", "", 200, 403, 200, 403},
+		{"branding", "GET", "/api/branding", "", 200, 403, 200, 403},
 	}
 	cookies := []struct {
 		who string

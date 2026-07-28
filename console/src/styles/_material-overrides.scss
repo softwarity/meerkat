@@ -1,0 +1,50 @@
+ // MDC quirks + opt-in variants. Wipe entries when Material fixes them upstream.
+
+ // M3 leaves button labels un-cased (Material 2 uppercased them); the product
+ // wants uppercase back. Each variant reads its casing from a token that defaults
+ // to `none` — flip them all. This targets the LABEL only, so mat-icon ligatures
+ // (case-sensitive glyph names) are untouched.
+ .mat-mdc-button-base {
+   --mat-button-filled-label-text-transform: uppercase;
+   --mat-button-tonal-label-text-transform: uppercase;
+   --mat-button-outlined-label-text-transform: uppercase;
+   --mat-button-protected-label-text-transform: uppercase;
+   --mat-button-text-label-text-transform: uppercase;
+ }
+
+
+ // Capability toggles use plain mat-chip with [highlighted] (state is read by
+ // colour, not a selection checkmark — mat-chip-option's checkmark animates the
+ // graphic slot in/out on every toggle and shifts the row). Interactive chips
+ // carry role="button"; give them the matching cursor.
+ .mat-mdc-chip[role='button']:not(.locked) {
+   cursor: pointer;
+ }
+
+ // A "locked" capability (e.g. root on your own account): still shows its actual
+ // state — a locked-on chip stays HIGHLIGHTED/filled, never blanked — but cannot
+ // be toggled. MDC's own `disabled` would strip the highlighted fill, reading as
+ // "not root", so we lock it ourselves: keep the fill, dim slightly, block input.
+ .mat-mdc-chip.locked {
+   cursor: not-allowed;
+   opacity: 0.55;
+ }
+
+ // Inner scroll container needs the .mat-mdc- class (custom element selector misses).
+ .mat-mdc-dialog-content {
+   overflow-x: hidden;
+ }
+
+ // Outlined mat-form-field's floating label sits ~8px above the fieldset →
+ // clipped by parent's overflow:auto when it's the first child.
+ .mat-mdc-dialog-content > form:first-child,
+ .mat-mdc-dialog-content > .mat-mdc-form-field:first-child {
+   margin-top: 12px;
+ }
+
+ // Opt-in via `panelClass: 'snackbar-error'` (overlay → must be global).
+ .snackbar-error {
+   --mdc-snackbar-container-color: var(--mat-sys-error-container);
+   --mdc-snackbar-supporting-text-color: var(--mat-sys-on-error-container);
+   --mat-snack-bar-button-color: var(--mat-sys-on-error-container);
+ }

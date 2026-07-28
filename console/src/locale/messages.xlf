@@ -2,204 +2,103 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template">
     <body>
-      <trans-unit id="Gateway" datatype="html">
-        <source>Gateway</source>
+      <trans-unit id="Infra" datatype="html">
+        <source>Infra</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">105</context>
+          <context context-type="linenumber">108</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">16</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Application" datatype="html">
         <source>Application</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">114,115</context>
+          <context context-type="linenumber">116,117</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">34</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tenants" datatype="html">
         <source>Tenants</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">125</context>
+          <context context-type="linenumber">126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="API" datatype="html">
+        <source>API</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">136</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Vault" datatype="html">
+        <source>Vault</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">145</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">143,144</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Audit" datatype="html">
         <source>Audit</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">135</context>
+          <context context-type="linenumber">154</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">171,172</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Section_general" datatype="html">
-        <source>General</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">154,156</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">9,11</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">14,15</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">75,78</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Locales" datatype="html">
-        <source>Locales</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">158,160</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">319,320</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
-          <context context-type="linenumber">110,113</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Roles" datatype="html">
-        <source>Roles</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">162,164</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
-          <context context-type="linenumber">13,14</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">169,170</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">199,200</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">82</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">82</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">377,378</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Users" datatype="html">
-        <source>Users</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">166,168</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
-          <context context-type="linenumber">4,5</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">78</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">78</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Security" datatype="html">
-        <source>Security</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">170,172</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">103,106</context>
+          <context context-type="linenumber">182,183</context>
         </context-group>
       </trans-unit>
       <trans-unit id="New_tenant" datatype="html">
         <source>New tenant</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">179,180</context>
+          <context context-type="linenumber">173,174</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
-          <context context-type="linenumber">26,27</context>
+          <context context-type="linenumber">45,46</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_tenant_yet" datatype="html">
         <source>No tenant yet</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">192,194</context>
+          <context context-type="linenumber">186,188</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/no-tenant.component.ts</context>
           <context context-type="linenumber">17,19</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Routes" datatype="html">
-        <source>Routes</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">200,202</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Built_in_pages" datatype="html">
-        <source>Built-in pages</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">204,206</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.html</context>
-          <context context-type="linenumber">2,5</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Endpoint_security" datatype="html">
-        <source>Endpoint security</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">208,210</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">3,5</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Access_tokens" datatype="html">
-        <source>Access tokens</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">212,214</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
-          <context context-type="linenumber">110,111</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Request_failed" datatype="html">
         <source>Request failed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">252</context>
+          <context context-type="linenumber">232</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
           <context context-type="linenumber">339</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">248</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">283</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
@@ -223,27 +122,42 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">144</context>
+          <context context-type="linenumber">183</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
-          <context context-type="linenumber">351</context>
+          <context context-type="linenumber">360</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">194</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
-          <context context-type="linenumber">105</context>
+          <context context-type="linenumber">116</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
-          <context context-type="linenumber">123</context>
+          <context context-type="linenumber">134</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">383</context>
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">218</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.ts</context>
           <context context-type="linenumber">204</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_tokens" datatype="html">
+        <source>Access tokens</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/access-tokens-page.component.ts</context>
+          <context context-type="linenumber">110,111</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">27</context>
         </context-group>
       </trans-unit>
       <trans-unit id="New_token" datatype="html">
@@ -387,7 +301,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
-          <context context-type="linenumber">47,48</context>
+          <context context-type="linenumber">77,78</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
@@ -399,7 +313,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">531,532</context>
+          <context context-type="linenumber">602,603</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">165,166</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/confirm-dialog.component.ts</context>
@@ -408,6 +326,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/prompt-dialog.component.ts</context>
           <context context-type="linenumber">49,50</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">177,178</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Create" datatype="html">
@@ -430,7 +352,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
-          <context context-type="linenumber">49,51</context>
+          <context context-type="linenumber">79,81</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
@@ -466,8 +388,16 @@
           <context context-type="linenumber">46</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">129,130</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">137</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
-          <context context-type="linenumber">69</context>
+          <context context-type="linenumber">92</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Done" datatype="html">
@@ -479,6 +409,384 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
           <context context-type="linenumber">51,52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="API_documentation" datatype="html">
+        <source>API documentation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
+          <context context-type="linenumber">23,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Mail_relay" datatype="html">
+        <source>Mail relay</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">89,92</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Mail_relay_hint" datatype="html">
+        <source>
+            The SMTP server that delivers account e-mails: confirmations, password resets,
+            administrator notifications. The sender address is set in the application settings.
+          </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">95,98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_host" datatype="html">
+        <source>Host</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">100,101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_port" datatype="html">
+        <source>Port</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">104,105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_security" datatype="html">
+        <source>Security</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">108,109</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="None" datatype="html">
+        <source>None</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">112,113</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">141,142</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_username" datatype="html">
+        <source>Username</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">116,117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_password" datatype="html">
+        <source>Password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">121,123</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Test_recipient" datatype="html">
+        <source>Test recipient</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">142,143</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Your_account_email" datatype="html">
+        <source>your account email</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">149,151</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Send_a_test" datatype="html">
+        <source>Send a test</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">154,155</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Save" datatype="html">
+        <source>Save</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">160,161</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
+          <context context-type="linenumber">183</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
+          <context context-type="linenumber">267</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
+          <context context-type="linenumber">391</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">137,138</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/code-dialog.component.ts</context>
+          <context context-type="linenumber">49,50</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">604,606</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">83,84</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
+          <context context-type="linenumber">157,158</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">242,243</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">178,179</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
+          <context context-type="linenumber">52,54</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/palette-editor/palette-editor.component.html</context>
+          <context context-type="linenumber">63,65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Settings_saved" datatype="html">
+        <source>Settings saved</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">218</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">123</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
+          <context context-type="linenumber">273</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">338</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Test_email_sent_to_ADDR" datatype="html">
+        <source>Test email sent to <x id="ADDR" equiv-text="sent"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">234</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Vault_hint" datatype="html">
+        <source>
+        Every value the configuration refers to, in one place. Use one anywhere with $name: secrets
+        are encrypted and never shown again, plain values stay readable.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">145,150</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_vault_entry" datatype="html">
+        <source>No entry yet. Add the first one.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">154,156</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Name" datatype="html">
+        <source>Name</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">158,159</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">88</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
+          <context context-type="linenumber">86,87</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">55,56</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
+          <context context-type="linenumber">3,4</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">128</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Kind" datatype="html">
+        <source>Kind</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">170,171</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Kind_secret" datatype="html">
+        <source>Secret</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">175,176</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">97,98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Kind_value" datatype="html">
+        <source>Value</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">177,178</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">96,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Value" datatype="html">
+        <source>Value</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">184,185</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
+          <context context-type="linenumber">96,97</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">146</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Secret_hidden" datatype="html">
+        <source>encrypted, never shown</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">187,188</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Used_by" datatype="html">
+        <source>Used by</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">195,196</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Not_used" datatype="html">
+        <source>not used</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">204,205</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete" datatype="html">
+        <source>Delete</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">212</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">214,215</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">274</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
+          <context context-type="linenumber">77,78</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
+          <context context-type="linenumber">205</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">141,142</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
+          <context context-type="linenumber">289</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
+          <context context-type="linenumber">418</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-danger.component.ts</context>
+          <context context-type="linenumber">175</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.ts</context>
+          <context context-type="linenumber">71</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
+          <context context-type="linenumber">141</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-carousel/theme-carousel.component.html</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-carousel/theme-carousel.component.html</context>
+          <context context-type="linenumber">67,68</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.ts</context>
+          <context context-type="linenumber">191</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="New_vault_entry" datatype="html">
+        <source>New entry</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">232,233</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">234,236</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
+          <context context-type="linenumber">126,128</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">84,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_vault_entry_NAME" datatype="html">
+        <source>Delete &quot;<x id="NAME" equiv-text="entry.name"/>&quot;?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
+          <context context-type="linenumber">273</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Timezone" datatype="html">
@@ -561,7 +869,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
-          <context context-type="linenumber">37,39</context>
+          <context context-type="linenumber">56,58</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
@@ -569,7 +877,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">133,134</context>
+          <context context-type="linenumber">139,140</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">161,163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_roles_catalogue" datatype="html">
@@ -579,6 +891,37 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
           <context context-type="linenumber">7,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Roles" datatype="html">
+        <source>Roles</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
+          <context context-type="linenumber">169,170</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
+          <context context-type="linenumber">199,200</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">448,449</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Group_menu" datatype="html">
@@ -630,57 +973,6 @@
           <context context-type="linenumber">137,138</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Delete" datatype="html">
-        <source>Delete</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
-          <context context-type="linenumber">77,78</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
-          <context context-type="linenumber">205</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
-          <context context-type="linenumber">141,142</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">289</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">418</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-danger.component.ts</context>
-          <context context-type="linenumber">175</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
-          <context context-type="linenumber">36,37</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.ts</context>
-          <context context-type="linenumber">77</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
-          <context context-type="linenumber">130</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/theme/theme-carousel/theme-carousel.component.html</context>
-          <context context-type="linenumber">65</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/theme/theme-carousel/theme-carousel.component.html</context>
-          <context context-type="linenumber">67,68</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.ts</context>
-          <context context-type="linenumber">191</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Edit_group" datatype="html">
         <source>Edit group</source>
         <context-group purpose="location">
@@ -690,53 +982,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
           <context context-type="linenumber">266</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Save" datatype="html">
-        <source>Save</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
-          <context context-type="linenumber">183</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">267</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">391</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">138,139</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/code-dialog.component.ts</context>
-          <context context-type="linenumber">49,50</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">533,535</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">123,124</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
-          <context context-type="linenumber">157,158</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">257,258</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
-          <context context-type="linenumber">52,54</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/theme/palette-editor/palette-editor.component.html</context>
-          <context context-type="linenumber">63,65</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_group_NAME" datatype="html">
@@ -766,7 +1011,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
-          <context context-type="linenumber">44,45</context>
+          <context context-type="linenumber">41,42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Close" datatype="html">
@@ -780,8 +1025,16 @@
           <context context-type="linenumber">4</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">171,172</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
           <context context-type="linenumber">8</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">173,175</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_sign_in_recorded_yet" datatype="html">
@@ -902,7 +1155,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
-          <context context-type="linenumber">32,33</context>
+          <context context-type="linenumber">29,30</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Reset_password_USERNAME" datatype="html">
@@ -924,7 +1177,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">108,109</context>
+          <context context-type="linenumber">113,114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inherited_MFA" datatype="html">
@@ -942,7 +1195,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">20</context>
+          <context context-type="linenumber">24</context>
         </context-group>
       </trans-unit>
       <trans-unit id="MFA_optional" datatype="html">
@@ -953,7 +1206,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">20</context>
+          <context context-type="linenumber">24</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Temporary_password_for_USERNAME" datatype="html">
@@ -982,11 +1235,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">113,114</context>
+          <context context-type="linenumber">119,120</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">122,123</context>
+          <context context-type="linenumber">128,129</context>
         </context-group>
       </trans-unit>
       <trans-unit id="New_role" datatype="html">
@@ -1058,7 +1311,77 @@
         <source>Tenant name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
-          <context context-type="linenumber">28,30</context>
+          <context context-type="linenumber">47,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_mode" datatype="html">
+        <source>Group mode</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">116,117</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">122,123</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Cumulative" datatype="html">
+        <source>Cumulative</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
+          <context context-type="linenumber">67,68</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">124,125</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Exclusive" datatype="html">
+        <source>Exclusive</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">125,126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tenant_group_mode_hint" datatype="html">
+        <source>
+        Cumulative merges the roles of every assigned group; exclusive makes members pick ONE group
+        when they enter this tenant.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
+          <context context-type="linenumber">72,76</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
+          <context context-type="linenumber">118,121</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Section_general" datatype="html">
+        <source>General</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">66,69</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Groups" datatype="html">
@@ -1090,7 +1413,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">186,187</context>
+          <context context-type="linenumber">197,198</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Search" datatype="html">
@@ -1101,7 +1424,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">204,205</context>
+          <context context-type="linenumber">215,216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Transfer_ownership" datatype="html">
@@ -1201,38 +1524,11 @@
           <context context-type="linenumber">174</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Name" datatype="html">
-        <source>Name</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">88</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
-          <context context-type="linenumber">86,87</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">60,61</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
-          <context context-type="linenumber">16,17</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Enabled" datatype="html">
         <source>Enabled</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
           <context context-type="linenumber">91,92</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
-          <context context-type="linenumber">27,28</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">95,96</context>
         </context-group>
       </trans-unit>
       <trans-unit id="by" datatype="html">
@@ -1243,7 +1539,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">222</context>
+          <context context-type="linenumber">233</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Owner" datatype="html">
@@ -1260,73 +1556,15 @@
           <context context-type="linenumber">103,105</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Group_mode" datatype="html">
-        <source>Group mode</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">116,117</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">122,123</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">107,108</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">114,115</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Tenant_group_mode_hint" datatype="html">
-        <source>
-      Cumulative merges the roles of every assigned group; exclusive makes members pick ONE group
-      when they enter this tenant.
-    </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">118,121</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Inherited_global" datatype="html">
-        <source>Inherited (global setting)</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">124,125</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Cumulative" datatype="html">
-        <source>Cumulative</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">125,126</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">116,117</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Exclusive" datatype="html">
-        <source>Exclusive</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">126,127</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">117,118</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Working_hours" datatype="html">
         <source>Working hours</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">130,131</context>
+          <context context-type="linenumber">129,130</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">80,81</context>
+          <context context-type="linenumber">71,72</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tenant_NAME_saved" datatype="html">
@@ -1355,7 +1593,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">226,227</context>
+          <context context-type="linenumber">297,298</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Full_name" datatype="html">
@@ -1380,11 +1618,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
-          <context context-type="linenumber">475</context>
+          <context context-type="linenumber">574</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">187</context>
+          <context context-type="linenumber">129</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
@@ -1392,7 +1630,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">363</context>
+          <context context-type="linenumber">345</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">242</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Account" datatype="html">
@@ -1406,7 +1648,26 @@
         <source>Delete user &quot;<x id="USERNAME" equiv-text="u.username"/>&quot;?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.ts</context>
-          <context context-type="linenumber">76</context>
+          <context context-type="linenumber">70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Users" datatype="html">
+        <source>Users</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">39</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Capabilities" datatype="html">
@@ -1416,67 +1677,110 @@
           <context context-type="linenumber">31,32</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Disable_user" datatype="html">
+        <source>Disable user</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
+          <context context-type="linenumber">54,55</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
+          <context context-type="linenumber">56,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Enable_user" datatype="html">
+        <source>Enable user</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.html</context>
+          <context context-type="linenumber">67,69</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Tooltip_root" datatype="html">
         <source>Administers the whole gateway: routes, users, tenants, settings</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">104</context>
+          <context context-type="linenumber">122</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="gateway_admin" datatype="html">
-        <source>gateway admin</source>
+      <trans-unit id="infra_admin" datatype="html">
+        <source>infra admin</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">108</context>
+          <context context-type="linenumber">126</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Tooltip_gateway_admin" datatype="html">
+      <trans-unit id="Tooltip_infra_admin" datatype="html">
         <source>Administers the routing plane: routes and the built-in pages</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">109</context>
+          <context context-type="linenumber">127</context>
         </context-group>
       </trans-unit>
       <trans-unit id="app_admin" datatype="html">
         <source>app admin</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">113</context>
+          <context context-type="linenumber">131</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tooltip_app_admin" datatype="html">
         <source>Administers the application identity: users, roles, settings</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">114</context>
+          <context context-type="linenumber">132</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tooltip_dev" datatype="html">
         <source>Unlocks the developer tooling: dev keys, service substitution (plug)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">119</context>
+          <context context-type="linenumber">137</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tooltip_tester" datatype="html">
         <source>Can opt into a developer&apos;s variant of the application</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">124</context>
+          <context context-type="linenumber">142</context>
         </context-group>
       </trans-unit>
       <trans-unit id="tenant_creator" datatype="html">
         <source>tenant creator</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">128</context>
+          <context context-type="linenumber">146</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tooltip_tenant_creator" datatype="html">
         <source>May create tenants, and owns the tenants they create</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
-          <context context-type="linenumber">129</context>
+          <context context-type="linenumber">147</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Disable_user_USERNAME" datatype="html">
+        <source>Disable user &quot;<x id="USERNAME" equiv-text="u.username"/>&quot;?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
+          <context context-type="linenumber">167</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Disable_user_message" datatype="html">
+        <source>They will be signed out and will not be able to sign in again until you enable them.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
+          <context context-type="linenumber">168</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Disable" datatype="html">
+        <source>Disable</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
+          <context context-type="linenumber">169</context>
         </context-group>
       </trans-unit>
       <trans-unit id="doc_Match_the_request_path" datatype="html">
@@ -1767,7 +2071,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">486,487</context>
+          <context context-type="linenumber">557,558</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Custom_JavaScript" datatype="html">
@@ -1778,7 +2082,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">504,505</context>
+          <context context-type="linenumber">575,576</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Authenticated" datatype="html">
@@ -1790,10 +2094,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
           <context context-type="linenumber">37,39</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">102,103</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delegated_to_backend" datatype="html">
@@ -1815,6 +2115,17 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
           <context context-type="linenumber">56,57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Endpoint_security" datatype="html">
+        <source>Endpoint security</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
+          <context context-type="linenumber">3,5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">21</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Route_exposing_OpenAPI" datatype="html">
@@ -1853,7 +2164,7 @@
         <source>Whole route (default for every operation)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">49,50</context>
+          <context context-type="linenumber">53,54</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delegation_hint" datatype="html">
@@ -1862,46 +2173,46 @@
     </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">59,63</context>
+          <context context-type="linenumber">65,68</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Method" datatype="html">
         <source>Method</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">85,86</context>
+          <context context-type="linenumber">91,92</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">94,96</context>
+          <context context-type="linenumber">100,102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Path" datatype="html">
         <source>Path</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">103,104</context>
+          <context context-type="linenumber">109,110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Operation_ID" datatype="html">
         <source>Operation ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">150,151</context>
+          <context context-type="linenumber">156,157</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Override_route_default" datatype="html">
         <source>Override the route config</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">156,157</context>
+          <context context-type="linenumber">162,163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inherits_route_default" datatype="html">
         <source>Inherits the route config</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">167,169</context>
+          <context context-type="linenumber">173,175</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Endpoints_secured_summary" datatype="html">
@@ -1910,21 +2221,21 @@
     </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">188,190</context>
+          <context context-type="linenumber">194,196</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Saving" datatype="html">
         <source>Saving…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">195,196</context>
+          <context context-type="linenumber">201,202</context>
         </context-group>
       </trans-unit>
       <trans-unit id="All_changes_saved" datatype="html">
         <source>All changes saved</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
-          <context context-type="linenumber">201,204</context>
+          <context context-type="linenumber">207,210</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Header_name" datatype="html">
@@ -1939,18 +2250,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">354,355</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Value" datatype="html">
-        <source>Value</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
-          <context context-type="linenumber">41,42</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/filters/filter-fields.component.ts</context>
-          <context context-type="linenumber">96,97</context>
+          <context context-type="linenumber">425,426</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Only_if_absent" datatype="html">
@@ -2089,21 +2389,21 @@
         <source>Add modifier</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
-          <context context-type="linenumber">120,121</context>
+          <context context-type="linenumber">137,138</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Planned_not_available_yet" datatype="html">
         <source>Planned (not available yet)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
-          <context context-type="linenumber">131,132</context>
+          <context context-type="linenumber">148,149</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Add" datatype="html">
         <source>Add</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
-          <context context-type="linenumber">149,150</context>
+          <context context-type="linenumber">166,167</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/predicates/predicates.component.ts</context>
@@ -2118,35 +2418,95 @@
         <source>Applied in order to the request before it reaches the service.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
-          <context context-type="linenumber">200</context>
+          <context context-type="linenumber">223</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Outgoing_modifiers_intro" datatype="html">
         <source>Applied in order to the response before it reaches the client.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
-          <context context-type="linenumber">202</context>
+          <context context-type="linenumber">225</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Terminal_modifiers_intro" datatype="html">
         <source>Answers instead of proxying (redirect, maintenance): at most one, not combined with other modifiers.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
-          <context context-type="linenumber">204</context>
+          <context context-type="linenumber">227</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_terminal_the_route_proxies" datatype="html">
         <source>None: the route proxies to its upstream.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
-          <context context-type="linenumber">210</context>
+          <context context-type="linenumber">233</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_modifiers_yet" datatype="html">
         <source>No modifiers yet.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/filters/filters.component.ts</context>
-          <context context-type="linenumber">211</context>
+          <context context-type="linenumber">234</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Identity_preview" datatype="html">
+        <source>Identity preview</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">99,101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Identity_preview_hint" datatype="html">
+        <source>
+        What the upstream receives on every request of this route, for a sample caller. Values are
+        fictional; the shape, the names and the signature are the real ones.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">105,110</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Decoded_claims" datatype="html">
+        <source>Decoded claims</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">140,141</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Public_key" datatype="html">
+        <source>Public key</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">148,149</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Copy_PEM" datatype="html">
+        <source>Copy PEM</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">153,154</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">153,154</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Check_on_jwt_io" datatype="html">
+        <source>Check on jwt.io</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">167,170</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Copied" datatype="html">
+        <source>Copied</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
+          <context context-type="linenumber">203</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">204</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Methods" datatype="html">
@@ -2256,176 +2616,190 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
-          <context context-type="linenumber">10,11</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
+          <context context-type="linenumber">42,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Section_security" datatype="html">
+        <source>Security</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">15,16</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Predicates" datatype="html">
         <source>Predicates</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">16,17</context>
+          <context context-type="linenumber">17,18</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Modifiers" datatype="html">
         <source>Modifiers</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">21,22</context>
+          <context context-type="linenumber">22,23</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Incoming" datatype="html">
         <source>Incoming</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">23,24</context>
+          <context context-type="linenumber">24,25</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Outgoing" datatype="html">
         <source>Outgoing</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">29,30</context>
+          <context context-type="linenumber">30,31</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Redirect" datatype="html">
         <source>Redirect</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">35,36</context>
+          <context context-type="linenumber">36,37</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Section_identity" datatype="html">
         <source>Identity</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">40,41</context>
+          <context context-type="linenumber">41,42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Section_locales" datatype="html">
         <source>Locales</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">41,42</context>
+          <context context-type="linenumber">42,43</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Section_user_button" datatype="html">
         <source>User button</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">45,46</context>
+          <context context-type="linenumber">46,47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Section_user_info" datatype="html">
         <source>User info</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">46,47</context>
+          <context context-type="linenumber">47,48</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Section_injections" datatype="html">
         <source>Injections</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">47,48</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="UI_serves_pages_in_a_browser" datatype="html">
-        <source>UI (serves pages in a browser)</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">55,56</context>
+          <context context-type="linenumber">48,49</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Upstream" datatype="html">
         <source>Upstream</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">65,66</context>
+          <context context-type="linenumber">60,61</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
           <context context-type="linenumber">34,35</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/url-input.component.ts</context>
+          <context context-type="linenumber">73,77</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Upstream_ignored_terminal" datatype="html">
         <source>Ignored: a redirect answers this route</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">67,70</context>
+          <context context-type="linenumber">64,67</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Swagger_URL" datatype="html">
-        <source>Swagger URL</source>
+      <trans-unit id="OpenAPI_URL" datatype="html">
+        <source>OpenAPI URL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">71,72</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Swagger_hint" datatype="html">
-        <source>The OpenAPI spec the service exposes, for endpoint-level security later</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">78,79</context>
+          <context context-type="linenumber">68,69</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Edit_endpoint_security" datatype="html">
         <source>Endpoint security</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">89,93</context>
+          <context context-type="linenumber">82,83</context>
         </context-group>
-      </trans-unit>
-      <trans-unit id="Required_role" datatype="html">
-        <source>Required role</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">107,108</context>
+          <context context-type="linenumber">84,86</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="None" datatype="html">
-        <source>None</source>
+      <trans-unit id="OpenAPI_hint" datatype="html">
+        <source>The OpenAPI spec the service exposes, for endpoint-level security and swagger UI</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">109,110</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">136,137</context>
+          <context context-type="linenumber">88,89</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Required_role_hint" datatype="html">
-        <source>Only sessions holding this effective role pass; implies Authenticated</source>
+      <trans-unit id="UI_serves_pages_in_a_browser" datatype="html">
+        <source>UI (serves pages in a browser)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">114,115</context>
+          <context context-type="linenumber">94,95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Link" datatype="html">
+        <source>Link</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">99,100</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Link_hint" datatype="html">
+        <source>
+              When set, this app shows in the user&apos;s apps menu (if their access allows it), under this name.
+            </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">102,104</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Route_security_hint" datatype="html">
+        <source>
+          The route&apos;s base access, applied to the whole route. Leave it empty to delegate security to
+          the upstream; set it to gate at the edge. An API route can refine it per operation in
+          Endpoint security.
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">109,114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Identity_section_hint" datatype="html">
         <source>
-          Sends the signed-in user to the service behind this route; Remote-User always carries
-          the username, the cross-server standard.
+          Forwards the signed-in caller to the service behind this route. Pick a transport, then
+          choose which facts travel and, optionally, the name each one takes on the way out.
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">131,134</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Forward_the_signed_in_user" datatype="html">
-        <source>Forward the signed-in user</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">135,137</context>
+          <context context-type="linenumber">134,138</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Mechanism" datatype="html">
         <source>Mechanism</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">140,141</context>
+          <context context-type="linenumber">139,140</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">291,292</context>
+          <context context-type="linenumber">362,363</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Headers" datatype="html">
@@ -2435,34 +2809,72 @@
           <context context-type="linenumber">142,143</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="JWT_planned" datatype="html">
-        <source>JWT (planned)</source>
+      <trans-unit id="JWT" datatype="html">
+        <source>JWT</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
           <context context-type="linenumber">143,144</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Signed_JWT_planned" datatype="html">
-        <source>Signed JWT (planned)</source>
+      <trans-unit id="Signed_JWT" datatype="html">
+        <source>Signed JWT</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
           <context context-type="linenumber">144,145</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Identity_headers_hint" datatype="html">
+      <trans-unit id="Signature_algorithm" datatype="html">
+        <source>Signature algorithm</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">152,153</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Token_TTL" datatype="html">
+        <source>Token TTL</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">169,170</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Preview" datatype="html">
+        <source>Preview</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">182,183</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Signed_jwt_hint" datatype="html">
         <source>
-            The name each fact travels under: the header names today, the JWT claims later.
+            The gateway signs each token; backends verify it against the published JWKS. Manage the
+            keys with &quot;Signing keys&quot; on the Routes page.
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">149,151</context>
+          <context context-type="linenumber">188,193</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Identity_include_hint" datatype="html">
+        <source>
+            What to include in the payload (everything by default):
+          </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">195,197</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Send_as" datatype="html">
+        <source>Send as</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">206,207</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_button" datatype="html">
         <source>User button</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">167,168</context>
+          <context context-type="linenumber">238,239</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_button_hint" datatype="html">
@@ -2472,91 +2884,91 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">169,172</context>
+          <context context-type="linenumber">240,243</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inject_the_user_button" datatype="html">
         <source>Inject the user button</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">173,174</context>
+          <context context-type="linenumber">244,245</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Height_px" datatype="html">
         <source>Height (px)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">178,179</context>
+          <context context-type="linenumber">249,250</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Position" datatype="html">
         <source>Position</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">189,190</context>
+          <context context-type="linenumber">260,261</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Shape" datatype="html">
         <source>Shape</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">197,198</context>
+          <context context-type="linenumber">268,269</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Rounded" datatype="html">
         <source>Rounded</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">199,200</context>
+          <context context-type="linenumber">270,271</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Square" datatype="html">
         <source>Square</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">200,201</context>
+          <context context-type="linenumber">271,272</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Horizontal_gap_px" datatype="html">
         <source>Horizontal gap (px)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">204,205</context>
+          <context context-type="linenumber">275,276</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Vertical_gap_px" datatype="html">
         <source>Vertical gap (px)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">215,216</context>
+          <context context-type="linenumber">286,287</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Hidden" datatype="html">
         <source>Hidden</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">228,229</context>
+          <context context-type="linenumber">299,300</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Before_the_avatar" datatype="html">
         <source>Before the avatar</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">229,230</context>
+          <context context-type="linenumber">300,301</context>
         </context-group>
       </trans-unit>
       <trans-unit id="After_the_avatar" datatype="html">
         <source>After the avatar</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">230,231</context>
+          <context context-type="linenumber">301,302</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Color_scheme" datatype="html">
         <source>Color scheme</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">275,276</context>
+          <context context-type="linenumber">346,347</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scheme_section_hint" datatype="html">
@@ -2567,7 +2979,7 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">277,282</context>
+          <context context-type="linenumber">348,353</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Offer_scheme_switch" datatype="html">
@@ -2576,49 +2988,64 @@
             </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">284,286</context>
+          <context context-type="linenumber">355,357</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scheme_none" datatype="html">
         <source>color-scheme only</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">293,294</context>
+          <context context-type="linenumber">364,365</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scheme_attribute" datatype="html">
         <source>attribute</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">294,295</context>
+          <context context-type="linenumber">365,366</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scheme_class" datatype="html">
         <source>class</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">295,296</context>
+          <context context-type="linenumber">366,367</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Attribute" datatype="html">
         <source>Attribute</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">300,301</context>
+          <context context-type="linenumber">371,372</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Light_value" datatype="html">
         <source>Light value</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">306,307</context>
+          <context context-type="linenumber">377,378</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Dark_value" datatype="html">
         <source>Dark value</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">310,311</context>
+          <context context-type="linenumber">381,382</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Locales" datatype="html">
+        <source>Locales</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">390,391</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
+          <context context-type="linenumber">110,113</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">37</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Locales_section_hint" datatype="html">
@@ -2628,14 +3055,14 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">321,324</context>
+          <context context-type="linenumber">392,395</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Forwarding" datatype="html">
         <source>Forwarding</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">336,337</context>
+          <context context-type="linenumber">407,408</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Locales_forwarding_hint" datatype="html">
@@ -2645,42 +3072,42 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">338,342</context>
+          <context context-type="linenumber">409,413</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Extra_mechanisms" datatype="html">
         <source>Extra mechanisms</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">343,344</context>
+          <context context-type="linenumber">414,415</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Custom_header" datatype="html">
         <source>Custom header</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">345,346</context>
+          <context context-type="linenumber">416,417</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Query_parameter" datatype="html">
         <source>Query parameter</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">346,347</context>
+          <context context-type="linenumber">417,418</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Path_prefix" datatype="html">
         <source>Path prefix</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">348,349</context>
+          <context context-type="linenumber">419,420</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Parameter_name" datatype="html">
         <source>Parameter name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">365,366</context>
+          <context context-type="linenumber">436,437</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Roles_section_hint" datatype="html">
@@ -2690,90 +3117,90 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">379,383</context>
+          <context context-type="linenumber">450,454</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inject_the_users_roles" datatype="html">
         <source>Inject the user&apos;s roles</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">384,385</context>
+          <context context-type="linenumber">455,456</context>
         </context-group>
       </trans-unit>
       <trans-unit id="As" datatype="html">
         <source>As</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">390,391</context>
+          <context context-type="linenumber">461,462</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">447,448</context>
+          <context context-type="linenumber">518,519</context>
         </context-group>
       </trans-unit>
       <trans-unit id="An_attribute_on_a_tag" datatype="html">
         <source>an attribute on a tag</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">392,393</context>
+          <context context-type="linenumber">463,464</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Classes_on_a_tag" datatype="html">
         <source>classes on a tag</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">393,394</context>
+          <context context-type="linenumber">464,465</context>
         </context-group>
       </trans-unit>
       <trans-unit id="A_meta_tag" datatype="html">
         <source>a meta tag</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">394,395</context>
+          <context context-type="linenumber">465,466</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">450,451</context>
+          <context context-type="linenumber">521,522</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tag_name" datatype="html">
         <source>Tag name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">399,400</context>
+          <context context-type="linenumber">470,471</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">455,456</context>
+          <context context-type="linenumber">526,527</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Attribute_name" datatype="html">
         <source>Attribute name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">410,411</context>
+          <context context-type="linenumber">481,482</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">472,473</context>
+          <context context-type="linenumber">543,544</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Meta_name" datatype="html">
         <source>Meta name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">421,422</context>
+          <context context-type="linenumber">492,493</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">472</context>
+          <context context-type="linenumber">543</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_info" datatype="html">
         <source>User info</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">433,434</context>
+          <context context-type="linenumber">504,505</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_info_hint" datatype="html">
@@ -2784,21 +3211,21 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">435,439</context>
+          <context context-type="linenumber">506,510</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inject_user_info" datatype="html">
         <source>Inject the user info</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">441,442</context>
+          <context context-type="linenumber">512,513</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Attributes_on_a_tag" datatype="html">
         <source>attributes on a tag</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">449,450</context>
+          <context context-type="linenumber">520,521</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Custom_CSS_hint" datatype="html">
@@ -2807,32 +3234,32 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">488,490</context>
+          <context context-type="linenumber">559,561</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Edit_CSS" datatype="html">
         <source>Edit CSS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">494,495</context>
+          <context context-type="linenumber">565,566</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Add_CSS" datatype="html">
         <source>Add CSS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">496,497</context>
+          <context context-type="linenumber">567,568</context>
         </context-group>
       </trans-unit>
       <trans-unit id="N_lines" datatype="html">
         <source><x id="INTERPOLATION" equiv-text="{{ n }}"/> lines</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">500,501</context>
+          <context context-type="linenumber">571,572</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">518,519</context>
+          <context context-type="linenumber">589,590</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Custom_JS_hint" datatype="html">
@@ -2841,39 +3268,53 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">506,508</context>
+          <context context-type="linenumber">577,579</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Edit_JavaScript" datatype="html">
         <source>Edit JavaScript</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">512,513</context>
+          <context context-type="linenumber">583,584</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Add_JavaScript" datatype="html">
         <source>Add JavaScript</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">514,515</context>
+          <context context-type="linenumber">585,586</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Roles_as_string_tip" datatype="html">
+        <source>Sent as a comma-separated string (click for a JSON array)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
+          <context context-type="linenumber">266</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Roles_as_json_tip" datatype="html">
+        <source>Sent as a JSON array (click for a comma-separated string)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
+          <context context-type="linenumber">267</context>
         </context-group>
       </trans-unit>
       <trans-unit id="A_header_cookie_or_query_matcher_needs_a_name" datatype="html">
         <source>A header, cookie or query matcher needs a name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
-          <context context-type="linenumber">219</context>
+          <context context-type="linenumber">320</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Weight_needs_both_a_group_and_a_weight" datatype="html">
         <source>Weight needs both a group and a weight</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
-          <context context-type="linenumber">225</context>
+          <context context-type="linenumber">326</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Gateway_Routes" datatype="html">
-        <source>Gateway · Routes</source>
+      <trans-unit id="Infra_Routes" datatype="html">
+        <source>Infra · Routes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
           <context context-type="linenumber">4,5</context>
@@ -2887,56 +3328,74 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">172,173</context>
+          <context context-type="linenumber">183,184</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="JWT_signing_keys" datatype="html">
+        <source>JWT signing keys</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
+          <context context-type="linenumber">12,14</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">116,118</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Signing_keys" datatype="html">
+        <source>Signing keys</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
+          <context context-type="linenumber">15,16</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_route_yet_create_the_first_one" datatype="html">
         <source>No route yet, create the first one.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
-          <context context-type="linenumber">18,20</context>
+          <context context-type="linenumber">23,25</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Route_NAME_saved_and_applied" datatype="html">
         <source>Route &quot;<x id="NAME" equiv-text="saved.name"/>&quot; saved and applied</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
-          <context context-type="linenumber">91</context>
+          <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Route_NAME_enabled" datatype="html">
         <source>Route &quot;<x id="NAME" equiv-text="saved.name"/>&quot; enabled</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
-          <context context-type="linenumber">116</context>
+          <context context-type="linenumber">127</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Route_NAME_disabled" datatype="html">
         <source>Route &quot;<x id="NAME" equiv-text="saved.name"/>&quot; disabled</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
-          <context context-type="linenumber">117</context>
+          <context context-type="linenumber">128</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_route_NAME" datatype="html">
         <source>Delete route &quot;<x id="NAME" equiv-text="route.name"/>&quot;?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
-          <context context-type="linenumber">129</context>
+          <context context-type="linenumber">140</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Route_NAME_deleted" datatype="html">
         <source>Route &quot;<x id="NAME" equiv-text="route.name"/>&quot; deleted</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
-          <context context-type="linenumber">136</context>
+          <context context-type="linenumber">147</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_failed" datatype="html">
         <source>Delete failed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
-          <context context-type="linenumber">139</context>
+          <context context-type="linenumber">150</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Drag_to_reorder" datatype="html">
@@ -2944,13 +3403,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
           <context context-type="linenumber">10,11</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="authenticated" datatype="html">
-        <source>authenticated</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/routes-table/routes-table.component.html</context>
-          <context context-type="linenumber">21,23</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Matching" datatype="html">
@@ -2993,62 +3445,124 @@
           <context context-type="linenumber">67,69</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Signing_keys_workflow" datatype="html">
+        <source>
+        The gateway signs each identity token with its private key (which never leaves the server).
+        Backends fetch this JWKS once, cache it, and verify each token by its key id. Rotation is then
+        picked up on its own.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">122,127</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="JWKS_endpoint" datatype="html">
+        <source>JWKS (data plane)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">130,131</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Recommended" datatype="html">
+        <source>Recommended</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">131,132</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Static_fallback" datatype="html">
+        <source>
+          Static fallback: paste the PEM of your route&apos;s algorithm into that backend.
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">142,144</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rotate_confirm" datatype="html">
+        <source>Rotate now? Old keys stay valid briefly (grace window).</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">164,165</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rotate" datatype="html">
+        <source>Rotate</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">166,167</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Renew_keys" datatype="html">
+        <source>Renew keys</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">170,171</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Signing_keys_rotated" datatype="html">
+        <source>Signing keys rotated</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/signing-keys-dialog.component.ts</context>
+          <context context-type="linenumber">214</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Audit_hint" datatype="html">
         <source>
         Every administrative change, with the exact fields that moved and their before and after.
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">179,182</context>
+          <context context-type="linenumber">190,193</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Target" datatype="html">
         <source>Target</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">184,185</context>
+          <context context-type="linenumber">195,196</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Period" datatype="html">
         <source>Period</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">194,195</context>
+          <context context-type="linenumber">205,206</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Last_24h" datatype="html">
         <source>Last 24 hours</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">196,197</context>
+          <context context-type="linenumber">207,208</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Last_7_days" datatype="html">
         <source>Last 7 days</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">197,198</context>
+          <context context-type="linenumber">208,209</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Last_30_days" datatype="html">
         <source>Last 30 days</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">198,199</context>
+          <context context-type="linenumber">209,210</context>
         </context-group>
       </trans-unit>
       <trans-unit id="All_time" datatype="html">
         <source>All time</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">199,200</context>
+          <context context-type="linenumber">210,211</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_audit_events" datatype="html">
         <source>No audit events for this filter.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.ts</context>
-          <context context-type="linenumber">247,249</context>
+          <context context-type="linenumber">258,260</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Working_hours_global_hint" datatype="html">
@@ -3057,53 +3571,7 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">82,84</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Session_TTL" datatype="html">
-        <source>Session TTL</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">92,93</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">97,98</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Session_TTL_hint" datatype="html">
-        <source>
-            How long a session lives before the user must sign in again.
-          </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">94,96</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Group_mode_hint" datatype="html">
-        <source>
-            How a member&apos;s groups combine: cumulative merges the roles of every assigned group;
-            exclusive makes the user pick ONE group at sign-in (and again after each tenant switch).
-            Each tenant may override this.
-          </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">109,113</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Settings_saved" datatype="html">
-        <source>Settings saved</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">181</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
-          <context context-type="linenumber">273</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">356</context>
+          <context context-type="linenumber">73,75</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Application_languages" datatype="html">
@@ -3154,106 +3622,98 @@
           <context context-type="linenumber">239</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Security" datatype="html">
+        <source>Security</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">108,111</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="MFA_global_hint" datatype="html">
         <source>
             Require a second factor for every user. Organizations and members can override this.
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">110,112</context>
+          <context context-type="linenumber">115,117</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Require_two_factor" datatype="html">
         <source>Require two-factor for everyone</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">113,114</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Email_SMTP" datatype="html">
-        <source>Email (SMTP)</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
           <context context-type="linenumber">118,119</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="SMTP_hint" datatype="html">
-        <source>
-            Outbound email: account confirmations and administrator notifications. Save, then send a test.
-          </source>
+      <trans-unit id="Session_TTL" datatype="html">
+        <source>Session TTL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">120,122</context>
+          <context context-type="linenumber">123,124</context>
         </context-group>
-      </trans-unit>
-      <trans-unit id="SMTP_host" datatype="html">
-        <source>Host</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">124,125</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="SMTP_port" datatype="html">
-        <source>Port</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
           <context context-type="linenumber">128,129</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="SMTP_security" datatype="html">
-        <source>Security</source>
+      <trans-unit id="Session_TTL_hint" datatype="html">
+        <source>
+            How long a session lives before the user must sign in again.
+          </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">132,133</context>
+          <context context-type="linenumber">125,127</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="SMTP_username" datatype="html">
-        <source>Username</source>
+      <trans-unit id="Email_sender" datatype="html">
+        <source>Email sender</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">140,141</context>
+          <context context-type="linenumber">138,139</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="SMTP_password" datatype="html">
-        <source>Password</source>
+      <trans-unit id="Email_sender_hint" datatype="html">
+        <source>
+            The address account e-mails come from. The relay that actually delivers them is
+            infrastructure and lives under Infra, Mail relay.
+          </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">144,145</context>
+          <context context-type="linenumber">140,143</context>
         </context-group>
       </trans-unit>
       <trans-unit id="SMTP_from" datatype="html">
         <source>From</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">155,156</context>
+          <context context-type="linenumber">144,145</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Test_recipient" datatype="html">
-        <source>Test recipient</source>
+      <trans-unit id="Relay_ready" datatype="html">
+        <source>Mail relay: configured (<x id="INTERPOLATION" equiv-text="{{ relayHost() }}"/>).</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">161,162</context>
+          <context context-type="linenumber">148,149</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Your_account_email" datatype="html">
-        <source>your account email</source>
+      <trans-unit id="Relay_missing" datatype="html">
+        <source>
+              Mail relay: not configured. Account e-mails cannot go out until an infra admin sets it up.
+            </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">162,163</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Save_and_send_test" datatype="html">
-        <source>Save and send a test</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">166,167</context>
+          <context context-type="linenumber">151,154</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Rate_limiting" datatype="html">
         <source>Rate limiting</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">172,173</context>
+          <context context-type="linenumber">157,158</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Rate_limiting_hint" datatype="html">
@@ -3263,67 +3723,67 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">174,177</context>
+          <context context-type="linenumber">159,162</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Failed_sign_ins" datatype="html">
         <source>Failed sign-ins</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">179,180</context>
+          <context context-type="linenumber">164,165</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Wrong_codes" datatype="html">
         <source>Wrong 2FA codes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">183,184</context>
+          <context context-type="linenumber">168,169</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Within" datatype="html">
         <source>Within</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">187,188</context>
+          <context context-type="linenumber">172,173</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Self_registration" datatype="html">
         <source>Self-registration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">198,199</context>
+          <context context-type="linenumber">183,184</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Self_registration_hint" datatype="html">
         <source>
             Let visitors create their own account on the sign-in page. The address is confirmed by
             email, administrators are notified, and the account waits until someone grants it access.
-            Requires a configured SMTP server (Application, General).
+            Requires a sender address above and a mail relay (Infra, Mail relay).
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">200,204</context>
+          <context context-type="linenumber">185,189</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allow_self_registration" datatype="html">
         <source>Allow self-registration (local accounts)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">205,206</context>
+          <context context-type="linenumber">190,191</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Require_captcha" datatype="html">
         <source>Require the anti-robot check (built-in captcha)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">210,211</context>
+          <context context-type="linenumber">195,196</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Passkeys" datatype="html">
         <source>Passkeys</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">216,217</context>
+          <context context-type="linenumber">201,202</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Passkeys_global_hint" datatype="html">
@@ -3332,21 +3792,21 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">218,220</context>
+          <context context-type="linenumber">203,205</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allow_passkeys" datatype="html">
         <source>Allow passkeys</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">221,222</context>
+          <context context-type="linenumber">206,207</context>
         </context-group>
       </trans-unit>
       <trans-unit id="API_tokens" datatype="html">
         <source>API tokens</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">226,227</context>
+          <context context-type="linenumber">211,212</context>
         </context-group>
       </trans-unit>
       <trans-unit id="API_tokens_hint" datatype="html">
@@ -3356,21 +3816,21 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">228,231</context>
+          <context context-type="linenumber">213,216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allow_API_tokens" datatype="html">
         <source>Allow personal API tokens</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">232,233</context>
+          <context context-type="linenumber">217,218</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Trusted_browsers" datatype="html">
         <source>Trusted browsers</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">237,238</context>
+          <context context-type="linenumber">222,223</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Trusted_browsers_hint" datatype="html">
@@ -3379,42 +3839,60 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">239,241</context>
+          <context context-type="linenumber">224,226</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allow_trusted_browsers" datatype="html">
         <source>Allow trusted browsers</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">242,243</context>
+          <context context-type="linenumber">227,228</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Trust_duration" datatype="html">
         <source>Trust duration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">246,247</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Test_email_sent_to_ADDR" datatype="html">
-        <source>Test email sent to <x id="ADDR" equiv-text="sent"/></source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">377</context>
+          <context context-type="linenumber">231,232</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Toggle_visibility" datatype="html">
         <source>Toggle visibility</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
-          <context context-type="linenumber">60,61</context>
+          <context context-type="linenumber">83,84</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Clear" datatype="html">
         <source>Clear</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
-          <context context-type="linenumber">77</context>
+          <context context-type="linenumber">100</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Use_a_vault_entry" datatype="html">
+        <source>Use a vault entry</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
+          <context context-type="linenumber">108,109</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
+          <context context-type="linenumber">110,111</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_vault_entry_yet" datatype="html">
+        <source>No entry yet</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/form-field.component.ts</context>
+          <context context-type="linenumber">121,123</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Protocol" datatype="html">
+        <source>Protocol</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/url-input.component.ts</context>
+          <context context-type="linenumber">60,62</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Sign_out" datatype="html">
@@ -3422,6 +3900,77 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/user-menu.component.ts</context>
           <context context-type="linenumber">90,91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit_vault_entry" datatype="html">
+        <source>Edit entry</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">82,83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Kind_secret_hint" datatype="html">
+        <source>
+            Encrypted at rest and never shown again. Referenced by $name wherever it is needed.
+          </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">116,118</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Kind_value_hint" datatype="html">
+        <source>
+            Stored in clear and readable. Referenced by $name wherever it is needed.
+          </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">120,123</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Vault_name_hint" datatype="html">
+        <source>A letter, then letters, digits, dot, dash or underscore</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">129,132</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Secret_keep_hint" datatype="html">
+        <source>Leave empty to keep the stored secret</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">205</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Scope_infra" datatype="html">
+        <source>Infra</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">217</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Scope_app" datatype="html">
+        <source>Application</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">218</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Routes" datatype="html">
+        <source>Routes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Built_in_pages" datatype="html">
+        <source>Built-in pages</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.html</context>
+          <context context-type="linenumber">2,5</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Branding" datatype="html">

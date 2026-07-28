@@ -73,20 +73,31 @@ import { ApiService, AuditChange, AuditEvent } from '../api.service';
       .short {
         width: 170px;
       }
+      /* The trail spans the full width of the pane and adapts to it. */
       .events {
         display: grid;
         gap: 8px;
-        max-width: 960px;
       }
       .event {
         display: grid;
-        grid-template-columns: 150px 1fr;
+        grid-template-columns: 150px minmax(0, 1fr);
         gap: 4px 16px;
         padding: 12px 16px;
         border: 1px solid var(--mat-sys-outline-variant);
         border-radius: 10px;
         position: relative;
         overflow: hidden;
+      }
+      /* Narrow panes (a split drawer, a small window): stack the timestamp above
+         the body so nothing is squeezed. */
+      @media (max-width: 720px) {
+        .event {
+          grid-template-columns: 1fr;
+        }
+        .changes,
+        .detail {
+          grid-column: 1;
+        }
       }
       /* The mint accent the other list panels wear. */
       .event::before {

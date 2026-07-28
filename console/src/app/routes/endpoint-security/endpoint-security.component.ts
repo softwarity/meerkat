@@ -17,11 +17,11 @@ import { Subject, catchError, debounceTime, firstValueFrom, of } from 'rxjs';
 import {
   ApiService,
   EndpointPolicy,
-  EndpointSecurity,
   OpenAPIOperation,
   Role,
   Route,
   RouteOperations,
+  RouteSecurity,
   User,
 } from '../../api.service';
 import { AccessBadgesComponent } from './access-badges.component';
@@ -115,7 +115,7 @@ export class EndpointSecurityComponent {
   // Exclusive expand: at most one row is open for editing at a time.
   private readonly expanded = signal<string>('');
 
-  protected readonly apiRoutes = computed(() => this.routes().filter((r) => !!r.api?.swaggerUrl));
+  protected readonly apiRoutes = computed(() => this.routes().filter((r) => !!r.api?.openapiUrl));
   protected readonly operations = computed(() => this.data()?.operations ?? []);
   protected readonly columns = ['status', 'method', 'path', 'tags', 'summary', 'expand'];
 
@@ -212,7 +212,7 @@ export class EndpointSecurityComponent {
       this.roles.set(roles);
       this.users.set(users);
       this.routes.set(routes);
-      const exposing = routes.filter((r) => !!r.api?.swaggerUrl);
+      const exposing = routes.filter((r) => !!r.api?.openapiUrl);
       const pick = exposing.find((r) => r.id === preselect)?.id ?? exposing[0]?.id ?? '';
       if (pick) await this.selectRoute(pick);
     } catch (e) {
@@ -250,10 +250,11 @@ export class EndpointSecurityComponent {
   }
 
   private seed(ops: RouteOperations): void {
-    const sec = ops.security ?? {};
-    this.routeAccess.set(fromWire(sec.route));
+    // The "whole route" default is the route's own Access now; overrides come
+    // from the endpoint-security block.
+    this.routeAccess.set(fromWire(ops.access));
     const saved = new Map<string, EndpointPolicy>();
-    for (const e of sec.endpoints ?? []) saved.set(opKey(e.method, e.path), e);
+    for (const e of ops.security?.endpoints ?? []) saved.set(opKey(e.method, e.path), e);
 
     const st: Record<string, OpState> = {};
     const matched = new Set<string>();
@@ -268,7 +269,7 @@ export class EndpointSecurityComponent {
       }
     }
     this.state.set(st);
-    this.extras.set((sec.endpoints ?? []).filter((e) => !matched.has(opKey(e.method, e.path))));
+    this.extras.set((ops.security?.endpoints ?? []).filter((e) => !matched.has(opKey(e.method, e.path))));
   }
 
   // ── Row expand / collapse (exclusive: one open at a time) ───────────────────
@@ -331,15 +332,15 @@ export class EndpointSecurityComponent {
       endpoints.push(toPolicy(o.method, o.path, s.access));
     }
     endpoints.push(...this.extras());
-    const route = this.routeAccess();
-    const security: EndpointSecurity = { endpoints };
-    if (!isEmpty(route)) {
-      security.route = {
-        ...(route.authenticated ? { authenticated: true } : {}),
-        ...(route.users.length ? { users: route.users } : {}),
-        ...(route.roles.length ? { roles: route.roles } : {}),
-      };
-    }
+    const ra = this.routeAccess();
+    const security: RouteSecurity = {
+      access: {
+        ...(ra.authenticated ? { authenticated: true } : {}),
+        ...(ra.users.length ? { users: ra.users } : {}),
+        ...(ra.roles.length ? { roles: ra.roles } : {}),
+      },
+      endpoints,
+    };
 
     this.saveState.set('saving');
     try {

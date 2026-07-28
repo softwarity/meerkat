@@ -43,11 +43,11 @@ func groupSetup(t *testing.T) (*http.ServeMux, *session.Manager, *store.Store) {
 	must(st.SetMemberGroups(ctx, "t1", "u1", []string{"g-ops", "g-sales"}))
 	must(st.SetMemberGroups(ctx, "t2", "u1", []string{"g-lone"}))
 	for _, rt := range []store.Route{
-		{ID: "opsapp", Name: "opsapp", Order: 1, Enabled: true, IsUI: true, Authenticated: true,
-			RequiredRole: "ops", Upstream: "http://up.test",
+		{ID: "opsapp", Name: "opsapp", Order: 1, Enabled: true, IsUI: true,
+			Access: store.Access{Roles: []string{"ops"}}, UI: &store.RouteUI{Link: "opsapp"}, Upstream: "http://up.test",
 			Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{"/opsapp/**"}}}}},
-		{ID: "salesapp", Name: "salesapp", Order: 2, Enabled: true, IsUI: true, Authenticated: true,
-			RequiredRole: "sales", Upstream: "http://up.test",
+		{ID: "salesapp", Name: "salesapp", Order: 2, Enabled: true, IsUI: true,
+			Access: store.Access{Roles: []string{"sales"}}, UI: &store.RouteUI{Link: "salesapp"}, Upstream: "http://up.test",
 			Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{"/salesapp/**"}}}}},
 	} {
 		must(st.SaveRoute(ctx, rt))

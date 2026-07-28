@@ -1,0 +1,288 @@
+/* Sentinel's Watch skin over swagger-ui — same field and accents as the
+   console and the flow pages, system fonts only (offline-first). */
+
+:root {
+  --mk-field: #1b2f40;
+  --mk-bar: #152634;
+  --mk-panel: rgba(255, 255, 255, 0.035);
+  --mk-panel-2: rgba(255, 255, 255, 0.06);
+  --mk-ink: #e2ecf2;
+  --mk-muted: #9db2c0;
+  --mk-line: rgba(255, 255, 255, 0.1);
+  --mk-teal: #2e8595;
+  --mk-cyan: #25c2e0;
+  --mk-code-bg: #14232f;
+  color-scheme: dark;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--mk-field);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ── Header bar ──────────────────────────────────────────────────────── */
+
+.mk-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  background: var(--mk-bar);
+  border-bottom: 1px solid var(--mk-line);
+}
+.mk-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--mk-ink);
+}
+.mk-brand svg {
+  height: 26px;
+  width: auto;
+  color: var(--mk-cyan);
+}
+.mk-word {
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+.mk-sub {
+  margin-left: 2px;
+  padding: 2px 8px;
+  border: 1px solid var(--mk-line);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--mk-muted);
+  text-transform: uppercase;
+}
+.mk-pick { margin-left: auto; }
+.mk-pick select {
+  appearance: none;
+  padding: 7px 32px 7px 12px;
+  border: 1px solid var(--mk-line);
+  border-radius: 8px;
+  background: var(--mk-panel-2)
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0l5 6 5-6z" fill="%239db2c0"/></svg>')
+    no-repeat right 12px center;
+  color: var(--mk-ink);
+  font: inherit;
+  font-size: 0.9rem;
+}
+.mk-pick select:focus-visible {
+  outline: 2px solid var(--mk-teal);
+  outline-offset: 1px;
+}
+.mk-raw {
+  color: var(--mk-muted);
+  font-size: 0.8rem;
+  text-decoration: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.mk-raw:hover { color: var(--mk-cyan); }
+.mk-error {
+  margin: 32px;
+  color: var(--mk-muted);
+  text-align: center;
+}
+
+main { padding: 4px 8px 48px; }
+
+/* ── swagger-ui, repainted ───────────────────────────────────────────── */
+
+.swagger-ui,
+.swagger-ui .info .title,
+.swagger-ui .info h1, .swagger-ui .info h2, .swagger-ui .info h3,
+.swagger-ui .info h4, .swagger-ui .info h5,
+.swagger-ui .info li, .swagger-ui .info p, .swagger-ui .info table,
+.swagger-ui .opblock-tag,
+.swagger-ui .opblock .opblock-summary-description,
+.swagger-ui .opblock .opblock-summary-operation-id,
+.swagger-ui .opblock .opblock-summary-path,
+.swagger-ui .opblock .opblock-summary-path__deprecated,
+.swagger-ui .opblock-description-wrapper p,
+.swagger-ui .opblock-external-docs-wrapper p,
+.swagger-ui .opblock-title_normal p,
+.swagger-ui .opblock .opblock-section-header h4,
+.swagger-ui .opblock .opblock-section-header label,
+.swagger-ui .tab li,
+.swagger-ui table thead tr td, .swagger-ui table thead tr th,
+.swagger-ui .parameter__name, .swagger-ui .parameter__extension,
+.swagger-ui .parameter__in,
+.swagger-ui .response-col_status,
+.swagger-ui .response-col_links,
+.swagger-ui .responses-inner h4, .swagger-ui .responses-inner h5,
+.swagger-ui .model-title, .swagger-ui .model,
+.swagger-ui .models-control,
+.swagger-ui section.models h4, .swagger-ui section.models h5,
+.swagger-ui .dialog-ux .modal-ux-content h4,
+.swagger-ui .dialog-ux .modal-ux-content p,
+.swagger-ui .dialog-ux .modal-ux-header h3,
+.swagger-ui .auth-container .wrapper label,
+.swagger-ui .scopes h2,
+.swagger-ui .servers > label,
+.swagger-ui .loading-container .loading::after,
+.swagger-ui .renderedMarkdown p {
+  color: var(--mk-ink);
+  font-family: inherit;
+}
+
+.swagger-ui .info { margin: 28px 0 12px; }
+.swagger-ui .info .title small { background: var(--mk-teal); }
+.swagger-ui .info .title small.version-stamp { background: var(--mk-teal); }
+.swagger-ui .info .description p, .swagger-ui .info .description li { color: var(--mk-muted); }
+.swagger-ui .info a { color: var(--mk-cyan); }
+
+.swagger-ui .parameter__type,
+.swagger-ui .prop-format,
+.swagger-ui .parameter__deprecated,
+.swagger-ui table.model td:first-of-type,
+.swagger-ui .response-col_description__inner p,
+.swagger-ui .opblock-description-wrapper,
+.swagger-ui .model .property,
+.swagger-ui .model .property.primitive {
+  color: var(--mk-muted);
+}
+
+/* Section chrome */
+.swagger-ui .opblock-tag {
+  border-bottom: 1px solid var(--mk-line);
+}
+.swagger-ui .opblock-tag small { color: var(--mk-muted); }
+.swagger-ui .opblock {
+  background: var(--mk-panel);
+  border: 1px solid var(--mk-line);
+  border-radius: 10px;
+  box-shadow: none;
+  margin-bottom: 10px;
+}
+.swagger-ui .opblock .opblock-section-header {
+  background: var(--mk-panel-2);
+  box-shadow: none;
+}
+.swagger-ui .opblock.is-open .opblock-summary { border-bottom-color: var(--mk-line); }
+
+/* Keep the stock method hues but let the block itself stay Sentinel */
+.swagger-ui .opblock.opblock-get,
+.swagger-ui .opblock.opblock-post,
+.swagger-ui .opblock.opblock-put,
+.swagger-ui .opblock.opblock-delete,
+.swagger-ui .opblock.opblock-patch,
+.swagger-ui .opblock.opblock-head,
+.swagger-ui .opblock.opblock-options,
+.swagger-ui .opblock.opblock-deprecated {
+  background: var(--mk-panel);
+  border-color: var(--mk-line);
+}
+.swagger-ui .opblock .opblock-summary-method { border-radius: 6px; }
+
+.swagger-ui .expand-methods svg, .swagger-ui .expand-operation svg,
+.swagger-ui .arrow, .swagger-ui .model-toggle::after {
+  fill: var(--mk-muted);
+}
+.swagger-ui .model-toggle::after {
+  background: none;
+  content: '▸';
+  color: var(--mk-muted);
+}
+.swagger-ui svg.arrow { fill: var(--mk-muted); }
+.swagger-ui .authorization__btn svg { fill: var(--mk-muted); }
+
+/* Inputs */
+.swagger-ui input[type='text'], .swagger-ui input[type='password'],
+.swagger-ui input[type='search'], .swagger-ui input[type='email'],
+.swagger-ui input[type='file'], .swagger-ui textarea, .swagger-ui select {
+  background: var(--mk-code-bg);
+  border: 1px solid var(--mk-line);
+  color: var(--mk-ink);
+  border-radius: 6px;
+}
+.swagger-ui select { box-shadow: none; }
+.swagger-ui input::placeholder, .swagger-ui textarea::placeholder { color: var(--mk-muted); }
+
+/* Buttons */
+.swagger-ui .btn {
+  border: 1px solid var(--mk-line);
+  color: var(--mk-ink);
+  box-shadow: none;
+}
+.swagger-ui .btn:hover { border-color: var(--mk-teal); }
+.swagger-ui .btn.execute {
+  background: var(--mk-teal);
+  border-color: var(--mk-teal);
+  color: #fff;
+}
+.swagger-ui .btn.authorize {
+  border-color: var(--mk-teal);
+  color: var(--mk-cyan);
+  background: transparent;
+}
+.swagger-ui .btn.authorize svg { fill: var(--mk-cyan); }
+.swagger-ui .btn.cancel { border-color: #b96e6e; color: #d99; }
+
+/* Code */
+.swagger-ui .highlight-code pre, .swagger-ui pre.microlight,
+.swagger-ui textarea.curl {
+  background: var(--mk-code-bg) !important;
+  color: #cfe3ee;
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.swagger-ui .copy-to-clipboard {
+  background: transparent;
+  border: none;
+}
+.swagger-ui .copy-to-clipboard button { background: none; }
+.swagger-ui .download-contents { background: var(--mk-teal); }
+
+/* Schemes / servers strip */
+.swagger-ui .scheme-container {
+  background: transparent;
+  box-shadow: none;
+  border-bottom: 1px solid var(--mk-line);
+  padding: 12px 0;
+  margin: 0;
+}
+
+/* Models */
+.swagger-ui section.models {
+  border: 1px solid var(--mk-line);
+  border-radius: 10px;
+  background: var(--mk-panel);
+}
+.swagger-ui section.models.is-open h4 { border-bottom-color: var(--mk-line); }
+.swagger-ui .model-box { background: var(--mk-panel-2); border-radius: 8px; }
+.swagger-ui .model-box-control:focus, .swagger-ui .models-control:focus,
+.swagger-ui .opblock-summary-control:focus {
+  outline: 2px solid var(--mk-teal);
+}
+
+/* Responses table */
+.swagger-ui .responses-inner { color: var(--mk-muted); }
+.swagger-ui table tbody tr td { color: var(--mk-ink); border-color: var(--mk-line); }
+.swagger-ui .response-col_description .renderedMarkdown p { color: var(--mk-muted); }
+
+/* Authorize modal */
+.swagger-ui .dialog-ux .modal-ux {
+  background: var(--mk-bar);
+  border: 1px solid var(--mk-line);
+}
+.swagger-ui .dialog-ux .modal-ux-header { border-bottom-color: var(--mk-line); }
+.swagger-ui .dialog-ux .backdrop-ux { background: rgba(0, 0, 0, 0.6); }
+.swagger-ui .auth-container { border-bottom-color: var(--mk-line); }
+.swagger-ui .auth-container .errors { background: transparent; }
+.swagger-ui .close-modal { filter: invert(0.8); }
+
+/* Details oddments */
+.swagger-ui .opblock-summary-path { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.swagger-ui .markdown p, .swagger-ui .markdown li { color: var(--mk-muted); }
+.swagger-ui .parameter__name.required::after { color: #e0938f; }
+.swagger-ui .try-out__btn { color: var(--mk-cyan); border-color: var(--mk-teal); }
+.swagger-ui .response-control-media-type__accept-message { color: var(--mk-muted); }
+.swagger-ui .servers-title { color: var(--mk-ink); }
+.swagger-ui .no-margin { border: none; }
+.swagger-ui .filter-container .operation-filter-input { background: var(--mk-code-bg); }

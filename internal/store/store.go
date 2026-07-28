@@ -102,28 +102,20 @@ func (s *Store) Close() error { return s.db.Close() }
 // data plane only, an admin (control-plane) token on the admin port only —
 // each plane accepts its own scope, never the other's. Admin tokens are the
 // foundation for headless management (CLI/MCP), minted by root.
-const schemaVersion = 26
+const schemaVersion = 29
 
 func (s *Store) migrate() error {
 	var v int
 	if err := s.db.QueryRow(`PRAGMA user_version`).Scan(&v); err != nil {
 		return fmt.Errorf("store: read schema version: %w", err)
 	}
-	if v < 2 {
-		// v1 was the walking-skeleton routes table (path_prefix/strip_prefix/
-		// inject_head columns, no user_version). Convert its rows to the
-		// declarative predicates/filters model before recreating the table.
-		if err := s.migrateSkeletonRoutes(); err != nil {
-			return err
-		}
-	}
+	_ = v // design phase: no data migrations, DBs are disposable.
 	_, err := s.db.Exec(`
 CREATE TABLE IF NOT EXISTS routes (
   id            TEXT PRIMARY KEY,
   name          TEXT NOT NULL UNIQUE,
   ord           INTEGER NOT NULL DEFAULT 0,
   enabled       INTEGER NOT NULL DEFAULT 1,
-  authenticated INTEGER NOT NULL DEFAULT 0,
   is_ui         INTEGER NOT NULL DEFAULT 0,
   upstream      TEXT NOT NULL,
   predicates    TEXT NOT NULL DEFAULT '[]',
@@ -465,7 +457,9 @@ var routeColumns = []columnDef{
 	{"ui", `TEXT NOT NULL DEFAULT '{}'`},
 	{"identity", `TEXT NOT NULL DEFAULT '{}'`},
 	{"locales", `TEXT NOT NULL DEFAULT '{}'`},
-	{"required_role", `TEXT NOT NULL DEFAULT ''`},
+	// access holds the route's unified base security (RBAC-06). Replaces the
+	// former authenticated/required_role columns.
+	{"access", `TEXT NOT NULL DEFAULT '{}'`},
 }
 
 // tenantColumns: v8 added the per-org group mode (RBAC-03) — MULTIPLE
@@ -535,71 +529,6 @@ func (s *Store) addMissingColumns(table string, cols []columnDef) error {
 	return nil
 }
 
-// migrateSkeletonRoutes converts a pre-versioning routes table to the
-// declarative model: path_prefix → a path predicate on prefix/**,
-// strip_prefix → a strip-prefix filter. The skeleton's inject_head column is
-// DROPPED: page injections are UI-route options now (custom CSS/JS), not a
-// generic filter.
-func (s *Store) migrateSkeletonRoutes() error {
-	var n int
-	err := s.db.QueryRow(`SELECT COUNT(*) FROM pragma_table_info('routes') WHERE name = 'path_prefix'`).Scan(&n)
-	if err != nil || n == 0 {
-		return err // fresh database or already migrated
-	}
-	rows, err := s.db.Query(`SELECT id, name, ord, enabled, authenticated, upstream, path_prefix, strip_prefix FROM routes`)
-	if err != nil {
-		return fmt.Errorf("store: read skeleton routes: %w", err)
-	}
-	defer func() { _ = rows.Close() }()
-	var converted []Route
-	for rows.Next() {
-		var r Route
-		var prefix string
-		var strip bool
-		if err := rows.Scan(&r.ID, &r.Name, &r.Order, &r.Enabled, &r.Authenticated, &r.Upstream, &prefix, &strip); err != nil {
-			return fmt.Errorf("store: scan skeleton route: %w", err)
-		}
-		pattern := strings.TrimSuffix(prefix, "/") + "/**"
-		r.Predicates = []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{pattern}}}}
-		if strip {
-			parts := len(strings.Split(strings.Trim(prefix, "/"), "/"))
-			r.Filters = append(r.Filters, routing.Spec{Type: "strip-prefix", Args: map[string]any{"parts": parts}})
-		}
-		converted = append(converted, r)
-	}
-	if err := rows.Err(); err != nil {
-		return err
-	}
-	if _, err := s.db.Exec(`DROP TABLE routes`); err != nil {
-		return fmt.Errorf("store: drop skeleton routes: %w", err)
-	}
-	if _, err := s.db.Exec(`
-CREATE TABLE routes (
-  id            TEXT PRIMARY KEY,
-  name          TEXT NOT NULL UNIQUE,
-  ord           INTEGER NOT NULL DEFAULT 0,
-  enabled       INTEGER NOT NULL DEFAULT 1,
-  authenticated INTEGER NOT NULL DEFAULT 0,
-  is_ui         INTEGER NOT NULL DEFAULT 0,
-  upstream      TEXT NOT NULL,
-  predicates    TEXT NOT NULL DEFAULT '[]',
-  filters       TEXT NOT NULL DEFAULT '[]',
-  api           TEXT NOT NULL DEFAULT '{}',
-  ui            TEXT NOT NULL DEFAULT '{}',
-  identity      TEXT NOT NULL DEFAULT '{}',
-  locales       TEXT NOT NULL DEFAULT '{}',
-  required_role TEXT NOT NULL DEFAULT ''
-);`); err != nil {
-		return fmt.Errorf("store: recreate routes: %w", err)
-	}
-	for _, r := range converted {
-		if err := s.SaveRoute(context.Background(), r); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // Route is a routing rule: declarative predicates decide the match,
 // declarative filters transform request and response, the upstream receives
 // the traffic (routing.Spec is the single shape shared with exports, the
@@ -612,7 +541,7 @@ const ()
 // and the endpoint-level security (RBAC-07) posed on that spec's operations,
 // which secures an upstream that does not enforce access itself.
 type RouteAPI struct {
-	SwaggerURL string            `json:"swaggerUrl,omitempty"`
+	OpenapiURL string            `json:"openapiUrl,omitempty"`
 	Security   *EndpointSecurity `json:"security,omitempty"`
 }
 
@@ -663,13 +592,10 @@ func (a Access) Grants(authenticated bool, username string, roles []string) bool
 // EndpointSecurity secures the operations of a route's OpenAPI spec (RBAC-07),
 // the way to gate an upstream one does not control without touching its code.
 type EndpointSecurity struct {
-	// Route is the DEFAULT rule applied to every operation with no explicit
-	// override below. An authenticated/role default locks the whole API by
-	// default, so a new upstream endpoint is covered automatically; specific
-	// operations are then opened or tightened via Endpoints.
-	Route *Access `json:"route,omitempty"`
-	// Endpoints override the default for specific operations (method+path,
-	// OpenAPI coordinates, {var} templating). First match wins, in list order.
+	// Endpoints override the route's base Access (Route.Access) for specific
+	// operations (method+path, OpenAPI coordinates, {var} templating). First
+	// match wins, in list order. The whole-route default is the route's own
+	// Access, not a field here.
 	Endpoints []EndpointPolicy `json:"endpoints,omitempty"`
 }
 
@@ -837,11 +763,16 @@ type IdentityAttr struct {
 // Route is one declarative routing rule: predicates match a request, filters
 // transform it, and the upstream (or a terminal filter) answers it.
 type Route struct {
-	ID            string `json:"id"`
-	Name          string `json:"name"`
-	Order         int    `json:"order"`
-	Enabled       bool   `json:"enabled"`
-	Authenticated bool   `json:"authenticated"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Order   int    `json:"order"`
+	Enabled bool   `json:"enabled"`
+	// Access is the route's base security (RBAC-06): the unified rule applied to
+	// the whole route (authenticated + users + roles, OR-combined). Empty means
+	// delegated to the upstream. Endpoint-security overrides refine it per
+	// operation. It is edited both in the route's Security section and as the
+	// "whole route" default of the endpoint-security screen.
+	Access Access `json:"access"`
 	// IsUI toggles the UI-only options (user button, page injections, path
 	// locales): a route is always a service, UI comes on top (ROUTE-02).
 	IsUI       bool           `json:"isUi"`
@@ -850,9 +781,6 @@ type Route struct {
 	Filters    []routing.Spec `json:"filters"`
 	API        *RouteAPI      `json:"api,omitempty"`
 	UI         *RouteUI       `json:"ui,omitempty"`
-	// RequiredRole gates the route behind an EFFECTIVE role of the session's
-	// active tenant (implies authenticated).
-	RequiredRole string `json:"requiredRole,omitempty"`
 	// Identity forwards the signed-in user to the upstream service — valid
 	// for both route types (an API service wants the caller too).
 	Identity *IdentityForward `json:"identity,omitempty"`
@@ -865,7 +793,7 @@ type Route struct {
 // ListRoutes returns every route ordered by ascending Order.
 func (s *Store) ListRoutes(ctx context.Context) ([]Route, error) {
 	rows, err := s.db.QueryContext(ctx,
-		`SELECT id, name, ord, enabled, authenticated, is_ui, upstream, predicates, filters, api, ui, identity, locales, required_role
+		`SELECT id, name, ord, enabled, is_ui, upstream, predicates, filters, api, ui, identity, locales, access
 		 FROM routes ORDER BY ord ASC, name ASC`)
 	if err != nil {
 		return nil, fmt.Errorf("store: list routes: %w", err)
@@ -874,9 +802,9 @@ func (s *Store) ListRoutes(ctx context.Context) ([]Route, error) {
 	var routes []Route
 	for rows.Next() {
 		var r Route
-		var preds, filts, api, ui, identity, locales string
-		if err := rows.Scan(&r.ID, &r.Name, &r.Order, &r.Enabled, &r.Authenticated,
-			&r.IsUI, &r.Upstream, &preds, &filts, &api, &ui, &identity, &locales, &r.RequiredRole); err != nil {
+		var preds, filts, api, ui, identity, locales, access string
+		if err := rows.Scan(&r.ID, &r.Name, &r.Order, &r.Enabled,
+			&r.IsUI, &r.Upstream, &preds, &filts, &api, &ui, &identity, &locales, &access); err != nil {
 			return nil, fmt.Errorf("store: scan route: %w", err)
 		}
 		if err := json.Unmarshal([]byte(preds), &r.Predicates); err != nil {
@@ -885,7 +813,7 @@ func (s *Store) ListRoutes(ctx context.Context) ([]Route, error) {
 		if err := json.Unmarshal([]byte(filts), &r.Filters); err != nil {
 			return nil, fmt.Errorf("store: route %q: bad filters: %w", r.Name, err)
 		}
-		if err := decodeRouteOptions(&r, api, ui, identity, locales); err != nil {
+		if err := decodeRouteOptions(&r, api, ui, identity, locales, access); err != nil {
 			return nil, fmt.Errorf("store: route %q: %w", r.Name, err)
 		}
 		routes = append(routes, r)
@@ -935,16 +863,20 @@ func (s *Store) SaveRoute(ctx context.Context, r Route) error {
 		}
 		locales = string(b)
 	}
+	access, err := json.Marshal(r.Access)
+	if err != nil {
+		return fmt.Errorf("store: route %q: %w", r.Name, err)
+	}
 	_, err = s.db.ExecContext(ctx,
-		`INSERT INTO routes (id, name, ord, enabled, authenticated, is_ui, upstream, predicates, filters, api, ui, identity, locales, required_role)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		`INSERT INTO routes (id, name, ord, enabled, is_ui, upstream, predicates, filters, api, ui, identity, locales, access)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET
 		   name = excluded.name, ord = excluded.ord, enabled = excluded.enabled,
-		   authenticated = excluded.authenticated, is_ui = excluded.is_ui, upstream = excluded.upstream,
+		   is_ui = excluded.is_ui, upstream = excluded.upstream,
 		   predicates = excluded.predicates, filters = excluded.filters,
-		   api = excluded.api, ui = excluded.ui, identity = excluded.identity, locales = excluded.locales, required_role = excluded.required_role`,
-		r.ID, r.Name, r.Order, r.Enabled, r.Authenticated, r.IsUI, r.Upstream,
-		string(preds), string(filts), api, ui, identity, locales, r.RequiredRole)
+		   api = excluded.api, ui = excluded.ui, identity = excluded.identity, locales = excluded.locales, access = excluded.access`,
+		r.ID, r.Name, r.Order, r.Enabled, r.IsUI, r.Upstream,
+		string(preds), string(filts), api, ui, identity, locales, string(access))
 	if err != nil {
 		return fmt.Errorf("store: save route %q: %w", r.Name, err)
 	}
@@ -974,11 +906,11 @@ func (s *Store) ReorderRoutes(ctx context.Context, ids []string) error {
 // GetRoute returns one route by ID, or an error wrapping sql.ErrNoRows.
 func (s *Store) GetRoute(ctx context.Context, id string) (Route, error) {
 	var r Route
-	var preds, filts, api, ui, identity, locales string
+	var preds, filts, api, ui, identity, locales, access string
 	err := s.db.QueryRowContext(ctx,
-		`SELECT id, name, ord, enabled, authenticated, is_ui, upstream, predicates, filters, api, ui, identity, locales, required_role
+		`SELECT id, name, ord, enabled, is_ui, upstream, predicates, filters, api, ui, identity, locales, access
 		 FROM routes WHERE id = ?`, id).
-		Scan(&r.ID, &r.Name, &r.Order, &r.Enabled, &r.Authenticated, &r.IsUI, &r.Upstream, &preds, &filts, &api, &ui, &identity, &locales, &r.RequiredRole)
+		Scan(&r.ID, &r.Name, &r.Order, &r.Enabled, &r.IsUI, &r.Upstream, &preds, &filts, &api, &ui, &identity, &locales, &access)
 	if err != nil {
 		return Route{}, fmt.Errorf("store: get route %q: %w", id, err)
 	}
@@ -988,7 +920,7 @@ func (s *Store) GetRoute(ctx context.Context, id string) (Route, error) {
 	if err := json.Unmarshal([]byte(filts), &r.Filters); err != nil {
 		return Route{}, fmt.Errorf("store: route %q: bad filters: %w", id, err)
 	}
-	if err := decodeRouteOptions(&r, api, ui, identity, locales); err != nil {
+	if err := decodeRouteOptions(&r, api, ui, identity, locales, access); err != nil {
 		return Route{}, fmt.Errorf("store: route %q: %w", id, err)
 	}
 	return r, nil
@@ -1006,7 +938,12 @@ func (s *Store) DeleteRoute(ctx context.Context, id string) (bool, error) {
 
 // decodeRouteOptions hydrates the per-type option objects; "{}" stays nil so
 // the JSON API omits what was never configured.
-func decodeRouteOptions(r *Route, api, ui, identity, locales string) error {
+func decodeRouteOptions(r *Route, api, ui, identity, locales, access string) error {
+	if access != "" && access != "{}" {
+		if err := json.Unmarshal([]byte(access), &r.Access); err != nil {
+			return fmt.Errorf("bad access options: %w", err)
+		}
+	}
 	if api != "" && api != "{}" {
 		r.API = &RouteAPI{}
 		if err := json.Unmarshal([]byte(api), r.API); err != nil {

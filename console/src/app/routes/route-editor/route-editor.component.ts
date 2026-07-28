@@ -45,6 +45,14 @@ const UI_SECTIONS: Section[] = ['button', 'userinfo', 'inject'];
 // Predicate types whose server contract requires a `name` arg.
 const MATCHER_TYPES = ['header', 'cookie', 'query'];
 
+// Identity-token lifetimes (short by design): the select offers these, humanized.
+const IDENTITY_TTL_CHOICES = ['PT1M', 'PT2M', 'PT5M', 'PT10M', 'PT15M', 'PT30M', 'PT1H'];
+
+// The route's base Access as the editor's non-optional shape.
+function toAccessState(a: Access | undefined): AccessState {
+  return a ? { authenticated: !!a.authenticated, users: a.users ?? [], roles: a.roles ?? [] } : emptyAccess();
+}
+
 // Route editor — a side-drawer inspector (not a modal). Sections down the left,
 // one panel each. One signal form over the whole draft: scalars bind field by
 // field, predicates/filters bind as FormValueControl sections. The schema
@@ -58,15 +66,18 @@ const MATCHER_TYPES = ['header', 'cookie', 'query'];
     FormField,
     MatButtonModule,
     MatCheckboxModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatListModule,
     MatSelectModule,
     MatSlideToggleModule,
-    RouterLink,
+    MatTooltipModule,
     PredicatesComponent,
     FiltersComponent,
+    UrlInputComponent,
+    AccessEditorComponent,
   ],
   templateUrl: './route-editor.component.html',
   styleUrl: './route-editor.component.scss',
@@ -201,13 +212,30 @@ export class RouteEditorComponent {
   protected readonly identityFields = IDENTITY_FIELDS;
   protected readonly pageUserFields = PAGE_USER_FIELDS;
   protected readonly appLanguages = signal<string[]>([]);
-  // The role catalogue feeds the Required-role select in General.
+  // Roles and users feed the Security section's access editor. The users list is
+  // app-admin scoped, so a pure infra-admin may get an empty one (tolerated).
   protected readonly roles = signal<Role[]>([]);
+  protected readonly users = signal<User[]>([]);
   private readonly consoleNames = new Intl.DisplayNames([inject(LOCALE_ID)], { type: 'language' });
 
   constructor() {
     this.api.settings().subscribe({ next: (s) => this.appLanguages.set(s.languages ?? []) });
     this.api.listRoles().subscribe({ next: (r) => this.roles.set(r) });
+    this.api.listUsers().subscribe({ next: (u) => this.users.set(u), error: () => this.users.set([]) });
+  }
+
+  protected setAccess(a: AccessState): void {
+    this.draft.update((d) => ({ ...d, access: a }));
+  }
+
+  private readonly ttlLocale = inject(LOCALE_ID);
+  // The token-TTL choices, plus the stored value if it is off the preset list.
+  protected readonly ttlChoices = computed(() => {
+    const cur = this.draft().identityTtl;
+    return cur && !IDENTITY_TTL_CHOICES.includes(cur) ? [cur, ...IDENTITY_TTL_CHOICES] : IDENTITY_TTL_CHOICES;
+  });
+  protected humanTtl(iso: string): string {
+    return humanDuration(iso, this.ttlLocale);
   }
 
   protected localeName(code: string): string {
@@ -308,12 +336,10 @@ export class RouteEditorComponent {
   protected setFlag(
     flag:
       | 'enabled'
-      | 'authenticated'
       | 'schemeSelect'
       | 'rolesEnabled'
       | 'userInfoEnabled'
-      | 'btnEnabled'
-      | 'identityEnabled',
+      | 'btnEnabled',
     value: boolean,
   ): void {
     this.draft.update((d) => ({ ...d, [flag]: value }));
@@ -383,9 +409,11 @@ export class RouteEditorComponent {
 
   protected patch(
     key:
-      | 'swaggerUrl'
-      | 'requiredRole'
-      | 'identityMechanism'
+      | 'openapiUrl'
+      | 'uiLink'
+      | 'upstream'
+      | 'identityTtl'
+      | 'identityAlgorithm'
       | 'btnPosition'
       | 'btnShape'
       | 'btnName'
@@ -476,15 +504,14 @@ export class RouteEditorComponent {
       name: d.name.trim(),
       order: this.route()?.order ?? 0,
       enabled: d.enabled,
-      authenticated: d.authenticated || !!d.requiredRole.trim(),
+      access: d.access,
       isUi: d.isUi,
       upstream: d.upstream.trim(),
       predicates: cleanSpecs(d.predicates),
       filters: cleanSpecs(d.filters),
-      requiredRole: d.requiredRole.trim(),
     };
-    if (d.swaggerUrl.trim()) {
-      route.api = { swaggerUrl: d.swaggerUrl.trim() };
+    if (d.openapiUrl.trim()) {
+      route.api = { openapiUrl: d.openapiUrl.trim() };
     }
     if (d.isUi) {
       route.ui = {

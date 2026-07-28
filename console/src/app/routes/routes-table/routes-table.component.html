@@ -1,7 +1,7 @@
 <mat-table [dataSource]="routes()" cdkDropList (cdkDropListDropped)="drop($event)">
-  <ng-container matColumnDef="drag">
-    <mat-header-cell *matHeaderCellDef class="drag-col"></mat-header-cell>
-    <mat-cell *matCellDef="let r" class="drag-col">
+  <ng-container matColumnDef="name">
+    <mat-header-cell *matHeaderCellDef i18n="@@Name">Name</mat-header-cell>
+    <mat-cell *matCellDef="let r">
       <mat-icon
         cdkDragHandle
         class="handle"
@@ -9,17 +9,17 @@
         i18n-matTooltip="@@Drag_to_reorder"
         matTooltip="Drag to reorder"
       >drag_indicator</mat-icon>
+      <span class="name-cell" [class.off]="!r.enabled">
+        <span class="dot" [title]="r.enabled ? 'enabled' : 'disabled'"></span>
+        <span class="name">{{ r.name }}</span>
+      </span>
     </mat-cell>
   </ng-container>
 
-  <ng-container matColumnDef="name">
-    <mat-header-cell *matHeaderCellDef i18n="@@Name">Name</mat-header-cell>
-    <mat-cell *matCellDef="let r" [class.off]="!r.enabled">
-      <span class="dot" [title]="r.enabled ? 'enabled' : 'disabled'"></span>
-      <span class="name">{{ r.name }}</span>
-      @if (r.authenticated) {
-        <mat-icon inline i18n-title="@@authenticated" title="authenticated">lock</mat-icon>
-      }
+  <ng-container matColumnDef="access">
+    <mat-header-cell *matHeaderCellDef class="access-col"></mat-header-cell>
+    <mat-cell *matCellDef="let r" class="access-col" [class.off]="!r.enabled">
+      <app-access-badges [access]="accessBadge(r)" />
     </mat-cell>
   </ng-container>
 
@@ -72,7 +72,7 @@
     </mat-cell>
   </ng-container>
 
-  <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+  <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
   <mat-row
     *matRowDef="let row; columns: columns"
     cdkDrag

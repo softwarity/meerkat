@@ -274,11 +274,11 @@ func TestAuthenticatedRouteGating(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = st.Close() })
 	ctx := context.Background()
-	if err := st.CreateUser(ctx, store.User{ID: "u1", Username: "admin", PasswordHash: "x"}); err != nil {
+	if err := st.CreateUser(ctx, store.User{ID: "u1", Username: "admin", Enabled: true, PasswordHash: "x"}); err != nil {
 		t.Fatalf("CreateUser: %v", err)
 	}
 	secure := pathRoute("r1", "secure", 1, "/secure/**", upstream.URL)
-	secure.Authenticated = true
+	secure.Access = store.Access{Authenticated: true}
 	if err := st.SaveRoute(ctx, secure); err != nil {
 		t.Fatalf("SaveRoute: %v", err)
 	}

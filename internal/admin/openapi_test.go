@@ -43,7 +43,7 @@ func TestRouteOperationsProjection(t *testing.T) {
 	  "name":"api","order":1,"enabled":true,"upstream":"%s",
 	  "predicates":[{"type":"path","args":{"patterns":["/api/**"]}}],
 	  "filters":[{"type":"strip-prefix","args":{"parts":1}}],
-	  "api":{"swaggerUrl":"%s/spec.json"}
+	  "api":{"openapiUrl":"%s/spec.json"}
 	}`, up.URL, up.URL)
 	if code, out := f.call(t, "PUT", "/api/routes/r1", route, f.rootC); code != http.StatusOK {
 		t.Fatalf("put route: %d %s", code, out)
@@ -85,14 +85,14 @@ func TestPutRouteSecurityEnforced(t *testing.T) {
 	  "name":"api","order":1,"enabled":true,"upstream":"%s",
 	  "predicates":[{"type":"path","args":{"patterns":["/api/**"]}}],
 	  "filters":[{"type":"strip-prefix","args":{"parts":1}}],
-	  "api":{"swaggerUrl":"%s/spec.json"}
+	  "api":{"openapiUrl":"%s/spec.json"}
 	}`, up.URL, up.URL)
 	if code, out := f.call(t, "PUT", "/api/routes/r1", route, f.rootC); code != http.StatusOK {
 		t.Fatalf("put route: %d %s", code, out)
 	}
 
 	// The route-wide default locks the API; GET /orders is reopened to anonymous.
-	sec := `{"route":{"authenticated":true},"endpoints":[{"method":"GET","path":"/orders"}]}`
+	sec := `{"access":{"authenticated":true},"endpoints":[{"method":"GET","path":"/orders"}]}`
 	// Non-root cannot pose security.
 	if code, _ := f.call(t, "PUT", "/api/routes/r1/security", sec, f.plainC); code != http.StatusForbidden {
 		t.Fatalf("security authz: %d, want 403", code)

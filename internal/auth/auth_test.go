@@ -482,11 +482,12 @@ func TestLoginPageOffersPublicUIRoutes(t *testing.T) {
 		return []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{pattern}}}}
 	}
 	save(store.Route{ID: "pub", Name: "docs", Order: 1, Enabled: true, IsUI: true,
-		Upstream: "http://up", Predicates: pathPred("/docs/**")})
+		UI: &store.RouteUI{Link: "docs"}, Upstream: "http://up", Predicates: pathPred("/docs/**")})
 	save(store.Route{ID: "api", Name: "openapi", Order: 2, Enabled: true,
 		Upstream: "http://up", Predicates: pathPred("/api/**")})
-	save(store.Route{ID: "sec", Name: "vault", Order: 3, Enabled: true, Authenticated: true,
-		IsUI: true, Upstream: "http://up", Predicates: pathPred("/secure/**")})
+	save(store.Route{ID: "sec", Name: "vault", Order: 3, Enabled: true,
+		Access: store.Access{Authenticated: true},
+		IsUI:   true, Upstream: "http://up", Predicates: pathPred("/secure/**")})
 
 	mux := http.NewServeMux()
 	New(st, session.NewManager(st)).Register(mux)

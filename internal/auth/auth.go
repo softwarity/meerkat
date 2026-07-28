@@ -1916,11 +1916,14 @@ func (h *Handler) publicLinks(ctx context.Context) []publicLink {
 	}
 	var links []publicLink
 	for _, rt := range routes {
-		if !rt.Enabled || rt.Authenticated || !rt.IsUI {
+		// Listed = a UI route that opted in with a menu Link, public (no gateway
+		// gate: empty Access, delegated to the upstream), reachable without a
+		// session. The Link is the displayed label.
+		if !rt.Enabled || !rt.Access.Empty() || !rt.IsUI || rt.UI == nil || rt.UI.Link == "" {
 			continue
 		}
 		if href := routeEntryPath(rt); href != "" {
-			links = append(links, publicLink{Name: rt.Name, Href: href})
+			links = append(links, publicLink{Name: rt.UI.Link, Href: href})
 		}
 	}
 	return links
@@ -1938,29 +1941,29 @@ func (h *Handler) reachableLinks(ctx context.Context, sess store.Session) []publ
 	if err != nil {
 		return nil
 	}
-	var roles map[string]bool // lazy: most installs have no role-gated route
-	rolesOf := func() map[string]bool {
-		if roles != nil {
-			return roles
-		}
-		roles = map[string]bool{}
-		if names, err := h.st.SessionRoleNames(ctx, sess.UserID, sess.TenantID, sess.GroupID); err == nil {
-			for _, n := range names {
-				roles[n] = true
-			}
-		}
-		return roles
+	// The caller's identity, to test each route's Access (username for named
+	// users, effective role names for role gates).
+	username := ""
+	if u, err := h.st.GetUserByID(ctx, sess.UserID); err == nil {
+		username = u.Username
+	}
+	var roleNames []string
+	if names, err := h.st.SessionRoleNames(ctx, sess.UserID, sess.TenantID, sess.GroupID); err == nil {
+		roleNames = names
 	}
 	var links []publicLink
 	for _, rt := range routes {
-		if !rt.Enabled || !rt.IsUI {
+		// Only UI routes that opted into the apps menu with a Link, and only
+		// when the caller's access grants them (an empty Access is public). The
+		// Link is the displayed label.
+		if !rt.Enabled || !rt.IsUI || rt.UI == nil || rt.UI.Link == "" {
 			continue
 		}
-		if rt.RequiredRole != "" && !rolesOf()[rt.RequiredRole] {
+		if !rt.Access.Grants(true, username, roleNames) {
 			continue
 		}
 		if href := routeEntryPath(rt); href != "" {
-			links = append(links, publicLink{Name: rt.Name, Href: href})
+			links = append(links, publicLink{Name: rt.UI.Link, Href: href})
 		}
 	}
 	return links

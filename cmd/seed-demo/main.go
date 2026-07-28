@@ -61,9 +61,9 @@ func run(dataDir string) error {
 		}
 	}
 
-	// ── tenants: one cumulative (inherits), two forced EXCLUSIVE ────────────
+	// ── tenants: one cumulative (the default), two forced EXCLUSIVE ──────────
 	tenants := []store.Tenant{
-		{ID: "demo-acme", Name: "acme-demo", Description: "Cumulative mode (inherits the global setting): group roles merge",
+		{ID: "demo-acme", Name: "acme-demo", Description: "Cumulative mode (the default): group roles merge",
 			Enabled: true, BusinessAccess: store.BusinessAccess{Inherited: true}, GroupMode: ""},
 		{ID: "demo-globex", Name: "globex-demo", Description: "EXCLUSIVE mode: members pick ONE group at entry",
 			Enabled: true, BusinessAccess: store.BusinessAccess{Inherited: true}, GroupMode: store.GroupModeSingle},
@@ -142,11 +142,11 @@ func run(dataDir string) error {
 	// ── two role-gated UI routes: watch them appear/disappear with the group ─
 	routes := []store.Route{
 		{ID: "demo-sales-app", Name: "sales-app", Order: 40, Enabled: true, IsUI: true,
-			Authenticated: true, RequiredRole: "sales", Upstream: "https://httpbin.org",
+			Access: store.Access{Roles: []string{"sales"}}, UI: &store.RouteUI{Link: "Sales app"}, Upstream: "https://httpbin.org",
 			Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{"/sales-app/**"}}}},
 			Filters:    []routing.Spec{{Type: "strip-prefix", Args: map[string]any{"parts": 1}}}},
 		{ID: "demo-ops-app", Name: "ops-app", Order: 41, Enabled: true, IsUI: true,
-			Authenticated: true, RequiredRole: "ops-write", Upstream: "https://httpbin.org",
+			Access: store.Access{Roles: []string{"ops-write"}}, UI: &store.RouteUI{Link: "Ops app"}, Upstream: "https://httpbin.org",
 			Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{"/ops-app/**"}}}},
 			Filters:    []routing.Spec{{Type: "strip-prefix", Args: map[string]any{"parts": 1}}}},
 	}

@@ -48,9 +48,9 @@ func TestEndpointSecurityEnforcement(t *testing.T) {
 
 	route := pathRoute("r1", "demo", 1, "/demo/**", upstream.URL,
 		routing.Spec{Type: "strip-prefix", Args: map[string]any{"parts": 1}})
+	// Whole route needs a session by default (route-wide base Access).
+	route.Access = store.Access{Authenticated: true}
 	route.API = &store.RouteAPI{Security: &store.EndpointSecurity{
-		// Whole API needs a session by default.
-		Route: &store.Access{Authenticated: true},
 		Endpoints: []store.EndpointPolicy{
 			{Method: "GET", Path: "/get", Access: store.Access{}},                              // reopened to anonymous
 			{Method: "GET", Path: "/admin/{id}", Access: store.Access{Roles: []string{"ops"}}}, // ops role

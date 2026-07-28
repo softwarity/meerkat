@@ -12,7 +12,7 @@ export interface Spec {
 // API-route options (ROUTE-02): the OpenAPI spec this route exposes, and the
 // per-endpoint access control (RBAC-07) posed on that spec's operations.
 export interface RouteAPIOptions {
-  swaggerUrl?: string;
+  openapiUrl?: string;
   security?: EndpointSecurity;
 }
 
@@ -33,11 +33,17 @@ export interface EndpointPolicy extends Access {
   path: string;
 }
 
-// Endpoint security posed on a route: a route-wide default applied to every
-// operation with no explicit override, plus the per-operation overrides.
+// Per-operation overrides posed on a route's OpenAPI operations (RBAC-07). The
+// whole-route default is the route's own Access (Route.access), not here.
 export interface EndpointSecurity {
-  route?: Access;
   endpoints?: EndpointPolicy[];
+}
+
+// The endpoint-security screen's save body: the route's base Access (the "whole
+// route" default) plus the per-operation overrides.
+export interface RouteSecurity {
+  access: Access;
+  endpoints: EndpointPolicy[];
 }
 
 // One operation projected from the route's OpenAPI spec (Swagger 2.0 or 3.x),
@@ -56,6 +62,8 @@ export interface RouteOperations {
   title?: string;
   version?: string;
   format: string;
+  // The route's base Access (the "whole route" default).
+  access: Access;
   operations: OpenAPIOperation[];
   security?: EndpointSecurity;
 }
@@ -216,7 +224,10 @@ export interface Route {
   name: string;
   order: number;
   enabled: boolean;
-  authenticated: boolean;
+  // The route's base security (RBAC-06): unified rule (authenticated + users +
+  // roles, OR-combined). Empty = delegated to the upstream. Edited in the
+  // route's Security section and as the "whole route" default of endpoint-security.
+  access: Access;
   // A route is always a service; isUi unlocks the UI extras on top.
   isUi: boolean;
   upstream: string;
@@ -226,8 +237,6 @@ export interface Route {
   ui?: RouteUIOptions;
   identity?: IdentityForward;
   locales?: LocalesConfig;
-  // Gates the route behind an effective role (implies authenticated).
-  requiredRole?: string;
 }
 
 export interface Param {

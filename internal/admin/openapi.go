@@ -68,7 +68,7 @@ func (a *API) getRouteOperations(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, routeOperations{
 		Title: spec.Title, Version: spec.Version, Format: spec.Format,
-		Operations: spec.Operations, Security: securityOf(route),
+		Access: route.Access, Operations: spec.Operations, Security: securityOf(route),
 	})
 }
 
@@ -81,22 +81,26 @@ func (a *API) putRouteSecurity(w http.ResponseWriter, r *http.Request, actor sto
 		writeErr(w, http.StatusNotFound, "route not found")
 		return
 	}
-	var sec store.EndpointSecurity
-	if err := decodeStrict(r, &sec); err != nil {
+	var payload routeSecurityPayload
+	if err := decodeStrict(r, &payload); err != nil {
 		writeErr(w, http.StatusBadRequest, "malformed security: "+err.Error())
 		return
 	}
+	sec := store.EndpointSecurity{Endpoints: payload.Endpoints}
 	if err := sec.Validate(); err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	oldSec := securityOf(route)
+	before := routeSecurityPayload{Access: route.Access, Endpoints: endpointsOf(route)}
 
+	// The whole-route default is the route's own Access; the endpoints override
+	// it per operation (kept under API.Security, next to the swagger url).
+	route.Access = payload.Access
 	api := store.RouteAPI{}
 	if route.API != nil {
-		api = *route.API // keep swaggerUrl and any future API options
+		api = *route.API // keep openapiUrl and any future API options
 	}
-	if len(sec.Endpoints) == 0 && sec.Route == nil {
+	if len(sec.Endpoints) == 0 {
 		api.Security = nil
 	} else {
 		api.Security = &sec
@@ -117,9 +121,9 @@ func (a *API) putRouteSecurity(w http.ResponseWriter, r *http.Request, actor sto
 		a.internal(w, fmt.Errorf("saved, but reload failed: %w", err))
 		return
 	}
-	a.auditUpdate(r.Context(), actor, "route.security", "route", route.ID, route.Name, "",
-		derefSecurity(oldSec), derefSecurity(api.Security))
-	writeJSON(w, http.StatusOK, api.Security)
+	after := routeSecurityPayload{Access: route.Access, Endpoints: sec.Endpoints}
+	a.auditUpdate(r.Context(), actor, "route.security", "route", route.ID, route.Name, "", before, after)
+	writeJSON(w, http.StatusOK, after)
 }
 
 // securityOf returns the route's endpoint security, or nil.
@@ -130,22 +134,21 @@ func securityOf(route store.Route) *store.EndpointSecurity {
 	return route.API.Security
 }
 
-// derefSecurity yields a value (never a nil pointer) so the audit diff sees the
-// fields rather than "null vs object".
-func derefSecurity(s *store.EndpointSecurity) store.EndpointSecurity {
-	if s == nil {
-		return store.EndpointSecurity{}
+// endpointsOf returns a route's per-operation overrides, or nil.
+func endpointsOf(route store.Route) []store.EndpointPolicy {
+	if route.API == nil || route.API.Security == nil {
+		return nil
 	}
-	return *s
+	return route.API.Security.Endpoints
 }
 
 // resolveSpecURL yields the absolute URL of a route's OpenAPI spec: an absolute
-// swaggerUrl is used as is; a relative one is resolved against the upstream.
+// openapiUrl is used as is; a relative one is resolved against the upstream.
 func resolveSpecURL(route store.Route) (string, error) {
-	if route.API == nil || strings.TrimSpace(route.API.SwaggerURL) == "" {
+	if route.API == nil || strings.TrimSpace(route.API.OpenapiURL) == "" {
 		return "", errors.New("this route declares no OpenAPI spec url")
 	}
-	s := strings.TrimSpace(route.API.SwaggerURL)
+	s := strings.TrimSpace(route.API.OpenapiURL)
 	if strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://") {
 		return s, nil
 	}

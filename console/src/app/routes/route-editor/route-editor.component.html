@@ -12,6 +12,7 @@
 <div class="body">
   <mat-selection-list [multiple]="false" hideSingleSelectionIndicator (selectionChange)="onSectionPick($event.options[0].value)">
     <mat-list-option value="general" [selected]="section() === 'general'" i18n="@@Section_general">General</mat-list-option>
+    <mat-list-option value="security" [selected]="section() === 'security'" i18n="@@Section_security">Security</mat-list-option>
     <mat-list-option value="predicates" [selected]="section() === 'predicates'">
       <span i18n="@@Predicates">Predicates</span>
       @if (draft().predicates.length) {
@@ -63,56 +64,64 @@
 
         <mat-form-field>
           <mat-label i18n="@@Upstream">Upstream</mat-label>
-          <input matInput [formField]="f.upstream" placeholder="http://service:8080" />
+          <app-url-input [value]="draft().upstream" (valueChange)="patch('upstream', $event)" />
+          <!-- No whitespace inside the @if: with preserveWhitespaces (i18n) a
+               stray text node stops the hint from reaching its projection slot. -->
           @if (hasTerminalFilter()) {<mat-hint i18n="@@Upstream_ignored_terminal">Ignored: a redirect answers this route</mat-hint>}
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label i18n="@@Swagger_URL">Swagger URL</mat-label>
+          <mat-label i18n="@@OpenAPI_URL">OpenAPI URL</mat-label>
           <input
             matInput
             placeholder="/v3/api-docs"
-            [value]="draft().swaggerUrl"
-            (input)="patch('swaggerUrl', $any($event.target).value)"
+            [value]="draft().openapiUrl"
+            (input)="patch('openapiUrl', $any($event.target).value)"
           />
-          <mat-hint i18n="@@Swagger_hint">The OpenAPI spec the service exposes, for endpoint-level security later</mat-hint>
+          <button
+            matIconButton
+            matSuffix
+            type="button"
+            [disabled]="saving() || !draft().name.trim() || !draft().upstream.trim() || !draft().openapiUrl.trim()"
+            (click)="goEndpointSecurity()"
+            i18n-matTooltip="@@Edit_endpoint_security"
+            matTooltip="Endpoint security"
+            i18n-aria-label="@@Edit_endpoint_security"
+            aria-label="Endpoint security"
+          >
+            <mat-icon svgIcon="openapi" />
+          </button>
+          <mat-hint i18n="@@OpenAPI_hint">The OpenAPI spec the service exposes, for endpoint-level security and swagger UI</mat-hint>
         </mat-form-field>
 
-        @if (route()?.id && draft().swaggerUrl) {
-          <a
-            matButton="tonal"
-            class="endpoint-security-link"
-            [routerLink]="['/endpoint-security']"
-            [queryParams]="{ route: route()!.id }"
-          >
-            <mat-icon>security</mat-icon>
-            <span i18n="@@Edit_endpoint_security">Endpoint security</span>
-          </a>
-        }
-
-        <div class="flags">
-          <mat-checkbox [checked]="draft().enabled" (change)="setFlag('enabled', $event.checked)">
-            <ng-container i18n="@@Enabled">Enabled</ng-container>
-          </mat-checkbox>
-          <mat-checkbox
-            [checked]="draft().authenticated || !!draft().requiredRole"
-            [disabled]="!!draft().requiredRole"
-            (change)="setFlag('authenticated', $event.checked)"
-          >
-            <ng-container i18n="@@Authenticated">Authenticated</ng-container>
-          </mat-checkbox>
+        <mat-divider class="ui-sep" />
+        <div class="type-row">
+          <mat-slide-toggle [checked]="draft().isUi" (change)="setIsUi($event.checked)">
+            <ng-container i18n="@@UI_serves_pages_in_a_browser">UI (serves pages in a browser)</ng-container>
+          </mat-slide-toggle>
         </div>
-
-        <mat-form-field>
-          <mat-label i18n="@@Required_role">Required role</mat-label>
-          <mat-select [value]="draft().requiredRole" (selectionChange)="patch('requiredRole', $event.value)">
-            <mat-option value="" i18n="@@None">None</mat-option>
-            @for (r of roles(); track r.id) {
-              <mat-option [value]="r.name">{{ r.name }}</mat-option>
-            }
-          </mat-select>
-          <mat-hint i18n="@@Required_role_hint">Only sessions holding this effective role pass; implies Authenticated</mat-hint>
-        </mat-form-field>
+        @if (draft().isUi) {
+          <mat-form-field>
+            <mat-label i18n="@@Link">Link</mat-label>
+            <input matInput [value]="draft().uiLink" (input)="patch('uiLink', $any($event.target).value)" />
+            <mat-hint i18n="@@Link_hint">
+              When set, this app shows in the user's apps menu (if their access allows it), under this name.
+            </mat-hint>
+          </mat-form-field>
+        }
+      }
+      @case ('security') {
+        <p class="section-hint" i18n="@@Route_security_hint">
+          The route's base access, applied to the whole route. Leave it empty to delegate security to
+          the upstream; set it to gate at the edge. An API route can refine it per operation in
+          Endpoint security.
+        </p>
+        <app-access-editor
+          [value]="draft().access"
+          [users]="users()"
+          [roles]="roles()"
+          (valueChange)="setAccess($event)"
+        />
       }
       @case ('predicates') {
         <app-predicates [formField]="f.predicates" [entries]="predicateEntries()" />

@@ -217,13 +217,13 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 		return err
 	}
 	if err := st.SaveRoute(ctx, store.Route{
-		ID:            "demo-secure",
-		Name:          "demo-secure",
-		Order:         101,
-		Enabled:       true,
-		Authenticated: true,
-		IsUI:          true,
-		Upstream:      "https://httpbin.org",
+		ID:       "demo-secure",
+		Name:     "demo-secure",
+		Order:    101,
+		Enabled:  true,
+		Access:   store.Access{Authenticated: true},
+		IsUI:     true,
+		Upstream: "https://httpbin.org",
 		Predicates: []routing.Spec{
 			{Type: "path", Args: map[string]any{"patterns": []any{"/secure/**"}}},
 		},

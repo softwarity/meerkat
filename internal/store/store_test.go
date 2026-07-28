@@ -2,8 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
-	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -25,7 +23,7 @@ func TestSaveListRoundTrip(t *testing.T) {
 	ctx := context.Background()
 
 	want := Route{
-		ID: "r1", Name: "demo", Order: 2, Enabled: true, Authenticated: true,
+		ID: "r1", Name: "demo", Order: 2, Enabled: true, Access: Access{Authenticated: true},
 		Upstream: "https://example.com",
 		Predicates: []routing.Spec{
 			{Type: "path", Args: map[string]any{"patterns": []any{"/demo/**"}}},
@@ -90,80 +88,5 @@ func TestCountRoutes(t *testing.T) {
 	}
 	if n, err := s.CountRoutes(ctx); err != nil || n != 1 {
 		t.Fatalf("CountRoutes = %d, %v", n, err)
-	}
-}
-
-// TestMigratesWalkingSkeletonSchema opens a database created by the
-// pre-versioning skeleton and checks its routes come out converted to the
-// declarative model (DEPLOY-06: upgrades without intervention).
-func TestMigratesWalkingSkeletonSchema(t *testing.T) {
-	dir := t.TempDir()
-	db, err := sql.Open("sqlite", "file:"+filepath.Join(dir, "meerkat.db"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := db.Exec(`
-CREATE TABLE routes (
-  id            TEXT PRIMARY KEY,
-  name          TEXT NOT NULL UNIQUE,
-  ord           INTEGER NOT NULL DEFAULT 0,
-  enabled       INTEGER NOT NULL DEFAULT 1,
-  path_prefix   TEXT NOT NULL,
-  strip_prefix  INTEGER NOT NULL DEFAULT 0,
-  upstream      TEXT NOT NULL,
-  inject_head   TEXT NOT NULL DEFAULT '',
-  authenticated INTEGER NOT NULL DEFAULT 0
-);
-INSERT INTO routes VALUES
-  ('demo', 'demo', 100, 1, '/demo', 1, 'https://httpbin.org', '<script>x</script>', 0),
-  ('sec',  'sec',  101, 1, '/secure', 0, 'https://httpbin.org', '', 1);`); err != nil {
-		t.Fatal(err)
-	}
-	if err := db.Close(); err != nil {
-		t.Fatal(err)
-	}
-
-	s, err := Open(dir)
-	if err != nil {
-		t.Fatalf("Open (migrating): %v", err)
-	}
-	t.Cleanup(func() { _ = s.Close() })
-
-	routes, err := s.ListRoutes(context.Background())
-	if err != nil {
-		t.Fatalf("ListRoutes: %v", err)
-	}
-	if len(routes) != 2 {
-		t.Fatalf("got %d routes, want 2", len(routes))
-	}
-	demo := routes[0]
-	// The skeleton's inject_head column is dropped by design: page
-	// injections are UI-route options now, not a generic filter.
-	if demo.Name != "demo" ||
-		demo.Predicates[0].Type != "path" ||
-		len(demo.Filters) != 1 ||
-		demo.Filters[0].Type != "strip-prefix" {
-		t.Fatalf("demo not converted: %+v", demo)
-	}
-	pats := demo.Predicates[0].Args["patterns"].([]any)
-	if len(pats) != 1 || pats[0] != "/demo/**" {
-		t.Fatalf("pattern = %v", pats)
-	}
-	sec := routes[1]
-	if !sec.Authenticated || len(sec.Filters) != 0 {
-		t.Fatalf("sec not converted: %+v", sec)
-	}
-
-	// Reopening must be a no-op (idempotent migration).
-	if err := s.Close(); err != nil {
-		t.Fatal(err)
-	}
-	s2, err := Open(dir)
-	if err != nil {
-		t.Fatalf("second Open: %v", err)
-	}
-	t.Cleanup(func() { _ = s2.Close() })
-	if again, err := s2.ListRoutes(context.Background()); err != nil || len(again) != 2 {
-		t.Fatalf("after reopen: %d routes, %v", len(again), err)
 	}
 }

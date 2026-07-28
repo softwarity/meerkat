@@ -29,17 +29,27 @@ mat-row.clickable:hover {
 .name {
   font-weight: 500;
 }
-.drag-col {
-  flex: 0 0 44px;
-  max-width: 44px;
-  justify-content: center;
+/* A fixed-width column keeps the access badges vertically aligned (no staircase
+   from variable-length names). */
+.access-col {
+  flex: 0 0 140px;
+  justify-content: flex-start;
 }
+// The drag handle rides INSIDE the first cell (like the roles table), so the
+// cell's own padding applies and a thin column never clips it.
 .handle {
+  flex: 0 0 auto;
+  margin-right: 8px;
   cursor: grab;
   color: var(--mat-sys-on-surface-variant);
 }
 .handle:active {
   cursor: grabbing;
+}
+.name-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 /* while a row is dragging, keep it visually intact on top */
 .cdk-drag-preview {

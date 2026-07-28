@@ -1,0 +1,628 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Meerkat Admin API",
+    "version": "dev",
+    "description": "Meerkat's control plane, served on the dedicated admin port. Authenticate with the admin session cookie (sign in on this port) or a control-plane API token (`Authorization: Bearer mk_…`, minted on the Access tokens screen). Every mutation is validated by compiling the result, applied hot, and recorded in the audit trail with the acting user."
+  },
+  "servers": [{ "url": "/" }],
+  "security": [{ "session": [] }, { "adminToken": [] }],
+  "tags": [
+    { "name": "Routing", "description": "Declarative routes: predicates match, filters transform, saving is applying (GATEWAY scope)" },
+    { "name": "Identity", "description": "Users, tenants and memberships (APP scope; tenant endpoints are scoped to the tenants the actor administers)" },
+    { "name": "RBAC", "description": "Global hierarchical role catalogue and per-tenant groups" },
+    { "name": "Settings", "description": "Application-wide configuration (working hours, session TTL, SMTP, security)" },
+    { "name": "Themes", "description": "Built-in flow pages: palettes, branding (GATEWAY scope)" },
+    { "name": "Audit", "description": "Field-level audit trail, scoped per capability" },
+    { "name": "Tokens", "description": "Control-plane API tokens (root only)" }
+  ],
+  "paths": {
+    "/api/me": {
+      "get": {
+        "tags": ["Identity"],
+        "summary": "The signed-in identity and its capabilities",
+        "responses": {
+          "200": { "description": "Identity, capability flags and administered tenants", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Me" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/catalog": {
+      "get": {
+        "tags": ["Routing"],
+        "summary": "Self-described predicate and filter bricks",
+        "description": "The console builds its editors from this catalogue: every brick type, its parameters, kinds and docs.",
+        "responses": {
+          "200": { "description": "Brick catalogue", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CatalogEntry" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/routes": {
+      "get": {
+        "tags": ["Routing"],
+        "summary": "List routes in evaluation order",
+        "responses": {
+          "200": { "description": "All routes", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Route" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/routes/{id}": {
+      "get": {
+        "tags": ["Routing"],
+        "summary": "Read one route",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": {
+          "200": { "description": "The route", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } } },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["Routing"],
+        "summary": "Create or replace a route (saving is applying)",
+        "description": "The route is validated by compiling it — predicates, filters and endpoint security included. A 422 carries the engine's exact error. On success the router hot-reloads.",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } } },
+        "responses": {
+          "200": { "description": "The stored route", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } } },
+          "422": { "$ref": "#/components/responses/Invalid" }
+        }
+      },
+      "delete": {
+        "tags": ["Routing"],
+        "summary": "Delete a route",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "204": { "description": "Deleted and applied" }, "404": { "$ref": "#/components/responses/NotFound" } }
+      }
+    },
+    "/api/routes/reorder": {
+      "post": {
+        "tags": ["Routing"],
+        "summary": "Reorder routes",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "ids": { "type": "array", "items": { "type": "string" }, "description": "Every route id, in the new evaluation order" } }, "required": ["ids"] } } } },
+        "responses": { "200": { "description": "New order applied" }, "422": { "$ref": "#/components/responses/Invalid" } }
+      }
+    },
+    "/api/routes/{id}/operations": {
+      "get": {
+        "tags": ["Routing"],
+        "summary": "The route's OpenAPI operations (fetched live from the upstream)",
+        "description": "Reads the spec declared by the route's `api.openapiUrl` (Swagger 2.0 or OpenAPI 3.x), projects it down to a flat operation list and overlays the saved endpoint security.",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": {
+          "200": { "description": "Operations and security overlay", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RouteOperations" } } } },
+          "422": { "$ref": "#/components/responses/Invalid" },
+          "502": { "description": "The upstream or its spec did not answer", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/routes/{id}/security": {
+      "put": {
+        "tags": ["Routing"],
+        "summary": "Replace the route's endpoint security",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "access": { "$ref": "#/components/schemas/Access" }, "endpoints": { "type": "array", "items": { "$ref": "#/components/schemas/EndpointPolicy" } } } } } } },
+        "responses": { "200": { "description": "Stored security" }, "422": { "$ref": "#/components/responses/Invalid" } }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["Identity"],
+        "summary": "List users",
+        "responses": { "200": { "description": "All users", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/User" } } } } } }
+      },
+      "post": {
+        "tags": ["Identity"],
+        "summary": "Create a user (one-time password shown once)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
+        "responses": {
+          "201": { "description": "The user plus its generated one-time password", "content": { "application/json": { "schema": { "type": "object", "properties": { "user": { "$ref": "#/components/schemas/User" }, "password": { "type": "string" } } } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/Invalid" }
+        }
+      }
+    },
+    "/api/users/lookup": {
+      "get": {
+        "tags": ["Identity"],
+        "summary": "Look a user up by exact username",
+        "parameters": [{ "name": "username", "in": "query", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Minimal user card" }, "404": { "$ref": "#/components/responses/NotFound" } }
+      }
+    },
+    "/api/users/{id}": {
+      "put": {
+        "tags": ["Identity"],
+        "summary": "Update a user",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
+        "responses": { "200": { "description": "Updated user" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      },
+      "delete": {
+        "tags": ["Identity"],
+        "summary": "Delete a user",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "204": { "description": "Deleted" }, "404": { "$ref": "#/components/responses/NotFound" } }
+      }
+    },
+    "/api/users/{id}/reset-password": {
+      "post": {
+        "tags": ["Identity"],
+        "summary": "Reset a user's password (new one-time password shown once)",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "200": { "description": "The generated password", "content": { "application/json": { "schema": { "type": "object", "properties": { "password": { "type": "string" } } } } } } }
+      }
+    },
+    "/api/users/{id}/logins": {
+      "get": {
+        "tags": ["Identity"],
+        "summary": "A user's login history",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "200": { "description": "Login events, newest first" } }
+      }
+    },
+    "/api/tenants": {
+      "get": {
+        "tags": ["Identity"],
+        "summary": "List tenants (scoped: root sees all, an admin sees theirs)",
+        "responses": { "200": { "description": "Tenants", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Tenant" } } } } } }
+      },
+      "post": {
+        "tags": ["Identity"],
+        "summary": "Create a tenant (actor becomes its owner)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tenant" } } } },
+        "responses": { "201": { "description": "The tenant" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/tenants/{id}": {
+      "get": {
+        "tags": ["Identity"],
+        "summary": "Read one tenant",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "200": { "description": "The tenant", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tenant" } } } }, "404": { "$ref": "#/components/responses/NotFound" } }
+      },
+      "put": {
+        "tags": ["Identity"],
+        "summary": "Update a tenant (never touches the owner — see /owner)",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tenant" } } } },
+        "responses": { "200": { "description": "Updated tenant" } }
+      },
+      "delete": {
+        "tags": ["Identity"],
+        "summary": "Delete a tenant (root or owner)",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "204": { "description": "Deleted" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/tenants/{id}/owner": {
+      "post": {
+        "tags": ["Identity"],
+        "summary": "Transfer tenant ownership (root or current owner)",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "userId": { "type": "string" } }, "required": ["userId"] } } } },
+        "responses": { "200": { "description": "New owner recorded" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/tenants/{id}/members": {
+      "get": {
+        "tags": ["Identity"],
+        "summary": "List a tenant's members",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "200": { "description": "Members", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Member" } } } } } }
+      }
+    },
+    "/api/tenants/{id}/members/{userId}": {
+      "put": {
+        "tags": ["Identity"],
+        "summary": "Add or update a membership",
+        "parameters": [{ "$ref": "#/components/parameters/id" }, { "$ref": "#/components/parameters/userId" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Member" } } } },
+        "responses": { "200": { "description": "The membership" } }
+      },
+      "delete": {
+        "tags": ["Identity"],
+        "summary": "Remove a member",
+        "parameters": [{ "$ref": "#/components/parameters/id" }, { "$ref": "#/components/parameters/userId" }],
+        "responses": { "204": { "description": "Removed" } }
+      }
+    },
+    "/api/tenants/{id}/members/{userId}/reset-password": {
+      "post": {
+        "tags": ["Identity"],
+        "summary": "Reset a member's password (new one-time password shown once)",
+        "parameters": [{ "$ref": "#/components/parameters/id" }, { "$ref": "#/components/parameters/userId" }],
+        "responses": { "200": { "description": "The generated password" } }
+      }
+    },
+    "/api/tenants/{id}/members/{userId}/logins": {
+      "get": {
+        "tags": ["Identity"],
+        "summary": "A member's login history",
+        "parameters": [{ "$ref": "#/components/parameters/id" }, { "$ref": "#/components/parameters/userId" }],
+        "responses": { "200": { "description": "Login events, newest first" } }
+      }
+    },
+    "/api/tenants/{id}/members/{userId}/groups": {
+      "get": {
+        "tags": ["RBAC"],
+        "summary": "The member's group ids in this tenant",
+        "parameters": [{ "$ref": "#/components/parameters/id" }, { "$ref": "#/components/parameters/userId" }],
+        "responses": { "200": { "description": "Group ids", "content": { "application/json": { "schema": { "type": "array", "items": { "type": "string" } } } } } }
+      },
+      "put": {
+        "tags": ["RBAC"],
+        "summary": "Replace the member's groups in this tenant",
+        "parameters": [{ "$ref": "#/components/parameters/id" }, { "$ref": "#/components/parameters/userId" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "array", "items": { "type": "string" } } } } },
+        "responses": { "200": { "description": "Groups replaced" }, "422": { "$ref": "#/components/responses/Invalid" } }
+      }
+    },
+    "/api/tenants/{id}/groups": {
+      "get": {
+        "tags": ["RBAC"],
+        "summary": "List a tenant's groups",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "200": { "description": "Groups", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Group" } } } } } }
+      },
+      "post": {
+        "tags": ["RBAC"],
+        "summary": "Create a group",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Group" } } } },
+        "responses": { "201": { "description": "The group" } }
+      }
+    },
+    "/api/tenants/{id}/groups/{groupId}": {
+      "put": {
+        "tags": ["RBAC"],
+        "summary": "Update a group",
+        "parameters": [{ "$ref": "#/components/parameters/id" }, { "$ref": "#/components/parameters/groupId" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Group" } } } },
+        "responses": { "200": { "description": "Updated group" } }
+      },
+      "delete": {
+        "tags": ["RBAC"],
+        "summary": "Delete a group",
+        "parameters": [{ "$ref": "#/components/parameters/id" }, { "$ref": "#/components/parameters/groupId" }],
+        "responses": { "204": { "description": "Deleted" } }
+      }
+    },
+    "/api/roles": {
+      "get": {
+        "tags": ["RBAC"],
+        "summary": "The global role catalogue (hierarchical: holding a role grants its descendants)",
+        "responses": { "200": { "description": "Roles", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Role" } } } } } }
+      },
+      "post": {
+        "tags": ["RBAC"],
+        "summary": "Create a role",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Role" } } } },
+        "responses": { "201": { "description": "The role" }, "422": { "$ref": "#/components/responses/Invalid" } }
+      }
+    },
+    "/api/roles/{id}": {
+      "put": {
+        "tags": ["RBAC"],
+        "summary": "Update a role (cycles are refused)",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Role" } } } },
+        "responses": { "200": { "description": "Updated role" }, "422": { "$ref": "#/components/responses/Invalid" } }
+      },
+      "delete": {
+        "tags": ["RBAC"],
+        "summary": "Delete a role (children are promoted, system roles refuse)",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "204": { "description": "Deleted" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/settings": {
+      "get": {
+        "tags": ["Settings"],
+        "summary": "Application-wide settings",
+        "responses": { "200": { "description": "Settings", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Settings" } } } } }
+      },
+      "put": {
+        "tags": ["Settings"],
+        "summary": "Replace the application-wide settings",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Settings" } } } },
+        "responses": { "200": { "description": "Stored settings" }, "422": { "$ref": "#/components/responses/Invalid" } }
+      }
+    },
+    "/api/settings/mail-relay/test": {
+      "post": {
+        "tags": ["Settings"],
+        "summary": "Send a test e-mail through the configured SMTP",
+        "responses": { "200": { "description": "Sent" }, "502": { "description": "SMTP refused", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } }
+      }
+    },
+    "/api/themes": {
+      "get": { "tags": ["Themes"], "summary": "List flow-page themes", "responses": { "200": { "description": "Themes", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Theme" } } } } } } },
+      "post": { "tags": ["Themes"], "summary": "Create a theme", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Theme" } } } }, "responses": { "201": { "description": "The theme" } } }
+    },
+    "/api/themes/presets": {
+      "get": { "tags": ["Themes"], "summary": "The built-in preset palettes", "responses": { "200": { "description": "Presets", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Theme" } } } } } } }
+    },
+    "/api/themes/{id}": {
+      "put": { "tags": ["Themes"], "summary": "Update a theme", "parameters": [{ "$ref": "#/components/parameters/id" }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Theme" } } } }, "responses": { "200": { "description": "Updated theme" } } },
+      "delete": { "tags": ["Themes"], "summary": "Delete a theme (the active one refuses)", "parameters": [{ "$ref": "#/components/parameters/id" }], "responses": { "204": { "description": "Deleted" }, "422": { "$ref": "#/components/responses/Invalid" } } }
+    },
+    "/api/themes/{id}/activate": {
+      "post": { "tags": ["Themes"], "summary": "Make this theme the active one", "parameters": [{ "$ref": "#/components/parameters/id" }], "responses": { "200": { "description": "Activated" } } }
+    },
+    "/api/themes/{id}/preview": {
+      "get": { "tags": ["Themes"], "summary": "Preview payload for the live specimen", "parameters": [{ "$ref": "#/components/parameters/id" }], "responses": { "200": { "description": "Preview CSS and tokens" } } }
+    },
+    "/api/branding": {
+      "get": { "tags": ["Themes"], "summary": "Branding (app name, logo)", "responses": { "200": { "description": "Branding" } } },
+      "put": { "tags": ["Themes"], "summary": "Replace the branding", "responses": { "200": { "description": "Stored" } } }
+    },
+    "/api/audit": {
+      "get": {
+        "tags": ["Audit"],
+        "summary": "The audit trail, scoped to the domains the actor administers",
+        "description": "root sees everything; infra-admin the routing plane; app-admin the identity domain; a tenant admin their tenants. Cumulative capabilities see the union.",
+        "parameters": [
+          { "name": "target", "in": "query", "schema": { "type": "string" }, "description": "Filter by target kind (route, user, tenant, …)" },
+          { "name": "from", "in": "query", "schema": { "type": "integer" }, "description": "Unix seconds lower bound" },
+          { "name": "to", "in": "query", "schema": { "type": "integer" }, "description": "Unix seconds upper bound" },
+          { "name": "q", "in": "query", "schema": { "type": "string" }, "description": "Free-text search" }
+        ],
+        "responses": { "200": { "description": "Events, newest first", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/AuditEvent" } } } } }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/admin-tokens": {
+      "get": { "tags": ["Tokens"], "summary": "List control-plane API tokens (root)", "responses": { "200": { "description": "Tokens (hashes never leave the store)" } } },
+      "post": {
+        "tags": ["Tokens"],
+        "summary": "Mint a control-plane API token (secret shown once)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" }, "days": { "type": "integer", "description": "Validity in days; 0 = no expiry" } }, "required": ["name"] } } } },
+        "responses": { "201": { "description": "The token — its clear value travels exactly once, here", "content": { "application/json": { "schema": { "type": "object", "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "prefix": { "type": "string" }, "token": { "type": "string" }, "expiresAt": { "type": "integer" } } } } } } }
+      }
+    },
+    "/api/admin-tokens/{id}": {
+      "delete": { "tags": ["Tokens"], "summary": "Revoke a token", "parameters": [{ "$ref": "#/components/parameters/id" }], "responses": { "204": { "description": "Revoked" } } }
+    },
+    "/api/admin-tokens/{id}/toggle": {
+      "post": { "tags": ["Tokens"], "summary": "Enable or disable a token", "parameters": [{ "$ref": "#/components/parameters/id" }], "responses": { "200": { "description": "Toggled" } } }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "session": { "type": "apiKey", "in": "cookie", "name": "MEERKAT_SESSION", "description": "The admin session cookie — sign in on this port and Try it out just works." },
+      "adminToken": { "type": "http", "scheme": "bearer", "description": "A control-plane API token (`mk_…`). Data-plane tokens never open the admin port." }
+    },
+    "parameters": {
+      "id": { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+      "userId": { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } },
+      "groupId": { "name": "groupId", "in": "path", "required": true, "schema": { "type": "string" } }
+    },
+    "responses": {
+      "Unauthorized": { "description": "No or incomplete session", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Forbidden": { "description": "The actor lacks the capability", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "NotFound": { "description": "Unknown id", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Invalid": { "description": "Refused with the engine's exact message", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+    },
+    "schemas": {
+      "Error": { "type": "object", "properties": { "error": { "type": "string" } }, "required": ["error"] },
+      "Spec": {
+        "type": "object",
+        "description": "One declarative brick: a predicate or a filter. `type` comes from /api/catalog; `args` are that type's parameters.",
+        "properties": { "type": { "type": "string", "example": "path" }, "args": { "type": "object", "additionalProperties": true, "example": { "pattern": "/demo/**" } } },
+        "required": ["type"]
+      },
+      "Route": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "order": { "type": "integer", "description": "Evaluation order (lower first)" },
+          "enabled": { "type": "boolean" },
+          "access": { "$ref": "#/components/schemas/Access" },
+          "isUi": { "type": "boolean", "description": "UI route (web application) vs API route (machines)" },
+          "upstream": { "type": "string", "description": "Target base URL; unused when a terminal filter answers" },
+          "predicates": { "type": "array", "items": { "$ref": "#/components/schemas/Spec" } },
+          "filters": { "type": "array", "items": { "$ref": "#/components/schemas/Spec" } },
+          "api": { "$ref": "#/components/schemas/RouteAPI" },
+          "ui": { "type": "object", "additionalProperties": true, "description": "UI-route options (identity forward, locales, user button…)" }
+        },
+        "required": ["name", "predicates"]
+      },
+      "RouteAPI": {
+        "type": "object",
+        "description": "API-route options: the OpenAPI spec this route exposes and the endpoint security posed on it.",
+        "properties": {
+          "openapiUrl": { "type": "string", "description": "Absolute, or relative to the upstream (e.g. /v3/api-docs)" },
+          "security": { "$ref": "#/components/schemas/EndpointSecurity" }
+        }
+      },
+      "Access": {
+        "type": "object",
+        "description": "A unified access rule. Empty = delegated to the backend's own security.",
+        "properties": {
+          "authenticated": { "type": "boolean" },
+          "users": { "type": "array", "items": { "type": "string" }, "description": "Allowed usernames" },
+          "roles": { "type": "array", "items": { "type": "string" }, "description": "Allowed effective role names" }
+        }
+      },
+      "EndpointSecurity": {
+        "type": "object",
+        "properties": { "endpoints": { "type": "array", "items": { "$ref": "#/components/schemas/EndpointPolicy" } } }
+      },
+      "EndpointPolicy": {
+        "type": "object",
+        "properties": {
+          "method": { "type": "string", "example": "GET" },
+          "path": { "type": "string", "example": "/pets/{id}" },
+          "authenticated": { "type": "boolean" },
+          "users": { "type": "array", "items": { "type": "string" } },
+          "roles": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["method", "path"]
+      },
+      "RouteOperations": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "version": { "type": "string" },
+          "format": { "type": "string", "example": "openapi 3.0" },
+          "access": { "$ref": "#/components/schemas/Access" },
+          "operations": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+          "security": { "$ref": "#/components/schemas/EndpointSecurity" }
+        }
+      },
+      "CatalogEntry": {
+        "type": "object",
+        "properties": {
+          "kind": { "type": "string", "enum": ["predicate", "filter"] },
+          "type": { "type": "string" },
+          "phase": { "type": "string", "enum": ["request", "response", "terminal"] },
+          "doc": { "type": "string" },
+          "params": { "type": "array", "items": { "type": "object", "properties": { "name": { "type": "string" }, "kind": { "type": "string" }, "required": { "type": "boolean" }, "default": {}, "doc": { "type": "string" } } } }
+        }
+      },
+      "Me": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "username": { "type": "string" },
+          "fullname": { "type": "string" },
+          "email": { "type": "string" },
+          "root": { "type": "boolean" },
+          "infraAdmin": { "type": "boolean" },
+          "appAdmin": { "type": "boolean" },
+          "tenantAdmin": { "type": "boolean" },
+          "tenantCreator": { "type": "boolean" }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "readOnly": true },
+          "username": { "type": "string" },
+          "fullname": { "type": "string" },
+          "email": { "type": "string" },
+          "enabled": { "type": "boolean" },
+          "root": { "type": "boolean" },
+          "dev": { "type": "boolean" },
+          "tester": { "type": "boolean" },
+          "tenantCreator": { "type": "boolean" },
+          "infraAdmin": { "type": "boolean" },
+          "appAdmin": { "type": "boolean" },
+          "locale": { "type": "string" },
+          "timezone": { "type": "string" },
+          "mfaRequired": { "type": "string", "description": "\"\" (inherit) | REQUIRED | NOT_REQUIRED" },
+          "mustChangePassword": { "type": "boolean" },
+          "emailVerified": { "type": "boolean" },
+          "selfRegistered": { "type": "boolean", "readOnly": true },
+          "lastConnectionAt": { "type": "integer", "readOnly": true },
+          "createdAt": { "type": "integer", "readOnly": true },
+          "updatedAt": { "type": "integer", "readOnly": true }
+        },
+        "required": ["username"]
+      },
+      "DayRange": {
+        "type": "object",
+        "properties": { "day": { "type": "integer", "minimum": 1, "maximum": 7, "description": "1=Monday … 7=Sunday" }, "from": { "type": "string", "example": "09:00" }, "to": { "type": "string", "example": "18:00" } }
+      },
+      "BusinessAccess": {
+        "type": "object",
+        "description": "Working-hours restriction; inherited G→T→M when unset.",
+        "properties": {
+          "inherited": { "type": "boolean" },
+          "timezone": { "type": "string" },
+          "days": { "type": "array", "items": { "$ref": "#/components/schemas/DayRange" } },
+          "dateFrom": { "type": "string" },
+          "dateTo": { "type": "string" }
+        }
+      },
+      "Tenant": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "readOnly": true },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "enabled": { "type": "boolean" },
+          "businessAccess": { "$ref": "#/components/schemas/BusinessAccess" },
+          "sessionTTL": { "type": "string", "description": "Duration (e.g. 8h); \"\" = inherit" },
+          "groupMode": { "type": "string", "description": "\"\" (inherit) | SINGLE | MULTIPLE" },
+          "ownerId": { "type": "string" },
+          "ownerName": { "type": "string", "readOnly": true },
+          "createdBy": { "type": "string", "readOnly": true },
+          "createdAt": { "type": "integer", "readOnly": true },
+          "updatedAt": { "type": "integer", "readOnly": true }
+        },
+        "required": ["name"]
+      },
+      "Member": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string" },
+          "tenantId": { "type": "string", "readOnly": true },
+          "type": { "type": "string", "enum": ["ADMIN", "USER"] },
+          "enabled": { "type": "boolean" },
+          "businessAccess": { "$ref": "#/components/schemas/BusinessAccess" },
+          "sessionTTL": { "type": "string" },
+          "username": { "type": "string", "readOnly": true },
+          "fullname": { "type": "string", "readOnly": true },
+          "email": { "type": "string", "readOnly": true }
+        }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "readOnly": true },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "parentId": { "type": "string", "description": "\"\" = top-level; holding a role grants every descendant" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "system": { "type": "boolean", "readOnly": true }
+        },
+        "required": ["name"]
+      },
+      "Group": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "readOnly": true },
+          "tenantId": { "type": "string", "readOnly": true },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "roleIds": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["name"]
+      },
+      "Settings": {
+        "type": "object",
+        "description": "Application-wide configuration; see the Settings screens for the exact keys (working hours, session TTL, SMTP, security, group mode…).",
+        "additionalProperties": true
+      },
+      "Theme": {
+        "type": "object",
+        "description": "A flow-page theme: independent dark and light palettes, flat/glow switch. The exact token set is the Built-in pages editor's business.",
+        "properties": { "id": { "type": "string", "readOnly": true }, "active": { "type": "boolean", "readOnly": true }, "flat": { "type": "boolean" } },
+        "additionalProperties": true
+      },
+      "FieldChange": {
+        "type": "object",
+        "properties": { "field": { "type": "string" }, "from": {}, "to": {} }
+      },
+      "AuditEvent": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "at": { "type": "integer", "description": "Unix seconds" },
+          "actorId": { "type": "string" },
+          "actorName": { "type": "string" },
+          "action": { "type": "string", "example": "route.update" },
+          "target": { "type": "string", "example": "route" },
+          "targetId": { "type": "string" },
+          "targetName": { "type": "string" },
+          "tenantId": { "type": "string" },
+          "changes": { "type": "array", "items": { "$ref": "#/components/schemas/FieldChange" } },
+          "detail": { "type": "string" }
+        }
+      }
+    }
+  }
+}

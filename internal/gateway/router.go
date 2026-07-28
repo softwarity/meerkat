@@ -300,29 +300,26 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 	// auth, so a route-wide gate (if any) is applied first and the per-operation
 	// rule refines it. The guard maps the inbound path back to the OpenAPI
 	// coordinate by undoing the route's strip-prefix.
-	if r.API != nil && r.API.Security != nil &&
-		(len(r.API.Security.Endpoints) > 0 || r.API.Security.Route != nil) {
+	// Route security (RBAC-06/07): the route's base Access gates the whole route.
+	// When the API route also poses per-operation policies, the endpoint guard
+	// refines that base per operation (mapping the inbound path back to the
+	// OpenAPI coordinate by undoing the strip-prefix); operations with no
+	// override fall back to the route's base Access.
+	hasOverrides := r.API != nil && r.API.Security != nil && len(r.API.Security.Endpoints) > 0
+	if hasOverrides {
 		if rt.sm == nil {
 			return compiledRoute{}, fmt.Errorf("route poses endpoint security but no session manager is configured")
 		}
-		guard, err := rt.endpointGuard(*r.API.Security, r.Filters, handler)
+		guard, err := rt.endpointGuard(*r.API.Security, r.Access, r.Filters, handler)
 		if err != nil {
 			return compiledRoute{}, err
 		}
 		handler = guard
-	}
-	if r.RequiredRole != "" {
-		// A required role IMPLIES authentication: same login redirect for
-		// browsers / 401 for API calls, then the role check on top.
+	} else if !r.Access.Empty() {
 		if rt.sm == nil {
-			return compiledRoute{}, fmt.Errorf("route requires a role but no session manager is configured")
+			return compiledRoute{}, fmt.Errorf("route poses security but no session manager is configured")
 		}
-		handler = rt.requireRole(r.RequiredRole, handler)
-	} else if r.Authenticated {
-		if rt.sm == nil {
-			return compiledRoute{}, fmt.Errorf("route requires authentication but no session manager is configured")
-		}
-		handler = requireSession(rt.sm, handler)
+		handler = rt.accessGate(r.Access, handler)
 	}
 	return compiledRoute{name: r.Name, preds: preds, handler: handler}, nil
 }
@@ -346,6 +343,9 @@ func Validate(r store.Route) error {
 		if target.Scheme == "" || target.Host == "" {
 			return fmt.Errorf("bad upstream %q: scheme and host required", r.Upstream)
 		}
+		if target.Scheme != "http" && target.Scheme != "https" {
+			return fmt.Errorf("bad upstream %q: scheme %q is not supported: only http and https", r.Upstream, target.Scheme)
+		}
 	}
 	return validateRouteType(r)
 }
@@ -353,8 +353,10 @@ func Validate(r store.Route) error {
 // validateRouteType guards the route options: forwarding configs for every
 // route, plus the UI extras when the UI toggle is on (ROUTE-02).
 func validateRouteType(r store.Route) error {
-	if r.RequiredRole != "" && !schemeTokenOK.MatchString(r.RequiredRole) {
-		return fmt.Errorf("required role %q is not allowed: letters, digits, - and _ only", r.RequiredRole)
+	for _, role := range r.Access.Roles {
+		if !schemeTokenOK.MatchString(role) {
+			return fmt.Errorf("route access role %q is not allowed: letters, digits, - and _ only", role)
+		}
 	}
 	// Endpoint-level security (RBAC-07): paths must compile, methods and access
 	// modes be known. Validate also upper-cases the methods in place.
@@ -831,20 +833,6 @@ func resolveLocale(r *http.Request, codes []string) string {
 	return codes[0]
 }
 
-// requireRole gates a route behind a session HOLDING the role (implies
-// authenticated): anonymous browsers land on the login page, anonymous API
-// calls get 401, a signed-in user without the role gets a 403 naming it.
-func (rt *Router) requireRole(role string, next http.Handler) http.Handler {
-	return requireSession(rt.sm, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		d, ok := rt.sessionIdentity(req)
-		if !ok || !slices.Contains(d.Roles, role) {
-			http.Error(w, "forbidden: this route requires the "+role+" role", http.StatusForbidden)
-			return
-		}
-		next.ServeHTTP(w, req)
-	}))
-}
-
 // accessGate wraps next with a unified access rule (RBAC-06/07): an empty rule
 // passes through (delegated to the backend); otherwise a valid session is
 // required and the caller must satisfy the rule's users/roles (401/redirect
@@ -868,7 +856,7 @@ func (rt *Router) accessGate(a store.Access, next http.Handler) http.Handler {
 // undoes the route's strip-prefix to recover the OpenAPI coordinate, then
 // applies the first matching override, or the route-wide default when none
 // matches. Operations with neither fall through to the route's own auth.
-func (rt *Router) endpointGuard(sec store.EndpointSecurity, filters []routing.Spec, next http.Handler) (http.Handler, error) {
+func (rt *Router) endpointGuard(sec store.EndpointSecurity, routeAccess store.Access, filters []routing.Spec, next http.Handler) (http.Handler, error) {
 	type compiledEP struct {
 		method string
 		path   routing.CompiledPath
@@ -883,10 +871,9 @@ func (rt *Router) endpointGuard(sec store.EndpointSecurity, filters []routing.Sp
 		eps = append(eps, compiledEP{method: strings.ToUpper(e.Method), path: cp, gate: rt.accessGate(e.Access, next)})
 	}
 	strip := stripPrefixCount(filters)
-	var routeGate http.Handler
-	if sec.Route != nil {
-		routeGate = rt.accessGate(*sec.Route, next)
-	}
+	// The route's base Access is the default for any operation with no override
+	// (an empty Access passes through, delegating to the upstream).
+	routeGate := rt.accessGate(routeAccess, next)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		specPath := routing.StripSegments(req.URL.Path, strip)
@@ -896,11 +883,7 @@ func (rt *Router) endpointGuard(sec store.EndpointSecurity, filters []routing.Sp
 				return
 			}
 		}
-		if routeGate != nil {
-			routeGate.ServeHTTP(w, req)
-			return
-		}
-		next.ServeHTTP(w, req)
+		routeGate.ServeHTTP(w, req)
 	}), nil
 }
 

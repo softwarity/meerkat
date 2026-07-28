@@ -12,9 +12,14 @@ import (
 )
 
 func uiRoute(id string, order int, authenticated bool, requiredRole string) store.Route {
+	access := store.Access{Authenticated: authenticated}
+	if requiredRole != "" {
+		access.Roles = []string{requiredRole}
+	}
 	return store.Route{
 		ID: id, Name: id, Order: order, Enabled: true, IsUI: true,
-		Authenticated: authenticated, RequiredRole: requiredRole,
+		Access:   access,
+		UI:       &store.RouteUI{Link: id},
 		Upstream: "http://upstream.test",
 		Predicates: []routing.Spec{
 			{Type: "path", Args: map[string]any{"patterns": []any{"/" + id + "/**"}}},

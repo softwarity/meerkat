@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meerkat — API</title>
+  <link rel="stylesheet" href="assets/swagger-ui.css">
+  <link rel="stylesheet" href="assets/skin.css">
+</head>
+<body>
+  <header class="mk-bar">
+    <span class="mk-brand">
+      <svg viewBox="0 0 44 64" aria-hidden="true">
+        <path d="M29 43c8.2 1.8 11.4 8.8 8.1 17.1-.4 1-1.9 1-2.5.1-1.8-2.6-2.4-5.2-2.4-7.9 0-3.7-1.5-7.1-4.4-9.4z" fill="currentColor" opacity=".85"/>
+        <path d="M22 2c-4.8 0-8.6 3.8-8.6 8.6 0 2.5 1 4.7 2.7 6.3-3.5 3-5.7 7.9-5.7 14.6 0 13 5.1 23.1 11.6 23.1s11.6-10.1 11.6-23.1c0-6.7-2.2-11.6-5.7-14.6 1.7-1.6 2.7-3.8 2.7-6.3C30.6 5.8 26.8 2 22 2z" fill="currentColor"/>
+        <circle cx="15.4" cy="6.4" r="3.1" fill="currentColor"/>
+        <circle cx="28.6" cy="6.4" r="3.1" fill="currentColor"/>
+        <ellipse cx="18.3" cy="10.3" rx="1.8" ry="2.5" fill="var(--mk-field)"/>
+        <ellipse cx="25.7" cy="10.3" rx="1.8" ry="2.5" fill="var(--mk-field)"/>
+        <path d="M22 14l2.5 2.1-2.5 1.3-2.5-1.3z" fill="var(--mk-field)"/>
+      </svg>
+      <span class="mk-word">meerkat</span><span class="mk-sub">API</span>
+    </span>
+    <label class="mk-pick">
+      <select id="mk-spec" aria-label="OpenAPI specification"></select>
+    </label>
+    <a id="mk-raw" class="mk-raw" target="_blank" rel="noopener" title="Raw specification">json ↗</a>
+    <a id="mk-pop" class="mk-raw" href="./" target="_blank" rel="noopener" hidden title="Open in a new tab">⧉</a>
+  </header>
+  <main id="swagger"></main>
+  <script src="assets/swagger-ui-bundle.js"></script>
+  <script>
+    const sel = document.getElementById('mk-spec');
+    const raw = document.getElementById('mk-raw');
+    if (window.self !== window.top) document.getElementById('mk-pop').hidden = false;
+    function mount(url) {
+      raw.href = url;
+      window.ui = SwaggerUIBundle({
+        url,
+        dom_id: '#swagger',
+        presets: [SwaggerUIBundle.presets.apis],
+        layout: 'BaseLayout',
+        docExpansion: 'list',
+        defaultModelsExpandDepth: 0,
+        tryItOutEnabled: true,
+        deepLinking: false,
+        validatorUrl: null
+      });
+    }
+    fetch('specs.json').then((r) => {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }).then((specs) => {
+      for (const s of specs) {
+        const o = document.createElement('option');
+        o.value = s.url;
+        o.textContent = s.name;
+        sel.appendChild(o);
+      }
+      if (specs.length) mount(specs[0].url);
+      sel.hidden = specs.length < 2;
+    }).catch(() => {
+      document.getElementById('swagger').innerHTML =
+        '<p class="mk-error">Could not load the specification list — is your session still alive?</p>';
+    });
+    sel.addEventListener('change', () => mount(sel.value));
+  </script>
+</body>
+</html>

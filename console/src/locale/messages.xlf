@@ -94,7 +94,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">248</context>
+          <context context-type="linenumber">271</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
@@ -110,7 +110,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">457</context>
+          <context context-type="linenumber">454</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-danger.component.ts</context>
@@ -329,7 +329,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">177,178</context>
+          <context context-type="linenumber">188,189</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Create" datatype="html">
@@ -348,7 +348,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">379</context>
+          <context context-type="linenumber">376</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
@@ -422,7 +422,7 @@
         <source>Mail relay</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">89,92</context>
+          <context context-type="linenumber">97,100</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
@@ -436,35 +436,35 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">95,98</context>
+          <context context-type="linenumber">103,106</context>
         </context-group>
       </trans-unit>
       <trans-unit id="SMTP_host" datatype="html">
         <source>Host</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">100,101</context>
+          <context context-type="linenumber">108,109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="SMTP_port" datatype="html">
         <source>Port</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">104,105</context>
+          <context context-type="linenumber">112,113</context>
         </context-group>
       </trans-unit>
       <trans-unit id="SMTP_security" datatype="html">
         <source>Security</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">108,109</context>
+          <context context-type="linenumber">116,117</context>
         </context-group>
       </trans-unit>
       <trans-unit id="None" datatype="html">
         <source>None</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">112,113</context>
+          <context context-type="linenumber">120,121</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
@@ -475,42 +475,35 @@
         <source>Username</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">116,117</context>
+          <context context-type="linenumber">124,125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="SMTP_password" datatype="html">
         <source>Password</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">121,123</context>
+          <context context-type="linenumber">129,131</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Test_recipient" datatype="html">
         <source>Test recipient</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">142,143</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Your_account_email" datatype="html">
-        <source>your account email</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">149,151</context>
+          <context context-type="linenumber">153,154</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Send_a_test" datatype="html">
         <source>Send a test</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">154,155</context>
+          <context context-type="linenumber">169,170</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Save" datatype="html">
         <source>Save</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">160,161</context>
+          <context context-type="linenumber">175,176</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
@@ -522,7 +515,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">391</context>
+          <context context-type="linenumber">388</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
@@ -550,7 +543,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">178,179</context>
+          <context context-type="linenumber">189,190</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/theme/branding-card/branding-card.component.html</context>
@@ -565,7 +558,7 @@
         <source>Settings saved</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">218</context>
+          <context context-type="linenumber">241</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
@@ -584,7 +577,7 @@
         <source>Test email sent to <x id="ADDR" equiv-text="sent"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">234</context>
+          <context context-type="linenumber">257</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Vault_hint" datatype="html">
@@ -628,7 +621,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">128</context>
+          <context context-type="linenumber">130</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Kind" datatype="html">
@@ -646,7 +639,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">97,98</context>
+          <context context-type="linenumber">99,100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Kind_value" datatype="html">
@@ -657,7 +650,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">96,97</context>
+          <context context-type="linenumber">98,99</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Value" datatype="html">
@@ -676,7 +669,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">146</context>
+          <context context-type="linenumber">151</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Secret_hidden" datatype="html">
@@ -732,7 +725,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">418</context>
+          <context context-type="linenumber">415</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-danger.component.ts</context>
@@ -779,7 +772,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">84,86</context>
+          <context context-type="linenumber">86,88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_vault_entry_NAME" datatype="html">
@@ -865,7 +858,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">215,216</context>
+          <context context-type="linenumber">212,213</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
@@ -881,7 +874,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">161,163</context>
+          <context context-type="linenumber">169,171</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_roles_catalogue" datatype="html">
@@ -901,11 +894,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">169,170</context>
+          <context context-type="linenumber">166,167</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">199,200</context>
+          <context context-type="linenumber">196,197</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
@@ -1246,65 +1239,65 @@
         <source>New role</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">172,173</context>
+          <context context-type="linenumber">169,170</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">378</context>
+          <context context-type="linenumber">375</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_role_yet" datatype="html">
         <source>No role yet, create the first one.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">180,182</context>
+          <context context-type="linenumber">177,179</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Drop_here_for_top_level" datatype="html">
         <source>Drop here to make it a top-level role</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">186,188</context>
+          <context context-type="linenumber">183,185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="System" datatype="html">
         <source>system</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">207,208</context>
+          <context context-type="linenumber">204,205</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Edit_role" datatype="html">
         <source>Edit role</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">236,237</context>
+          <context context-type="linenumber">233,234</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">238,240</context>
+          <context context-type="linenumber">235,237</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">390</context>
+          <context context-type="linenumber">387</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_role" datatype="html">
         <source>Delete role</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">247,248</context>
+          <context context-type="linenumber">244,245</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">249,251</context>
+          <context context-type="linenumber">246,248</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_role_NAME" datatype="html">
         <source>Delete role &quot;<x id="NAME" equiv-text="role.name"/>&quot;?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">417</context>
+          <context context-type="linenumber">414</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tenant_name" datatype="html">
@@ -1634,7 +1627,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">242</context>
+          <context context-type="linenumber">253</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Account" datatype="html">
@@ -3158,10 +3151,6 @@
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
           <context context-type="linenumber">465,466</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">521,522</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="Tag_name" datatype="html">
         <source>Tag name</source>
@@ -3226,6 +3215,13 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
           <context context-type="linenumber">520,521</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="meta_tags" datatype="html">
+        <source>meta tags</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">521,522</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Custom_CSS_hint" datatype="html">
@@ -3313,11 +3309,15 @@
           <context context-type="linenumber">326</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Infra_Routes" datatype="html">
-        <source>Infra · Routes</source>
+      <trans-unit id="Routes" datatype="html">
+        <source>Routes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
           <context context-type="linenumber">4,5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Refresh" datatype="html">
@@ -3906,7 +3906,7 @@
         <source>Edit entry</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">82,83</context>
+          <context context-type="linenumber">84,85</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Kind_secret_hint" datatype="html">
@@ -3915,7 +3915,7 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">116,118</context>
+          <context context-type="linenumber">118,120</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Kind_value_hint" datatype="html">
@@ -3924,42 +3924,35 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">120,123</context>
+          <context context-type="linenumber">122,125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Vault_name_hint" datatype="html">
         <source>A letter, then letters, digits, dot, dash or underscore</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">129,132</context>
+          <context context-type="linenumber">131,134</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Secret_keep_hint" datatype="html">
         <source>Leave empty to keep the stored secret</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">205</context>
+          <context context-type="linenumber">216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scope_infra" datatype="html">
         <source>Infra</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">217</context>
+          <context context-type="linenumber">228</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scope_app" datatype="html">
         <source>Application</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">218</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Routes" datatype="html">
-        <source>Routes</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">18</context>
+          <context context-type="linenumber">229</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Built_in_pages" datatype="html">

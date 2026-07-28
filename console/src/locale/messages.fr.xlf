@@ -2104,6 +2104,10 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">251,252</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="meta_tags" datatype="html">
+        <source>meta tags</source>
+        <target>balises meta</target>
+      </trans-unit>
       <trans-unit id="As" datatype="html">
         <source>As</source>
         <target>En tant que</target>

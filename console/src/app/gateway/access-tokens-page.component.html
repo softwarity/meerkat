@@ -1,0 +1,40 @@
+<div class="banner">
+  <h1 i18n="@@Access_tokens">Access tokens</h1>
+  <button matButton="filled" (click)="create()">
+    <mat-icon>add</mat-icon>
+    <ng-container i18n="@@New_token">New token</ng-container>
+  </button>
+</div>
+
+<div class="content">
+  <div class="planned">
+    <mat-icon>smart_toy</mat-icon>
+    <span i18n="@@Access_tokens_planned">
+      Control-plane tokens grant browserless access to the admin port with your powers. They are
+      the foundation for a Meerkat CLI and MCP server, which let an AI or a script manage the
+      gateway. That tooling is planned; the tokens work today for your own automation.
+    </span>
+  </div>
+
+  @if (loading()) {
+    <loading-indicator withContainer />
+  } @else {
+    @for (t of tokens(); track t.id) {
+      <div class="token" [class.off]="!t.enabled">
+        <span class="name">{{ t.name }}</span>
+        <mat-slide-toggle [checked]="t.enabled" (change)="toggle(t, $event.checked)" />
+        <button matIconButton (click)="revoke(t)" i18n-matTooltip="@@Revoke" matTooltip="Revoke">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <span class="meta">
+          <code class="prefix">{{ t.prefix }}…</code>
+          &nbsp;·&nbsp;<ng-container i18n="@@Created_on">Created on</ng-container> {{ day(t.createdAt) }}
+          &nbsp;·&nbsp;{{ expiryLabel(t.expiresAt) }}
+          &nbsp;·&nbsp;{{ lastUsedLabel(t.lastUsedAt) }}
+        </span>
+      </div>
+    } @empty {
+      <p class="empty" i18n="@@No_access_tokens">No access token yet.</p>
+    }
+  }
+</div>

@@ -1,0 +1,61 @@
+<mat-drawer-container class="pal-wrap" hasBackdrop="true">
+  <mat-drawer
+    position="end"
+    mode="over"
+    class="pal"
+    [opened]="palOpen()"
+    (openedChange)="palOpen.set($event)"
+  >
+    <h4 i18n="@@Add_modifier">Add modifier</h4>
+    @for (e of phaseEntries(); track e.type) {
+      <button class="cat-entry" (click)="add(e.type); palOpen.set(false)">
+        <mat-icon>add</mat-icon>
+        <span class="b-lines">
+          <span>{{ label(e.type) }}</span>
+          <span class="b-doc">{{ doc(e.type) }}</span>
+        </span>
+      </button>
+    }
+    @if (planned().length) {
+      <div class="planned-title" i18n="@@Planned_not_available_yet">Planned (not available yet)</div>
+      @for (b of planned(); track b.type) {
+        <div class="cat-entry planned">
+          <mat-icon>schedule</mat-icon>
+          <span class="b-lines">
+            <span>{{ label(b.type) }}</span>
+            <span class="b-doc">{{ b.doc }}</span>
+          </span>
+        </div>
+      }
+    }
+  </mat-drawer>
+  <mat-drawer-content>
+    <div class="bar">
+      <p class="intro">{{ intro() }}</p>
+      @if (!full()) {
+        <button matButton="tonal" (click)="palOpen.set(true)">
+          <mat-icon>add</mat-icon>
+          <ng-container i18n="@@Add">Add</ng-container>
+        </button>
+      }
+    </div>
+
+    @for (e of errors(); track e.kind) {
+      <p class="error">{{ e.message }}</p>
+    }
+
+    @for (row of indexed(); track row.i; let di = $index) {
+      <app-filter-item
+        [spec]="row.s"
+        (specChange)="updateAt(row.i, $event)"
+        [first]="di === 0"
+        [last]="di === indexed().length - 1"
+        (moveUp)="move(di, -1)"
+        (moveDown)="move(di, 1)"
+        (removed)="removeAt(row.i)"
+      />
+    } @empty {
+      <p class="empty">{{ empty() }}</p>
+    }
+  </mat-drawer-content>
+</mat-drawer-container>

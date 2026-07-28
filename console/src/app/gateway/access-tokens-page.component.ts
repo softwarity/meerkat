@@ -26,127 +26,8 @@ import { DialogsService } from '../shared/dialogs.service';
 @Component({
   selector: 'app-access-tokens-page',
   imports: [MatButtonModule, MatIconModule, MatSlideToggleModule, LoadingIndicatorComponent],
-  styles: [
-    `
-      .banner {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 12px 24px;
-      }
-      .banner h1 {
-        font-size: 1.15rem;
-        font-weight: 500;
-        margin: 0;
-        flex: 1;
-      }
-      .content {
-        padding: 0 24px 24px;
-        display: grid;
-        gap: 16px;
-        max-width: 820px;
-      }
-      .planned {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 12px 16px;
-        border: 1px dashed color-mix(in srgb, var(--mat-sys-primary) 45%, transparent);
-        border-radius: 10px;
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.85rem;
-      }
-      .planned mat-icon {
-        color: var(--mat-sys-primary);
-        /* Keep the icon at full size in the flex row: without this the long
-           text shrinks the box and the glyph gets clipped. */
-        flex-shrink: 0;
-        overflow: visible;
-      }
-      .token {
-        display: grid;
-        grid-template-columns: 1fr auto auto;
-        align-items: center;
-        gap: 4px 16px;
-        padding: 12px 16px 12px 18px;
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 10px;
-        position: relative;
-        overflow: hidden;
-      }
-      .token::before {
-        content: '';
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: 3px;
-        background: var(--mat-sys-primary);
-        opacity: 0.7;
-      }
-      .token .name {
-        font-weight: 500;
-      }
-      .token .prefix {
-        font-family: var(--mk-mono);
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.85rem;
-      }
-      .token .meta {
-        grid-column: 1 / -1;
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.8rem;
-      }
-      .token.off {
-        opacity: 0.55;
-      }
-      .empty {
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.9rem;
-        padding: 8px 0;
-      }
-    `,
-  ],
-  template: `
-    <div class="banner">
-      <h1 i18n="@@Access_tokens">Access tokens</h1>
-      <button matButton="filled" (click)="create()">
-        <mat-icon>add</mat-icon>
-        <ng-container i18n="@@New_token">New token</ng-container>
-      </button>
-    </div>
-
-    <div class="content">
-      <div class="planned">
-        <mat-icon>smart_toy</mat-icon>
-        <span i18n="@@Access_tokens_planned">
-          Control-plane tokens grant browserless access to the admin port with your powers. They are
-          the foundation for a Meerkat CLI and MCP server, which let an AI or a script manage the
-          gateway. That tooling is planned; the tokens work today for your own automation.
-        </span>
-      </div>
-
-      @if (loading()) {
-        <loading-indicator withContainer />
-      } @else {
-        @for (t of tokens(); track t.id) {
-          <div class="token" [class.off]="!t.enabled">
-            <span class="name">{{ t.name }}</span>
-            <mat-slide-toggle [checked]="t.enabled" (change)="toggle(t, $event.checked)" />
-            <button matIconButton (click)="revoke(t)" i18n-matTooltip="@@Revoke" matTooltip="Revoke">
-              <mat-icon>delete</mat-icon>
-            </button>
-            <span class="meta">
-              <code class="prefix">{{ t.prefix }}…</code>
-              &nbsp;·&nbsp;<ng-container i18n="@@Created_on">Created on</ng-container> {{ day(t.createdAt) }}
-              &nbsp;·&nbsp;{{ expiryLabel(t.expiresAt) }}
-              &nbsp;·&nbsp;{{ lastUsedLabel(t.lastUsedAt) }}
-            </span>
-          </div>
-        } @empty {
-          <p class="empty" i18n="@@No_access_tokens">No access token yet.</p>
-        }
-      }
-    </div>
-  `,
+  styleUrl: './access-tokens-page.component.scss',
+  templateUrl: './access-tokens-page.component.html',
 })
 export class AccessTokensPageComponent {
   private readonly api = inject(ApiService);
@@ -219,14 +100,14 @@ export class AccessTokensPageComponent {
   }
 
   protected expiryLabel(ts: number): string {
-    if (!ts) return $localize`:@@Never_expires:never expires`;
-    return $localize`:@@Expires_DATE:expires ${this.day(ts)}:DATE:`;
+    if (!ts) return $localize`:@@never_expires:never expires`;
+    return $localize`:@@expires_DATE:expires ${this.day(ts)}:DATE:`;
   }
 
   protected lastUsedLabel(ts: number): string {
-    if (!ts) return $localize`:@@Never_used:never used`;
+    if (!ts) return $localize`:@@never_used:never used`;
     const rel = DateTime.fromSeconds(ts).reconfigure({ locale: this.locale }).toRelative() ?? '';
-    return $localize`:@@Last_used_REL:last used ${rel}:REL:`;
+    return $localize`:@@last_used_REL:last used ${rel}:REL:`;
   }
 }
 
@@ -257,10 +138,10 @@ export class AccessTokensPageComponent {
       <mat-form-field>
         <mat-label i18n="@@Expiry">Expiry</mat-label>
         <mat-select [value]="days()" (selectionChange)="days.set($event.value)">
-          <mat-option [value]="0" i18n="@@Never_expires">never expires</mat-option>
-          <mat-option [value]="30" i18n="@@In_30_days">30 days</mat-option>
-          <mat-option [value]="90" i18n="@@In_90_days">90 days</mat-option>
-          <mat-option [value]="365" i18n="@@In_1_year">1 year</mat-option>
+          <mat-option [value]="0" i18n="@@never_expires">never expires</mat-option>
+          <mat-option [value]="30" i18n="@@in_30_days">30 days</mat-option>
+          <mat-option [value]="90" i18n="@@in_90_days">90 days</mat-option>
+          <mat-option [value]="365" i18n="@@in_1_year">1 year</mat-option>
         </mat-select>
       </mat-form-field>
     </mat-dialog-content>

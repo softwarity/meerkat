@@ -1,0 +1,52 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.name-field {
+  width: min(420px, 100%);
+}
+.meta {
+  margin: 2px 0 16px;
+  font-size: 0.82rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+.meta .who {
+  color: var(--mat-sys-on-surface);
+  font-weight: 500;
+}
+.meta .muted {
+  font-style: italic;
+}
+.desc-field {
+  display: block;
+  width: min(640px, 100%);
+}
+.hint {
+  margin: 0 0 10px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+.mode-field {
+  width: 280px;
+}
+.sub {
+  margin: 20px 0 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mat-sys-on-surface-variant);
+}
+footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 16px;
+}

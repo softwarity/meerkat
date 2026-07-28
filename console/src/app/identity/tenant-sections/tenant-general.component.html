@@ -1,0 +1,53 @@
+<div class="name-row">
+  <app-form-field class="name-field" subscriptSizing="dynamic" i18n-label="@@Name" label="Name">
+    <input matInput [value]="name()" (input)="name.set($any($event.target).value)" />
+  </app-form-field>
+  <mat-slide-toggle [checked]="enabled()" (change)="enabled.set($event.checked)">
+    <ng-container i18n="@@Enabled">Enabled</ng-container>
+  </mat-slide-toggle>
+</div>
+@if (scope.tenant(); as t) {
+  <p class="meta">
+    <span i18n="@@Created_on">Created on</span> {{ t.createdAt * 1000 | date: 'yyyy-MM-dd' }}
+    @if (t.createdByName) {
+      <span i18n="@@by">by</span> <span class="who">{{ t.createdByName }}</span>
+    }
+    @if (t.ownerName) {
+      · <span i18n="@@Owner">Owner</span>: <span class="who">{{ t.ownerName }}</span>
+    } @else {
+      · <span class="muted" i18n="@@no_owner">no owner</span>
+    }
+  </p>
+}
+<app-form-field class="desc-field" i18n-label="@@Description" label="Description">
+  <textarea
+    matInput
+    rows="2"
+    [value]="description()"
+    (input)="description.set($any($event.target).value)"
+  ></textarea>
+</app-form-field>
+
+<h3 class="sub" i18n="@@Group_mode">Group mode</h3>
+<p class="hint" i18n="@@Tenant_group_mode_hint">
+  Cumulative merges the roles of every assigned group; exclusive makes members pick ONE group
+  when they enter this tenant.
+</p>
+<mat-form-field class="mode-field">
+  <mat-label i18n="@@Group_mode">Group mode</mat-label>
+  <mat-select [value]="groupMode()" (selectionChange)="groupMode.set($event.value)">
+    <mat-option value="MULTIPLE" i18n="@@Cumulative">Cumulative</mat-option>
+    <mat-option value="SINGLE" i18n="@@Exclusive">Exclusive</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<h3 class="sub" i18n="@@Working_hours">Working hours</h3>
+<app-business-access-form
+  [value]="businessAccess()"
+  [inherited]="globalBusinessAccess()"
+  (valueChange)="businessAccess.set($event)"
+/>
+
+<footer>
+  <button matButton="filled" (click)="save()" [disabled]="saving() || !dirty()" i18n="@@Save">Save</button>
+</footer>

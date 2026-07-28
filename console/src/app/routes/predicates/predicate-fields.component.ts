@@ -32,9 +32,7 @@ const METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 @Component({
   selector: 'app-list-predicate',
   imports: [StringListComponent],
-  template: `
-    <app-string-list [values]="items()" (valuesChange)="set($event)" [placeholder]="placeholder()" />
-  `,
+  templateUrl: './predicate-fields.component.html',
 })
 export class ListPredicateComponent {
   readonly spec = model.required<Spec>();

@@ -1,0 +1,142 @@
+@if (loading()) {
+  <loading-indicator withContainer />
+} @else {
+  <div class="banner">
+    <h1 i18n="@@Security">Security</h1>
+  </div>
+
+  <div class="content">
+    <mat-card appearance="outlined">
+      <h3 i18n="@@Two_factor">Two-factor</h3>
+      <p class="hint text-muted" i18n="@@MFA_global_hint">
+        Require a second factor for every user. Organizations and members can override this.
+      </p>
+      <mat-slide-toggle [checked]="mfaRequired()" (change)="mfaRequired.set($event.checked)">
+        <ng-container i18n="@@Require_two_factor">Require two-factor for everyone</ng-container>
+      </mat-slide-toggle>
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <h3 i18n="@@Session_TTL">Session TTL</h3>
+      <p class="hint text-muted" i18n="@@Session_TTL_hint">
+        How long a session lives before the user must sign in again.
+      </p>
+      <mat-form-field class="field">
+        <mat-label i18n="@@Session_TTL">Session TTL</mat-label>
+        <mat-select [value]="sessionTTL()" (selectionChange)="sessionTTL.set($event.value)">
+          @for (c of sessionTtlChoices(); track c) {
+            <mat-option [value]="c">{{ human(c) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <h3 i18n="@@Email_sender">Email sender</h3>
+      <p class="hint text-muted" i18n="@@Email_sender_hint">
+        The address account e-mails come from. The relay that actually delivers them is
+        infrastructure and lives under Infra, Mail relay.
+      </p>
+      <mat-form-field class="field">
+        <mat-label i18n="@@SMTP_from">From</mat-label>
+        <input matInput [value]="smtpFrom()" (input)="smtpFrom.set($any($event.target).value)" placeholder="My App <no-reply@example.com>" />
+      </mat-form-field>
+      @if (relayConfigured()) {
+        <p class="hint text-muted" i18n="@@Relay_ready">Mail relay: configured ({{ relayHost() }}).</p>
+      } @else {
+        <p class="hint text-error" i18n="@@Relay_missing">
+          Mail relay: not configured. Account e-mails cannot go out until an infra admin sets it up.
+        </p>
+      }
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <h3 i18n="@@Rate_limiting">Rate limiting</h3>
+      <p class="hint text-muted" i18n="@@Rate_limiting_hint">
+        Throttles brute-force attempts: failed sign-ins per address and account within the
+        window, and wrong two-factor codes per account. Zero disables a limiter.
+      </p>
+      <div class="rl-row">
+        <mat-form-field class="rl-num">
+          <mat-label i18n="@@Failed_sign_ins">Failed sign-ins</mat-label>
+          <input matInput type="number" min="0" max="1000" [value]="rlLogin()" (input)="rlLogin.set(+$any($event.target).value)" />
+        </mat-form-field>
+        <mat-form-field class="rl-num">
+          <mat-label i18n="@@Wrong_codes">Wrong 2FA codes</mat-label>
+          <input matInput type="number" min="0" max="100" [value]="rlTotp()" (input)="rlTotp.set(+$any($event.target).value)" />
+        </mat-form-field>
+        <mat-form-field class="ttl">
+          <mat-label i18n="@@Within">Within</mat-label>
+          <mat-select [value]="rlWindow()" (selectionChange)="rlWindow.set($event.value)">
+            @for (d of rlWindows; track d) {
+              <mat-option [value]="d">{{ human(d) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <h3 i18n="@@Self_registration">Self-registration</h3>
+      <p class="hint text-muted" i18n="@@Self_registration_hint">
+        Let visitors create their own account on the sign-in page. The address is confirmed by
+        email, administrators are notified, and the account waits until someone grants it access.
+        Requires a sender address above and a mail relay (Infra, Mail relay).
+      </p>
+      <mat-slide-toggle [checked]="selfRegistration()" (change)="selfRegistration.set($event.checked)">
+        <ng-container i18n="@@Allow_self_registration">Allow self-registration (local accounts)</ng-container>
+      </mat-slide-toggle>
+      @if (selfRegistration()) {
+        <br />
+        <mat-slide-toggle [checked]="selfRegisterCaptcha()" (change)="selfRegisterCaptcha.set($event.checked)">
+          <ng-container i18n="@@Require_captcha">Require the anti-robot check (built-in captcha)</ng-container>
+        </mat-slide-toggle>
+      }
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <h3 i18n="@@Passkeys">Passkeys</h3>
+      <p class="hint text-muted" i18n="@@Passkeys_global_hint">
+        Let users register passkeys and sign in with them instead of the password and second factor.
+      </p>
+      <mat-slide-toggle [checked]="passkeysAllowed()" (change)="passkeysAllowed.set($event.checked)">
+        <ng-container i18n="@@Allow_passkeys">Allow passkeys</ng-container>
+      </mat-slide-toggle>
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <h3 i18n="@@API_tokens">API tokens</h3>
+      <p class="hint text-muted" i18n="@@API_tokens_hint">
+        Let users mint personal access tokens (Profile, Security) to call the API routes behind
+        the gateway without a browser session. A token acts with the user's context at creation.
+      </p>
+      <mat-slide-toggle [checked]="apiTokens()" (change)="apiTokens.set($event.checked)">
+        <ng-container i18n="@@Allow_API_tokens">Allow personal API tokens</ng-container>
+      </mat-slide-toggle>
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <h3 i18n="@@Trusted_browsers">Trusted browsers</h3>
+      <p class="hint text-muted" i18n="@@Trusted_browsers_hint">
+        Let users skip the two-factor challenge on a browser they mark as trusted, until it expires.
+      </p>
+      <mat-slide-toggle [checked]="trustAllowed()" (change)="trustAllowed.set($event.checked)">
+        <ng-container i18n="@@Allow_trusted_browsers">Allow trusted browsers</ng-container>
+      </mat-slide-toggle>
+      @if (trustAllowed()) {
+        <mat-form-field class="ttl">
+          <mat-label i18n="@@Trust_duration">Trust duration</mat-label>
+          <mat-select [value]="trustTtl()" (selectionChange)="trustTtl.set($event.value)">
+            @for (d of ttlChoices; track d) {
+              <mat-option [value]="d">{{ human(d) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+    </mat-card>
+
+    <div class="flex justify-end">
+      <button matButton="filled" (click)="save()" [disabled]="saving()" i18n="@@Save">Save</button>
+    </div>
+  </div>
+}

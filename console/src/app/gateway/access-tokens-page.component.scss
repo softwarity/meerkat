@@ -1,0 +1,75 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+}
+.banner h1 {
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 0;
+  flex: 1;
+}
+.content {
+  padding: 0 24px 24px;
+  display: grid;
+  gap: 16px;
+  max-width: 820px;
+}
+.planned {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px dashed color-mix(in srgb, var(--mat-sys-primary) 45%, transparent);
+  border-radius: 10px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+.planned mat-icon {
+  color: var(--mat-sys-primary);
+  /* Keep the icon at full size in the flex row: without this the long
+     text shrinks the box and the glyph gets clipped. */
+  flex-shrink: 0;
+  overflow: visible;
+}
+.token {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 4px 16px;
+  padding: 12px 16px 12px 18px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.token::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--mat-sys-primary);
+  opacity: 0.7;
+}
+.token .name {
+  font-weight: 500;
+}
+.token .prefix {
+  font-family: var(--mk-mono);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+.token .meta {
+  grid-column: 1 / -1;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.8rem;
+}
+.token.off {
+  opacity: 0.55;
+}
+.empty {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+  padding: 8px 0;
+}

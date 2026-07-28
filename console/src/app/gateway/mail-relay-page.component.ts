@@ -31,152 +31,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     LoadingIndicatorComponent,
     FormFieldComponent,
   ],
-  styles: [
-    `
-      .banner {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 12px 24px;
-      }
-      .banner h1 {
-        font-size: 1.15rem;
-        font-weight: 500;
-        margin: 0;
-        flex: 1;
-      }
-      .content {
-        padding: 0 24px 24px;
-        display: grid;
-        gap: 16px;
-        max-width: 720px;
-      }
-      mat-card {
-        padding: 16px 20px;
-      }
-      .hint {
-        margin: 0 0 12px;
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.85rem;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 16px;
-      }
-      /* Field and button on one optical line. The field is subscriptSizing
-         dynamic (see the template): with the reserved hint line below the
-         input, centring the row drops the button visibly lower than the field. */
-      .test {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .field {
-        width: 280px;
-      }
-      /* One line, never resizable: it reads as an input but a browser never
-         offers credential autofill on a textarea, so the relay password stops
-         attracting "save this password?" for the console's own account. */
-      .oneline {
-        resize: none;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-      .actions {
-        display: flex;
-        justify-content: flex-end;
-      }
-    `,
-  ],
-  template: `
-    @if (loading()) {
-      <loading-indicator withContainer />
-    } @else {
-      <div class="banner">
-        <h1 i18n="@@Mail_relay">Mail relay</h1>
-      </div>
-
-      <div class="content">
-        <mat-card appearance="outlined">
-          <p class="hint" i18n="@@Mail_relay_hint">
-            The SMTP server that delivers account e-mails: confirmations, password resets,
-            administrator notifications. The sender address is set in the application settings.
-          </p>
-          <div class="grid">
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_host">Host</mat-label>
-              <input matInput [value]="host()" (input)="host.set($any($event.target).value)" placeholder="smtp.example.com" />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_port">Port</mat-label>
-              <input matInput type="number" [value]="port()" (input)="port.set(+$any($event.target).value)" placeholder="587" />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_security">Security</mat-label>
-              <mat-select [value]="security()" (selectionChange)="security.set($event.value)">
-                <mat-option value="starttls">STARTTLS</mat-option>
-                <mat-option value="tls">TLS</mat-option>
-                <mat-option value="none" i18n="@@None">None</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label i18n="@@SMTP_username">Username</mat-label>
-              <input matInput [value]="username()" (input)="username.set($any($event.target).value)" autocomplete="off" />
-            </mat-form-field>
-            <app-form-field
-              i18n-label="@@SMTP_password"
-              label="Password"
-              revealable
-              masked
-              allowVault="secret"
-              vaultScope="infra"
-              [clearable]="false"
-            >
-              <textarea
-                matInput
-                rows="1"
-                class="oneline"
-                spellcheck="false"
-                autocapitalize="off"
-                autocorrect="off"
-                [value]="password()"
-                (input)="password.set($any($event.target).value)"
-                (keydown.enter)="$event.preventDefault()"
-                [placeholder]="passwordSet() ? '••••••••' : ''"
-              ></textarea>
-            </app-form-field>
-          </div>
-
-          <div class="test">
-            <mat-form-field class="field" subscriptSizing="dynamic">
-              <mat-label i18n="@@Test_recipient">Test recipient</mat-label>
-              <input
-                matInput
-                type="email"
-                [value]="testTo()"
-                (input)="testTo.set($any($event.target).value)"
-                placeholder="you@example.com"
-              />
-            </mat-form-field>
-            <button matButton (click)="test()" [disabled]="testing() || !host().trim() || !recipientOK()">
-              <!-- The one place with a slow round-trip and no other feedback: the
-                   icon spins while the relay is being tried. Written without any
-                   whitespace inside the branches — with preserveWhitespaces on,
-                   an indented @if is several root nodes and the icon never
-                   reaches matButton's icon slot (NG8011). -->
-              @if (testing()) {<mat-icon spin>autorenew</mat-icon>} @else {<mat-icon>send</mat-icon>}
-              <ng-container i18n="@@Send_a_test">Send a test</ng-container>
-            </button>
-          </div>
-        </mat-card>
-
-        <div class="actions">
-          <button matButton="filled" (click)="save()" [disabled]="saving()" i18n="@@Save">Save</button>
-        </div>
-      </div>
-    }
-  `,
+  styleUrl: './mail-relay-page.component.scss',
+  templateUrl: './mail-relay-page.component.html',
 })
 export class MailRelayPageComponent {
   private readonly api = inject(ApiService);
@@ -194,6 +50,15 @@ export class MailRelayPageComponent {
   protected readonly password = signal('');
   protected readonly passwordSet = signal(false);
   protected readonly testTo = signal('');
+
+  // The stored password is never sent back, so the field looks empty even when
+  // one is set: say so under it, and say what an empty field will do on save.
+  protected readonly passwordHint = computed(() => {
+    if (this.password()) return $localize`:@@Replaces_the_stored_password:Replaces the stored password`;
+    return this.passwordSet()
+      ? $localize`:@@A_password_is_stored_leave_empty_to_keep_it:A password is stored. Leave empty to keep it.`
+      : $localize`:@@No_password_stored:No password stored`;
+  });
 
   // Nothing to send to, nothing to test: the button stays off until the address
   // is at least shaped like one.

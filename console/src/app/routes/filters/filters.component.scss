@@ -1,0 +1,103 @@
+:host {
+  display: block;
+  height: 100%;
+}
+.pal-wrap {
+  height: 100%;
+  background: transparent;
+}
+.pal {
+  width: 380px;
+  padding: 16px 14px;
+  display: block;
+  box-sizing: border-box;
+  /* The palette scrolls vertically only: entry text wraps (see .b-lines). */
+  overflow-x: hidden;
+}
+.pal h4 {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mat-sys-on-surface-variant);
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.intro {
+  flex: 1;
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+}
+.empty {
+  margin: 0 0 12px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+.error {
+  margin: 0 0 12px;
+  color: var(--mat-sys-error);
+  font-size: 0.85rem;
+}
+/* border-box: the project has no global reset, so width:100% + padding
+   would otherwise overflow the palette by the padding and raise a
+   horizontal scrollbar on Material's .mat-drawer-inner-container. */
+.cat-entry {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--mat-sys-on-surface);
+  cursor: pointer;
+  font: inherit;
+}
+button.cat-entry:hover {
+  background: var(--mat-sys-surface-container-high);
+}
+.cat-entry mat-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+  color: var(--mat-sys-primary);
+}
+/* min-width:0 lets the grid shrink below its longest word, so a long
+   brick name or doc wraps instead of widening the palette. */
+.b-lines {
+  display: grid;
+  line-height: 1.35;
+  min-width: 0;
+}
+.b-doc {
+  font-size: 0.74rem;
+  color: var(--mat-sys-on-surface-variant);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.planned-title {
+  margin: 14px 0 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mat-sys-secondary);
+}
+.cat-entry.planned {
+  opacity: 0.45;
+  cursor: default;
+}

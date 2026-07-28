@@ -1,0 +1,109 @@
+<h2 mat-dialog-title>
+  @if (editing()) {
+    <ng-container i18n="@@Edit_vault_entry">Edit entry</ng-container>
+  } @else {
+    <ng-container i18n="@@New_vault_entry">New entry</ng-container>
+  }
+</h2>
+<mat-dialog-content>
+  <div class="rowtop">
+    @if (kinds().length > 1) {
+      <mat-button-toggle-group
+        class="kinds"
+        [value]="kind()"
+        (change)="kind.set($event.value)"
+        hideSingleSelectionIndicator
+      >
+        <mat-button-toggle value="value" i18n="@@Kind_value">Value</mat-button-toggle>
+        <mat-button-toggle value="secret" i18n="@@Kind_secret">Secret</mat-button-toggle>
+      </mat-button-toggle-group>
+    }
+    @if (scopes().length > 1) {
+      <mat-button-toggle-group
+        [value]="scope()"
+        (change)="scope.set($event.value)"
+        [disabled]="editing()"
+        hideSingleSelectionIndicator
+      >
+        @for (sc of scopes(); track sc) {
+          <mat-button-toggle [value]="sc">{{ scopeLabel(sc) }}</mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+    }
+  </div>
+  <p class="hint">
+    @if (kind() === 'secret') {
+      <ng-container i18n="@@Kind_secret_hint">
+        Encrypted at rest and never shown again. Referenced by $name wherever it is needed.
+      </ng-container>
+    } @else {
+      <ng-container i18n="@@Kind_value_hint">
+        Stored in clear and readable. Referenced by $name wherever it is needed.
+      </ng-container>
+    }
+  </p>
+
+  <app-form-field
+    i18n-label="@@Name"
+    label="Name"
+    i18n-hint="@@Vault_name_hint"
+    hint="A letter, then letters, digits, dot, dash or underscore"
+  >
+    <textarea
+      matInput
+      rows="1"
+      class="oneline"
+      spellcheck="false"
+      autocapitalize="off"
+      autocorrect="off"
+      [value]="name()"
+      [disabled]="editing()"
+      (input)="name.set($any($event.target).value)"
+      (keydown.enter)="$event.preventDefault()"
+      placeholder="api-host"
+    ></textarea>
+  </app-form-field>
+
+  <app-form-field
+    i18n-label="@@Value"
+    label="Value"
+    [revealable]="kind() === 'secret'"
+    [masked]="kind() === 'secret'"
+    [clearable]="false"
+    [hint]="keepHint()"
+  >
+    <textarea
+      matInput
+      rows="1"
+      class="oneline"
+      spellcheck="false"
+      autocapitalize="off"
+      autocorrect="off"
+      [value]="value()"
+      (input)="value.set($any($event.target).value)"
+      (keydown.enter)="$event.preventDefault()"
+    ></textarea>
+  </app-form-field>
+
+  <app-form-field i18n-label="@@Description" label="Description">
+    <textarea
+      matInput
+      rows="1"
+      class="oneline"
+      spellcheck="false"
+      autocapitalize="off"
+      autocorrect="off"
+      [value]="description()"
+      (input)="description.set($any($event.target).value)"
+      (keydown.enter)="$event.preventDefault()"
+    ></textarea>
+  </app-form-field>
+
+  @if (error(); as e) {
+    <p class="err">{{ e }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close i18n="@@Cancel">Cancel</button>
+  <button matButton="filled" [disabled]="!canSave() || saving()" (click)="save()" i18n="@@Save">Save</button>
+</mat-dialog-actions>

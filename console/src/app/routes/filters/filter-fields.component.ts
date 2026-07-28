@@ -31,23 +31,7 @@ const FIELDS_STYLE = `
   selector: 'app-header-filter',
   imports: [MatCheckboxModule, MatFormFieldModule, MatInputModule],
   styles: [FIELDS_STYLE],
-  template: `
-    <div class="fields">
-      <mat-form-field>
-        <mat-label i18n="@@Header_name">Header name</mat-label>
-        <input matInput [value]="name()" (input)="set('name', $any($event.target).value)" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label i18n="@@Value">Value</mat-label>
-        <input matInput [value]="value()" (input)="set('value', $any($event.target).value)" />
-      </mat-form-field>
-      @if (spec().type === 'add-request-header') {
-        <mat-checkbox [checked]="ifNotPresent()" (change)="set('ifNotPresent', $event.checked)">
-          <ng-container i18n="@@Only_if_absent">Only if absent</ng-container>
-        </mat-checkbox>
-      }
-    </div>
-  `,
+  templateUrl: './filter-fields.component.html',
 })
 export class HeaderFilterComponent {
   readonly spec = model.required<Spec>();

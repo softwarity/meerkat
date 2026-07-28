@@ -1,0 +1,55 @@
+rail-nav-container {
+  height: 100vh;
+}
+rail-nav-content {
+  overflow: auto;
+}
+/* Entries inside a contextual drawer — a nav-list of links. */
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--mat-sys-on-surface);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.drawer-item:hover {
+  background: var(--mat-sys-surface-container-high);
+}
+.drawer-item.active {
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+.drawer-item.disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
+.drawer-item mat-icon {
+  flex-shrink: 0;
+}
+/* a real button leading the drawer (creation), not a nav entry */
+.drawer-action {
+  width: calc(100% - 28px);
+  margin: 4px 14px 12px;
+}
+/* two-line entries: name over a muted, truncated description */
+.drawer-lines {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.drawer-desc {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.drawer-empty {
+  padding: 10px 14px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}

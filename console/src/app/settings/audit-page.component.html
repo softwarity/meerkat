@@ -1,0 +1,82 @@
+<div class="banner">
+  <h1 i18n="@@Audit">Audit</h1>
+  <button matIconButton (click)="reload()" i18n-matTooltip="@@Refresh" matTooltip="Refresh">
+    <mat-icon>refresh</mat-icon>
+  </button>
+</div>
+
+<div class="toolbar">
+  <p class="hint" i18n="@@Audit_hint">
+    Every administrative change, with the exact fields that moved and their before and after.
+  </p>
+
+  <div class="filters">
+    <mat-form-field class="short" subscriptSizing="dynamic">
+      <mat-label i18n="@@Target">Target</mat-label>
+      <mat-select [value]="target()" (selectionChange)="target.set($event.value); reload()">
+        <mat-option value="" i18n="@@All">All</mat-option>
+        @for (k of targets; track k) {
+          <mat-option [value]="k">{{ k }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="short" subscriptSizing="dynamic">
+      <mat-label i18n="@@Period">Period</mat-label>
+      <mat-select [value]="period()" (selectionChange)="period.set($event.value); reload()">
+        <mat-option [value]="1" i18n="@@Last_24h">Last 24 hours</mat-option>
+        <mat-option [value]="7" i18n="@@Last_7_days">Last 7 days</mat-option>
+        <mat-option [value]="30" i18n="@@Last_30_days">Last 30 days</mat-option>
+        <mat-option [value]="0" i18n="@@All_time">All time</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="grow" subscriptSizing="dynamic">
+      <mat-label i18n="@@Search">Search</mat-label>
+      <input matInput [value]="search()" (input)="search.set($any($event.target).value)" />
+    </mat-form-field>
+  </div>
+</div>
+
+<div class="scroll">
+  @if (loading()) {
+    <loading-indicator withContainer />
+  } @else {
+    <div class="events">
+      @for (e of filtered(); track e.id) {
+        <div class="event">
+          <div class="when" [title]="fullWhen(e.at)">{{ relWhen(e.at) }}</div>
+          <div>
+            <div class="head">
+              <span class="action">{{ e.action }}</span>
+              <span class="who">
+                <ng-container i18n="@@by">by</ng-container> {{ e.actorName || e.actorId || '?' }}
+              </span>
+            </div>
+            @if (e.targetName || e.targetId) {
+              <div class="target">
+                <span class="kind">{{ e.target }}</span> {{ e.targetName || e.targetId }}
+              </div>
+            }
+            @if (e.changes?.length) {
+              <div class="changes">
+                @for (c of e.changes; track c.field) {
+                  <div class="change">
+                    <span class="field">{{ c.field }}</span>
+                    <span class="from">{{ fmt(c.from) }}</span>
+                    <span class="arrow">&#8594;</span>
+                    <span class="to">{{ fmt(c.to) }}</span>
+                  </div>
+                }
+              </div>
+            } @else if (e.detail) {
+              <div class="detail">{{ e.detail }}</div>
+            }
+          </div>
+        </div>
+      } @empty {
+        <p class="empty" i18n="@@No_audit_events">No audit events for this filter.</p>
+      }
+    </div>
+  }
+</div>

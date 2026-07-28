@@ -2,8 +2,8 @@
   <mat-drawer-content>
     <div class="banner">
       <h1 i18n="@@Routes">Routes</h1>
-      <button matIconButton (click)="load()" i18n-aria-label="@@Refresh" aria-label="Refresh">
-        <mat-icon>refresh</mat-icon>
+      <button matIconButton (click)="load()" i18n-matTooltip="@@Refresh" matTooltip="Refresh" i18n-aria-label="@@Refresh" aria-label="Refresh">
+        @if (loading()) {<mat-icon spin>autorenew</mat-icon>} @else {<mat-icon>refresh</mat-icon>}
       </button>
       <button
         matButton="tonal"

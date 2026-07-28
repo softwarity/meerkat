@@ -1,0 +1,35 @@
+<mat-drawer-container class="pal-wrap" hasBackdrop="true">
+  <mat-drawer #pal position="end" mode="over" class="pal">
+    <h4 i18n="@@Add_predicate">Add predicate</h4>
+    @for (e of ordered(); track e.type) {
+      <button class="cat-entry" [disabled]="taken(e.type)" (click)="add(e.type); pal.close()">
+        <mat-icon>add</mat-icon>
+        <span class="b-lines">
+          <span>{{ label(e.type) }}</span>
+          <span class="b-doc">{{ doc(e.type) }}</span>
+        </span>
+      </button>
+    }
+  </mat-drawer>
+  <mat-drawer-content>
+    <div class="bar">
+      <p class="intro" i18n="@@Predicates_all_must_match">Predicates: all must match (logical AND).</p>
+      <button matButton="tonal" (click)="pal.open()">
+        <mat-icon>add</mat-icon>
+        <ng-container i18n="@@Add">Add</ng-container>
+      </button>
+    </div>
+
+    @for (e of errors(); track e.kind) {
+      <p class="error">{{ e.message }}</p>
+    }
+
+    @for (p of value(); track $index; let i = $index) {
+      <app-predicate-item [spec]="p" (specChange)="updateAt(i, $event)" (removed)="removeAt(i)" />
+    } @empty {
+      <p class="empty" i18n="@@No_predicates_yet_the_route_matches_nothing">
+        No predicates yet: the route matches nothing.
+      </p>
+    }
+  </mat-drawer-content>
+</mat-drawer-container>

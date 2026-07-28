@@ -1,0 +1,60 @@
+<h2 mat-dialog-title i18n="@@JWT_signing_keys">JWT signing keys</h2>
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+<mat-dialog-content>
+  <p class="workflow" i18n="@@Signing_keys_workflow">
+    The gateway signs each identity token with its private key (which never leaves the server).
+    Backends fetch this JWKS once, cache it, and verify each token by its key id. Rotation is then
+    picked up on its own.
+  </p>
+  @if (data(); as d) {
+    <div class="jwks">
+      <div class="col">
+        <span class="lbl">
+          <ng-container i18n="@@JWKS_endpoint">JWKS (data plane)</ng-container>
+          <span class="badge" i18n="@@Recommended">Recommended</span>
+        </span>
+        <code class="path">{{ d.jwksPath }}</code>
+      </div>
+      <span class="spacer"></span>
+      <button matIconButton (click)="copy(d.jwksPath)" i18n-matTooltip="@@Copy" matTooltip="Copy">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <p class="fallback" i18n="@@Static_fallback">
+      Static fallback: paste the PEM of your route's algorithm into that backend.
+    </p>
+    @for (k of d.keys; track k.algorithm) {
+      <mat-expansion-panel class="key">
+        <mat-expansion-panel-header>
+          <mat-panel-title><span class="alg">{{ k.algorithm }}</span></mat-panel-title>
+          <mat-panel-description>
+            <span class="kid">kid {{ k.kid }}</span>
+            <span class="spacer"></span>
+            <button matButton (click)="$event.stopPropagation(); copy(k.publicPem)">
+              <mat-icon>content_copy</mat-icon>
+              <span i18n="@@Copy_PEM">Copy PEM</span>
+            </button>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <pre class="pem">{{ k.publicPem }}</pre>
+      </mat-expansion-panel>
+    }
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  @if (confirming()) {
+    <span class="warn" i18n="@@Rotate_confirm">Rotate now? Old keys stay valid briefly (grace window).</span>
+    <button matButton (click)="confirming.set(false)" i18n="@@Cancel">Cancel</button>
+    <button matButton="filled" [disabled]="renewing()" (click)="renew()" i18n="@@Rotate">Rotate</button>
+  } @else {
+    <button matButton (click)="confirming.set(true)" [disabled]="renewing() || loading()">
+      <mat-icon>autorenew</mat-icon>
+      <span i18n="@@Renew_keys">Renew keys</span>
+    </button>
+    <span class="spacer"></span>
+    <button matButton mat-dialog-close i18n="@@Close">Close</button>
+  }
+</mat-dialog-actions>

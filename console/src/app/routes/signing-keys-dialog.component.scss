@@ -1,0 +1,86 @@
+:host {
+  display: block;
+  max-width: 640px;
+}
+.workflow {
+  margin: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.jwks {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--mk-radius);
+  border: 1px solid color-mix(in srgb, var(--mk-signal) 45%, transparent);
+  background: color-mix(in srgb, var(--mk-signal) 8%, var(--mat-sys-surface-container));
+}
+.jwks .col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.jwks .lbl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mat-sys-on-surface-variant);
+}
+.jwks .badge {
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--mk-signal);
+  color: var(--mat-sys-on-secondary, #003);
+  font-weight: 600;
+}
+.jwks .path {
+  font-family: var(--mk-mono);
+  font-size: 0.85rem;
+  word-break: break-all;
+}
+.spacer {
+  flex: 1;
+}
+.fallback {
+  margin: 18px 0 8px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.8rem;
+}
+.key .alg {
+  font-family: var(--mk-mono);
+  font-weight: 600;
+}
+.key .kid {
+  font-family: var(--mk-mono);
+  font-size: 0.72rem;
+  color: var(--mat-sys-on-surface-variant);
+  margin-right: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* The PEM WRAPS (no horizontal scrollbar): newlines kept, the long base64
+   lines break within the box. */
+pre.pem {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-low);
+  font-family: var(--mk-mono);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-x: hidden;
+}
+.warn {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.82rem;
+  margin-right: auto;
+}

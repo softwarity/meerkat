@@ -1,0 +1,64 @@
+:host {
+  display: block;
+  max-width: 660px;
+}
+.hint {
+  margin: 0 0 14px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+.err {
+  color: var(--mat-sys-error);
+  white-space: pre-wrap;
+}
+table.hdrs {
+  width: 100%;
+  border-collapse: collapse;
+}
+table.hdrs td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  font-family: var(--mk-mono);
+  font-size: 0.8rem;
+  vertical-align: top;
+}
+table.hdrs td.k {
+  color: var(--mat-sys-secondary);
+  white-space: nowrap;
+  width: 1%;
+}
+table.hdrs td.v {
+  word-break: break-all;
+}
+.block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.block .lbl {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mat-sys-on-surface-variant);
+}
+.spacer {
+  flex: 1;
+}
+pre {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-low);
+  font-family: var(--mk-mono);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-x: hidden;
+}
+.meta {
+  font-family: var(--mk-mono);
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+}

@@ -1,0 +1,57 @@
+<mat-form-field [subscriptSizing]="subscriptSizing()">
+  @if (label()) {<mat-label>{{ label() }}</mat-label>}
+  @if (icon()) {<mat-icon matPrefix>{{ icon() }}</mat-icon>}
+  <ng-content />
+  @if (hint()) {<mat-hint>{{ hint() }}</mat-hint>}
+  @if (revealable()) {<button
+      matSuffix
+      matIconButton
+      type="button"
+      (click)="toggleReveal()"
+      i18n-aria-label="@@Toggle_visibility"
+      aria-label="Toggle visibility"
+    ><mat-icon>{{ revealed() ? 'visibility_off' : 'visibility' }}</mat-icon></button>}
+  @if (copyable()) {<button
+      matSuffix
+      matIconButton
+      type="button"
+      (click)="copy()"
+      i18n-aria-label="@@Copy"
+      aria-label="Copy"
+    ><mat-icon>{{ copied() ? 'check' : 'content_copy' }}</mat-icon></button>}
+  @if (clearable() && !empty()) {<button
+      matSuffix
+      matIconButton
+      type="button"
+      (click)="clear()"
+      i18n-aria-label="@@Clear"
+      aria-label="Clear"
+    ><mat-icon>close</mat-icon></button>}
+  @if (vaultKinds().length) {<button
+      matSuffix
+      matIconButton
+      type="button"
+      [matMenuTriggerFor]="vaultMenu"
+      (menuOpened)="loadVault()"
+      i18n-matTooltip="@@Use_a_vault_entry"
+      matTooltip="Use a vault entry"
+      i18n-aria-label="@@Use_a_vault_entry"
+      aria-label="Use a vault entry"
+    ><mat-icon>key</mat-icon></button>}
+</mat-form-field>
+
+<mat-menu #vaultMenu>
+  @for (e of vaultChoices(); track e.name) {
+    <button mat-menu-item type="button" (click)="insertRef(e)">
+      <mat-icon>{{ e.kind === 'secret' ? 'lock' : 'label' }}</mat-icon>
+      <span>{{ e.name }}</span>
+    </button>
+  } @empty {
+    <button mat-menu-item type="button" disabled i18n="@@No_vault_entry_yet">No entry yet</button>
+  }
+  <mat-divider />
+  <button mat-menu-item type="button" (click)="createEntry()">
+    <mat-icon>add</mat-icon>
+    <span i18n="@@New_vault_entry">New entry</span>
+  </button>
+</mat-menu>

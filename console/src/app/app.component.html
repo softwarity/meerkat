@@ -1,0 +1,86 @@
+<rail-nav-container>
+  <rail-nav title="meerkat" subtitle="console">
+    <rail-nav-item
+      i18n-label="@@Infra"
+      label="Infra"
+      routerLink="/infra"
+      [active]="inInfra()"
+      any-role="root infra-admin"
+    >
+      <mat-icon>dns</mat-icon>
+    </rail-nav-item>
+    <rail-nav-item
+      i18n-label="@@Application"
+      label="Application"
+      routerLink="/application"
+      [active]="inApp()"
+      any-role="root app-admin"
+    >
+      <mat-icon>tune</mat-icon>
+    </rail-nav-item>
+    <rail-nav-item
+      i18n-label="@@Tenants"
+      label="Tenants"
+      [for]="tenantsDrawer"
+      [active]="inTenants()"
+      (click)="openTenants()"
+      any-role="root tenant-admin tenant-creator"
+    >
+      <mat-icon>domain</mat-icon>
+    </rail-nav-item>
+    <rail-nav-item
+      i18n-label="@@API"
+      label="API"
+      routerLink="/api"
+      [active]="inApiDocs()"
+      any-role="root infra-admin app-admin"
+    >
+      <mat-icon>api</mat-icon>
+    </rail-nav-item>
+    <rail-nav-item
+      i18n-label="@@Vault"
+      label="Vault"
+      routerLink="/vault"
+      [active]="inVault()"
+      any-role="root infra-admin app-admin"
+    >
+      <mat-icon>key</mat-icon>
+    </rail-nav-item>
+    <rail-nav-item
+      i18n-label="@@Audit"
+      label="Audit"
+      routerLink="/audit"
+      [active]="inAudit()"
+      any-role="root infra-admin app-admin tenant-admin"
+    >
+      <mat-icon>history_edu</mat-icon>
+    </rail-nav-item>
+    <rail-nav-spacer />
+    <app-user-menu />
+  </rail-nav>
+  <rail-nav-content>
+    <router-outlet />
+  </rail-nav-content>
+</rail-nav-container>
+
+<!-- Tenants: drill into a single org's options (members, hours, TTL…).
+     Creation happens right here — there is no tenant list page. -->
+<ng-template #tenantsDrawer>
+  <button matButton="tonal" class="drawer-action" (click)="createTenant()" any-role="root tenant-creator">
+    <mat-icon>add</mat-icon>
+    <ng-container i18n="@@New_tenant">New tenant</ng-container>
+  </button>
+  @for (t of tenants(); track t.id) {
+    <a [routerLink]="['/tenants', t.id]" routerLinkActive="active" class="drawer-item">
+      <mat-icon>domain</mat-icon>
+      <span class="drawer-lines">
+        <span>{{ t.name }}</span>
+        @if (t.description) {
+          <span class="drawer-desc">{{ t.description }}</span>
+        }
+      </span>
+    </a>
+  } @empty {
+    <span class="drawer-empty" i18n="@@No_tenant_yet">No tenant yet</span>
+  }
+</ng-template>

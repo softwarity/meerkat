@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.proto {
+  width: 62px;
+  flex: 0 0 auto;
+}
+.sep {
+  color: var(--mat-sys-on-surface-variant);
+}
+/* A bare input: the outline/label belong to the wrapping mat-form-field. */
+.host-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}

@@ -1,0 +1,77 @@
+@if (!topLevel()) {
+  <mat-slide-toggle [checked]="value().inherited" (change)="toggleInherited($event.checked)">
+    {{ inheritLabel() }}
+  </mat-slide-toggle>
+}
+
+<!-- While inherited, the options are hidden entirely (the toggle's label
+     names the inherited timezone); switching inheritance off reveals them,
+     seeded from the inherited value. -->
+@if (!dim()) {
+<div>
+  <!-- Timezone first: it defines the local time the hours below are set in.
+       Defaults to the browser's timezone. -->
+  <div class="row">
+    <mat-form-field class="tz">
+      <mat-label i18n="@@Timezone">Timezone</mat-label>
+      <timezone-select
+        showDetectButton
+        [value]="displayTz()"
+        (valueChange)="patchTimezone($event || 'UTC')"
+      />
+    </mat-form-field>
+  </div>
+
+  <!-- One row per day, first day of week from the locale. -->
+  @for (d of weekDays; track d) {
+    <div class="day-row" [class.closed]="rangesFor(d).length === 0">
+      <mat-checkbox class="day-name" [checked]="rangesFor(d).length > 0" (change)="toggleDay(d, $event.checked)">
+        {{ dayLabel(d) }}
+      </mat-checkbox>
+      <div class="ranges">
+        @for (r of rangesFor(d); track $index; let first = $first; let last = $last) {
+          <div class="range">
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label i18n="@@From">From</mat-label>
+              <input matInput type="time" [value]="r.from" (input)="patchRange(r, 'from', $any($event.target).value)" />
+            </mat-form-field>
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label i18n="@@To">To</mat-label>
+              <input matInput type="time" [value]="r.to" (input)="patchRange(r, 'to', $any($event.target).value)" />
+            </mat-form-field>
+            @if (!first) {
+              <button
+                matIconButton
+                type="button"
+                (click)="removeRange(r)"
+                i18n-matTooltip="@@Remove_range"
+                matTooltip="Remove range"
+                i18n-aria-label="@@Remove_range"
+                aria-label="Remove range"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            @if (last) {
+              <button
+                matIconButton
+                type="button"
+                (click)="addRange(d)"
+                i18n-matTooltip="@@Add_range"
+                matTooltip="Add range"
+                i18n-aria-label="@@Add_range"
+                aria-label="Add range"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            }
+            <span class="utc-hint">{{ utcHint(r) }}</span>
+          </div>
+        } @empty {
+          <span class="closed-hint" i18n="@@Closed">Closed</span>
+        }
+      </div>
+    </div>
+  }
+</div>
+}

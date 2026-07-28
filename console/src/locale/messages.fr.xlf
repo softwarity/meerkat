@@ -2,6 +2,18 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="Replaces_the_stored_password" datatype="html">
+        <source>Replaces the stored password</source>
+        <target>Remplace le mot de passe enregistré</target>
+      </trans-unit>
+      <trans-unit id="A_password_is_stored_leave_empty_to_keep_it" datatype="html">
+        <source>A password is stored. Leave empty to keep it.</source>
+        <target>Un mot de passe est enregistré. Laisser vide pour le conserver.</target>
+      </trans-unit>
+      <trans-unit id="No_password_stored" datatype="html">
+        <source>No password stored</source>
+        <target>Aucun mot de passe enregistré</target>
+      </trans-unit>
       <trans-unit id="Endpoint_security" datatype="html">
         <source>Endpoint security</source>
         <target>Sécurité par endpoint</target>
@@ -42,7 +54,7 @@
         <source>Lock every operation with no explicit rule.</source>
         <target>Verrouille toute opération sans règle explicite. Un nouvel endpoint apparaissant en amont est alors refusé jusqu'à ce que vous l'exposiez volontairement.</target>
       </trans-unit>
-      <trans-unit id="Endpoints_secured_summary" datatype="html">
+      <trans-unit id="endpoints_secured_summary" datatype="html">
         <source><x id="INTERPOLATION"/> operations, <x id="INTERPOLATION_1"/> secured</source>
         <target><x id="INTERPOLATION" equiv-text="{{ (data()?.operations)?.length || 0 }}"/> opérations, <x id="INTERPOLATION_1" equiv-text="{{ securedCount() }}"/> sécurisées</target>
       </trans-unit>
@@ -506,7 +518,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <source>No role yet — create the first one.</source>
         <target>Aucun rôle : créez le premier.</target>
       </trans-unit>
-      <trans-unit id="System" datatype="html">
+      <trans-unit id="system" datatype="html">
         <source>system</source>
         <target>système</target>
       </trans-unit>
@@ -757,7 +769,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           </source>
         <target>Chiffré au repos et jamais réaffiché. Référencé par $nom partout où il est utile.</target>
       </trans-unit>
-      <trans-unit id="Secret_hidden" datatype="html">
+      <trans-unit id="secret_hidden" datatype="html">
         <source>encrypted, never shown</source>
         <target>chiffré, jamais affiché</target>
       </trans-unit>
@@ -793,7 +805,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <source>Used by</source>
         <target>Utilisée par</target>
       </trans-unit>
-      <trans-unit id="Not_used" datatype="html">
+      <trans-unit id="not_used" datatype="html">
         <source>not used</source>
         <target>non utilisée</target>
       </trans-unit>
@@ -1872,7 +1884,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">171,172</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Scheme_none" datatype="html">
+      <trans-unit id="scheme_none" datatype="html">
         <source>color-scheme only</source>
         <target>color-scheme seul</target>
         <context-group purpose="location">
@@ -1880,7 +1892,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">173,174</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Scheme_attribute" datatype="html">
+      <trans-unit id="scheme_attribute" datatype="html">
         <source>attribute</source>
         <target>attribut</target>
         <context-group purpose="location">
@@ -1888,7 +1900,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">174,175</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Scheme_class" datatype="html">
+      <trans-unit id="scheme_class" datatype="html">
         <source>class</source>
         <target>classe</target>
         <context-group purpose="location">
@@ -2096,7 +2108,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">34,35</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="A_meta_tag" datatype="html">
+      <trans-unit id="a_meta_tag" datatype="html">
         <source>a meta tag</source>
         <target>une balise meta</target>
         <context-group purpose="location">
@@ -2936,7 +2948,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">141,142</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="An_attribute_on_a_tag" datatype="html">
+      <trans-unit id="an_attribute_on_a_tag" datatype="html">
         <source>an attribute on a tag</source>
         <target>un attribut sur une balise</target>
         <context-group purpose="location">
@@ -2944,7 +2956,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">367,368</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Classes_on_a_tag" datatype="html">
+      <trans-unit id="classes_on_a_tag" datatype="html">
         <source>classes on a tag</source>
         <target>des classes sur une balise</target>
         <context-group purpose="location">
@@ -2952,7 +2964,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">368,369</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Attributes_on_a_tag" datatype="html">
+      <trans-unit id="attributes_on_a_tag" datatype="html">
         <source>attributes on a tag</source>
         <target>des attributs sur une balise</target>
         <context-group purpose="location">
@@ -3048,7 +3060,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">80,83</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Method_passkey" datatype="html">
+      <trans-unit id="method_passkey" datatype="html">
         <source>passkey</source>
         <target>passkey</target>
         <context-group purpose="location">
@@ -3056,7 +3068,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">112</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Method_password_code" datatype="html">
+      <trans-unit id="method_password_code" datatype="html">
         <source>password + code</source>
         <target>mot de passe + code</target>
         <context-group purpose="location">
@@ -3064,7 +3076,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">114</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Method_password" datatype="html">
+      <trans-unit id="method_password" datatype="html">
         <source>password</source>
         <target>mot de passe</target>
         <context-group purpose="location">
@@ -3489,7 +3501,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">101</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="No_owner" datatype="html">
+      <trans-unit id="no_owner" datatype="html">
         <source>no owner</source>
         <target>sans propriétaire</target>
         <context-group purpose="location">
@@ -3583,19 +3595,19 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <source>Expiry</source>
         <target>Expiration</target>
       </trans-unit>
-      <trans-unit id="Never_expires" datatype="html">
+      <trans-unit id="never_expires" datatype="html">
         <source>never expires</source>
         <target>n'expire jamais</target>
       </trans-unit>
-      <trans-unit id="In_30_days" datatype="html">
+      <trans-unit id="in_30_days" datatype="html">
         <source>30 days</source>
         <target>30 jours</target>
       </trans-unit>
-      <trans-unit id="In_90_days" datatype="html">
+      <trans-unit id="in_90_days" datatype="html">
         <source>90 days</source>
         <target>90 jours</target>
       </trans-unit>
-      <trans-unit id="In_1_year" datatype="html">
+      <trans-unit id="in_1_year" datatype="html">
         <source>1 year</source>
         <target>1 an</target>
       </trans-unit>
@@ -3615,15 +3627,15 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <source>Token created</source>
         <target>Token créé</target>
       </trans-unit>
-      <trans-unit id="Expires_DATE" datatype="html">
+      <trans-unit id="expires_DATE" datatype="html">
         <source>expires <x id="DATE" equiv-text="this.day(ts)"/></source>
         <target>expire le <x id="DATE" equiv-text="this.day(ts)"/></target>
       </trans-unit>
-      <trans-unit id="Never_used" datatype="html">
+      <trans-unit id="never_used" datatype="html">
         <source>never used</source>
         <target>jamais utilisé</target>
       </trans-unit>
-      <trans-unit id="Last_used_REL" datatype="html">
+      <trans-unit id="last_used_REL" datatype="html">
         <source>last used <x id="REL" equiv-text="rel"/></source>
         <target>dernière utilisation <x id="REL" equiv-text="rel"/></target>
       </trans-unit>

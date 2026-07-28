@@ -1,0 +1,19 @@
+@if (sections.length) {
+  <nav class="left">
+    <h2>{{ title }}</h2>
+    @for (s of sections; track s.path) {
+      <a
+        [routerLink]="s.path"
+        routerLinkActive="active"
+        class="section-link"
+        [attr.any-role]="s.roles || null"
+      >
+        <mat-icon>{{ s.icon }}</mat-icon>
+        <span>{{ s.label }}</span>
+      </a>
+    }
+  </nav>
+}
+<div class="right">
+  <router-outlet />
+</div>

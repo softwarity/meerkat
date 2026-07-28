@@ -1,0 +1,124 @@
+/* Same shape as the other table screens: a fixed banner, a scrolling table
+   whose header sticks, and a FAB floating over the bottom-right corner. */
+:host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  flex: none;
+}
+.banner h1 {
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  /* Clear the floating FAB so the last row is never hidden under it. */
+  padding-bottom: 88px;
+}
+.fab-new {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2;
+}
+.empty {
+  padding: 48px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
+/* visible only while dragging a non-root role: drop here = top-level */
+.root-zone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 24px 8px;
+  padding: 10px 16px;
+  border: 1px dashed var(--mat-sys-outline);
+  border-radius: var(--mat-sys-corner-medium, 8px);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.88rem;
+}
+.root-zone.drop-target {
+  border-color: var(--mat-sys-secondary);
+  color: var(--mat-sys-secondary);
+  background: color-mix(in srgb, var(--mat-sys-secondary) 12%, transparent);
+}
+mat-row {
+  cursor: grab;
+}
+mat-row.drop-target {
+  background: color-mix(in srgb, var(--mat-sys-secondary) 14%, transparent);
+}
+mat-row.dragged {
+  opacity: 0.35;
+}
+.handle {
+  cursor: grab;
+  color: var(--mat-sys-on-surface-variant);
+  flex-shrink: 0;
+}
+.handle:active {
+  cursor: grabbing;
+}
+.role-cell {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  min-width: 0;
+}
+.role-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0 6px 6px;
+  min-width: 0;
+}
+.name {
+  font-weight: 500;
+  font-size: 0.88rem;
+}
+.sys {
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-surface-variant);
+}
+.tag {
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--mat-sys-surface-container-highest);
+  color: var(--mat-sys-on-surface-variant);
+}
+.mat-column-role {
+  flex: 1 1 34%;
+  justify-content: flex-start;
+  padding-left: 16px;
+}
+.mat-column-description {
+  flex: 1 1 42%;
+}
+/* read-only tag pills, roomy now that the table spans the full width */
+.mat-column-tags {
+  flex: 1 1 24%;
+  justify-content: flex-start;
+}
+/* the dragged row's origin collapses to a slim marker */
+.placeholder {
+  height: 4px;
+  background: var(--mat-sys-outline-variant);
+}
+.drag-preview {
+  opacity: 0.6;
+}

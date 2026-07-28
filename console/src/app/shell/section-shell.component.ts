@@ -55,86 +55,8 @@ const PLANES: Record<string, { title: string; links: SectionLink[] }> = {
 @Component({
   selector: 'app-section-shell',
   imports: [MatIconModule, RouterLink, RouterLinkActive, RouterOutlet],
-  styles: [
-    `
-      :host {
-        display: flex;
-        height: 100%;
-        width: 100%;
-        min-height: 0;
-        /* The two zones own their scrolling; nothing escapes to the page. */
-        overflow: hidden;
-      }
-      nav.left {
-        flex: 0 0 200px;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        border-right: 1px solid var(--mat-sys-outline-variant);
-        padding: 0 8px;
-        overflow-y: auto;
-      }
-      nav.left h2 {
-        margin: 0 -8px 6px;
-        padding: 16px 16px 12px;
-        font-size: 1.1rem;
-        font-weight: 500;
-        border-bottom: 1px solid var(--mat-sys-outline-variant);
-      }
-      .section-link {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 14px;
-        border-radius: 999px;
-        color: var(--mat-sys-on-surface);
-        text-decoration: none;
-        white-space: nowrap;
-      }
-      .section-link:hover {
-        background: var(--mat-sys-surface-container-high);
-      }
-      .section-link.active {
-        background: var(--mat-sys-secondary-container);
-        color: var(--mat-sys-on-secondary-container);
-      }
-      /* The working zone scrolls on its own: the section nav stays put however
-         long the content is. A section that manages its own scrolling (a table
-         with a sticky header) simply never overflows this one. */
-      .right {
-        flex: 1;
-        min-width: 0;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-      }
-      .right > * {
-        min-height: 0;
-      }
-    `,
-  ],
-  template: `
-    @if (sections.length) {
-      <nav class="left">
-        <h2>{{ title }}</h2>
-        @for (s of sections; track s.path) {
-          <a
-            [routerLink]="s.path"
-            routerLinkActive="active"
-            class="section-link"
-            [attr.any-role]="s.roles || null"
-          >
-            <mat-icon>{{ s.icon }}</mat-icon>
-            <span>{{ s.label }}</span>
-          </a>
-        }
-      </nav>
-    }
-    <div class="right">
-      <router-outlet />
-    </div>
-  `,
+  styleUrl: './section-shell.component.scss',
+  templateUrl: './section-shell.component.html',
 })
 export class SectionShellComponent {
   private readonly plane = (inject(ActivatedRoute).snapshot.data['plane'] as string) ?? '';

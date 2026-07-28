@@ -361,9 +361,9 @@
             <mat-form-field class="position-field">
               <mat-label i18n="@@Mechanism">Mechanism</mat-label>
               <mat-select [value]="draft().schemeMechanism" (selectionChange)="patch('schemeMechanism', $event.value)">
-                <mat-option value="" i18n="@@Scheme_none">color-scheme only</mat-option>
-                <mat-option value="attribute" i18n="@@Scheme_attribute">attribute</mat-option>
-                <mat-option value="class" i18n="@@Scheme_class">class</mat-option>
+                <mat-option value="" i18n="@@scheme_none">color-scheme only</mat-option>
+                <mat-option value="attribute" i18n="@@scheme_attribute">attribute</mat-option>
+                <mat-option value="class" i18n="@@scheme_class">class</mat-option>
               </mat-select>
             </mat-form-field>
             @if (draft().schemeMechanism === 'attribute') {
@@ -460,9 +460,9 @@
             <mat-form-field class="position-field">
               <mat-label i18n="@@As">As</mat-label>
               <mat-select [value]="draft().rolesMode" (selectionChange)="setRolesMode($event.value)">
-                <mat-option value="attribute" i18n="@@An_attribute_on_a_tag">an attribute on a tag</mat-option>
-                <mat-option value="class" i18n="@@Classes_on_a_tag">classes on a tag</mat-option>
-                <mat-option value="meta" i18n="@@A_meta_tag">a meta tag</mat-option>
+                <mat-option value="attribute" i18n="@@an_attribute_on_a_tag">an attribute on a tag</mat-option>
+                <mat-option value="class" i18n="@@classes_on_a_tag">classes on a tag</mat-option>
+                <mat-option value="meta" i18n="@@a_meta_tag">a meta tag</mat-option>
               </mat-select>
             </mat-form-field>
             @if (draft().rolesMode !== 'meta') {
@@ -517,7 +517,7 @@
             <mat-form-field class="position-field">
               <mat-label i18n="@@As">As</mat-label>
               <mat-select [value]="draft().userInfoMode" (selectionChange)="patch('userInfoMode', $event.value)">
-                <mat-option value="attribute" i18n="@@Attributes_on_a_tag">attributes on a tag</mat-option>
+                <mat-option value="attribute" i18n="@@attributes_on_a_tag">attributes on a tag</mat-option>
                 <mat-option value="meta" i18n="@@meta_tags">meta tags</mat-option>
               </mat-select>
             </mat-form-field>

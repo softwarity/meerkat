@@ -19,72 +19,8 @@ import { BusinessAccessFormComponent } from '../identity/business-access-form.co
     LoadingIndicatorComponent,
     BusinessAccessFormComponent,
   ],
-  styles: [
-    `
-      .banner {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 12px 24px;
-      }
-      .banner h1 {
-        font-size: 1.15rem;
-        font-weight: 500;
-        margin: 0;
-        flex: 1;
-      }
-      .content {
-        padding: 0 24px 24px;
-        display: grid;
-        gap: 16px;
-        max-width: 720px;
-      }
-      mat-card {
-        padding: 16px 20px;
-      }
-      h3 {
-        margin: 0 0 6px;
-        font-size: 0.95rem;
-        font-weight: 500;
-      }
-      .hint {
-        margin: 0 0 12px;
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.85rem;
-      }
-      .actions {
-        display: flex;
-        justify-content: flex-end;
-      }
-    `,
-  ],
-  template: `
-    @if (loading()) {
-      <loading-indicator withContainer />
-    } @else {
-      <div class="banner">
-        <h1 i18n="@@Section_general">General</h1>
-      </div>
-
-      <div class="content">
-        <mat-card appearance="outlined">
-          <h3 i18n="@@Working_hours">Working hours</h3>
-          <p class="hint" i18n="@@Working_hours_global_hint">
-            The application-wide access window: every tenant inherits it unless it defines its own.
-          </p>
-          <app-business-access-form
-            [value]="businessAccess()"
-            [topLevel]="true"
-            (valueChange)="businessAccess.set($event)"
-          />
-        </mat-card>
-
-        <div class="actions">
-          <button matButton="filled" (click)="save()" [disabled]="saving()" i18n="@@Save">Save</button>
-        </div>
-      </div>
-    }
-  `,
+  styleUrl: './general-page.component.scss',
+  templateUrl: './general-page.component.html',
 })
 export class GeneralPageComponent {
   private readonly api = inject(ApiService);

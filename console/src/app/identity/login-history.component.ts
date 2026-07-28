@@ -109,11 +109,11 @@ export class LoginHistoryComponent {
   protected methodLabel(method: string): string {
     switch (method) {
       case 'passkey':
-        return $localize`:@@Method_passkey:passkey`;
+        return $localize`:@@method_passkey:passkey`;
       case 'totp':
-        return $localize`:@@Method_password_code:password + code`;
+        return $localize`:@@method_password_code:password + code`;
       default:
-        return $localize`:@@Method_password:password`;
+        return $localize`:@@method_password:password`;
     }
   }
 }

@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  /* Fixed, not min-: a content-driven width made the dialog jump
+     horizontally when the hint text changed length. */
+  width: min(520px, 86vw);
+}
+app-form-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 6px;
+}
+/* Fixed height: switching value <-> secret swaps this text, and the
+   dialog must not jump under the pointer. */
+.hint {
+  margin: 0 0 14px;
+  min-height: 2.6em;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.82rem;
+}
+/* One line, never resizable: a textarea looks like an input here but is
+   not a candidate for the browser's credential autofill. Spell-checking
+   is turned off on each one: a secret or an entry name is not prose, and
+   the red squiggles were pure noise. */
+.oneline {
+  resize: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.rowtop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.err {
+  color: var(--mat-sys-error);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}

@@ -1,0 +1,49 @@
+/* Colour comes from the .text-muted utility; only the rhythm is local. */
+.hint {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+}
+/* Two columns of fields: no row gap, the form fields bring their own. */
+.fields {
+  column-gap: 16px;
+}
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+}
+.banner h1 {
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 0;
+  flex: 1;
+}
+.content {
+  padding: 0 24px 24px;
+  display: grid;
+  gap: 16px;
+  max-width: 720px;
+}
+mat-card {
+  padding: 16px 20px;
+}
+/* Field and button on one optical line. The field is subscriptSizing
+   dynamic (see the template): with the reserved hint line below the
+   input, centring the row drops the button visibly lower than the field. */
+.test {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.field {
+  width: 280px;
+}
+/* One line, never resizable: it reads as an input but a browser never
+   offers credential autofill on a textarea, so the relay password stops
+   attracting "save this password?" for the console's own account. */
+.oneline {
+  resize: none;
+  overflow: hidden;
+  white-space: nowrap;
+}

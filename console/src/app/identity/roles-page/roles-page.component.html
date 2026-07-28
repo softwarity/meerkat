@@ -1,0 +1,118 @@
+<div class="banner">
+  <h1 class="flex-1 m-0" i18n="@@Roles">Roles</h1>
+  <button matIconButton (click)="load()" i18n-matTooltip="@@Refresh" matTooltip="Refresh" i18n-aria-label="@@Refresh" aria-label="Refresh">
+    @if (loading()) {<mat-icon spin>autorenew</mat-icon>} @else {<mat-icon>refresh</mat-icon>}
+  </button>
+</div>
+
+<div class="content">
+  @if (loading()) {
+    <loading-indicator withContainer />
+  } @else if (nodes().length === 0) {
+    <div class="empty" i18n="@@No_role_yet">No role yet, create the first one.</div>
+  } @else {
+    @if (dragged(); as d) {
+      @if (d.parentId) {
+        <div class="root-zone" [class.drop-target]="target() === 'root'" (mouseover)="hoverRoot()">
+          <mat-icon>upload</mat-icon>
+          <ng-container i18n="@@Drop_here_for_top_level">Drop here to make it a top-level role</ng-container>
+        </div>
+      }
+    }
+
+    <mat-table
+      [dataSource]="nodes()"
+      cdkDropList
+      cdkDropListSortingDisabled
+      (cdkDropListDropped)="drop()"
+      (mouseleave)="target.set(null)"
+    >
+      <ng-container matColumnDef="role">
+        <mat-header-cell *matHeaderCellDef i18n="@@Roles">Roles</mat-header-cell>
+        <mat-cell *matCellDef="let n">
+          <div class="role-cell">
+            <mat-icon cdkDragHandle class="handle" (click)="$event.stopPropagation()">drag_indicator</mat-icon>
+            <app-tree-prefix [guides]="n.guides" />
+            <span class="role-label">
+              <span class="name mono">{{ n.role.name }}</span>
+              @if (n.role.system) {
+                <span class="sys" i18n="@@system">system</span>
+              }
+            </span>
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef i18n="@@Description">Description</mat-header-cell>
+        <mat-cell *matCellDef="let n">
+          <span class="text-muted truncate">{{ n.role.description }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="tags">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let n">
+          @if (n.role.tags.length) {
+            <span class="flex flex-wrap gap-1">
+              @for (t of n.role.tags; track t) {
+                <span class="tag">{{ t }}</span>
+              }
+            </span>
+          }
+          <span rowActions="tonal">
+            <button
+              matIconButton
+              (click)="edit(n.role)"
+              i18n-matTooltip="@@Edit_role"
+              matTooltip="Edit role"
+              i18n-aria-label="@@Edit_role"
+              aria-label="Edit role"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              matIconButton
+              [disabled]="n.role.system"
+              (click)="remove(n.role)"
+              i18n-matTooltip="@@Delete_role"
+              matTooltip="Delete role"
+              i18n-aria-label="@@Delete_role"
+              aria-label="Delete role"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+      <mat-row
+        *matRowDef="let n; columns: columns"
+        cdkDrag
+        cdkDragLockAxis="y"
+        cdkDragPreviewClass="drag-preview"
+        [cdkDragData]="n.role"
+        [class.drop-target]="targetRoleId() === n.role.id"
+        [class.dragged]="dragged()?.id === n.role.id"
+        (cdkDragStarted)="dragStarted(n.role)"
+        (cdkDragEnded)="dragEnded()"
+        (mouseover)="hoverRow(n.role)"
+      >
+        <div class="placeholder" *cdkDragPlaceholder></div>
+      </mat-row>
+    </mat-table>
+  }
+</div>
+
+<button
+  matFab
+  class="fab-new"
+  (click)="create()"
+  i18n-matTooltip="@@New_role"
+  matTooltip="New role"
+  i18n-aria-label="@@New_role"
+  aria-label="New role"
+>
+  <mat-icon>add</mat-icon>
+</button>

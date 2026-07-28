@@ -1,0 +1,25 @@
+@if (loading()) {
+  <loading-indicator withContainer />
+} @else {
+  <div class="banner">
+    <h1 i18n="@@Section_general">General</h1>
+  </div>
+
+  <div class="content">
+    <mat-card appearance="outlined">
+      <h3 i18n="@@Working_hours">Working hours</h3>
+      <p class="hint text-muted" i18n="@@Working_hours_global_hint">
+        The application-wide access window: every tenant inherits it unless it defines its own.
+      </p>
+      <app-business-access-form
+        [value]="businessAccess()"
+        [topLevel]="true"
+        (valueChange)="businessAccess.set($event)"
+      />
+    </mat-card>
+
+    <div class="flex justify-end">
+      <button matButton="filled" (click)="save()" [disabled]="saving()" i18n="@@Save">Save</button>
+    </div>
+  </div>
+}

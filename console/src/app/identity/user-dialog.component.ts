@@ -17,6 +17,15 @@ import { ApiService, User } from '../api.service';
       mat-form-field {
         width: 100%;
       }
+      /* One line, never resizable: identity fields on a textarea look like
+         inputs but are invisible to the browser's autofill, which otherwise
+         offers the SIGNED-IN admin's own name and address when creating
+         someone else's account. */
+      .oneline {
+        resize: none;
+        overflow: hidden;
+        white-space: nowrap;
+      }
       .error {
         color: var(--mat-sys-error);
         background: color-mix(in srgb, var(--mat-sys-error) 12%, transparent);
@@ -31,15 +40,42 @@ import { ApiService, User } from '../api.service';
     <mat-dialog-content>
       <mat-form-field>
         <mat-label i18n="@@Username">Username</mat-label>
-        <input matInput [formField]="f.username" autocomplete="off" />
+        <textarea
+          matInput
+          rows="1"
+          class="oneline"
+          spellcheck="false"
+          autocapitalize="off"
+          autocorrect="off"
+          [formField]="f.username"
+          (keydown.enter)="$event.preventDefault()"
+        ></textarea>
       </mat-form-field>
       <mat-form-field>
         <mat-label i18n="@@Full_name">Full name</mat-label>
-        <input matInput [formField]="f.fullname" autocomplete="off" />
+        <textarea
+          matInput
+          rows="1"
+          class="oneline"
+          spellcheck="false"
+          autocapitalize="off"
+          autocorrect="off"
+          [formField]="f.fullname"
+          (keydown.enter)="$event.preventDefault()"
+        ></textarea>
       </mat-form-field>
       <mat-form-field>
         <mat-label i18n="@@Email">Email</mat-label>
-        <input matInput type="email" [formField]="f.email" autocomplete="off" />
+        <textarea
+          matInput
+          rows="1"
+          class="oneline"
+          spellcheck="false"
+          autocapitalize="off"
+          autocorrect="off"
+          [formField]="f.email"
+          (keydown.enter)="$event.preventDefault()"
+        ></textarea>
       </mat-form-field>
       @if (error()) {
         <div class="error">{{ error() }}</div>

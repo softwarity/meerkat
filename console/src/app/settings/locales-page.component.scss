@@ -1,0 +1,63 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+}
+.banner h1 {
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 0;
+  flex: 1;
+}
+.content {
+  padding: 0 24px 24px;
+  display: grid;
+  gap: 16px;
+  max-width: 720px;
+}
+mat-card {
+  padding: 16px 20px;
+}
+h3 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.hint {
+  margin: 0 0 12px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+.field {
+  width: 280px;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.lang-error {
+  margin: 0 0 8px;
+  color: var(--mat-sys-error);
+  font-size: 0.85rem;
+}
+.locale-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr 40px;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0 2px 4px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+.locale-row .lc {
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+.locale-row .ln {
+  color: var(--mat-sys-on-surface-variant);
+}
+.empty {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+  margin: 8px 0 0;
+}

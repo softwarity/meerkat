@@ -24,55 +24,8 @@ const SCHEME = /^([a-zA-Z][a-zA-Z0-9+.-]*):\/\/(.*)$/;
     '(focusin)': 'onFocusIn()',
     '(focusout)': 'onFocusOut($event)',
   },
-  styles: [
-    `
-      :host {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .proto {
-        width: 62px;
-        flex: 0 0 auto;
-      }
-      .sep {
-        color: var(--mat-sys-on-surface-variant);
-      }
-      /* A bare input: the outline/label belong to the wrapping mat-form-field. */
-      .host-input {
-        flex: 1 1 auto;
-        min-width: 0;
-        border: 0;
-        padding: 0;
-        outline: none;
-        background: transparent;
-        color: inherit;
-        font: inherit;
-      }
-    `,
-  ],
-  template: `
-    <mat-select
-      class="proto"
-      [value]="protocol()"
-      (selectionChange)="setProtocol($event.value)"
-      i18n-aria-label="@@Protocol"
-      aria-label="Protocol"
-    >
-      @for (p of protoOptions(); track p) {
-        <mat-option [value]="p">{{ p }}</mat-option>
-      }
-    </mat-select>
-    <span class="sep">://</span>
-    <input
-      class="host-input"
-      [value]="rest()"
-      (input)="onInput($any($event.target).value)"
-      placeholder="service:8080/base"
-      i18n-aria-label="@@Upstream"
-      aria-label="Upstream"
-    />
-  `,
+  styleUrl: './url-input.component.scss',
+  templateUrl: './url-input.component.html',
 })
 export class UrlInputComponent implements MatFormFieldControl<string> {
   private static seq = 0;

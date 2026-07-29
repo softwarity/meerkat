@@ -1,0 +1,29 @@
+# A real OIDC provider to test against, in 46 MB of static Go. Meerkat's own
+# unit tests already sign their tokens; what a real server adds is
+# INTEROPERABILITY: a genuine discovery document, a real authorization
+# endpoint, an RSA key set (so RS256 gets exercised next to our ES256), and
+# the small liberties every implementation takes.
+issuer: http://localhost:5556/dex
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:5556
+
+# The mock connector signs in without a form, which is what makes an
+# end-to-end test possible without driving a browser.
+connectors:
+  - type: mockCallback
+    id: mock
+    name: Example
+
+oauth2:
+  skipApprovalScreen: true
+
+staticClients:
+  - id: meerkat
+    name: Meerkat
+    secret: meerkat-secret
+    redirectURIs:
+      - http://localhost:9099/login/dex/callback

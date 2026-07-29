@@ -116,11 +116,11 @@ func TestAPIDocsAdminSpec(t *testing.T) {
 func TestAPIDocsSpecListAndRouteProxy(t *testing.T) {
 	f := setup(t)
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case "/openapi.json":
+		switch {
+		case r.URL.Path == "/openapi.json":
 			w.Header().Set("Content-Type", "application/json")
 			_, _ = fmt.Fprint(w, `{"openapi":"3.0.0","info":{"title":"petstore","version":"1"},"paths":{}}`)
-		case "/echo-cookie":
+		case strings.HasSuffix(r.URL.Path, "/echo-cookie"):
 			_, _ = fmt.Fprint(w, r.Header.Get("Cookie"))
 		default:
 			http.NotFound(w, r)
@@ -132,7 +132,10 @@ func TestAPIDocsSpecListAndRouteProxy(t *testing.T) {
 
 	// One route WITH a declared spec (public prefix /pets, stripped before the
 	// upstream — the classic mapping), one without.
+	// The route is access-gated: reading its spec must still work (the admin
+	// was verified control-plane side), while calls stay gated.
 	withSpec := fmt.Sprintf(`{"name":"pets","order":1,"enabled":true,"upstream":%q,
+		"access":{"authenticated":true},
 		"predicates":[{"type":"path","args":{"patterns":["/pets/**"]}}],
 		"filters":[{"type":"strip-prefix","args":{"parts":1}}],
 		"api":{"openapiUrl":"/openapi.json"}}`, upstream.URL)
@@ -188,8 +191,9 @@ func TestAPIDocsSpecListAndRouteProxy(t *testing.T) {
 
 	// Try it out calls the data plane directly (its CORS for the admin origin
 	// lives in internal/gateway) — and the gateway never forwards its own
-	// session cookies to an upstream, the application's cookies pass.
-	req, _ := http.NewRequest(http.MethodGet, f.appSrv.URL+"/pets/echo-cookie", nil)
+	// session cookies to an upstream, the application's cookies pass. The
+	// ungated route is used: the gated one refuses fake sessions, as it must.
+	req, _ := http.NewRequest(http.MethodGet, f.appSrv.URL+"/bare/echo-cookie", nil)
 	req.AddCookie(&http.Cookie{Name: "MEERKAT_SESSION", Value: "secret"})
 	req.AddCookie(&http.Cookie{Name: "MEERKAT_ADMIN_SESSION", Value: "secret"})
 	req.AddCookie(&http.Cookie{Name: "app", Value: "keep"})

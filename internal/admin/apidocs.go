@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/softwarity/meerkat/internal/admin/apidocs"
+	"github.com/softwarity/meerkat/internal/gateway"
 	"github.com/softwarity/meerkat/internal/openapi"
 	"github.com/softwarity/meerkat/internal/store"
 	"github.com/softwarity/meerkat/internal/version"
@@ -178,6 +179,9 @@ func (a *API) fetchSpecThroughRoute(r *http.Request, route store.Route, rel stri
 	path := routeMatchPrefix(route) + "/" + strings.TrimLeft(rel, "/")
 	ctx, cancel := context.WithTimeout(r.Context(), 20*time.Second)
 	defer cancel()
+	// The caller was verified root/infra-admin by this endpoint's guard:
+	// reading the contract bypasses the route's access, calls never do.
+	ctx = gateway.WithSpecRead(ctx)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://gateway.internal"+path, nil)
 	if err != nil {
 		return nil, "", err

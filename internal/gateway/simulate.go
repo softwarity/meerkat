@@ -27,6 +27,22 @@ var errSimulationRefused = errors.New(
 
 type simKey struct{}
 
+// specReadKey marks an IN-PROCESS spec read (admin API docs): the caller was
+// already verified root/infra-admin on the control plane, and reading a
+// route's OpenAPI contract must not additionally require a data session —
+// actual calls stay gated. Never set on a network request.
+type specReadKey struct{}
+
+// WithSpecRead marks ctx as an internal spec read that access gates let through.
+func WithSpecRead(ctx context.Context) context.Context {
+	return context.WithValue(ctx, specReadKey{}, true)
+}
+
+func isSpecRead(ctx context.Context) bool {
+	ok, _ := ctx.Value(specReadKey{}).(bool)
+	return ok
+}
+
 // simulatedIdentity returns the identity posed by validated simulate headers.
 func simulatedIdentity(ctx context.Context) (identityData, bool) {
 	d, ok := ctx.Value(simKey{}).(identityData)

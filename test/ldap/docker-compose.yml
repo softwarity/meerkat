@@ -26,6 +26,23 @@ services:
       timeout: 5s
       retries: 20
 
+  # A real OIDC provider: Dex, static Go, no database, no JVM. Meerkat exists
+  # so that an installation does NOT have to run an identity server; the test
+  # bench should not contradict that with half a gigabyte of Keycloak.
+  dex:
+    image: dexidp/dex:latest
+    container_name: meerkat-dex
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    ports:
+      - "5556:5556"
+    volumes:
+      - ./dex/config.yaml:/etc/dex/config.yaml:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:5556/dex/.well-known/openid-configuration"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
   # A real Active Directory domain controller (Samba 4 in AD DC mode). It
   # provisions on first start, which takes about a minute; the seed script
   # then adds the same people and the same nested groups as the OpenLDAP

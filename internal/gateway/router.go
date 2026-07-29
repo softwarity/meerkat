@@ -929,6 +929,12 @@ func (rt *Router) accessGate(a store.Access, next http.Handler) http.Handler {
 		return next
 	}
 	return requireSession(rt.sm, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		// An internal spec read (admin API docs) was authorized on the control
+		// plane; the route's own rules gate CALLS, not reading its contract.
+		if isSpecRead(req.Context()) {
+			next.ServeHTTP(w, req)
+			return
+		}
 		d, ok := rt.sessionIdentity(req)
 		if ok && a.Grants(true, d.Username, d.Roles) {
 			next.ServeHTTP(w, req)
@@ -1333,8 +1339,9 @@ func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error)
 // return-to path, API-style requests get a plain 401.
 func requireSession(sm *session.Manager, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		// A simulated identity (simulate.go) IS the session for this request.
-		if _, ok := simulatedIdentity(req.Context()); ok {
+		// A simulated identity (simulate.go) IS the session for this request,
+		// and an internal spec read was authorized on the control plane.
+		if _, ok := simulatedIdentity(req.Context()); ok || isSpecRead(req.Context()) {
 			next.ServeHTTP(w, req)
 			return
 		}

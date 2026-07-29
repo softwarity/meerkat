@@ -355,3 +355,16 @@ func (o *oidcProvider) jwks(ctx context.Context, meta *oidcMetadata) ([]jwk, err
 	o.keys, o.keysAt = set.Keys, o.nowFn()
 	return o.keys, nil
 }
+
+// check fetches the discovery document and the keys: everything a sign-in
+// needs before a person is even involved.
+func (o *oidcProvider) check(ctx context.Context) error {
+	meta, err := o.metadata(ctx)
+	if err != nil {
+		return err
+	}
+	if _, err := o.jwks(ctx, meta); err != nil {
+		return err
+	}
+	return nil
+}

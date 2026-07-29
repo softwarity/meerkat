@@ -276,13 +276,19 @@ const flowTop = `<!doctype html>
       margin: 0; font-family: var(--mk-mono); font-size: .68rem;
       letter-spacing: .18em; text-transform: uppercase; color: var(--mk-on-surface-variant);
     }
-    button.choice {
+    button.choice, a.choice {
       margin: 0; padding: 13px 16px; display: flex; align-items: center; gap: 12px;
       background: var(--mk-surface-container-high); color: var(--mk-on-surface);
       border: 1px solid var(--mk-outline); box-shadow: none; font-weight: 500;
       transition: border-color .15s, transform .12s;
     }
-    button.choice:hover { border-color: var(--mk-primary); filter: none; box-shadow: none; }
+    button.choice:hover, a.choice:hover { border-color: var(--mk-primary); filter: none; box-shadow: none; }
+    a.choice { justify-content: center; text-decoration: none; border-radius: 10px; }
+    /* "or sign in with", set apart from the form above it */
+    .sep {
+      margin: 18px 0 10px; text-align: center; font-size: .85rem;
+      color: var(--mk-on-surface-variant);
+    }
     .choice-name { flex: 1; text-align: left; }
     .choice-type {
       font-family: var(--mk-mono); font-size: .62rem; letter-spacing: .14em;
@@ -433,6 +439,10 @@ const loginBody = `    <form method="post" action="login">
       <input type="hidden" name="next" value="{{.Next}}">
       <button type="submit">{{.T.signIn}}</button>
     </form>
+    {{if .Providers}}
+    <p class="sep">{{.T.orSignInWith}}</p>
+    {{range .Providers}}<a class="choice" href="/login/{{.ID}}?next={{$.Next}}">{{.Name}}</a>{{end}}
+    {{end}}
     {{if .Forgot}}<p class="back"><a href="/forgot-password">{{.T.forgotLink}}</a></p>{{end}}
     {{if .Register}}<p class="back"><a href="/register">{{.T.createAccount}}</a></p>{{end}}
     {{if .Passkeys}}
@@ -997,6 +1007,10 @@ func (h *Handler) Register(mux *http.ServeMux) {
 		// The injected <meerkat-user-button> web component (UI routes).
 		h.registerUserButton(mux)
 	}
+	// External authentication (AUTH-19): one pair per redirect authority.
+	mux.HandleFunc("GET /login/{provider}", h.startExternal)
+	mux.HandleFunc("GET /login/{provider}/callback", h.finishExternal)
+
 	mux.HandleFunc("GET /update-password", h.showUpdatePassword)
 	mux.HandleFunc("POST /update-password", h.doUpdatePassword)
 	// Forgot password (AUTH-21) — both planes, like /update-password; the
@@ -1050,13 +1064,24 @@ func (h *Handler) doLogin(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.st.GetUserByUsername(r.Context(), username)
 	// Same code path and same message whether the user is unknown or the
-	// password is wrong (SEC-09: no account enumeration).
+	// password is wrong (SEC-09: no account enumeration). A directory may
+	// still know this pair, so it gets asked before the refusal — and an
+	// account that exists here only as an external identity carries no local
+	// hash, which never matches.
 	if err != nil {
 		_ = bcrypt.CompareHashAndPassword(dummyHash, []byte(password)) // equalize timing
+		if h.tryCredentialProviders(w, r, username, password, next) {
+			h.regLimit.reset(loginKey)
+			return
+		}
 		fail()
 		return
 	}
-	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
+	if user.PasswordHash == "" || bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
+		if h.tryCredentialProviders(w, r, username, password, next) {
+			h.regLimit.reset(loginKey)
+			return
+		}
 		fail()
 		return
 	}
@@ -1890,9 +1915,13 @@ func (h *Handler) render(w http.ResponseWriter, r *http.Request, next, errMsg st
 		Passkeys bool // the gateway-wide policy shows/hides the passkey sign-in
 		Register bool // self-registration open (policy on + SMTP ready)
 		Forgot   bool // password reset available (SMTP ready)
+		// Providers are the redirect authorities (AUTH-19), one button each.
+		// A directory needs no button: it answers the ordinary form.
+		Providers []externalProvider
 	}{flowChrome: h.flowData(r, "titleSignIn"), Next: next, Error: errMsg,
 		Public: h.publicLinks(r.Context()), Passkeys: h.st.PasskeysAllowed(r.Context()),
-		Register: h.selfRegisterOpen(r.Context()), Forgot: h.forgotOpen(r)}, status)
+		Register: h.selfRegisterOpen(r.Context()), Forgot: h.forgotOpen(r),
+		Providers: h.redirectProviders(r.Context())}, status)
 }
 
 // publicLink is one UI route reachable without signing in, offered on the

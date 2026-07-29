@@ -366,3 +366,28 @@ func entryToMap(e *ldap.Entry) map[string]any {
 	}
 	return out
 }
+
+// check binds with the service account and runs the user filter once: the two
+// things that break a directory setup, credentials and a base DN typo.
+func (l *ldapProvider) check(ctx context.Context) error {
+	conn, err := l.connect(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = conn.Close() }()
+	if l.cfg.BindDN != "" {
+		if err := conn.Bind(l.cfg.BindDN, l.cfg.BindPassword); err != nil {
+			return fmt.Errorf("idp: %s: the service account cannot bind: %w", l.p.Name, err)
+		}
+	}
+	// A filter that matches nobody is fine here; one that cannot be parsed, or
+	// a base DN that does not exist, is not.
+	if _, err := conn.Search(ldap.NewSearchRequest(
+		l.cfg.BaseDN, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 1, 10, false,
+		strings.ReplaceAll(l.cfg.UserFilter, "%s", "meerkat-probe"),
+		[]string{l.cfg.UsernameAttr}, nil,
+	)); err != nil {
+		return fmt.Errorf("idp: %s: the search base or the user filter is wrong: %w", l.p.Name, err)
+	}
+	return nil
+}

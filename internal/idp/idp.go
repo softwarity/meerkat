@@ -118,3 +118,17 @@ func cfgBool(cfg map[string]any, key string, def bool) bool {
 	}
 	return def
 }
+
+// Check tries a configuration without signing anyone in: it is what the
+// console's "test" button calls, and what turns "sign-in does not work" into
+// "the issuer does not resolve" or "the service account cannot bind".
+func Check(ctx context.Context, d Driver) error {
+	type checker interface {
+		check(ctx context.Context) error
+	}
+	c, ok := d.(checker)
+	if !ok {
+		return fmt.Errorf("idp: %s cannot be checked without a sign-in", d.Kind())
+	}
+	return c.check(ctx)
+}

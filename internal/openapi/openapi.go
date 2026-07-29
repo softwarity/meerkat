@@ -162,27 +162,113 @@ func Rewrite(raw []byte, exposedBase string) ([]byte, error) {
 		return raw, fmt.Errorf("openapi: rewrite expects JSON: %w", err)
 	}
 	if _, isV2 := doc["swagger"]; isV2 {
+		// The spec's own base path survives: the route forwards paths, so the
+		// public path is <route prefix> + <spec base> (httpbin: "/", petstore:
+		// "/api/v3").
+		ownBase, _ := doc["basePath"].(string)
 		delete(doc, "host")
 		delete(doc, "schemes")
 		if u, err := url.Parse(exposedBase); err == nil && u.Scheme != "" && u.Host != "" {
 			doc["host"] = u.Host
 			doc["schemes"] = []any{u.Scheme}
-			if u.Path == "" {
-				doc["basePath"] = "/"
-			} else {
-				doc["basePath"] = u.Path
-			}
+			doc["basePath"] = joinBasePaths(u.Path, ownBase)
 		} else {
-			doc["basePath"] = exposedBase
+			doc["basePath"] = joinBasePaths(exposedBase, ownBase)
 		}
 	} else {
-		doc["servers"] = []any{map[string]any{"url": exposedBase}}
+		// Same idea for 3.x: keep the PATH of the spec's first server (its
+		// url is often relative, e.g. "/api/v3") under the exposed base.
+		var ownPath string
+		if servers, _ := doc["servers"].([]any); len(servers) > 0 {
+			if first, _ := servers[0].(map[string]any); first != nil {
+				if s, _ := first["url"].(string); s != "" {
+					if u, err := url.Parse(s); err == nil {
+						ownPath = u.Path
+					}
+				}
+			}
+		}
+		base := strings.TrimSuffix(exposedBase, "/")
+		if p := strings.Trim(ownPath, "/"); p != "" {
+			base += "/" + p
+		}
+		if base == "" {
+			base = "/"
+		}
+		doc["servers"] = []any{map[string]any{"url": base}}
 	}
 	out, err := json.Marshal(doc)
 	if err != nil {
 		return raw, fmt.Errorf("openapi: rewrite marshal: %w", err)
 	}
 	return out, nil
+}
+
+// InjectSimulation declares the gateway's identity-simulation headers on a
+// spec served by the API-docs page: swagger-ui's Authorize can then input a
+// user and roles (2.0 gets securityDefinitions, 3.x components.securitySchemes)
+// and every operation shows the padlock — the appended global requirement is
+// OR-ed with whatever the spec already demands. Serve-time only, the stored
+// spec is untouched. A YAML spec is returned unchanged with a non-nil error.
+func InjectSimulation(raw []byte) ([]byte, error) {
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return raw, fmt.Errorf("openapi: inject expects JSON: %w", err)
+	}
+	schemes := map[string]any{
+		"MeerkatSimulateUser": map[string]any{
+			"type": "apiKey", "in": "header", "name": "X-Meerkat-Simulate-User",
+			"description": "Try the route AS this username — no account needed. Honored only for signed-in gateway testers (root, infra-admin, dev, tester).",
+		},
+		"MeerkatSimulateRoles": map[string]any{
+			"type": "apiKey", "in": "header", "name": "X-Meerkat-Simulate-Roles",
+			"description": "Comma-separated roles of the simulated identity (e.g. auditor,sales).",
+		},
+	}
+	if _, isV2 := doc["swagger"]; isV2 {
+		defs, _ := doc["securityDefinitions"].(map[string]any)
+		if defs == nil {
+			defs = map[string]any{}
+		}
+		for k, v := range schemes {
+			defs[k] = v
+		}
+		doc["securityDefinitions"] = defs
+	} else {
+		comps, _ := doc["components"].(map[string]any)
+		if comps == nil {
+			comps = map[string]any{}
+		}
+		ss, _ := comps["securitySchemes"].(map[string]any)
+		if ss == nil {
+			ss = map[string]any{}
+		}
+		for k, v := range schemes {
+			ss[k] = v
+		}
+		comps["securitySchemes"] = ss
+		doc["components"] = comps
+	}
+	sec, _ := doc["security"].([]any)
+	doc["security"] = append(sec, map[string]any{"MeerkatSimulateUser": []any{}, "MeerkatSimulateRoles": []any{}})
+	out, err := json.Marshal(doc)
+	if err != nil {
+		return raw, fmt.Errorf("openapi: inject marshal: %w", err)
+	}
+	return out, nil
+}
+
+// joinBasePaths joins the route's exposed path and the spec's own base path
+// into one clean base ("" and "/" collapse; the result is never empty).
+func joinBasePaths(exposed, own string) string {
+	e := strings.TrimSuffix(exposed, "/")
+	if o := strings.Trim(own, "/"); o != "" {
+		e += "/" + o
+	}
+	if e == "" {
+		return "/"
+	}
+	return e
 }
 
 // methodRank orders operations by the conventional REST verb sequence for a

@@ -102,7 +102,7 @@ func (s *Store) Close() error { return s.db.Close() }
 // data plane only, an admin (control-plane) token on the admin port only —
 // each plane accepts its own scope, never the other's. Admin tokens are the
 // foundation for headless management (CLI/MCP), minted by root.
-const schemaVersion = 29
+const schemaVersion = 30
 
 func (s *Store) migrate() error {
 	var v int
@@ -292,6 +292,40 @@ CREATE TABLE IF NOT EXISTS email_tokens (
   purpose    TEXT NOT NULL,
   expires_at INTEGER NOT NULL
 );
+
+-- External authentication (v30, AUTH-19): one row per configured authority.
+-- Config is kind-specific JSON and may hold $name vault references, so a
+-- client secret or a bind password never sits here in clear.
+CREATE TABLE IF NOT EXISTS auth_providers (
+  id            TEXT PRIMARY KEY,
+  kind          TEXT NOT NULL,                    -- oidc | ldap | saml
+  name          TEXT NOT NULL,                    -- what the login page shows
+  enabled       INTEGER NOT NULL DEFAULT 0,
+  ord           INTEGER NOT NULL DEFAULT 0,
+  config        TEXT NOT NULL DEFAULT '{}',
+  -- Per-provider policies: '' inherits the application setting. An authority
+  -- that already enforces its own second factor has no use for ours.
+  mfa_required  TEXT NOT NULL DEFAULT '',         -- '' | yes | no
+  passkeys      TEXT NOT NULL DEFAULT '',         -- '' | yes | no
+  -- A first sign-in creates a PENDING local account (the self-registration
+  -- path): the admin then places it in a tenant and grants roles. Off means
+  -- only already-linked accounts may come in.
+  auto_create   INTEGER NOT NULL DEFAULT 1,
+  created_at    INTEGER NOT NULL DEFAULT 0,
+  updated_at    INTEGER NOT NULL DEFAULT 0
+);
+
+-- The link between a local account and what an authority calls that person.
+-- Keyed by (provider, external id) because the authority's id is the only
+-- stable handle: a username or an address can change upstream.
+CREATE TABLE IF NOT EXISTS user_identities (
+  provider_id TEXT NOT NULL REFERENCES auth_providers(id) ON DELETE CASCADE,
+  external_id TEXT NOT NULL,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at  INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (provider_id, external_id)
+);
+CREATE INDEX IF NOT EXISTS user_identities_user ON user_identities(user_id);
 
 -- Personal API tokens (v22, AUTH-16): authenticate the owner on the data
 -- plane's API routes. Each captures the tenant+group context of the session

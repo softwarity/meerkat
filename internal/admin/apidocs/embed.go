@@ -22,7 +22,8 @@ var CSS []byte
 //go:embed skin.css
 var Skin []byte
 
-// Page is the /apidocs/ shell: brand header, spec picker, swagger mount.
+// Page is the /apidocs/ shell: brand header, spec picker, swagger mount,
+// credentialed Try it out.
 //
 //go:embed page.html
 var Page []byte

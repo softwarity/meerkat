@@ -44,7 +44,11 @@
         defaultModelsExpandDepth: 0,
         tryItOutEnabled: true,
         deepLinking: false,
-        validatorUrl: null
+        validatorUrl: null,
+        // Try it out crosses origins (admin page → data plane): send the
+        // cookies with it — the gateway's scoped CORS allows credentials, and
+        // identity simulation is authorized by the admin session they carry.
+        withCredentials: true
       });
     }
     fetch('specs.json').then((r) => {

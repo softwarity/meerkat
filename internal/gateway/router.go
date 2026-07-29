@@ -44,6 +44,9 @@ type Router struct {
 	// the data plane answers CORS for exactly that sibling origin (the admin
 	// console's swagger Try it out) and no other. Empty disables it.
 	AdminAddr string
+	// AdminSessions resolves admin-plane sessions, ONLY to authorize identity
+	// simulation (simulate.go). Nil disables simulation entirely.
+	AdminSessions *session.Manager
 
 	mu       sync.RWMutex
 	routes   []compiledRoute
@@ -273,6 +276,14 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
+	}
+	// Identity simulation (Try it out): validated headers replace the session
+	// for this request; unauthorized simulation is an explicit 403, not a
+	// silent fallback to the caller's real identity.
+	req, simErr := rt.applySimulation(req)
+	if simErr != nil {
+		http.Error(w, simErr.Error(), http.StatusForbidden)
+		return
 	}
 	rt.mu.RLock()
 	routes, needDraw := rt.routes, rt.needDraw
@@ -620,8 +631,12 @@ type identityData struct {
 }
 
 // sessionIdentity resolves the caller for per-request injections and
-// forwarding; ok is false without a completed session.
+// forwarding; ok is false without a completed session. A simulated identity
+// (simulate.go) replaces the session wholesale.
 func (rt *Router) sessionIdentity(req *http.Request) (identityData, bool) {
+	if d, ok := simulatedIdentity(req.Context()); ok {
+		return d, true
+	}
 	sess, err := rt.sm.Resolve(req.Context(), req)
 	if err != nil || sess.Pending != "" {
 		return identityData{}, false
@@ -654,6 +669,9 @@ func (rt *Router) sessionIdentity(req *http.Request) (identityData, bool) {
 // Resolve is cached, so anonymous requests are turned away before the response
 // body is ever buffered.
 func (rt *Router) hasIdentity(req *http.Request) bool {
+	if _, ok := simulatedIdentity(req.Context()); ok {
+		return true
+	}
 	sess, err := rt.sm.Resolve(req.Context(), req)
 	return err == nil && sess.Pending == ""
 }
@@ -1256,6 +1274,10 @@ type cookieStrippingTransport struct{ base http.RoundTripper }
 func (t cookieStrippingTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	clone := req.Clone(req.Context())
 	stripGatewayCookies(clone)
+	// Same story for the simulation headers: gateway-internal, already
+	// consumed — the upstream sees the resulting identity, not the knobs.
+	clone.Header.Del(SimulateUserHeader)
+	clone.Header.Del(SimulateRolesHeader)
 	res, err := t.base.RoundTrip(clone)
 	if res != nil {
 		res.Request = req
@@ -1311,6 +1333,11 @@ func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error)
 // return-to path, API-style requests get a plain 401.
 func requireSession(sm *session.Manager, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		// A simulated identity (simulate.go) IS the session for this request.
+		if _, ok := simulatedIdentity(req.Context()); ok {
+			next.ServeHTTP(w, req)
+			return
+		}
 		sess, err := sm.Resolve(req.Context(), req)
 		if err == nil && sess.Pending != "" {
 			// AUTH-05: until every login step is satisfied, all navigation is

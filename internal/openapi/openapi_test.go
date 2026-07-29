@@ -156,8 +156,45 @@ func TestRewriteOpenAPI3AbsoluteBase(t *testing.T) {
 		t.Fatal(err)
 	}
 	servers, ok := doc["servers"].([]any)
-	if !ok || len(servers) != 1 || servers[0].(map[string]any)["url"] != "http://localhost:8082" {
-		t.Fatalf("servers = %v, want the absolute base alone", doc["servers"])
+	if !ok || len(servers) != 1 || servers[0].(map[string]any)["url"] != "http://localhost:8082/v1" {
+		t.Fatalf("servers = %v, want the absolute base + the spec's own /v1", doc["servers"])
+	}
+}
+
+// InjectSimulation declares the simulate headers so Authorize can input them,
+// on both spec generations, without erasing what the spec already declares.
+func TestInjectSimulation(t *testing.T) {
+	v2 := []byte(`{"swagger":"2.0","securityDefinitions":{"own":{"type":"basic"}},"security":[{"own":[]}],"paths":{}}`)
+	out, err := InjectSimulation(v2)
+	if err != nil {
+		t.Fatalf("inject v2: %v", err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(out, &doc); err != nil {
+		t.Fatal(err)
+	}
+	defs := doc["securityDefinitions"].(map[string]any)
+	if _, ok := defs["MeerkatSimulateUser"]; !ok {
+		t.Fatal("v2: simulate scheme missing")
+	}
+	if _, ok := defs["own"]; !ok {
+		t.Fatal("v2: the spec's own scheme must survive")
+	}
+	if sec := doc["security"].([]any); len(sec) != 2 {
+		t.Fatalf("v2: global security = %v, want the spec's own OR simulation", sec)
+	}
+
+	out, err = InjectSimulation([]byte(openapi30))
+	if err != nil {
+		t.Fatalf("inject v3: %v", err)
+	}
+	doc = map[string]any{}
+	if err := json.Unmarshal(out, &doc); err != nil {
+		t.Fatal(err)
+	}
+	ss := doc["components"].(map[string]any)["securitySchemes"].(map[string]any)
+	if _, ok := ss["MeerkatSimulateRoles"]; !ok {
+		t.Fatal("v3: simulate scheme missing")
 	}
 }
 
@@ -174,8 +211,10 @@ func TestRewriteOpenAPI3(t *testing.T) {
 	if !ok || len(servers) != 1 {
 		t.Fatalf("servers = %v", doc["servers"])
 	}
-	if servers[0].(map[string]any)["url"] != "/demo" {
-		t.Errorf("server url = %v, want /demo", servers[0])
+	// The spec's own path (/v1) survives under the exposed base: the route
+	// forwards paths, so the public URL keeps carrying it.
+	if servers[0].(map[string]any)["url"] != "/demo/v1" {
+		t.Errorf("server url = %v, want /demo/v1", servers[0])
 	}
 }
 

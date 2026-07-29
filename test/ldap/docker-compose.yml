@@ -1,0 +1,57 @@
+# Two authorities to test against, because LDAP and Active Directory only
+# LOOK alike: AD binds with a UPN or DOMAIN\user, keys people on
+# sAMAccountName, exposes memberOf, and resolves nested groups with its own
+# matching rule. A client that only ever met OpenLDAP breaks on all four.
+#
+#   make ldap-up      start both, seeded
+#   make ldap-test    run the integration tests against them
+#   make ldap-down    stop and forget
+services:
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: meerkat-openldap
+    command: --copy-service
+    environment:
+      LDAP_ORGANISATION: "Example Inc."
+      LDAP_DOMAIN: "example.com"
+      LDAP_ADMIN_PASSWORD: "adminpassword"
+      LDAP_TLS: "false"
+    ports:
+      - "3389:389"
+    volumes:
+      - ./openldap/init.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/init.ldif:ro
+    healthcheck:
+      test: ["CMD", "ldapsearch", "-x", "-H", "ldap://localhost", "-b", "dc=example,dc=com", "-D", "cn=admin,dc=example,dc=com", "-w", "adminpassword"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  # A real Active Directory domain controller (Samba 4 in AD DC mode). It
+  # provisions on first start, which takes about a minute; the seed script
+  # then adds the same people and the same nested groups as the OpenLDAP
+  # side, so one test suite can assert against both.
+  samba:
+    image: diegogslomp/samba-ad-dc:latest
+    container_name: meerkat-samba-ad
+    hostname: dc1
+    domainname: ad.example.com
+    privileged: true
+    environment:
+      REALM: AD.EXAMPLE.COM
+      DOMAIN: ADEXAMPLE
+      ADMIN_PASS: "Passw0rd!2026"
+      DNS_FORWARDER: 1.1.1.1
+      # Under Docker Desktop the image picks the wrong interface and ends up
+      # listening on the loopback only, so the published ports reach nothing.
+      # The image documents this switch for exactly that case.
+      BIND_NETWORK_INTERFACES: "false"
+    ports:
+      - "3390:389"
+      - "3636:636"
+    volumes:
+      - ./samba/seed.sh:/seed.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "samba-tool domain info 127.0.0.1 >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 40

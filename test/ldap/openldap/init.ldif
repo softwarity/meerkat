@@ -1,0 +1,68 @@
+# The same people and the same NESTED groups as the AD side: developer holds
+# frontend, backend and devops, which hold the users. Flat membership would
+# never catch a client that forgets to walk the tree.
+dn: ou=users,dc=example,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: users
+
+dn: uid=johndoe,ou=users,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: John Doe
+sn: Doe
+uid: johndoe
+mail: johndoe@example.com
+userPassword: password
+
+dn: uid=janedoe,ou=users,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Jane Doe
+sn: Doe
+uid: janedoe
+mail: janedoe@example.com
+userPassword: password
+
+dn: ou=groups,dc=example,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=devops,ou=groups,dc=example,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: devops
+uniqueMember: uid=janedoe,ou=users,dc=example,dc=com
+
+dn: cn=frontend,ou=groups,dc=example,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: frontend
+uniqueMember: uid=johndoe,ou=users,dc=example,dc=com
+uniqueMember: uid=janedoe,ou=users,dc=example,dc=com
+
+dn: cn=backend,ou=groups,dc=example,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: backend
+uniqueMember: uid=johndoe,ou=users,dc=example,dc=com
+
+dn: cn=developer,ou=groups,dc=example,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: developer
+uniqueMember: cn=frontend,ou=groups,dc=example,dc=com
+uniqueMember: cn=backend,ou=groups,dc=example,dc=com
+uniqueMember: cn=devops,ou=groups,dc=example,dc=com
+
+dn: cn=operator,ou=groups,dc=example,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: operator
+uniqueMember: uid=johndoe,ou=users,dc=example,dc=com
+uniqueMember: uid=janedoe,ou=users,dc=example,dc=com

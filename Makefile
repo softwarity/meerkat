@@ -8,7 +8,7 @@ LDFLAGS := -s -w \
 	-X $(MODULE)/internal/version.Commit=$(COMMIT) \
 	-X $(MODULE)/internal/version.Date=$(DATE)
 
-.PHONY: build ui dev test lint fmt vet clean
+.PHONY: build ui dev test lint fmt vet clean ldap-up ldap-down ldap-test
 
 # Hot-reload dev loop: rebuilds and restarts the gateway on every .go save.
 # Requires air (once): go install github.com/air-verse/air@latest
@@ -46,3 +46,23 @@ vet:
 
 clean:
 	rm -rf bin dist
+
+# ── directories to test against ──────────────────────────────────────────────
+# An OpenLDAP and a REAL Active Directory domain controller (Samba 4), seeded
+# with the same people and the same nested groups. The idp tests skip when
+# these are down, so `make test` never depends on Docker.
+ldap-up:
+	cd test/ldap && docker compose up -d
+	@echo "waiting for the domain controller to provision (about a minute on a cold start)…"
+	@cd test/ldap && for i in $$(seq 1 60); do \
+		[ "$$(docker inspect meerkat-samba-ad --format '{{.State.Health.Status}}' 2>/dev/null)" = healthy ] && break; \
+		sleep 5; \
+	done
+	docker exec meerkat-samba-ad sh /seed.sh
+	@echo "openldap ldap://localhost:3389 · active directory ldaps://localhost:3636"
+
+ldap-down:
+	cd test/ldap && docker compose down -v
+
+ldap-test:
+	go test ./internal/idp/ -run LDAP -count=1 -v

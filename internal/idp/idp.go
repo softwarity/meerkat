@@ -73,8 +73,11 @@ func New(p store.AuthProvider) (Driver, error) {
 	switch p.Kind {
 	case store.ProviderOIDC:
 		return newOIDC(p)
-	case store.ProviderLDAP, store.ProviderSAML:
-		return nil, fmt.Errorf("idp: %s support is not wired yet (available: %s)", p.Kind, store.ProviderOIDC)
+	case store.ProviderLDAP:
+		return newLDAP(p)
+	case store.ProviderSAML:
+		return nil, fmt.Errorf("idp: SAML support is not wired yet (available: %s, %s)",
+			store.ProviderOIDC, store.ProviderLDAP)
 	default:
 		return nil, fmt.Errorf("idp: unknown provider kind %q", p.Kind)
 	}

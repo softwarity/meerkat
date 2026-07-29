@@ -21,6 +21,11 @@ const PLANES: Record<string, { title: string; links: SectionLink[] }> = {
         label: $localize`:@@Endpoint_security:Endpoint security`,
         icon: 'security',
       },
+      {
+        path: 'auth-providers',
+        label: $localize`:@@Authentication:Authentication`,
+        icon: 'passkey',
+      },
       { path: 'mail-relay', label: $localize`:@@Mail_relay:Mail relay`, icon: 'outgoing_mail' },
       {
         path: 'access-tokens',

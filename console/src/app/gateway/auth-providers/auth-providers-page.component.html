@@ -1,0 +1,93 @@
+<mat-drawer-container>
+  <mat-drawer-content>
+    <div class="banner">
+      <h1 class="flex-1 m-0" i18n="@@Authentication">Authentication</h1>
+      <button matIconButton (click)="load()" i18n-matTooltip="@@Refresh" matTooltip="Refresh" i18n-aria-label="@@Refresh" aria-label="Refresh">
+        @if (loading()) {<mat-icon spin>autorenew</mat-icon>} @else {<mat-icon>refresh</mat-icon>}
+      </button>
+    </div>
+
+    <div class="content">
+      <p class="intro text-muted" i18n="@@Authentication_intro">
+        The authorities people may sign in through, besides the local password. An authority proves
+        who someone is; it never decides what they may do here: a first sign-in creates an account
+        that reaches nothing until an administrator places it in an organization and grants roles.
+      </p>
+
+      @if (loading()) {
+        <loading-indicator withContainer />
+      } @else if (providers().length === 0) {
+        <div class="empty" i18n="@@No_authority_yet">No authority yet: everyone signs in with a local password.</div>
+      } @else {
+        <mat-table [dataSource]="providers()">
+          <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef i18n="@@Name">Name</mat-header-cell>
+            <mat-cell *matCellDef="let p" [class.off]="!p.enabled">
+              <span class="id">
+                <span>{{ p.name }}</span>
+                <span class="mono text-muted">{{ p.id }}</span>
+              </span>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="kind">
+            <mat-header-cell *matHeaderCellDef i18n="@@Kind">Kind</mat-header-cell>
+            <mat-cell *matCellDef="let p" [class.off]="!p.enabled">{{ kindLabel(p) }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="target">
+            <mat-header-cell *matHeaderCellDef i18n="@@Server">Server</mat-header-cell>
+            <mat-cell *matCellDef="let p" [class.off]="!p.enabled">
+              <span class="mono truncate">{{ target(p) }}</span>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="state">
+            <mat-header-cell *matHeaderCellDef></mat-header-cell>
+            <mat-cell *matCellDef="let p">
+              @if (p.enabled) {
+                <span class="pill on" i18n="@@Enabled">Enabled</span>
+              } @else {
+                <span class="pill" i18n="@@Disabled">Disabled</span>
+              }
+              @if (!p.autoCreate) {
+                <span class="pill" i18n="@@No_auto_create" matTooltip="Only already-linked people may sign in">Invite only</span>
+              }
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+          <mat-row
+            *matRowDef="let p; columns: columns"
+            class="clickable"
+            [class.selected]="editingProvider()?.id === p.id"
+            (click)="open(p)"
+          ></mat-row>
+        </mat-table>
+      }
+    </div>
+
+    <button
+      matFab
+      class="fab-new"
+      (click)="openNew()"
+      i18n-matTooltip="@@New_authority"
+      matTooltip="New authority"
+      i18n-aria-label="@@New_authority"
+      aria-label="New authority"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </mat-drawer-content>
+
+  <mat-drawer position="end" mode="over" [opened]="editing() !== null" (closedStart)="closeEditor()">
+    @if (editing() !== null) {
+      <app-auth-provider-editor
+        [provider]="editingProvider()"
+        (saved)="onSaved($event)"
+        (deleted)="onDeleted()"
+        (closed)="closeEditor()"
+      />
+    }
+  </mat-drawer>
+</mat-drawer-container>

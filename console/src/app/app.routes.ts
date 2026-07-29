@@ -34,6 +34,14 @@ function usersMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   return { consumed: segments, posParams };
 }
 
+// auth-providers, auth-providers/new and auth-providers/:id.
+function authProvidersMatcher(segments: UrlSegment[]): UrlMatchResult | null {
+  if (segments.length === 0 || segments[0].path !== 'auth-providers' || segments.length > 2) return null;
+  const posParams: Record<string, UrlSegment> = {};
+  if (segments.length === 2 && segments[1].path !== 'new') posParams['id'] = segments[1];
+  return { consumed: segments, posParams };
+}
+
 // roles, roles/new and roles/:id — same one-config trick.
 function rolesMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   if (segments.length === 0 || segments[0].path !== 'roles' || segments.length > 2) return null;
@@ -73,6 +81,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./routes/endpoint-security/endpoint-security.component').then(
             (m) => m.EndpointSecurityComponent,
+          ),
+      },
+      {
+        // External authentication (AUTH-19): a directory or an identity
+        // provider is a third-party service, like an upstream or the relay.
+        matcher: authProvidersMatcher,
+        canActivate: [infraOnly],
+        loadComponent: () =>
+          import('./gateway/auth-providers/auth-providers-page.component').then(
+            (m) => m.AuthProvidersPageComponent,
           ),
       },
       {

@@ -456,6 +456,28 @@ export interface TrustedBrowserPolicy {
 // Outbound e-mail config: the password is WRITE-ONLY ('' on PUT keeps the
 // stored one; passwordSet says whether one exists).
 // The mail RELAY (infra plane): transport only. The password is write-only.
+// An external authority people may sign in through (AUTH-19). Config is
+// kind-specific and may hold $name vault references, so a client secret or a
+// bind password never has to sit in it.
+export interface AuthProvider {
+  id: string;
+  kind: 'oidc' | 'ldap' | 'saml';
+  name: string;
+  enabled: boolean;
+  order: number;
+  config: Record<string, unknown>;
+  // '' inherits the application policy, 'yes' or 'no' override it for people
+  // arriving through this authority.
+  mfaRequired: string;
+  passkeys: string;
+  // A first sign-in creates a PENDING account, the self-registration path.
+  autoCreate: boolean;
+  createdAt?: number;
+  updatedAt?: number;
+  // Read-only: what has to be registered on the authority's side.
+  callbackUrl?: string;
+}
+
 export interface MailRelay {
   host: string;
   port: number;
@@ -582,6 +604,26 @@ export class ApiService {
   }
 
   // ── mail relay (infra plane) ───────────────────────────────────────────────
+
+  authProviders(): Observable<AuthProvider[]> {
+    return this.http.get<AuthProvider[]>('/api/auth-providers');
+  }
+
+  saveAuthProvider(p: AuthProvider): Observable<AuthProvider> {
+    return this.http.put<AuthProvider>(`/api/auth-providers/${encodeURIComponent(p.id)}`, p);
+  }
+
+  deleteAuthProvider(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/auth-providers/${encodeURIComponent(id)}`);
+  }
+
+  // Tries the configuration without signing anyone in.
+  checkAuthProvider(id: string): Observable<{ ok: boolean; kind: string; name: string }> {
+    return this.http.post<{ ok: boolean; kind: string; name: string }>(
+      `/api/auth-providers/${encodeURIComponent(id)}/check`,
+      {},
+    );
+  }
 
   mailRelay(): Observable<MailRelay> {
     return this.http.get<MailRelay>('/api/settings/mail-relay');

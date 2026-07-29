@@ -2,6 +2,182 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="Disabled" datatype="html">
+        <source>Disabled</source>
+        <target>Désactivée</target>
+      </trans-unit>
+      <trans-unit id="Authentication" datatype="html">
+        <source>Authentication</source>
+        <target>Authentification</target>
+      </trans-unit>
+      <trans-unit id="Authentication_intro" datatype="html">
+        <source>The authorities people may sign in through, besides the local password. An authority proves who someone is; it never decides what they may do here: a first sign-in creates an account that reaches nothing until an administrator places it in an organization and grants roles.</source>
+        <target>Les autorités par lesquelles les personnes peuvent se connecter, en plus du mot de passe local. Une autorité prouve qui est quelqu'un ; elle ne décide jamais de ce qu'il peut faire ici : une première connexion crée un compte qui n'atteint rien tant qu'un administrateur ne l'a pas placé dans une organisation et ne lui a pas donné de rôles.</target>
+      </trans-unit>
+      <trans-unit id="No_authority_yet" datatype="html">
+        <source>No authority yet: everyone signs in with a local password.</source>
+        <target>Aucune autorité : tout le monde se connecte avec un mot de passe local.</target>
+      </trans-unit>
+      <trans-unit id="New_authority" datatype="html">
+        <source>New authority</source>
+        <target>Nouvelle autorité</target>
+      </trans-unit>
+      <trans-unit id="Provider_reachable" datatype="html">
+        <source>The authority answered</source>
+        <target>L'autorité a répondu</target>
+      </trans-unit>
+      <trans-unit id="Provider_NAME_saved" datatype="html">
+        <source>Authority "<x id="NAME" equiv-text="saved.name"/>" saved</source>
+        <target>Autorité « <x id="NAME" equiv-text="saved.name"/> » enregistrée</target>
+      </trans-unit>
+      <trans-unit id="Delete_provider_NAME" datatype="html">
+        <source>Delete "<x id="NAME" equiv-text="p.name"/>"?</source>
+        <target>Supprimer « <x id="NAME" equiv-text="p.name"/> » ?</target>
+      </trans-unit>
+      <trans-unit id="Delete_provider_hint" datatype="html">
+        <source>The accounts that sign in through it will keep existing, but will no longer have a way in.</source>
+        <target>Les comptes qui s'y connectent continueront d'exister, mais n'auront plus de porte d'entrée.</target>
+      </trans-unit>
+      <trans-unit id="Identifier" datatype="html">
+        <source>Identifier</source>
+        <target>Identifiant</target>
+      </trans-unit>
+      <trans-unit id="Provider_id_hint" datatype="html">
+        <source>Used in the sign-in URL, never shown to users</source>
+        <target>Utilisé dans l'URL de connexion, jamais montré aux utilisateurs</target>
+      </trans-unit>
+      <trans-unit id="Provider_name_hint" datatype="html">
+        <source>What the login page shows on the button</source>
+        <target>Ce que la page de connexion affiche sur le bouton</target>
+      </trans-unit>
+      <trans-unit id="Kind_directory" datatype="html">
+        <source>Directory</source>
+        <target>Annuaire</target>
+      </trans-unit>
+      <trans-unit id="Kind_oidc_hint" datatype="html">
+        <source>An identity provider the browser is sent to. The token it returns is verified against its published keys, so nothing is taken on trust.</source>
+        <target>Un fournisseur d'identité vers lequel le navigateur est envoyé. Le jeton renvoyé est vérifié contre ses clés publiées : rien n'est pris pour argent comptant.</target>
+      </trans-unit>
+      <trans-unit id="Kind_ldap_hint" datatype="html">
+        <source>A directory asked directly, with what the person typed in the ordinary sign-in form. No button appears on the login page.</source>
+        <target>Un annuaire interrogé directement, avec ce que la personne a saisi dans le formulaire de connexion habituel. Aucun bouton n'apparaît sur la page de connexion.</target>
+      </trans-unit>
+      <trans-unit id="Kind_saml_hint" datatype="html">
+        <source>Not available yet.</source>
+        <target>Pas encore disponible.</target>
+      </trans-unit>
+      <trans-unit id="Issuer" datatype="html">
+        <source>Issuer</source>
+        <target>Émetteur</target>
+      </trans-unit>
+      <trans-unit id="Issuer_hint" datatype="html">
+        <source>Its discovery document is read from there</source>
+        <target>Son document de découverte est lu à cette adresse</target>
+      </trans-unit>
+      <trans-unit id="Client_ID" datatype="html">
+        <source>Client ID</source>
+        <target>Identifiant client</target>
+      </trans-unit>
+      <trans-unit id="Client_secret" datatype="html">
+        <source>Client secret</source>
+        <target>Secret client</target>
+      </trans-unit>
+      <trans-unit id="Allowed_domains" datatype="html">
+        <source>Allowed e-mail domains</source>
+        <target>Domaines d'e-mail autorisés</target>
+      </trans-unit>
+      <trans-unit id="Allowed_domains_hint" datatype="html">
+        <source>Comma separated, empty accepts every address the authority knows</source>
+        <target>Séparés par des virgules ; vide accepte toutes les adresses connues de l'autorité</target>
+      </trans-unit>
+      <trans-unit id="Register_this_callback" datatype="html">
+        <source>Register this callback on the authority</source>
+        <target>Déclarez cette adresse de retour sur l'autorité</target>
+      </trans-unit>
+      <trans-unit id="Dialect" datatype="html">
+        <source>Dialect</source>
+        <target>Dialecte</target>
+      </trans-unit>
+      <trans-unit id="Dialect_directory" datatype="html">
+        <source>Directory (OpenLDAP and friends)</source>
+        <target>Annuaire (OpenLDAP et apparentés)</target>
+      </trans-unit>
+      <trans-unit id="Server_URL" datatype="html">
+        <source>Server URL</source>
+        <target>Adresse du serveur</target>
+      </trans-unit>
+      <trans-unit id="Server_URL_hint" datatype="html">
+        <source>ldap:// or ldaps://</source>
+        <target>ldap:// ou ldaps://</target>
+      </trans-unit>
+      <trans-unit id="Base_DN" datatype="html">
+        <source>Search base</source>
+        <target>Base de recherche</target>
+      </trans-unit>
+      <trans-unit id="Service_account" datatype="html">
+        <source>Service account</source>
+        <target>Compte de service</target>
+      </trans-unit>
+      <trans-unit id="Service_account_hint" datatype="html">
+        <source>Used to SEARCH, never to sign anyone in</source>
+        <target>Sert à CHERCHER, jamais à connecter quelqu'un</target>
+      </trans-unit>
+      <trans-unit id="Service_password" datatype="html">
+        <source>Service password</source>
+        <target>Mot de passe du service</target>
+      </trans-unit>
+      <trans-unit id="User_filter" datatype="html">
+        <source>User filter</source>
+        <target>Filtre utilisateur</target>
+      </trans-unit>
+      <trans-unit id="User_filter_hint" datatype="html">
+        <source>%s is what the person typed; empty uses the dialect's default</source>
+        <target>%s est ce que la personne a saisi ; vide utilise la valeur par défaut du dialecte</target>
+      </trans-unit>
+      <trans-unit id="Nested_groups" datatype="html">
+        <source>Follow nested groups</source>
+        <target>Suivre les groupes imbriqués</target>
+      </trans-unit>
+      <trans-unit id="Skip_certificate_check" datatype="html">
+        <source>Skip the certificate check (self-signed directory)</source>
+        <target>Ignorer la vérification du certificat (annuaire auto-signé)</target>
+      </trans-unit>
+      <trans-unit id="Policies" datatype="html">
+        <source>Policies</source>
+        <target>Politiques</target>
+      </trans-unit>
+      <trans-unit id="Auto_create_accounts" datatype="html">
+        <source>Create an account on first sign-in</source>
+        <target>Créer un compte à la première connexion</target>
+      </trans-unit>
+      <trans-unit id="Auto_create_hint" datatype="html">
+        <source>The account is created empty and reaches nothing: an administrator then places it in an organization and grants roles. Off, only people already linked may come in.</source>
+        <target>Le compte est créé vide et n'atteint rien : un administrateur le place ensuite dans une organisation et lui donne des rôles. Désactivé, seules les personnes déjà liées peuvent entrer.</target>
+      </trans-unit>
+      <trans-unit id="Inherited_application" datatype="html">
+        <source>Inherited from the application</source>
+        <target>Hérité de l'application</target>
+      </trans-unit>
+      <trans-unit id="Always_required" datatype="html">
+        <source>Always required</source>
+        <target>Toujours exigé</target>
+      </trans-unit>
+      <trans-unit id="Left_to_the_authority" datatype="html">
+        <source>Left to the authority</source>
+        <target>Laissé à l'autorité</target>
+      </trans-unit>
+      <trans-unit id="Test_connection" datatype="html">
+        <source>Test the connection</source>
+        <target>Tester la connexion</target>
+      </trans-unit>
+      <trans-unit id="Server" datatype="html">
+        <source>Server</source>
+        <target>Serveur</target>
+      </trans-unit>
+      <trans-unit id="No_auto_create" datatype="html">
+        <source>Invite only</source>
+        <target>Sur invitation</target>
+      </trans-unit>
       <trans-unit id="Sender_address" datatype="html">
         <source>Sender address</source>
         <target>Adresse d'expédition</target>

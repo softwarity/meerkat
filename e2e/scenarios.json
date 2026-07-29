@@ -69,6 +69,27 @@
       }
     },
     {
+      "id": "api-infra-auth-providers",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": {
+        "method": "GET",
+        "path": "/api/auth-providers"
+      },
+      "allowed": [
+        "root",
+        "infra-admin"
+      ],
+      "title": {
+        "en": "List the external authorities",
+        "fr": "Lister les autorités externes"
+      },
+      "description": {
+        "en": "A directory or an identity provider is a third-party service reached by URL, with credentials: infra plane. An app admin configures who may do what, not what the gateway connects to.",
+        "fr": "Un annuaire ou un fournisseur d'identité est un service tiers atteint par URL, avec des identifiants : plan infra. Un admin appli règle qui peut quoi, pas ce à quoi la gateway se connecte."
+      }
+    },
+    {
       "id": "api-infra-route-probe",
       "domain": "gateway",
       "kind": "api",

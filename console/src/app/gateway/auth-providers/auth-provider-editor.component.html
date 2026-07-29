@@ -1,0 +1,207 @@
+<header>
+  @if (creating()) {
+    <h2 i18n="@@New_authority">New authority</h2>
+  } @else {
+    <h2>{{ name() }}</h2>
+  }
+  <button matIconButton (click)="closed.emit()" i18n-aria-label="@@Close" aria-label="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+</header>
+
+<div class="body">
+  <mat-button-toggle-group
+    class="kinds"
+    [value]="kind()"
+    (change)="kind.set($event.value)"
+    [disabled]="!creating()"
+    hideSingleSelectionIndicator
+  >
+    <mat-button-toggle value="oidc">OpenID Connect</mat-button-toggle>
+    <mat-button-toggle value="ldap" i18n="@@Kind_directory">Directory</mat-button-toggle>
+    <mat-button-toggle value="saml" disabled>SAML</mat-button-toggle>
+  </mat-button-toggle-group>
+  <p class="hint text-muted">
+    @if (kind() === 'oidc') {
+      <ng-container i18n="@@Kind_oidc_hint">
+        An identity provider the browser is sent to. The token it returns is verified against its
+        published keys, so nothing is taken on trust.
+      </ng-container>
+    } @else if (kind() === 'ldap') {
+      <ng-container i18n="@@Kind_ldap_hint">
+        A directory asked directly, with what the person typed in the ordinary sign-in form. No
+        button appears on the login page.
+      </ng-container>
+    } @else {
+      <ng-container i18n="@@Kind_saml_hint">Not available yet.</ng-container>
+    }
+  </p>
+
+  <app-form-field i18n-label="@@Identifier" label="Identifier" i18n-hint="@@Provider_id_hint" hint="Used in the sign-in URL, never shown to users">
+    <textarea
+      matInput
+      rows="1"
+      class="oneline mono"
+      spellcheck="false"
+      autocapitalize="off"
+      autocorrect="off"
+      [value]="id()"
+      [disabled]="!creating()"
+      (input)="id.set($any($event.target).value)"
+      (keydown.enter)="$event.preventDefault()"
+      placeholder="acme-sso"
+    ></textarea>
+  </app-form-field>
+
+  <app-form-field i18n-label="@@Name" label="Name" i18n-hint="@@Provider_name_hint" hint="What the login page shows on the button">
+    <textarea
+      matInput
+      rows="1"
+      class="oneline"
+      [value]="name()"
+      (input)="name.set($any($event.target).value)"
+      (keydown.enter)="$event.preventDefault()"
+      placeholder="Acme SSO"
+    ></textarea>
+  </app-form-field>
+
+  @if (kind() === 'oidc') {
+    <app-form-field i18n-label="@@Issuer" label="Issuer" i18n-hint="@@Issuer_hint" hint="Its discovery document is read from there" allowVault="values" vaultScope="app">
+      <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('issuer')" (input)="setCfg('issuer', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()" placeholder="https://sso.acme.io/realms/main"></textarea>
+    </app-form-field>
+
+    <app-form-field i18n-label="@@Client_ID" label="Client ID" allowVault="secret/values" vaultScope="app">
+      <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('clientId')" (input)="setCfg('clientId', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()"></textarea>
+    </app-form-field>
+
+    <app-form-field i18n-label="@@Client_secret" label="Client secret" revealable masked allowVault="secret" vaultScope="app" [clearable]="false">
+      <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('clientSecret')" (input)="setCfg('clientSecret', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()"></textarea>
+    </app-form-field>
+
+    <app-form-field i18n-label="@@Allowed_domains" label="Allowed e-mail domains" i18n-hint="@@Allowed_domains_hint" hint="Comma separated, empty accepts every address the authority knows">
+      <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('allowedDomains')" (input)="setCfgList('allowedDomains', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()" placeholder="acme.io"></textarea>
+    </app-form-field>
+
+    @if (callbackUrl()) {
+      <div class="callback">
+        <span class="text-muted" i18n="@@Register_this_callback">Register this callback on the authority</span>
+        <div class="flex items-center gap-2">
+          <code class="mono truncate">{{ callbackUrl() }}</code>
+          <button matIconButton (click)="copyCallback()" i18n-matTooltip="@@Copy" matTooltip="Copy" i18n-aria-label="@@Copy" aria-label="Copy">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  }
+
+  @if (kind() === 'ldap') {
+    <mat-form-field>
+      <mat-label i18n="@@Dialect">Dialect</mat-label>
+      <mat-select [value]="cfg('dialect') || 'directory'" (selectionChange)="setCfg('dialect', $event.value)">
+        <mat-option value="directory" i18n="@@Dialect_directory">Directory (OpenLDAP and friends)</mat-option>
+        <mat-option value="ad">Active Directory</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <app-form-field i18n-label="@@Server_URL" label="Server URL" i18n-hint="@@Server_URL_hint" hint="ldap:// or ldaps://" allowVault="values" vaultScope="app">
+      <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('url')" (input)="setCfg('url', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()" placeholder="ldaps://dc1.acme.io:636"></textarea>
+    </app-form-field>
+
+    <app-form-field i18n-label="@@Base_DN" label="Search base" allowVault="values" vaultScope="app">
+      <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('baseDn')" (input)="setCfg('baseDn', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()" placeholder="dc=acme,dc=io"></textarea>
+    </app-form-field>
+
+    <app-form-field i18n-label="@@Service_account" label="Service account" i18n-hint="@@Service_account_hint" hint="Used to SEARCH, never to sign anyone in" allowVault="values" vaultScope="app">
+      <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('bindDn')" (input)="setCfg('bindDn', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()" placeholder="cn=meerkat,ou=services,dc=acme,dc=io"></textarea>
+    </app-form-field>
+
+    <app-form-field i18n-label="@@Service_password" label="Service password" revealable masked allowVault="secret" vaultScope="app" [clearable]="false">
+      <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('bindPassword')" (input)="setCfg('bindPassword', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()"></textarea>
+    </app-form-field>
+
+    <app-form-field i18n-label="@@User_filter" label="User filter" i18n-hint="@@User_filter_hint" hint="%s is what the person typed; empty uses the dialect's default">
+      <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('userFilter')" (input)="setCfg('userFilter', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()"></textarea>
+    </app-form-field>
+
+    <mat-slide-toggle [checked]="cfgBool('nestedGroups', true)" (change)="setCfgBool('nestedGroups', $event.checked)">
+      <ng-container i18n="@@Nested_groups">Follow nested groups</ng-container>
+    </mat-slide-toggle>
+    <mat-slide-toggle [checked]="cfgBool('insecureSkipVerify')" (change)="setCfgBool('insecureSkipVerify', $event.checked)">
+      <ng-container i18n="@@Skip_certificate_check">Skip the certificate check (self-signed directory)</ng-container>
+    </mat-slide-toggle>
+  }
+
+  <mat-divider />
+
+  <section>
+    <h3 i18n="@@Policies">Policies</h3>
+    <mat-slide-toggle [checked]="autoCreate()" (change)="autoCreate.set($event.checked)">
+      <ng-container i18n="@@Auto_create_accounts">Create an account on first sign-in</ng-container>
+    </mat-slide-toggle>
+    <p class="hint text-muted" i18n="@@Auto_create_hint">
+      The account is created empty and reaches nothing: an administrator then places it in an
+      organization and grants roles. Off, only people already linked may come in.
+    </p>
+
+    <mat-form-field>
+      <mat-label i18n="@@Two_factor">Two-factor</mat-label>
+      <mat-select [value]="mfaRequired()" (selectionChange)="mfaRequired.set($event.value)">
+        <mat-option value="" i18n="@@Inherited_application">Inherited from the application</mat-option>
+        <mat-option value="yes" i18n="@@Always_required">Always required</mat-option>
+        <mat-option value="no" i18n="@@Left_to_the_authority">Left to the authority</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-slide-toggle [checked]="enabled()" (change)="enabled.set($event.checked)">
+      <ng-container i18n="@@Enabled">Enabled</ng-container>
+    </mat-slide-toggle>
+  </section>
+
+  @if (!creating()) {
+    <mat-divider />
+    <section>
+      <h3 i18n="@@Danger_zone">Danger zone</h3>
+      <button matButton class="danger" (click)="remove()">
+        <mat-icon>delete</mat-icon>
+        <ng-container i18n="@@Delete">Delete</ng-container>
+      </button>
+    </section>
+  }
+</div>
+
+<footer class="flex items-center gap-2">
+  @if (!creating()) {
+    <button matButton (click)="check()" [disabled]="checking()">
+      @if (checking()) {<mat-icon spin>autorenew</mat-icon>} @else {<mat-icon>network_check</mat-icon>}
+      <ng-container i18n="@@Test_connection">Test the connection</ng-container>
+    </button>
+  }
+  <span class="flex-1"></span>
+  <button matButton (click)="closed.emit()" i18n="@@Cancel">Cancel</button>
+  <button matButton="filled" [disabled]="!canSave()" (click)="save()">
+    @if (creating()) {
+      <ng-container i18n="@@Create">Create</ng-container>
+    } @else {
+      <ng-container i18n="@@Save">Save</ng-container>
+    }
+  </button>
+</footer>

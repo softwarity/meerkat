@@ -22,20 +22,45 @@ type predicateDef struct {
 	compile func(a decoded) (Predicate, error)
 }
 
+// compiledPredicate keeps the SPEC next to the executable form: a route probe
+// has to say WHICH predicate refused a request, not just that one did.
+type compiledPredicate struct {
+	spec Spec
+	fn   Predicate
+}
+
 // CompiledPredicates is the executable form of a route's predicate list.
 type CompiledPredicates struct {
-	preds   []Predicate
+	preds   []compiledPredicate
 	weights []*pendingWeight
 }
 
 // Match reports whether every predicate accepts the request.
 func (c CompiledPredicates) Match(r *http.Request) bool {
 	for _, p := range c.preds {
-		if !p(r) {
+		if !p.fn(r) {
 			return false
 		}
 	}
 	return true
+}
+
+// Verdict is one predicate's answer about one request (route probe).
+type Verdict struct {
+	Type    string         `json:"type"`
+	Args    map[string]any `json:"args,omitempty"`
+	Matched bool           `json:"matched"`
+}
+
+// Explain evaluates EVERY predicate and reports each verdict in order. It does
+// not stop at the first refusal: an admin chasing a routing surprise wants the
+// whole picture, and evaluating a predicate costs nothing.
+func (c CompiledPredicates) Explain(r *http.Request) []Verdict {
+	out := make([]Verdict, 0, len(c.preds))
+	for _, p := range c.preds {
+		out = append(out, Verdict{Type: p.spec.Type, Args: p.spec.Args, Matched: p.fn(r)})
+	}
+	return out
 }
 
 // HasWeight reports whether this route participates in a weight group.
@@ -58,14 +83,14 @@ func CompilePredicates(specs []Spec) (CompiledPredicates, error) {
 		if s.Type == "weight" {
 			pw := &pendingWeight{group: args.str("group"), weight: args.num("weight")}
 			out.weights = append(out.weights, pw)
-			out.preds = append(out.preds, pw.match)
+			out.preds = append(out.preds, compiledPredicate{spec: s, fn: pw.match})
 			continue
 		}
 		p, err := def.compile(args)
 		if err != nil {
 			return out, err
 		}
-		out.preds = append(out.preds, p)
+		out.preds = append(out.preds, compiledPredicate{spec: s, fn: p})
 	}
 	return out, nil
 }
@@ -112,6 +137,22 @@ func ResolveWeights(all []*CompiledPredicates) error {
 		}
 	}
 	return nil
+}
+
+type clockKey struct{}
+
+// WithClock pins the instant the time predicates compare against. Unset means
+// time.Now(); the route probe sets it so an admin can ask "would this match at
+// 3am next Sunday?" without waiting for Sunday.
+func WithClock(ctx context.Context, at time.Time) context.Context {
+	return context.WithValue(ctx, clockKey{}, at)
+}
+
+func nowFrom(r *http.Request) time.Time {
+	if t, ok := r.Context().Value(clockKey{}).(time.Time); ok {
+		return t
+	}
+	return time.Now()
 }
 
 type lotteryKey struct{}
@@ -294,7 +335,7 @@ func init() {
 			if err != nil {
 				return nil, err
 			}
-			return func(*http.Request) bool { return time.Now().After(t) }, nil
+			return func(r *http.Request) bool { return nowFrom(r).After(t) }, nil
 		},
 	})
 
@@ -309,7 +350,7 @@ func init() {
 			if err != nil {
 				return nil, err
 			}
-			return func(*http.Request) bool { return time.Now().Before(t) }, nil
+			return func(r *http.Request) bool { return nowFrom(r).Before(t) }, nil
 		},
 	})
 
@@ -332,8 +373,8 @@ func init() {
 			if !t2.After(t1) {
 				return nil, fmt.Errorf("between: datetime2 %s must be after datetime1 %s", t2, t1)
 			}
-			return func(*http.Request) bool {
-				now := time.Now()
+			return func(r *http.Request) bool {
+				now := nowFrom(r)
 				return now.After(t1) && now.Before(t2)
 			}, nil
 		},

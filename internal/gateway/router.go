@@ -40,6 +40,11 @@ type Router struct {
 	// (canary). Overridable in tests for determinism.
 	lottery func() float64
 
+	// AdminAddr is the control plane's listen address (main's -admin-addr):
+	// the data plane answers CORS for exactly that sibling origin (the admin
+	// console's swagger Try it out) and no other. Empty disables it.
+	AdminAddr string
+
 	mu       sync.RWMutex
 	routes   []compiledRoute
 	needDraw bool // at least one route uses weight predicates
@@ -49,6 +54,7 @@ type Router struct {
 }
 
 type compiledRoute struct {
+	id      string
 	name    string
 	preds   routing.CompiledPredicates
 	handler http.Handler
@@ -134,6 +140,50 @@ func (rt *Router) Reload(ctx context.Context) error {
 	return nil
 }
 
+// adminOrigin reports whether origin is this gateway's own admin console: the
+// same hostname the data-plane request came in on, at the control plane's
+// port. A route pinned to another hostname by a host predicate falls outside
+// this rule — its Try it out would need the application's own CORS.
+func (rt *Router) adminOrigin(r *http.Request, origin string) bool {
+	if rt.AdminAddr == "" {
+		return false
+	}
+	_, adminPort, err := net.SplitHostPort(rt.AdminAddr)
+	if err != nil || adminPort == "" {
+		return false
+	}
+	u, err := url.Parse(origin)
+	if err != nil || u.Scheme == "" {
+		return false
+	}
+	originPort := u.Port()
+	if originPort == "" {
+		if u.Scheme == "https" {
+			originPort = "443"
+		} else {
+			originPort = "80"
+		}
+	}
+	hostname := r.Host
+	if h, _, err := net.SplitHostPort(r.Host); err == nil {
+		hostname = h
+	}
+	return originPort == adminPort && strings.EqualFold(u.Hostname(), hostname)
+}
+
+// stripGatewayCookies removes Meerkat's own session cookies from an outgoing
+// upstream request, keeping every other cookie the application may rely on.
+func stripGatewayCookies(r *http.Request) {
+	cookies := r.Cookies()
+	r.Header.Del("Cookie")
+	for _, c := range cookies {
+		if c.Name == session.CookieName || c.Name == session.AdminCookieName {
+			continue
+		}
+		r.AddCookie(c)
+	}
+}
+
 // currentSigning returns the active signing set (nil when none). Read under the
 // lock so a Reload swap is race-free.
 func (rt *Router) currentSigning() *signing.Set {
@@ -204,6 +254,25 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodGet && req.URL.Path == JWKSPath {
 		rt.serveJWKS(w)
 		return
+	}
+	// The admin console's swagger page (Try it out) calls the routes straight
+	// on this plane, from the control plane's origin: answer CORS for THAT one
+	// sibling origin — and no other, the applications behind the gateway keep
+	// their own policies.
+	if origin := req.Header.Get("Origin"); origin != "" && rt.adminOrigin(req, origin) {
+		h := w.Header()
+		h.Set("Access-Control-Allow-Origin", origin)
+		h.Set("Access-Control-Allow-Credentials", "true")
+		h.Add("Vary", "Origin")
+		if req.Method == http.MethodOptions && req.Header.Get("Access-Control-Request-Method") != "" {
+			h.Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS")
+			if reqHeaders := req.Header.Get("Access-Control-Request-Headers"); reqHeaders != "" {
+				h.Set("Access-Control-Allow-Headers", reqHeaders)
+			}
+			h.Set("Access-Control-Max-Age", "600")
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
 	}
 	rt.mu.RLock()
 	routes, needDraw := rt.routes, rt.needDraw
@@ -321,7 +390,7 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 		}
 		handler = rt.accessGate(r.Access, handler)
 	}
-	return compiledRoute{name: r.Name, preds: preds, handler: handler}, nil
+	return compiledRoute{id: r.ID, name: r.Name, preds: preds, handler: handler}, nil
 }
 
 // Validate checks that a route would compile — same checks as Reload, minus
@@ -1175,6 +1244,25 @@ var upstreamTransport http.RoundTripper = &http.Transport{
 	IdleConnTimeout: 55 * time.Second,
 }
 
+// cookieStrippingTransport removes Meerkat's own session cookies at the very
+// last moment before the wire: they are gateway-internal credentials and must
+// never reach an upstream (cookies are host-scoped, not port-scoped, so on a
+// same-host deployment the browser sends them with every data-plane request —
+// identity travels through the route's Identity mechanism instead). Stripping
+// here, after every proxy hook, keeps the original request on the response so
+// ModifyResponse (pageStamp) still resolves the session.
+type cookieStrippingTransport struct{ base http.RoundTripper }
+
+func (t cookieStrippingTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	clone := req.Clone(req.Context())
+	stripGatewayCookies(clone)
+	res, err := t.base.RoundTrip(clone)
+	if res != nil {
+		res.Request = req
+	}
+	return res, err
+}
+
 func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error) {
 	target, err := url.Parse(r.Upstream)
 	if err != nil {
@@ -1185,7 +1273,7 @@ func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error)
 	}
 
 	proxy := &httputil.ReverseProxy{
-		Transport: upstreamTransport,
+		Transport: cookieStrippingTransport{upstreamTransport},
 		Rewrite: func(pr *httputil.ProxyRequest) {
 			pr.SetXForwarded()
 			// Request filters transform the request path/headers first, THEN

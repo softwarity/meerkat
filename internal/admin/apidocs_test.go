@@ -116,18 +116,25 @@ func TestAPIDocsAdminSpec(t *testing.T) {
 func TestAPIDocsSpecListAndRouteProxy(t *testing.T) {
 	f := setup(t)
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/openapi.json" {
+		switch r.URL.Path {
+		case "/openapi.json":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = fmt.Fprint(w, `{"openapi":"3.0.0","info":{"title":"petstore","version":"1"},"paths":{}}`)
+		case "/echo-cookie":
+			_, _ = fmt.Fprint(w, r.Header.Get("Cookie"))
+		default:
 			http.NotFound(w, r)
-			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = fmt.Fprint(w, `{"openapi":"3.0.0","info":{"title":"petstore","version":"1"},"paths":{}}`)
 	}))
 	t.Cleanup(upstream.Close)
 
-	// One route WITH a declared spec, one without.
+	f.api.DataAddr = ":18082" // what main wires: the data plane's -addr
+
+	// One route WITH a declared spec (public prefix /pets, stripped before the
+	// upstream — the classic mapping), one without.
 	withSpec := fmt.Sprintf(`{"name":"pets","order":1,"enabled":true,"upstream":%q,
-		"predicates":[{"type":"path","args":{"patterns":["/pets/**"]}}],"filters":[],
+		"predicates":[{"type":"path","args":{"patterns":["/pets/**"]}}],
+		"filters":[{"type":"strip-prefix","args":{"parts":1}}],
 		"api":{"openapiUrl":"/openapi.json"}}`, upstream.URL)
 	if code, body := f.call(t, "PUT", "/api/routes/pets", withSpec, f.rootC); code != http.StatusOK {
 		t.Fatalf("save pets: %d %s", code, body)
@@ -155,13 +162,44 @@ func TestAPIDocsSpecListAndRouteProxy(t *testing.T) {
 		t.Fatalf("plain specs = %+v, want the admin spec only", specs)
 	}
 
-	// The proxy hands the upstream's spec through, same origin.
+	// The proxy hands the upstream's spec through, same origin — with its
+	// server information REWRITTEN to the route's public base: the admin
+	// hostname on the data plane's port, plus the /pets prefix the
+	// strip-prefix filter reveals. Try it out crosses the gateway.
 	res := f.get(t, "/apidocs/specs/route/pets", f.rootC)
-	if body := readAll(t, res); res.StatusCode != http.StatusOK || !strings.Contains(body, `"petstore"`) {
+	body := readAll(t, res)
+	if res.StatusCode != http.StatusOK || !strings.Contains(body, `"petstore"`) {
 		t.Fatalf("proxy: %d %.120s", res.StatusCode, body)
+	}
+	var spec struct {
+		Servers []struct {
+			URL string `json:"url"`
+		} `json:"servers"`
+	}
+	if err := json.Unmarshal([]byte(body), &spec); err != nil {
+		t.Fatal(err)
+	}
+	if len(spec.Servers) != 1 || spec.Servers[0].URL != "http://127.0.0.1:18082/pets" {
+		t.Fatalf("servers = %+v, want the data plane + the route prefix", spec.Servers)
 	}
 	if res := f.get(t, "/apidocs/specs/route/pets", f.plainC); res.StatusCode != http.StatusForbidden {
 		t.Fatalf("plain user on a route spec: %d, want 403", res.StatusCode)
+	}
+
+	// Try it out calls the data plane directly (its CORS for the admin origin
+	// lives in internal/gateway) — and the gateway never forwards its own
+	// session cookies to an upstream, the application's cookies pass.
+	req, _ := http.NewRequest(http.MethodGet, f.appSrv.URL+"/pets/echo-cookie", nil)
+	req.AddCookie(&http.Cookie{Name: "MEERKAT_SESSION", Value: "secret"})
+	req.AddCookie(&http.Cookie{Name: "MEERKAT_ADMIN_SESSION", Value: "secret"})
+	req.AddCookie(&http.Cookie{Name: "app", Value: "keep"})
+	res, err := noRedirect.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = res.Body.Close() })
+	if body := readAll(t, res); res.StatusCode != http.StatusOK || body != "app=keep" {
+		t.Fatalf("upstream saw cookies %q (%d), want the app cookie alone", body, res.StatusCode)
 	}
 	if res := f.get(t, "/apidocs/specs/route/bare", f.rootC); res.StatusCode != http.StatusUnprocessableEntity {
 		t.Fatalf("route without a spec: %d, want 422", res.StatusCode)

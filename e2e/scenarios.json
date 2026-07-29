@@ -69,6 +69,33 @@
       }
     },
     {
+      "id": "api-infra-route-probe",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": {
+        "method": "POST",
+        "path": "/api/routes/probe",
+        "body": {
+          "request": {
+            "method": "GET",
+            "path": "/"
+          }
+        }
+      },
+      "allowed": [
+        "root",
+        "infra-admin"
+      ],
+      "title": {
+        "en": "Probe where a request lands",
+        "fr": "Tester où atterrit une requête"
+      },
+      "description": {
+        "en": "Runs a request through the live matcher and reports every route's verdict, in order. Routing is the infra plane's: an app admin cannot inspect it.",
+        "fr": "Passe une requête dans le moteur de correspondance actif et rapporte le verdict de chaque route, dans l'ordre. Le routage relève du plan infra : un admin appli ne peut pas l'inspecter."
+      }
+    },
+    {
       "id": "api-infra-mail-relay-test",
       "domain": "gateway",
       "kind": "api",

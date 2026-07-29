@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/softwarity/meerkat/internal/admin/apidocs"
+	"github.com/softwarity/meerkat/internal/openapi"
 	"github.com/softwarity/meerkat/internal/store"
 	"github.com/softwarity/meerkat/internal/version"
 )
@@ -85,6 +87,8 @@ func (a *API) apidocsSpecs(w http.ResponseWriter, r *http.Request, actor store.U
 			specs = append(specs, specRef{Name: route.Name, URL: "specs/route/" + route.ID})
 		}
 	}
+	// Deleted routes must leave the picker on the next load.
+	w.Header().Set("Cache-Control", "no-store")
 	writeJSON(w, http.StatusOK, specs)
 }
 

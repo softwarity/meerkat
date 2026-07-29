@@ -60,6 +60,7 @@ func (a *API) Register(mux *http.ServeMux) {
 	a.registerSigning(mux)
 	a.registerVault(mux)
 	a.registerMailRelay(mux)
+	a.registerProbe(mux)
 	a.registerIdentity(mux)
 	a.registerThemes(mux)
 	a.registerRBAC(mux)

@@ -122,6 +122,45 @@ func TestRewriteSwagger2(t *testing.T) {
 	}
 }
 
+// An absolute base crosses origins (admin plane → data plane): 2.0 gets it
+// decomposed, so a spec shipping its own host (httpbin does) is fully retargeted.
+func TestRewriteSwagger2AbsoluteBase(t *testing.T) {
+	in := []byte(`{"swagger":"2.0","host":"httpbin.org","basePath":"/","schemes":["https"],"paths":{}}`)
+	out, err := Rewrite(in, "http://localhost:8082/demo")
+	if err != nil {
+		t.Fatalf("rewrite: %v", err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(out, &doc); err != nil {
+		t.Fatal(err)
+	}
+	if doc["host"] != "localhost:8082" {
+		t.Errorf("host = %v, want localhost:8082", doc["host"])
+	}
+	if doc["basePath"] != "/demo" {
+		t.Errorf("basePath = %v, want /demo", doc["basePath"])
+	}
+	schemes, _ := doc["schemes"].([]any)
+	if len(schemes) != 1 || schemes[0] != "http" {
+		t.Errorf("schemes = %v, want [http]", doc["schemes"])
+	}
+}
+
+func TestRewriteOpenAPI3AbsoluteBase(t *testing.T) {
+	out, err := Rewrite([]byte(openapi30), "http://localhost:8082")
+	if err != nil {
+		t.Fatalf("rewrite: %v", err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(out, &doc); err != nil {
+		t.Fatal(err)
+	}
+	servers, ok := doc["servers"].([]any)
+	if !ok || len(servers) != 1 || servers[0].(map[string]any)["url"] != "http://localhost:8082" {
+		t.Fatalf("servers = %v, want the absolute base alone", doc["servers"])
+	}
+}
+
 func TestRewriteOpenAPI3(t *testing.T) {
 	out, err := Rewrite([]byte(openapi30), "/demo")
 	if err != nil {

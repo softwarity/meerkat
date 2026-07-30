@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatInputModule } from '@angular/material/input';
 import { FormFieldComponent } from './form-field.component';
-import { ApiService, VaultEntry } from '../api.service';
+import { ApiService, SecretLocation, VaultEntry } from '../api.service';
 import { VaultService } from './vault.service';
 
 // Create or edit one vault entry. Opened from the vault page and, in one click,
@@ -23,6 +23,14 @@ export interface VaultEntryDialogData {
   scopes?: string[];
   // Display names for tenant scopes ("tenant:<id>" -> the org name).
   tenantNames?: Record<string, string>;
+  // Moving a secret that ALREADY exists into the vault, rather than declaring
+  // a new one. The value is never asked for here: either the field hands over
+  // the literal that was just typed, or the server takes the one it holds and
+  // the console never sees it at all.
+  stash?: {
+    value?: string;
+    from?: SecretLocation;
+  };
 }
 
 @Component({
@@ -44,7 +52,12 @@ export class VaultEntryDialogComponent {
   private readonly data = inject<VaultEntryDialogData>(MAT_DIALOG_DATA, { optional: true }) ?? {};
 
   protected readonly editing = signal(!!this.data.entry);
-  protected readonly kinds = signal<('value' | 'secret')[]>(this.data.kinds?.length ? this.data.kinds : ['value', 'secret']);
+  // Moving an existing secret in: no kind to pick (it is one), no value to
+  // type (it exists), only where to file it.
+  protected readonly stashing = signal(!!this.data.stash);
+  protected readonly kinds = signal<('value' | 'secret')[]>(
+    this.stashing() ? ['secret'] : this.data.kinds?.length ? this.data.kinds : ['value', 'secret'],
+  );
   protected readonly kind = signal<'value' | 'secret'>(this.data.entry?.kind ?? this.kinds()[0]);
   // The planes this admin may write to; a single one needs no chooser.
   protected readonly scopes = signal<string[]>(
@@ -64,10 +77,12 @@ export class VaultEntryDialogComponent {
       : '',
   );
 
-  // A secret being edited may keep its stored value, so only a NEW entry
-  // demands one here.
+  // A secret being edited may keep its stored value, and one being moved in
+  // already has one, so only a NEW entry demands a value here.
   protected readonly canSave = computed(
-    () => /^[A-Za-z][A-Za-z0-9_.-]*$/.test(this.name().trim()) && (this.editing() || !!this.value()),
+    () =>
+      /^[A-Za-z][A-Za-z0-9_.-]*$/.test(this.name().trim()) &&
+      (this.editing() || this.stashing() || !!this.value()),
   );
 
   // "gateway" / "app" read as themselves; a tenant scope shows the org name.
@@ -80,12 +95,28 @@ export class VaultEntryDialogComponent {
   protected save(): void {
     this.saving.set(true);
     this.error.set('');
+    const stash = this.data.stash;
+    // A secret the server holds is moved BY the server: the value stays where
+    // it is and only the reference comes back.
+    if (stash?.from) {
+      this.api.stashSecret(stash.from, this.name().trim(), this.description().trim()).subscribe({
+        next: ({ name, scope }) => {
+          void this.vault.reload();
+          this.saving.set(false);
+          this.ref.close({ name, scope, kind: 'secret' } as VaultEntry);
+        },
+        error: (err: unknown) => this.failed(err),
+      });
+      return;
+    }
     this.api
       .saveVaultEntry({
         name: this.name().trim(),
         kind: this.kind(),
         scope: this.scope(),
-        value: this.value(),
+        // Moving a typed literal in: the field hands it over here, and this is
+        // the last place it exists outside the vault.
+        value: stash?.value ?? this.value(),
         description: this.description().trim(),
       })
       .subscribe({
@@ -94,13 +125,15 @@ export class VaultEntryDialogComponent {
           this.saving.set(false);
           this.ref.close(saved);
         },
-        error: (err: unknown) => {
-          const e = err as { error?: { error?: string } };
-          this.error.set(
-            typeof e?.error?.error === 'string' ? e.error.error : $localize`:@@Save_failed:Save failed`,
-          );
-          this.saving.set(false);
-        },
+        error: (err: unknown) => this.failed(err),
       });
+  }
+
+  private failed(err: unknown): void {
+    const e = err as { error?: { error?: string } };
+    this.error.set(
+      typeof e?.error?.error === 'string' ? e.error.error : $localize`:@@Save_failed:Save failed`,
+    );
+    this.saving.set(false);
   }
 }

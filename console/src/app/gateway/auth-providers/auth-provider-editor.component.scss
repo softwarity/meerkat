@@ -45,11 +45,6 @@ mat-form-field {
 }
 /* One line, never resizable: these are identifiers and URLs, not prose, and a
    textarea keeps the browser's credential autofill away from them. */
-.oneline {
-  resize: none;
-  overflow: hidden;
-  white-space: nowrap;
-}
 .hint {
   margin: 0 0 8px;
   font-size: 0.85rem;

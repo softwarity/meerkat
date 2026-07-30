@@ -40,11 +40,6 @@ mat-form-field {
   width: 100%;
 }
 /* One line, never resizable: a role name is an identifier, not prose. */
-.oneline {
-  resize: none;
-  overflow: hidden;
-  white-space: nowrap;
-}
 section h3 {
   margin: 12px 0 6px;
   font-size: 0.95rem;

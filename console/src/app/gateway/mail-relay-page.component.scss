@@ -39,11 +39,3 @@ mat-card {
 .field {
   width: 280px;
 }
-/* One line, never resizable: it reads as an input but a browser never
-   offers credential autofill on a textarea, so the relay password stops
-   attracting "save this password?" for the console's own account. */
-.oneline {
-  resize: none;
-  overflow: hidden;
-  white-space: nowrap;
-}

@@ -21,11 +21,6 @@ import { ApiService, User } from '../api.service';
          inputs but are invisible to the browser's autofill, which otherwise
          offers the SIGNED-IN admin's own name and address when creating
          someone else's account. */
-      .oneline {
-        resize: none;
-        overflow: hidden;
-        white-space: nowrap;
-      }
       .error {
         color: var(--mat-sys-error);
         background: color-mix(in srgb, var(--mat-sys-error) 12%, transparent);

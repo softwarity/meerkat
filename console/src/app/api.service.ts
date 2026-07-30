@@ -476,6 +476,19 @@ export interface AuthProvider {
   updatedAt?: number;
   // Read-only: what has to be registered on the authority's side.
   callbackUrl?: string;
+  // Read-only: the secret fields holding a stored LITERAL. The value is not in
+  // this payload — a reference comes back inside config, a literal never does,
+  // so this is the only sign that one is set at all.
+  secretsSet?: string[];
+}
+
+// Where a secret already sits, for the server to move it into the vault
+// itself. The console sends a NAME, never a value: this is the one path that
+// works for a literal it never received (bootstrap file, earlier save).
+export interface SecretLocation {
+  holder: 'authprovider' | 'mailrelay';
+  id: string;
+  field: string;
 }
 
 export interface MailRelay {
@@ -678,6 +691,21 @@ export class ApiService {
       `/api/vault/${encodeURIComponent(scope)}/${encodeURIComponent(name)}`,
       body,
     );
+  }
+
+  // Moves a secret the SERVER holds into a new vault entry and points the field
+  // at it. Nothing sensitive travels either way: the request names a location,
+  // the answer names an entry.
+  stashSecret(
+    at: SecretLocation,
+    name: string,
+    description = '',
+  ): Observable<{ name: string; scope: string; ref: string }> {
+    return this.http.post<{ name: string; scope: string; ref: string }>('/api/vault/stash', {
+      ...at,
+      name,
+      description,
+    });
   }
 
   // Refused with 409 while the configuration still references the entry.

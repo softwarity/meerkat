@@ -27,6 +27,7 @@
 .grid-cols-2     { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid-cols-3     { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .grid-cols-4     { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.col-span-full   { grid-column: 1 / -1; }
 
 // --- Gap (4px scale) ---
 .gap-0 { gap: 0; }
@@ -160,4 +161,16 @@
   font-family: var(--mk-mono);
   font-feature-settings: 'ss01', 'zero';
   letter-spacing: -0.01em;
+}
+
+// A textarea pretending to be a single-line input. Browsers never offer
+// credential autofill on a textarea, nor to remember what is typed in one, so
+// this is how a field that must not be autofilled is written.
+// textarea.oneline, not .oneline: Material sets `resize: vertical` on
+// .mat-mdc-form-field-textarea-control with the same specificity and later in
+// the cascade, so a bare class loses. The element name settles it.
+textarea.oneline {
+  resize: none;
+  overflow: hidden;
+  white-space: nowrap;
 }

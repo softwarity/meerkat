@@ -43,29 +43,19 @@
             (keydown.enter)="$event.preventDefault()"
           ></textarea>
         </mat-form-field>
-        <app-form-field
+        <!-- Full width: when a secret is typed in clear the field carries a
+             message and its way out, and half a column crushes both. -->
+        <app-secret-field
+          #relayPassword
+          class="col-span-full"
           i18n-label="@@SMTP_password"
           label="Password"
-          revealable
-          masked
-          allowVault="secret"
-          vaultScope="infra"
-          [clearable]="false"
-          [hint]="passwordHint()"
-        >
-          <textarea
-            matInput
-            rows="1"
-            class="oneline"
-            spellcheck="false"
-            autocapitalize="off"
-            autocorrect="off"
-            [value]="password()"
-            (input)="password.set($any($event.target).value)"
-            (keydown.enter)="$event.preventDefault()"
-            [placeholder]="passwordSet() ? '••••••••' : ''"
-          ></textarea>
-        </app-form-field>
+          [(value)]="password"
+          [held]="passwordSet()"
+          [at]="{ holder: 'mailrelay', id: '', field: 'password' }"
+          scope="infra"
+          (moved)="reload()"
+        />
       </div>
 
       <app-form-field
@@ -111,7 +101,11 @@
             placeholder="you@example.com"
           />
         </mat-form-field>
-        <button matButton (click)="test()" [disabled]="testing() || !host().trim() || !recipientOK()">
+        <button
+          matButton
+          (click)="test()"
+          [disabled]="testing() || !host().trim() || !recipientOK() || relayPassword.invalid()"
+        >
           <!-- The one place with a slow round-trip and no other feedback: the
                icon spins while the relay is being tried. Written without any
                whitespace inside the branches — with preserveWhitespaces on,
@@ -124,7 +118,16 @@
     </mat-card>
 
     <div class="flex justify-end">
-      <button matButton="filled" (click)="save()" [disabled]="saving()" i18n="@@Save">Save</button>
+      <!-- A typed secret blocks the save: the admin holds it, so they can move
+           it into the vault, and that is the only way it gets stored. -->
+      <button
+        matButton="filled"
+        (click)="save()"
+        [disabled]="saving() || relayPassword.invalid()"
+        i18n="@@Save"
+      >
+        Save
+      </button>
     </div>
   </div>
 }

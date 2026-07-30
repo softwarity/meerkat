@@ -85,11 +85,9 @@
         (keydown.enter)="$event.preventDefault()"></textarea>
     </app-form-field>
 
-    <app-form-field i18n-label="@@Client_secret" label="Client secret" revealable masked allowVault="secret" vaultScope="infra" [clearable]="false">
-      <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
-        [value]="cfg('clientSecret')" (input)="setCfg('clientSecret', $any($event.target).value)"
-        (keydown.enter)="$event.preventDefault()"></textarea>
-    </app-form-field>
+    <app-secret-field i18n-label="@@Client_secret" label="Client secret" scope="infra"
+      [value]="cfg('clientSecret')" (valueChange)="setCfg('clientSecret', $event)"
+      [held]="secretHeld('clientSecret')" [at]="secretAt('clientSecret')" />
 
     <app-form-field i18n-label="@@Allowed_domains" label="Allowed e-mail domains" i18n-hint="@@Allowed_domains_hint" hint="Comma separated, empty accepts every address the authority knows">
       <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
@@ -117,11 +115,9 @@
         (keydown.enter)="$event.preventDefault()" placeholder="Iv1.0123456789abcdef"></textarea>
     </app-form-field>
 
-    <app-form-field i18n-label="@@Client_secret" label="Client secret" revealable masked allowVault="secret" vaultScope="infra" [clearable]="false">
-      <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
-        [value]="cfg('clientSecret')" (input)="setCfg('clientSecret', $any($event.target).value)"
-        (keydown.enter)="$event.preventDefault()"></textarea>
-    </app-form-field>
+    <app-secret-field i18n-label="@@Client_secret" label="Client secret" scope="infra"
+      [value]="cfg('clientSecret')" (valueChange)="setCfg('clientSecret', $event)"
+      [held]="secretHeld('clientSecret')" [at]="secretAt('clientSecret')" />
 
     <app-form-field
       i18n-label="@@Allowed_orgs"
@@ -180,11 +176,9 @@
         (keydown.enter)="$event.preventDefault()" placeholder="cn=meerkat,ou=services,dc=acme,dc=io"></textarea>
     </app-form-field>
 
-    <app-form-field i18n-label="@@Service_password" label="Service password" revealable masked allowVault="secret" vaultScope="infra" [clearable]="false">
-      <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
-        [value]="cfg('bindPassword')" (input)="setCfg('bindPassword', $any($event.target).value)"
-        (keydown.enter)="$event.preventDefault()"></textarea>
-    </app-form-field>
+    <app-secret-field i18n-label="@@Service_password" label="Service password" scope="infra"
+      [value]="cfg('bindPassword')" (valueChange)="setCfg('bindPassword', $event)"
+      [held]="secretHeld('bindPassword')" [at]="secretAt('bindPassword')" />
 
     <app-form-field i18n-label="@@User_filter" label="User filter" i18n-hint="@@User_filter_hint" hint="%s is what the person typed; empty uses the dialect's default">
       <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"

@@ -3641,15 +3641,15 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <target>Divers</target>
       </trans-unit>
       <trans-unit id="Expose_API_docs" datatype="html">
-        <source>Expose the API documentation (swagger-ui)</source>
-        <target>Exposer la documentation des API (swagger-ui)</target>
+        <source>Expose Meerkat's own API documentation</source>
+        <target>Exposer la documentation de l'API de Meerkat</target>
       </trans-unit>
       <trans-unit id="Expose_API_docs_hint" datatype="html">
         <source>
-              The API screen and /apidocs on this admin port: Meerkat's own API plus every route
-              declaring an OpenAPI spec. Off, the whole surface answers 404.
+              Lists Meerkat's admin API in the swagger picker. The routes' specs stay on the API
+              screen regardless — this switch only concerns Meerkat's own contract.
             </source>
-        <target>L'écran API et /apidocs sur ce port admin : l'API de Meerkat et chaque route déclarant une spec OpenAPI. Désactivé, toute la surface répond 404.</target>
+        <target>Liste l'API admin de Meerkat dans le sélecteur swagger. Les specs des routes restent disponibles sur l'écran API quoi qu'il arrive — ce réglage ne concerne que le contrat propre de Meerkat.</target>
       </trans-unit>
       <trans-unit id="API_docs_exposed" datatype="html">
         <source>API documentation exposed</source>
@@ -3913,6 +3913,36 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
       <trans-unit id="last_used_REL" datatype="html">
         <source>last used <x id="REL" equiv-text="rel"/></source>
         <target>dernière utilisation <x id="REL" equiv-text="rel"/></target>
+      </trans-unit>
+      <trans-unit id="Move_into_the_vault" datatype="html">
+        <source>Move into the vault</source>
+        <target>Ranger dans le coffre</target>
+      </trans-unit>
+      <trans-unit id="Move_into_the_vault_hint" datatype="html">
+        <source>
+        The secret stays where it is until you confirm, then only its name remains in the
+        configuration. Give it a name you will recognise elsewhere.
+      </source>
+        <target>
+        Le secret reste où il est jusqu'à votre confirmation, ensuite seul son nom demeure dans la
+        configuration. Donnez-lui un nom que vous reconnaîtrez ailleurs.
+      </target>
+      </trans-unit>
+      <trans-unit id="Move" datatype="html">
+        <source>Move</source>
+        <target>Ranger</target>
+      </trans-unit>
+      <trans-unit id="Secret_must_go_to_the_vault" datatype="html">
+        <source>A secret is not saved in clear. Move it into the vault to continue.</source>
+        <target>Un secret ne s'enregistre pas en clair. Rangez-le dans le coffre pour continuer.</target>
+      </trans-unit>
+      <trans-unit id="Secret_stored_in_clear" datatype="html">
+        <source>A secret is stored in clear in the configuration.</source>
+        <target>Un secret est stocké en clair dans la configuration.</target>
+      </trans-unit>
+      <trans-unit id="Secret_stored_leave_empty_to_keep" datatype="html">
+        <source>A secret is stored. Leave empty to keep it.</source>
+        <target>Un secret est enregistré. Laissez vide pour le conserver.</target>
       </trans-unit>
     </body>
   </file>

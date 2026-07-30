@@ -8,9 +8,21 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ApiService, AuthProvider } from '../../api.service';
+import { ApiService, AuthProvider, SecretLocation } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
 import { FormFieldComponent } from '../../shared/form-field.component';
+import { SecretFieldComponent } from '../../shared/secret-field.component';
+import { isRef } from '../../shared/vault-ref';
+
+// Which config field of each kind holds a secret. Mirrors idp.SecretFields:
+// the server enforces it (a literal never comes back), this side is what tells
+// the admin before they hit Save.
+const SECRET_FIELDS: Record<string, string[]> = {
+  oidc: ['clientSecret'],
+  github: ['clientSecret'],
+  ldap: ['bindPassword'],
+  saml: [],
+};
 
 // One external authority, in the right drawer of the authorities page. The
 // form follows the KIND: an OIDC provider and a directory share almost
@@ -31,6 +43,7 @@ import { FormFieldComponent } from '../../shared/form-field.component';
     MatSelectModule,
     MatSlideToggleModule,
     FormFieldComponent,
+    SecretFieldComponent,
   ],
   templateUrl: './auth-provider-editor.component.html',
   styleUrl: './auth-provider-editor.component.scss',
@@ -63,9 +76,35 @@ export class AuthProviderEditorComponent {
 
   protected readonly creating = computed(() => this.provider() === null);
   protected readonly callbackUrl = computed(() => this.provider()?.callbackUrl ?? '');
-  protected readonly canSave = computed(
-    () => this.id().trim().length > 0 && this.name().trim().length > 0 && !this.saving(),
+
+  // A secret typed in clear blocks the save (VAULT-05). Only a typed one: a
+  // literal the server already holds is its business to move, and blocking on
+  // it would strand someone on a field whose value they cannot even see.
+  private readonly typedSecret = computed(() =>
+    (SECRET_FIELDS[this.kind()] ?? []).some((field) => {
+      const v = this.cfg(field).trim();
+      return !!v && !isRef(v);
+    }),
   );
+
+  protected readonly canSave = computed(
+    () =>
+      this.id().trim().length > 0 &&
+      this.name().trim().length > 0 &&
+      !this.saving() &&
+      !this.typedSecret(),
+  );
+
+  // The server withheld this field's literal: it is set, but not in this page.
+  protected secretHeld(field: string): boolean {
+    return this.provider()?.secretsSet?.includes(field) ?? false;
+  }
+
+  // Where the server can find that literal to move it in on its own. The id
+  // comes from the FORM so a brand-new authority still suggests a name.
+  protected secretAt(field: string): SecretLocation {
+    return { holder: 'authprovider', id: this.id().trim(), field };
+  }
 
   constructor() {
     effect(() => {

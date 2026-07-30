@@ -21,11 +21,6 @@ app-form-field {
    not a candidate for the browser's credential autofill. Spell-checking
    is turned off on each one: a secret or an entry name is not prose, and
    the red squiggles were pure noise. */
-.oneline {
-  resize: none;
-  overflow: hidden;
-  white-space: nowrap;
-}
 .rowtop {
   display: flex;
   align-items: center;

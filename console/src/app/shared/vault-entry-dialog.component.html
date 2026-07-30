@@ -1,5 +1,7 @@
 <h2 mat-dialog-title>
-  @if (editing()) {
+  @if (stashing()) {
+    <ng-container i18n="@@Move_into_the_vault">Move into the vault</ng-container>
+  } @else if (editing()) {
     <ng-container i18n="@@Edit_vault_entry">Edit entry</ng-container>
   } @else {
     <ng-container i18n="@@New_vault_entry">New entry</ng-container>
@@ -32,7 +34,12 @@
     }
   </div>
   <p class="hint">
-    @if (kind() === 'secret') {
+    @if (stashing()) {
+      <ng-container i18n="@@Move_into_the_vault_hint">
+        The secret stays where it is until you confirm, then only its name remains in the
+        configuration. Give it a name you will recognise elsewhere.
+      </ng-container>
+    } @else if (kind() === 'secret') {
       <ng-container i18n="@@Kind_secret_hint">
         Encrypted at rest and never shown again. Referenced by $name wherever it is needed.
       </ng-container>
@@ -64,26 +71,28 @@
     ></textarea>
   </app-form-field>
 
-  <app-form-field
-    i18n-label="@@Value"
-    label="Value"
-    [revealable]="kind() === 'secret'"
-    [masked]="kind() === 'secret'"
-    [clearable]="false"
-    [hint]="keepHint()"
-  >
-    <textarea
-      matInput
-      rows="1"
-      class="oneline"
-      spellcheck="false"
-      autocapitalize="off"
-      autocorrect="off"
-      [value]="value()"
-      (input)="value.set($any($event.target).value)"
-      (keydown.enter)="$event.preventDefault()"
-    ></textarea>
-  </app-form-field>
+  @if (!stashing()) {
+    <app-form-field
+      i18n-label="@@Value"
+      label="Value"
+      [revealable]="kind() === 'secret'"
+      [masked]="kind() === 'secret'"
+      [clearable]="false"
+      [hint]="keepHint()"
+    >
+      <textarea
+        matInput
+        rows="1"
+        class="oneline"
+        spellcheck="false"
+        autocapitalize="off"
+        autocorrect="off"
+        [value]="value()"
+        (input)="value.set($any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()"
+      ></textarea>
+    </app-form-field>
+  }
 
   <app-form-field i18n-label="@@Description" label="Description">
     <textarea
@@ -105,5 +114,13 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button matButton mat-dialog-close i18n="@@Cancel">Cancel</button>
-  <button matButton="filled" [disabled]="!canSave() || saving()" (click)="save()" i18n="@@Save">Save</button>
+  @if (stashing()) {
+    <button matButton="filled" [disabled]="!canSave() || saving()" (click)="save()" i18n="@@Move">
+      Move
+    </button>
+  } @else {
+    <button matButton="filled" [disabled]="!canSave() || saving()" (click)="save()" i18n="@@Save">
+      Save
+    </button>
+  }
 </mat-dialog-actions>

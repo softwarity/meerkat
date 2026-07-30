@@ -84,6 +84,10 @@ export class FormFieldComponent {
   // "gateway", an application setting is "app". The picker only offers entries
   // of that plane, because only those will actually resolve.
   readonly vaultScope = input<string>('infra');
+  // Replaces the WHOLE value instead of inserting at the caret. A composed
+  // value is built around its references ("http://${host}:8080"); a secret is
+  // never a fragment, so a picked entry takes the field over entirely.
+  readonly vaultReplace = input(false, { transform: booleanAttribute });
 
   private readonly vault = inject(VaultService);
   private readonly dialog = inject(MatDialog);
@@ -114,6 +118,12 @@ export class FormFieldComponent {
     if (!el) return;
     // ${name} when the name could run into what follows, $name otherwise.
     const ref = `\${${entry.name}}`;
+    if (this.vaultReplace()) {
+      el.value = ref;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      this.empty.set(false);
+      return;
+    }
     const start = el.selectionStart ?? el.value.length;
     const end = el.selectionEnd ?? start;
     el.value = el.value.slice(0, start) + ref + el.value.slice(end);

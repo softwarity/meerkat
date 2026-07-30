@@ -10,6 +10,7 @@ import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
 import { ApiService, MailRelay } from '../api.service';
 import { MeService } from '../me.service';
 import { FormFieldComponent } from '../shared/form-field.component';
+import { SecretFieldComponent } from '../shared/secret-field.component';
 
 // Enough to catch a typo, not to rule on RFC 5322: the relay itself is the real
 // judge, and the point here is only to stop a pointless round-trip.
@@ -30,6 +31,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     MatSelectModule,
     LoadingIndicatorComponent,
     FormFieldComponent,
+    SecretFieldComponent,
   ],
   styleUrl: './mail-relay-page.component.scss',
   templateUrl: './mail-relay-page.component.html',
@@ -53,15 +55,6 @@ export class MailRelayPageComponent {
   // The display name comes from the application plane: shown, never edited.
   protected readonly fromName = signal('');
   protected readonly testTo = signal('');
-
-  // The stored password is never sent back, so the field looks empty even when
-  // one is set: say so under it, and say what an empty field will do on save.
-  protected readonly passwordHint = computed(() => {
-    if (this.password()) return $localize`:@@Replaces_the_stored_password:Replaces the stored password`;
-    return this.passwordSet()
-      ? $localize`:@@A_password_is_stored_leave_empty_to_keep_it:A password is stored. Leave empty to keep it.`
-      : $localize`:@@No_password_stored:No password stored`;
-  });
 
   // Nothing to send to, nothing to test: the button stays off until the address
   // is at least shaped like one.
@@ -89,6 +82,12 @@ export class MailRelayPageComponent {
     // One's own address is the obvious recipient: prefill it, so testing a relay
     // is one click.
     this.testTo.set(this.me.user()?.email ?? '');
+    this.reload();
+  }
+
+  // Also called after a secret is moved into the vault: that move rewrites the
+  // relay SERVER-SIDE, so what this page holds is stale.
+  protected reload(): void {
     this.api.mailRelay().subscribe({
       next: (r) => {
         this.apply(r);
@@ -105,8 +104,11 @@ export class MailRelayPageComponent {
     this.username.set(r.username ?? '');
     this.from.set(r.from ?? '');
     this.fromName.set(r.fromName ?? '');
+    // A REFERENCE comes back and is shown; a literal never does, and only
+    // raises passwordSet. The two are exclusive, which is what lets the field
+    // tell "points at the vault" from "holds something we cannot see".
+    this.password.set(r.password ?? '');
     this.passwordSet.set(!!r.passwordSet);
-    this.password.set('');
   }
 
   // The relay as the form has it right now — what both Save and Test act on.

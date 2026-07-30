@@ -5,10 +5,132 @@
 > quand l'état change. Le contrat produit reste `requirements.md` ; les conventions,
 > `CLAUDE.md` ; ici : l'état courant, les chantiers, les pièges.
 
-_Dernière mise à jour : 2026-07-28 : plans **infra / app / tenant** (renommage de la
-capacité `gateway-admin` → `infra-admin`, coffre-fort scopé, thème et relais mail
-replacés). Tout sur la branche `feat/endpoint-security-openapi` (non mergée), après le
-coffre-fort (VAULT-01/02), la sécurité par endpoint (RBAC-07) et l'identité JWT._
+_Dernière mise à jour : 2026-07-30 : **authentification externe** (AUTH-19) — OIDC,
+LDAP/Active Directory et GitHub implémentés et testés contre de vrais serveurs, flux de
+connexion câblé, écran d'administration. Plus le **testeur de routes** (ROUTE-12). Tout
+est sur `main` : la branche `feat/endpoint-security-openapi` a été repliée et supprimée
+(François : « je t'ai jamais demandé de créer des branches »)._
+
+## Session 2026-07-30 — authentification externe (AUTH-19) + testeur de routes
+
+**18 commits, de `11d5d78` à `8b96609`, sur `main`.** Les cinq premiers sont l'ancienne
+branche redécoupée par sujet (renommage infra, coffre-fort, identité JWT, Access unifié,
+plans de console).
+
+### Ce qui marche et qui est testé
+
+| Sujet | Où | Testé contre |
+|---|---|---|
+| OIDC (code+PKCE, ID token vérifié sur `crypto/*`) | `internal/idp/oidc.go`, `jwt.go` | IdP en processus (ES256) **et Dex** (RS256), `TestOIDCAgainstDex` |
+| LDAP + Active Directory, 2 dialectes, groupes imbriqués | `internal/idp/ldap.go` | **OpenLDAP + vrai contrôleur Samba 4**, 4 tests |
+| GitHub (OAuth2 sans OIDC) | `internal/idp/oauth2.go` | faux GitHub complet, 4 tests |
+| Flux de connexion + compte en attente | `internal/auth/external.go` | `external_test.go`, 5 tests |
+| API d'administration (plan infra) | `internal/admin/authproviders.go` | — (pas de test dédié) |
+| Console, section Authentification | `console/src/app/gateway/auth-providers/` | — (jamais vu en navigateur) |
+| Testeur de routes | `internal/gateway/probe.go`, `routing/synth.go` | `internal/admin/probe_test.go`, 3 tests |
+
+**Bancs d'essai** : `make ldap-up` monte Dex (46 Mo), OpenLDAP et un **vrai domaine AD**
+(`test/ldap/docker-compose.yml`), `make ldap-test` lance les 5 tests d'intégration,
+`make ldap-down` arrête. Sans Docker, ces tests **skippent** : `make test` n'en dépend
+jamais. Le seed AD est appliqué par `make ldap-up` (`test/ldap/samba/seed.sh`).
+
+### Décisions de conception à ne pas re-litiger
+
+- **Une autorité prouve QUI, jamais CE QUE l'on peut faire.** Première connexion =
+  auto-inscription : compte sans mot de passe local, qui n'atteint rien, admins
+  notifiés, salle d'attente jusqu'à ce qu'un admin place la personne. Règle de François.
+- **Liaison par l'identifiant stable de l'autorité**, jamais par le login (renommable).
+  Ordre : lien existant → compte portant la même adresse **vérifiée** → création. Une
+  adresse **non vérifiée** ne récupère jamais un compte local (prise de contrôle).
+- **GitHub est son propre type, pas un « oauth2 » générique** : le fournisseur est
+  décrit en code (URLs, scopes, mapping), l'écran ne demande que clientId, secret et
+  organisations autorisées. Ajouter GitLab = une entrée dans `vendors`, pas un écran.
+- **Les autorités sont du plan INFRA** (service tiers, URL + identifiants), donc leurs
+  secrets se résolvent dans le **périmètre vault `infra`**. Corrigé le 30/07 : c'était
+  `app` côté serveur ET côté écran, un admin infra ne retrouvait jamais son entrée.
+- **Pas de SAML** : refusé explicitement par `idp.New`. Décision : le faire seulement à
+  la demande d'un client, et en édition entreprise. Se teste avec `boxyhq/mock-saml`
+  (79 Mo, arm64), pas avec Keycloak.
+- **Pas de Keycloak dans les tests** : 266 Mo compressés et une JVM, pour une passerelle
+  qui existe justement pour qu'on n'ait pas à faire tourner un serveur d'identité.
+
+### Ce qui reste sur AUTH-19
+
+1. **Mapping groupes → rôles Meerkat.** Les groupes sont collectés dans
+   `idp.Identity.Groups` et **journalisés à la création, mais rien ne les consomme**.
+   C'est le manque le plus important : il ferait passer le flux de « l'admin place
+   chacun à la main » à « l'appartenance amont décide ». Sources disponibles :
+   LDAP/AD (natif, imbrication résolue), GitHub (`org` et `org/team`), OIDC (si le
+   fournisseur émet un claim — Keycloak/Entra/Okta oui, **Google Workspace non**,
+   Auth0 impose un claim préfixé).
+2. **Aucun parcours navigateur** de bout en bout (login → bouton → callback → salle
+   d'attente). Chaque maillon est testé, le parcours humain non. À faire en premier.
+3. OAuth2 pour d'autres fournisseurs (GitLab, Google) : une entrée `vendors` chacun.
+
+### Chantier suivant décidé avec François : le coffre-fort OBLIGATOIRE
+
+Conception validée en discussion le 30/07, **rien n'est implémenté**. À faire dans cet
+ordre, chaque étape dépendant de la précédente :
+
+1. **`KindSecret` dans `routing.ParamKind`** (`internal/routing/spec.go` a déjà
+   `string/stringList/int/bool`, et son commentaire dit que c'est le contrat que la
+   console utilise pour rendre le champ). Une déclaration, quatre comportements :
+   champ adossé au coffre, entrée créée à l'import, valeur caviardée dans l'audit,
+   littéral refusable à l'écriture. **Pas de JSON Schema** : il décrit une forme, pas
+   une sensibilité, il faudrait une extension maison et on aurait deux descriptions du
+   même formulaire.
+   → remplace l'heuristique `isSensitiveKey` (`internal/admin/audit.go:170`), qui cherche
+   password/secret/token/hash et **rate `apiKey` ou `credential`**. L'heuristique reste
+   en dernier recours pour le non déclaré.
+2. **Catalogue des providers** sur le modèle des briques de routage : aujourd'hui leur
+   config est une `map[string]any` libre et les champs sont codés en dur dans le
+   template. Bénéfice : l'écran cesse de dupliquer la connaissance du serveur.
+3. **Champ à trois états dans `app-form-field`** (donc partout d'un coup), pour
+   `allowVault="secret"` seulement — pas pour `values`, qui n'a pas besoin de ça :
+   - **vide** : grisé, « Choisir dans le coffre », la clé ouvre le menu
+   - **référence** : `🔒 nom-de-l-entrée` en lecture seule (le NOM, pas juste une icône :
+     savoir *laquelle* est l'information utile), boutons « ouvrir l'entrée » et
+     « changer », **pas de bouton révéler** (il n'y a rien à révéler dans un `$nom`)
+   - **littéral hérité** (venu d'un fichier ou d'avant) : « valeur enregistrée hors
+     coffre », **jamais affichée**, action « Déplacer dans le coffre » exécutée
+     **côté serveur** (il lit sa propre valeur, crée l'entrée, remplace par la
+     référence — la console ne voit jamais le secret, donc pas de révéler non plus)
+4. **Import : création automatique** des entrées, nom **déterministe** dérivé de
+   l'identifiant du provider et du champ (`acme-sso-client-secret`), sinon rejouer
+   l'import crée une entrée de plus à chaque fois. Collision avec une valeur différente
+   ⇒ suffixer, jamais écraser. Même dérivation pour préremplir nom et description quand
+   on crée une entrée depuis un champ.
+
+**Règle transverse posée** : *une référence est publique, un littéral ne l'est jamais.*
+Le serveur renvoie la valeur si elle commence par `$`, sinon un simple marqueur
+« une valeur est enregistrée ». Aujourd'hui le relais mail respecte ça (`passwordSet`),
+les providers d'auth **non** (ils renvoient leur config telle quelle) : à corriger.
+
+**Contrainte d'interface, jamais d'API** : le serveur doit continuer d'accepter un
+littéral, sinon plus de bootstrap par fichier, plus d'import, plus de tests.
+
+**Question ouverte pour François** : le fichier de configuration est-il un *amorçage*
+(appliqué si absent) ou fait-il *autorité* (réappliqué au démarrage) ? Mon avis :
+amorçage, sinon deux sources de vérité et le classique « pourquoi ma modification a
+disparu ». S'il fait autorité, l'écran doit afficher « défini par la configuration »
+en lecture seule et désactiver la migration, au lieu de laisser croire à un succès.
+
+### Autres sujets ouverts
+
+- **EE / OSS** : discussion demandée par François, jamais tenue. SAML et le mapping des
+  groupes sont les candidats naturels à l'édition entreprise.
+- **Canal temps réel** : WS décidé (pas SSE), à faire *après*. Contrat côté client
+  inspiré de `@softwarity/archway-observable` (`subscribe(id, cb)` → objet à
+  désabonner ; ce paquet npm ne contient que des **types**, et visait le data plane).
+  Protocole proposé : `sub`/`unsub`/`msg`/`err`, topics hiérarchiques, `seq` pour
+  détecter un trou après reconnexion, **autorisation par topic** comme les endpoints.
+  Le testeur de routes n'en a pas besoin (calcul sub-milliseconde, animation côté
+  client à partir de la réponse unique).
+- **Logo** : `meerkat-logo.svg` à la racine (pieds, bouche et doigts retirés, quatre
+  couches, pourtour recolorable par `--meerkat-outline`). Aperçu dans `logo-preview/`
+  (dossier de travail, supprimable). Script de reconversion dans le dossier de job.
+  Réserves dites à François : trait irrégulier hérité du PNG génératif (redessin à la
+  main si ça devient la marque), et à moins de 64 px il faut une marque réduite.
 
 ## Session 2026-07-28 — plans infra / app / tenant
 
@@ -260,9 +382,79 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   de Material) ; pop-out ⧉ dans le bandeau, visible seulement en iframe. Tests
   `internal/admin/apidocs_test.go` + scénarios `api-docs-specs`/
   `api-docs-route-spec`. Validé en navigateur (login → rail API → picker
-  admin/httpbin/petstore → endpoint déplié, Execute stylé). Reste (suites
-  possibles) : réécriture `servers` des specs de routes vers le préfixe public de
-  la route ; YAML upstream accepté tel quel (swagger-ui le parse).
+  admin/httpbin/petstore → endpoint déplié, Execute stylé).
+  **Réécriture serveur (2026-07-29, sans option — comportement standard)** : le
+  proxy passe chaque spec de route par `openapi.Rewrite` (1er branchement
+  d'UIF-07, étendu aux bases ABSOLUES : en 2.0 host/schemes/basePath décomposés
+  — cas httpbin qui embarque son host) vers la base publique de la route =
+  hostname de la requête admin + port du plan data (`API.DataAddr`, câblé par
+  main) ou l'hôte littéral d'un prédicat `host`, + préfixe statique du pattern
+  `path` **seulement si** un `strip-prefix` retire exactement ce préfixe
+  (`rewrite-path` → origine seule). Affichage ET Try it out traversent donc la
+  gateway (et son endpoint-security). `specs.json` en `no-store` (une route
+  supprimée quittait le picker seulement au refresh). YAML upstream : passe
+  brut (ciblage gateway perdu, à traiter si besoin).
+  **Try it out — design FINAL (2026-07-30, 3 itérations dans la journée)** :
+  après (1) appel direct du plan data + CORS ciblé (NetworkError : cookies non
+  envoyés cross-origin, puis « autorisations » incomprises) et (2) le même CORS
+  avec `withCredentials`, François a demandé le retour du **tunnel même-origine**
+  — la 1re idée : les specs servent leurs `servers` en RELATIF
+  `/apidocs/try/<préfixe-route>`, et le port admin relaie in-process
+  (`apidocsTry`, gate infra) vers `router.ServeHTTP`. Plus RIEN de cross-origin :
+  cookies et Authorization voyagent seuls. Le CORS ciblé du plan data
+  (`Router.AdminAddr`, cors_test.go) reste en place — inoffensif et utile à
+  d'éventuels appels directs. Leçon : itération coûteuse, poser le schéma des
+  origines AVANT de choisir.
+  **Exposition pilotée (Others, 2026-07-30 — sémantique CORRIGÉE après
+  malentendu)** : le switch ne cache QUE **l'API propre de Meerkat**
+  (`SettingMeerkatAPIExposed`, défaut OFF : absente du picker et 404 sur
+  `specs/meerkat-admin.json`) — la page, les specs des ROUTES, le tunnel et
+  les tokens de test restent toujours servis (gates de session inchangées).
+  1re version (toute la surface en 404) avait été comprise de travers et a
+  produit « un joli 404 » chez François. `GET/PUT /api/settings/api-docs`
+  (infra, audité `apidocs.expose` — l'audit a d'ailleurs résolu l'enquête du
+  404 en une requête), page console **Infra → Others**. Question ouverte
+  (François) : exposer les docs aux users **dev** côté PLAN DATA
+  (`/meerkat/apidocs`, session data + capacité dev, specs de routes seulement,
+  servers relatifs sans tunnel) — cadré, pas construit, en attente de GO.
+  **Identité simulée (2026-07-29, choix François — « plus simple que des
+  sessions »)** : dans le swagger, Authorize permet de saisir un **user et des
+  rôles arbitraires** pour Try it out. Mécanique : `openapi.InjectSimulation`
+  ajoute deux apiKey headers (`X-Meerkat-Simulate-User`/`-Roles`) à chaque spec
+  de route servie (2.0 ET 3.x, cadenas partout, OR avec la sécurité du backend) ;
+  côté plan data, `Router.applySimulation` (simulate.go) n'honore ces en-têtes
+  que si la requête porte une **session admin** root/infra-admin/dev/tester
+  (`Router.AdminSessions`, câblé par main) — sinon 403 explicite, jamais de
+  fallback silencieux. L'identité simulée remplace la session au point unique
+  `sessionIdentity` → gates d'accès, endpoint-security, page stamp et identity
+  forwarding la voient ; l'upstream reçoit l'identité résultante (UserID
+  `simulated`), jamais les en-têtes ni les cookies (strip dans le transport).
+  **Tokens de test éphémères (2026-07-30, demande François)** : bandeau en tête
+  de l'écran API console (hors iframe) — user + rôles (liste virgules) + TTL
+  (15/30/60 min) → `POST /api/apidocs/token` (root/infra/dev/tester, audité
+  `token.simulate`) → `Router.MintSimulationToken` : HMAC-SHA256 sur clé
+  **par boot** (`simTokenKey`, jamais persistée — un restart tue les tokens,
+  c'est voulu), format `mksim_<payload b64>.<mac b64>`. `applySimulation`
+  accepte `Authorization: Bearer mksim_…` SANS session (le token EST
+  l'autorisation) ; invalide/périmé = 403 explicite ; le transport le retire
+  avant l'upstream. Copie = `Bearer mksim_…` prêt pour Authorize (scheme
+  `MeerkatTestToken` injecté, apiKey header Authorization — compat 2.0).
+  Décision François : PAS d'auto-pass root sur les routes (les gardes doivent
+  se vérifier) ; la simulation/token est le moyen explicite de tester.
+  Tests `simulate_test.go` (gate/rôles/expiré/trafiqué) + `TestAPIDocsShipOff`
+  + `TestAPIDocsMintTestToken`.
+  Chaque simulation est loggée (slog : by/as/roles/path). Tests
+  `internal/gateway/simulate_test.go` + `TestInjectSimulation`. Rappel
+  sémantique Access : `authenticated:true` sans listes = tout authentifié passe
+  (une identité simulée compte) ; les listes users/roles restreignent.
+  **Fuite corrigée au passage** : les cookies étant host-scoped (pas le port),
+  chaque requête data d'un même host embarquait `MEERKAT_SESSION` et
+  `MEERKAT_ADMIN_SESSION`… proxifiés jusqu'aux upstreams. Désormais
+  `cookieStrippingTransport` les retire AU DERNIER MOMENT (dans le transport,
+  après tous les hooks — et repose la requête originale sur la réponse pour que
+  `pageStamp`/ModifyResponse résolve encore la session ; piège vécu : strip
+  dans Rewrite cassait TestPageStampServerSide). Les cookies applicatifs
+  passent, l'identité voyage par le mécanisme Identity de la route.
 - **Console Angular 22** (`console/`) : signal-first intégral, **Signal Forms**
   (`[formField]`), zoneless, standalone, `@Service()`, composants fins
   (routes-page → routes-table → route-dialog → brick-list → brick-form), éditeur
@@ -976,6 +1168,39 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   en germe ; anonyme : links+sign-up+sign-in).
 
 ## Pièges connus (vécus)
+
+### Vécus le 2026-07-30 (session auth externe)
+
+- **Samba AD en conteneur, sous Docker Desktop** : l'image détecte la mauvaise interface
+  (`gretap0`) et n'écoute que sur la boucle locale ⇒ les ports publiés ne répondent à
+  rien. `BIND_NETWORK_INTERFACES=false` (le compose le pose déjà). Et un contrôleur
+  refuse le bind simple en clair : se connecter en **LDAPS**.
+- **Morphologie sur une sous-fenêtre numpy** : les bords de la fenêtre sont vus comme du
+  vide, donc l'érosion mange ce qui les traverse. Calculer sur l'image entière et ne
+  relire que la zone. (Vécu deux fois sur le logo, dont un liseré blanc en travers.)
+- **`int16` pour une distance RGB** : `255² × 3 = 195075` déborde silencieusement et les
+  distances passent en négatif. `int32`.
+- **Flex column à hauteur bornée** : les enfants sont comprimés jusqu'à `min-content`, et
+  un `mat-button-toggle-group` n'a pas de texte pour résister — il s'écrase à deux
+  pixels. `.body > * { flex: none }`.
+- **Drawer Material** : il enveloppe son contenu dans son propre conteneur de défilement.
+  Un éditeur qui gère déjà son scroll (en-tête fixe, corps, pied) en obtient deux
+  imbriqués. Classe `editor-drawer` dans `_material-overrides.scss` (opt-in, pas de
+  `::ng-deep`).
+- **CDK drag-drop** : `ended` est émis **avant** le `dropped` de la liste
+  (`drag-ref.ts` : `ended.next(...)` puis `container.drop(...)`). Nettoyer l'état dans
+  `(cdkDragEnded)` efface la cible que `drop()` s'apprête à lire. Différer d'une
+  microtâche. A cassé le reparentage des rôles.
+- **Angular i18n** : la syntaxe `{{ x }}:NOM:` pour nommer un placeholder n'existe que
+  dans `$localize`, pas dans un template HTML (le placeholder s'y appelle
+  `INTERPOLATION`).
+- **`git checkout main` refuse** quand des fichiers modifiés diffèrent entre branches.
+  Pour replier une branche sans rien perdre : `git checkout -B main` depuis son sommet,
+  puis `git branch -d`. (Voir aussi : **jamais de branche** dans ce repo.)
+- **plug** : ne JAMAIS lancer un binaire `plug` compilé sans `-p` pendant que des
+  sessions de François tournent — le daemon est partagé et gère l'override DNS système.
+  Ça a fait tomber ses deux sessions `-p neo` le 30/07.
+
 
 - `make dev` sans env ⇒ ports par défaut `:8080/:9090` ; **si un bind échoue, le process
   sort entièrement** (rien ne répond nulle part). Recette complète dans README

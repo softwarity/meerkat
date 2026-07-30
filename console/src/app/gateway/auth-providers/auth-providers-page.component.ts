@@ -72,6 +72,12 @@ export class AuthProvidersPageComponent {
   // What an authority points at, in one line: the issuer, or the server.
   protected target(p: AuthProvider): string {
     const cfg = p.config ?? {};
+    // GitHub has no address to show: what identifies the setup is the
+    // organisation it lets in.
+    if (p.kind === 'github') {
+      const orgs = cfg['allowedOrgs'];
+      return Array.isArray(orgs) && orgs.length ? orgs.join(', ') : 'github.com';
+    }
     return String(cfg['issuer'] ?? cfg['url'] ?? '');
   }
 
@@ -83,6 +89,8 @@ export class AuthProvidersPageComponent {
         return String(p.config?.['dialect'] ?? '') === 'ad'
           ? 'Active Directory'
           : $localize`:@@Kind_directory:Directory`;
+      case 'github':
+        return 'GitHub';
       default:
         return 'SAML';
     }

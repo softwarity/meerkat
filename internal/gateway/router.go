@@ -6,6 +6,7 @@ package gateway
 
 import (
 	"context"
+	cryptorand "crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -47,6 +48,8 @@ type Router struct {
 	// AdminSessions resolves admin-plane sessions, ONLY to authorize identity
 	// simulation (simulate.go). Nil disables simulation entirely.
 	AdminSessions *session.Manager
+	// simTokenKey signs the ephemeral test tokens (simulate.go); per boot.
+	simTokenKey []byte
 
 	mu       sync.RWMutex
 	routes   []compiledRoute
@@ -66,7 +69,11 @@ type compiledRoute struct {
 // New builds a Router over the store. sm may be nil when no route requires
 // authentication (tests). Call Reload to load the routes.
 func New(st *store.Store, sm *session.Manager) *Router {
-	return &Router{st: st, sm: sm, lottery: rand.Float64}
+	key := make([]byte, 32)
+	if _, err := cryptorand.Read(key); err != nil {
+		panic(err) // the OS entropy source is gone; nothing sensible remains
+	}
+	return &Router{st: st, sm: sm, lottery: rand.Float64, simTokenKey: key}
 }
 
 // Reload compiles the enabled routes from the store and swaps them in
@@ -1280,10 +1287,13 @@ type cookieStrippingTransport struct{ base http.RoundTripper }
 func (t cookieStrippingTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	clone := req.Clone(req.Context())
 	stripGatewayCookies(clone)
-	// Same story for the simulation headers: gateway-internal, already
+	// Same story for the simulation knobs: gateway-internal, already
 	// consumed — the upstream sees the resulting identity, not the knobs.
 	clone.Header.Del(SimulateUserHeader)
 	clone.Header.Del(SimulateRolesHeader)
+	if strings.HasPrefix(clone.Header.Get("Authorization"), "Bearer "+SimTokenPrefix) {
+		clone.Header.Del("Authorization")
+	}
 	res, err := t.base.RoundTrip(clone)
 	if res != nil {
 		res.Request = req

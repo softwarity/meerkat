@@ -48,3 +48,11 @@
    --mdc-snackbar-supporting-text-color: var(--mat-sys-on-error-container);
    --mat-snack-bar-button-color: var(--mat-sys-on-error-container);
  }
+
+ // Drawer editors own their scrolling: a fixed header, a body that scrolls, a
+ // footer that stays. Material wraps the drawer content in its OWN scroll
+ // container, so the two nest and the body slides under the header instead of
+ // stopping at it. Opt-in, on the drawers that lay themselves out.
+ .editor-drawer .mat-drawer-inner-container {
+   overflow: hidden;
+ }

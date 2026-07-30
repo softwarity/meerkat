@@ -60,7 +60,7 @@ func (h *Handler) redirectProviders(ctx context.Context) []externalProvider {
 			continue
 		}
 		switch p.Kind {
-		case store.ProviderOIDC, store.ProviderSAML:
+		case store.ProviderOIDC, store.ProviderSAML, store.ProviderGitHub:
 			out = append(out, externalProvider{ID: p.ID, Name: p.Name, Kind: p.Kind})
 		}
 	}

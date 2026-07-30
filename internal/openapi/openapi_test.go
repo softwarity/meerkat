@@ -180,8 +180,8 @@ func TestInjectSimulation(t *testing.T) {
 	if _, ok := defs["own"]; !ok {
 		t.Fatal("v2: the spec's own scheme must survive")
 	}
-	if sec := doc["security"].([]any); len(sec) != 2 {
-		t.Fatalf("v2: global security = %v, want the spec's own OR simulation", sec)
+	if sec := doc["security"].([]any); len(sec) != 3 {
+		t.Fatalf("v2: global security = %v, want the spec's own OR headers OR token", sec)
 	}
 
 	out, err = InjectSimulation([]byte(openapi30))

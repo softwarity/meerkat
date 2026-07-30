@@ -19,6 +19,7 @@
   >
     <mat-button-toggle value="oidc">OpenID Connect</mat-button-toggle>
     <mat-button-toggle value="ldap" i18n="@@Kind_directory">Directory</mat-button-toggle>
+    <mat-button-toggle value="github">GitHub</mat-button-toggle>
     <mat-button-toggle value="saml" disabled>SAML</mat-button-toggle>
   </mat-button-toggle-group>
   <p class="hint text-muted">
@@ -31,6 +32,12 @@
       <ng-container i18n="@@Kind_ldap_hint">
         A directory asked directly, with what the person typed in the ordinary sign-in form. No
         button appears on the login page.
+      </ng-container>
+    } @else if (kind() === 'github') {
+      <ng-container i18n="@@Kind_github_hint">
+        GitHub proves the account, but signs nothing: there is no token to verify, so the trust
+        rests on the exchange and on TLS. Restrict the organisations below unless you mean to open
+        the door to every GitHub account.
       </ng-container>
     } @else {
       <ng-container i18n="@@Kind_saml_hint">Not available yet.</ng-container>
@@ -89,6 +96,49 @@
         [value]="cfg('allowedDomains')" (input)="setCfgList('allowedDomains', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()" placeholder="acme.io"></textarea>
     </app-form-field>
+
+    @if (callbackUrl()) {
+      <div class="callback">
+        <span class="text-muted" i18n="@@Register_this_callback">Register this callback on the authority</span>
+        <div class="flex items-center gap-2">
+          <code class="mono truncate">{{ callbackUrl() }}</code>
+          <button matIconButton (click)="copyCallback()" i18n-matTooltip="@@Copy" matTooltip="Copy" i18n-aria-label="@@Copy" aria-label="Copy">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  }
+
+  @if (kind() === 'github') {
+    <app-form-field i18n-label="@@Client_ID" label="Client ID" allowVault="secret/values" vaultScope="app">
+      <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('clientId')" (input)="setCfg('clientId', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()" placeholder="Iv1.0123456789abcdef"></textarea>
+    </app-form-field>
+
+    <app-form-field i18n-label="@@Client_secret" label="Client secret" revealable masked allowVault="secret" vaultScope="app" [clearable]="false">
+      <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('clientSecret')" (input)="setCfg('clientSecret', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()"></textarea>
+    </app-form-field>
+
+    <app-form-field
+      i18n-label="@@Allowed_orgs"
+      label="Allowed organisations"
+      i18n-hint="@@Allowed_orgs_hint"
+      hint="Comma separated. Empty lets in ANY GitHub account."
+    >
+      <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
+        [value]="cfg('allowedOrgs')" (input)="setCfgList('allowedOrgs', $any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()" placeholder="softwarity"></textarea>
+    </app-form-field>
+
+    <p class="hint text-muted" i18n="@@Github_setup_hint">
+      Create an OAuth app under Settings, Developer settings, and paste the callback below into its
+      Authorization callback URL. Organisations and teams come back as groups, an organisation as
+      "org" and a team as "org/team".
+    </p>
 
     @if (callbackUrl()) {
       <div class="callback">

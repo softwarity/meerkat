@@ -21,14 +21,116 @@ import (
 // registerAPIDocs mounts the swagger-ui page (DOCS-01): the assets vendored in
 // the binary (offline-first — nothing comes from a CDN), the list of available
 // specifications, Meerkat's own admin spec, and a server-side proxy for the
-// specs the routes declare (same origin, so the browser needs no CORS).
+// specs the routes declare (same origin, so the browser needs no CORS). The
+// whole surface ships OFF and plays dead (404) until an infra admin flips
+// SettingAPIDocsExposed on the Others screen.
 func (a *API) registerAPIDocs(mux *http.ServeMux) {
-	mux.Handle("GET /apidocs", http.RedirectHandler("/apidocs/", http.StatusMovedPermanently))
-	mux.HandleFunc("GET /apidocs/{$}", a.apidocsPage)
-	mux.HandleFunc("GET /apidocs/assets/{file}", apidocsAsset)
-	mux.Handle("GET /apidocs/specs.json", a.authed(a.apidocsSpecs))
-	mux.Handle("GET /apidocs/specs/meerkat-admin.json", a.authed(a.apidocsAdminSpec))
-	mux.Handle("GET /apidocs/specs/route/{id}", a.gw(a.apidocsRouteSpec))
+	mux.Handle("GET /api/settings/api-docs", a.infraAdmin(a.getAPIDocsSetting))
+	mux.Handle("PUT /api/settings/api-docs", a.infraAdmin(a.putAPIDocsSetting))
+	mux.Handle("GET /apidocs", a.ifDocsExposed(http.RedirectHandler("/apidocs/", http.StatusMovedPermanently)))
+	mux.Handle("GET /apidocs/{$}", a.ifDocsExposed(http.HandlerFunc(a.apidocsPage)))
+	mux.Handle("GET /apidocs/assets/{file}", a.ifDocsExposed(http.HandlerFunc(apidocsAsset)))
+	mux.Handle("GET /apidocs/specs.json", a.ifDocsExposed(a.authed(a.apidocsSpecs)))
+	mux.Handle("GET /apidocs/specs/meerkat-admin.json", a.ifDocsExposed(a.authed(a.apidocsAdminSpec)))
+	mux.Handle("GET /apidocs/specs/route/{id}", a.ifDocsExposed(a.gw(a.apidocsRouteSpec)))
+	mux.Handle("/apidocs/try/", a.ifDocsExposed(a.gw(a.apidocsTry))) // every method: Try it out
+	mux.Handle("POST /api/apidocs/token", a.ifDocsExposed(a.authed(a.mintTestToken)))
+}
+
+// testTokenRequest is the API screen's mint form: an identity to impersonate
+// and a bounded lifetime.
+type testTokenRequest struct {
+	Username string   `json:"username"`
+	Roles    []string `json:"roles"`
+	Minutes  int      `json:"minutes"`
+}
+
+// mintTestToken issues an ephemeral test token (gateway/simulate.go): pasted
+// into swagger's Authorize, it carries the whole authorization — the same
+// capabilities that may simulate by header may mint.
+func (a *API) mintTestToken(w http.ResponseWriter, r *http.Request, actor store.User) {
+	mayMint := actor.Root || actor.InfraAdmin || actor.Dev || actor.Tester
+	if !mayMint {
+		writeErr(w, http.StatusForbidden, "minting test tokens requires the root, infra-admin, dev or tester capability")
+		return
+	}
+	var body testTokenRequest
+	if err := decodeStrict(r, &body); err != nil {
+		writeErr(w, http.StatusBadRequest, "malformed request: "+err.Error())
+		return
+	}
+	body.Username = strings.TrimSpace(body.Username)
+	if body.Username == "" {
+		writeErr(w, http.StatusUnprocessableEntity, "a username is required (the identity the token impersonates)")
+		return
+	}
+	if body.Minutes < 1 || body.Minutes > 60 {
+		body.Minutes = 15
+	}
+	token, exp := a.router.MintSimulationToken(body.Username, body.Roles, time.Duration(body.Minutes)*time.Minute)
+	a.auditEvent(r.Context(), actor, "token.simulate", "token", "", body.Username, "",
+		fmt.Sprintf("test token as %q roles %v for %dm", body.Username, body.Roles, body.Minutes))
+	writeJSON(w, http.StatusCreated, map[string]any{"token": token, "expiresAt": exp.Unix()})
+}
+
+// apiDocsSetting is the Others screen's payload.
+type apiDocsSetting struct {
+	Exposed bool `json:"exposed"`
+}
+
+// apidocsExposedOn reads the switch (absent = off).
+func (a *API) apidocsExposedOn(ctx context.Context) bool {
+	var exposed bool
+	_ = a.st.GetSetting(ctx, store.SettingAPIDocsExposed, &exposed)
+	return exposed
+}
+
+// ifDocsExposed hides the docs surface entirely while the switch is off — a
+// 404 indistinguishable from "no such path", not a 403 advertising a feature.
+func (a *API) ifDocsExposed(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !a.apidocsExposedOn(r.Context()) {
+			http.NotFound(w, r)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a *API) getAPIDocsSetting(w http.ResponseWriter, r *http.Request, _ store.User) {
+	writeJSON(w, http.StatusOK, apiDocsSetting{Exposed: a.apidocsExposedOn(r.Context())})
+}
+
+func (a *API) putAPIDocsSetting(w http.ResponseWriter, r *http.Request, actor store.User) {
+	var body apiDocsSetting
+	if err := decodeStrict(r, &body); err != nil {
+		writeErr(w, http.StatusBadRequest, "malformed setting: "+err.Error())
+		return
+	}
+	before := apiDocsSetting{Exposed: a.apidocsExposedOn(r.Context())}
+	if err := a.st.SetSetting(r.Context(), store.SettingAPIDocsExposed, body.Exposed); err != nil {
+		a.internal(w, err)
+		return
+	}
+	a.auditUpdate(r.Context(), actor, "apidocs.expose", "settings", "", "", "", before, body)
+	writeJSON(w, http.StatusOK, body)
+}
+
+// apidocsTry hands a Try-it-out call to the data plane IN PROCESS: the page
+// and its calls stay on the admin origin (nothing cross-origin, cookies just
+// travel), and the router matches exactly as if the request had hit the data
+// port. The admin session authorizes identity simulation, a data session
+// authenticates gated routes, and the proxy transport strips every gateway
+// cookie and simulation header before the upstream, as for any call.
+func (a *API) apidocsTry(w http.ResponseWriter, r *http.Request) {
+	fwd := r.Clone(r.Context())
+	fwd.URL.Path = strings.TrimPrefix(r.URL.Path, "/apidocs/try")
+	if fwd.URL.Path == "" {
+		fwd.URL.Path = "/"
+	}
+	fwd.URL.RawPath = ""
+	fwd.RequestURI = ""
+	a.router.ServeHTTP(w, fwd)
 }
 
 // apidocsPage serves the shell. A browser without a live session is sent to
@@ -134,7 +236,11 @@ func (a *API) apidocsRouteSpec(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusBadGateway, "spec fetch failed: "+err.Error())
 		return
 	}
-	if rewritten, err := openapi.Rewrite(body, a.routeExposedBase(r, route)); err == nil {
+	// Point the spec's servers at the same-origin forwarder: the page, its
+	// cookies and every Try it out stay on this admin port; the tunnel hands
+	// the call to the data plane in process. The route's own match prefix is
+	// part of the public path.
+	if rewritten, err := openapi.Rewrite(body, "/apidocs/try"+routeMatchPrefix(route)); err == nil {
 		body, contentType = rewritten, "application/json; charset=utf-8"
 		// Identity simulation (gateway/simulate.go): let Authorize input a
 		// user and roles for Try it out, on every route spec.
@@ -220,32 +326,6 @@ func (r *specRecorder) Write(p []byte) (int, error) {
 	return r.buf.Write(p)
 }
 
-// routeExposedBase derives the public URL the route answers on. Host: a
-// literal host predicate when the route pins one, otherwise this admin
-// request's hostname on the data plane's port (DataAddr) — the two planes ride
-// the same machine. Path: the static prefix of the route's path pattern, kept
-// only when a strip-prefix filter removes exactly that prefix (otherwise the
-// upstream sees the full path and the spec's paths already carry it). A
-// rewrite-path filter makes the mapping non-derivable: origin only.
-func (a *API) routeExposedBase(r *http.Request, route store.Route) string {
-	scheme := "http"
-	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
-		scheme = "https"
-	}
-	host := routeLiteralHost(route)
-	if host == "" {
-		hostname := r.Host
-		if h, _, err := net.SplitHostPort(r.Host); err == nil {
-			hostname = h
-		}
-		host = hostname
-		if _, port, err := net.SplitHostPort(a.DataAddr); err == nil && port != "" {
-			host = net.JoinHostPort(hostname, port)
-		}
-	}
-	return scheme + "://" + host + routePathPrefix(route)
-}
-
 // routeLiteralHost returns the first wildcard-free host the route matches on,
 // or "".
 func routeLiteralHost(route store.Route) string {
@@ -275,42 +355,6 @@ func routeMatchPrefix(route store.Route) string {
 		break
 	}
 	return ""
-}
-
-// routePathPrefix returns the static prefix of the route's first path pattern
-// ("/demo/**" → "/demo") when a strip-prefix filter removes exactly those
-// segments; otherwise "" (see routeExposedBase).
-func routePathPrefix(route store.Route) string {
-	var prefix string
-	for _, p := range route.Predicates {
-		if p.Type != "path" {
-			continue
-		}
-		if patterns := specStrings(p.Args["patterns"]); len(patterns) > 0 {
-			prefix = staticPrefix(patterns[0])
-		}
-		break
-	}
-	if prefix == "" {
-		return ""
-	}
-	stripped := 0
-	for _, f := range route.Filters {
-		switch f.Type {
-		case "rewrite-path":
-			return ""
-		case "strip-prefix":
-			if n, ok := f.Args["parts"].(float64); ok {
-				stripped = int(n)
-			} else {
-				stripped = 1 // the filter's default
-			}
-		}
-	}
-	if stripped != strings.Count(prefix, "/") {
-		return ""
-	}
-	return prefix
 }
 
 // staticPrefix keeps the pattern's leading literal segments: "/demo/v1/**" →

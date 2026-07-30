@@ -105,6 +105,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./gateway/access-tokens-page.component').then((m) => m.AccessTokensPageComponent),
       },
+      {
+        path: 'others',
+        canActivate: [infraOnly],
+        loadComponent: () =>
+          import('./gateway/others-page.component').then((m) => m.OthersPageComponent),
+      },
     ],
   },
 

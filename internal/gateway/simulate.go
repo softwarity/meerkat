@@ -2,10 +2,15 @@ package gateway
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // Identity simulation (Try it out): the API-docs page lets a privileged tester
@@ -53,6 +58,17 @@ func simulatedIdentity(ctx context.Context) (identityData, bool) {
 // identity in the request context. Requests without the headers pass through
 // untouched; requests with them and no privileged admin session are refused.
 func (rt *Router) applySimulation(req *http.Request) (*http.Request, error) {
+	// An ephemeral test token IS the authorization: minted by a privileged
+	// admin, TTL-bounded, self-contained — no session needed alongside.
+	if auth := req.Header.Get("Authorization"); strings.HasPrefix(auth, "Bearer "+SimTokenPrefix) {
+		d, ok := rt.verifySimulationToken(strings.TrimPrefix(auth, "Bearer "))
+		if !ok {
+			return nil, errSimTokenInvalid
+		}
+		slog.Info("identity simulation (token)", "as", d.Username, "roles", d.Roles,
+			"method", req.Method, "path", req.URL.Path)
+		return req.WithContext(context.WithValue(req.Context(), simKey{}, d)), nil
+	}
 	user := strings.TrimSpace(req.Header.Get(SimulateUserHeader))
 	rolesRaw := strings.TrimSpace(req.Header.Get(SimulateRolesHeader))
 	if user == "" && rolesRaw == "" {
@@ -79,4 +95,66 @@ func (rt *Router) applySimulation(req *http.Request) (*http.Request, error) {
 	slog.Info("identity simulation", "by", actor.Username, "as", user, "roles", d.Roles,
 		"method", req.Method, "path", req.URL.Path)
 	return req.WithContext(context.WithValue(req.Context(), simKey{}, d)), nil
+}
+
+// ── Ephemeral test tokens ────────────────────────────────────────────────────
+//
+// The API screen mints a short-lived token carrying an arbitrary identity
+// (user + roles), pasted into swagger's Authorize: the whole authorization
+// travels IN the token, so Try it out works without cookies or sessions. The
+// HMAC key is drawn per boot and never leaves the process — tokens die with
+// it, which is exactly the lifespan a test artifact deserves.
+
+// SimTokenPrefix marks an ephemeral test token in an Authorization header.
+const SimTokenPrefix = "mksim_"
+
+var errSimTokenInvalid = errors.New("invalid or expired test token — mint a fresh one on the API screen")
+
+type simTokenClaims struct {
+	User  string   `json:"u"`
+	Roles []string `json:"r"`
+	Exp   int64    `json:"e"`
+}
+
+// MintSimulationToken issues a test token for the given identity; the admin
+// API gates WHO may call this (root, infra-admin, dev or tester).
+func (rt *Router) MintSimulationToken(user string, roles []string, ttl time.Duration) (string, time.Time) {
+	exp := time.Now().Add(ttl)
+	payload, _ := json.Marshal(simTokenClaims{User: user, Roles: roles, Exp: exp.Unix()})
+	mac := hmac.New(sha256.New, rt.simTokenKey)
+	mac.Write(payload)
+	return SimTokenPrefix + base64.RawURLEncoding.EncodeToString(payload) +
+		"." + base64.RawURLEncoding.EncodeToString(mac.Sum(nil)), exp
+}
+
+// verifySimulationToken authenticates a minted token and yields its identity.
+func (rt *Router) verifySimulationToken(token string) (identityData, bool) {
+	payloadB64, macB64, ok := strings.Cut(strings.TrimPrefix(token, SimTokenPrefix), ".")
+	if !ok {
+		return identityData{}, false
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(payloadB64)
+	if err != nil {
+		return identityData{}, false
+	}
+	sig, err := base64.RawURLEncoding.DecodeString(macB64)
+	if err != nil {
+		return identityData{}, false
+	}
+	mac := hmac.New(sha256.New, rt.simTokenKey)
+	mac.Write(payload)
+	if !hmac.Equal(sig, mac.Sum(nil)) {
+		return identityData{}, false
+	}
+	var claims simTokenClaims
+	if err := json.Unmarshal(payload, &claims); err != nil || time.Now().Unix() > claims.Exp {
+		return identityData{}, false
+	}
+	d := identityData{UserID: "simulated", Username: claims.User, Fullname: "Simulated identity"}
+	for _, role := range claims.Roles {
+		if role != "" && schemeTokenOK.MatchString(role) {
+			d.Roles = append(d.Roles, role)
+		}
+	}
+	return d, true
 }

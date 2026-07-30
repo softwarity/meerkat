@@ -21,7 +21,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">39</context>
+          <context context-type="linenumber">40</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tenants" datatype="html">
@@ -301,7 +301,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">199,200</context>
+          <context context-type="linenumber">249,250</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/group-dialog.component.ts</context>
@@ -352,7 +352,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">202,203</context>
+          <context context-type="linenumber">252,253</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
@@ -401,11 +401,19 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">98</context>
+          <context context-type="linenumber">105</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">99</context>
+          <context context-type="linenumber">106</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">148</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">149</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
@@ -435,11 +443,88 @@
           <context context-type="linenumber">51,52</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Test_as_user" datatype="html">
+        <source>Test as user</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
+          <context context-type="linenumber">60,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Roles" datatype="html">
+        <source>Roles</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
+          <context context-type="linenumber">64,65</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">448,449</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Validity" datatype="html">
+        <source>Validity</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Generate_test_token" datatype="html">
+        <source>Test token</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
+          <context context-type="linenumber">77,79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Copy_for_authorize" datatype="html">
+        <source>Copy for Authorize</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
+          <context context-type="linenumber">85,87</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="API_documentation" datatype="html">
         <source>API documentation</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
-          <context context-type="linenumber">23,25</context>
+          <context context-type="linenumber">91,94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Test_token_failed" datatype="html">
+        <source>Could not mint the test token</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
+          <context context-type="linenumber">121</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Test_token_copied" datatype="html">
+        <source>Copied — paste it into Authorize (MeerkatTestToken)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
+          <context context-type="linenumber">132</context>
         </context-group>
       </trans-unit>
       <trans-unit id="New_authority" datatype="html">
@@ -496,7 +581,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-providers-page.component.ts</context>
-          <context context-type="linenumber">85</context>
+          <context context-type="linenumber">91</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Kind_oidc_hint" datatype="html">
@@ -506,7 +591,7 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">27,30</context>
+          <context context-type="linenumber">28,31</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Kind_ldap_hint" datatype="html">
@@ -516,35 +601,46 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">32,35</context>
+          <context context-type="linenumber">33,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Kind_github_hint" datatype="html">
+        <source>
+        GitHub proves the account, but signs nothing: there is no token to verify, so the trust
+        rests on the exchange and on TLS. Restrict the organisations below unless you mean to open
+        the door to every GitHub account.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">38,43</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Kind_saml_hint" datatype="html">
         <source>Not available yet.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">36,39</context>
+          <context context-type="linenumber">43,46</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Identifier" datatype="html">
         <source>Identifier</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">40</context>
+          <context context-type="linenumber">47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Provider_id_hint" datatype="html">
         <source>Used in the sign-in URL, never shown to users</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">40,42</context>
+          <context context-type="linenumber">47,49</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Name" datatype="html">
         <source>Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">56</context>
+          <context context-type="linenumber">63</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-providers-page.component.html</context>
@@ -579,154 +675,191 @@
         <source>What the login page shows on the button</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">56,59</context>
+          <context context-type="linenumber">63,66</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Issuer" datatype="html">
         <source>Issuer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">69</context>
+          <context context-type="linenumber">76</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Issuer_hint" datatype="html">
         <source>Its discovery document is read from there</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">69</context>
+          <context context-type="linenumber">76</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Client_ID" datatype="html">
         <source>Client ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">75</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Client_secret" datatype="html">
         <source>Client secret</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">81</context>
+          <context context-type="linenumber">88</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">120</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allowed_domains" datatype="html">
         <source>Allowed e-mail domains</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">87</context>
+          <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allowed_domains_hint" datatype="html">
         <source>Comma separated, empty accepts every address the authority knows</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">87,88</context>
+          <context context-type="linenumber">94,95</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Register_this_callback" datatype="html">
         <source>Register this callback on the authority</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">95,96</context>
+          <context context-type="linenumber">102,103</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">145,146</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Allowed_orgs" datatype="html">
+        <source>Allowed organisations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">128,129</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Allowed_orgs_hint" datatype="html">
+        <source>Comma separated. Empty lets in ANY GitHub account.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">130,132</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Github_setup_hint" datatype="html">
+        <source>
+      Create an OAuth app under Settings, Developer settings, and paste the callback below into its
+      Authorization callback URL. Organisations and teams come back as groups, an organisation as
+      &quot;org&quot; and a team as &quot;org/team&quot;.
+    </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">138,144</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Dialect" datatype="html">
         <source>Dialect</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">108,109</context>
+          <context context-type="linenumber">158,159</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Dialect_directory" datatype="html">
         <source>Directory (OpenLDAP and friends)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">110,111</context>
+          <context context-type="linenumber">160,161</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Server_URL" datatype="html">
         <source>Server URL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">115</context>
+          <context context-type="linenumber">165</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Server_URL_hint" datatype="html">
         <source>ldap:// or ldaps://</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">115</context>
+          <context context-type="linenumber">165</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Base_DN" datatype="html">
         <source>Search base</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">121</context>
+          <context context-type="linenumber">171</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Service_account" datatype="html">
         <source>Service account</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">127</context>
+          <context context-type="linenumber">177</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Service_account_hint" datatype="html">
         <source>Used to SEARCH, never to sign anyone in</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">127</context>
+          <context context-type="linenumber">177</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Service_password" datatype="html">
         <source>Service password</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">133</context>
+          <context context-type="linenumber">183</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_filter" datatype="html">
         <source>User filter</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">139</context>
+          <context context-type="linenumber">189</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_filter_hint" datatype="html">
         <source>%s is what the person typed; empty uses the dialect&apos;s default</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">139,140</context>
+          <context context-type="linenumber">189,190</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Nested_groups" datatype="html">
         <source>Follow nested groups</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">146,147</context>
+          <context context-type="linenumber">196,197</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Skip_certificate_check" datatype="html">
         <source>Skip the certificate check (self-signed directory)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">149,150</context>
+          <context context-type="linenumber">199,200</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Policies" datatype="html">
         <source>Policies</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">156,157</context>
+          <context context-type="linenumber">206,207</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Auto_create_accounts" datatype="html">
         <source>Create an account on first sign-in</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">158,159</context>
+          <context context-type="linenumber">208,209</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Auto_create_hint" datatype="html">
@@ -736,14 +869,14 @@
     </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">161,166</context>
+          <context context-type="linenumber">211,216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Two_factor" datatype="html">
         <source>Two-factor</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">166,167</context>
+          <context context-type="linenumber">216,217</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/mfa-select.component.ts</context>
@@ -762,28 +895,28 @@
         <source>Inherited from the application</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">168,169</context>
+          <context context-type="linenumber">218,219</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Always_required" datatype="html">
         <source>Always required</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">169,170</context>
+          <context context-type="linenumber">219,220</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Left_to_the_authority" datatype="html">
         <source>Left to the authority</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">170,172</context>
+          <context context-type="linenumber">220,222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Enabled" datatype="html">
         <source>Enabled</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">175,176</context>
+          <context context-type="linenumber">225,226</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-providers-page.component.html</context>
@@ -798,7 +931,7 @@
         <source>Danger zone</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">182,183</context>
+          <context context-type="linenumber">232,233</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
@@ -813,7 +946,7 @@
         <source>Delete</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">185,186</context>
+          <context context-type="linenumber">235,236</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
@@ -888,14 +1021,14 @@
         <source>Test the connection</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">195,197</context>
+          <context context-type="linenumber">245,247</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Save" datatype="html">
         <source>Save</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">204,205</context>
+          <context context-type="linenumber">254,255</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
@@ -1082,7 +1215,7 @@
         <source>Authority &quot;<x id="NAME" equiv-text="saved.name"/>&quot; saved</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-providers-page.component.ts</context>
-          <context context-type="linenumber">104</context>
+          <context context-type="linenumber">112</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Mail_relay" datatype="html">
@@ -1246,6 +1379,79 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
           <context context-type="linenumber">146</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Others" datatype="html">
+        <source>Others</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
+          <context context-type="linenumber">46,47</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Expose_API_docs" datatype="html">
+        <source>Expose the API documentation (swagger-ui)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
+          <context context-type="linenumber">54,55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Expose_API_docs_hint" datatype="html">
+        <source>
+              The API screen and /apidocs on this admin port: Meerkat&apos;s own API plus every route
+              declaring an OpenAPI spec. Off, the whole surface answers 404.
+            </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
+          <context context-type="linenumber">56,60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="API_docs_exposed" datatype="html">
+        <source>API documentation exposed</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
+          <context context-type="linenumber">92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="API_docs_hidden" datatype="html">
+        <source>API documentation hidden</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
+          <context context-type="linenumber">93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Save_failed" datatype="html">
+        <source>Save failed</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
+          <context context-type="linenumber">100</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
+          <context context-type="linenumber">122</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
+          <context context-type="linenumber">574</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
+          <context context-type="linenumber">157</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
+          <context context-type="linenumber">147</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
+          <context context-type="linenumber">100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Vault_hint" datatype="html">
@@ -1455,37 +1661,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
           <context context-type="linenumber">7,10</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Roles" datatype="html">
-        <source>Roles</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
-          <context context-type="linenumber">13,14</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">4,5</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">33,34</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">82</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">82</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">448,449</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">43</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Group_menu" datatype="html">
@@ -1916,7 +2091,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">41</context>
+          <context context-type="linenumber">42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Groups" datatype="html">
@@ -2131,33 +2306,6 @@
           <context context-type="linenumber">68,69</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Save_failed" datatype="html">
-        <source>Save failed</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
-          <context context-type="linenumber">122</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
-          <context context-type="linenumber">574</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">65</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
-          <context context-type="linenumber">157</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">147</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
-          <context context-type="linenumber">100</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Account" datatype="html">
         <source>Account</source>
         <context-group purpose="location">
@@ -2188,7 +2336,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">44</context>
+          <context context-type="linenumber">45</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Capabilities" datatype="html">
@@ -3555,7 +3703,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">42</context>
+          <context context-type="linenumber">43</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Locales_section_hint" datatype="html">
@@ -4136,7 +4284,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">46</context>
+          <context context-type="linenumber">47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="MFA_global_hint" datatype="html">
@@ -4465,7 +4613,7 @@
         <source>Built-in pages</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">45</context>
+          <context context-type="linenumber">46</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.html</context>

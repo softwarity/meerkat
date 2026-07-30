@@ -461,7 +461,7 @@ export interface TrustedBrowserPolicy {
 // bind password never has to sit in it.
 export interface AuthProvider {
   id: string;
-  kind: 'oidc' | 'ldap' | 'saml';
+  kind: 'oidc' | 'ldap' | 'saml' | 'github';
   name: string;
   enabled: boolean;
   order: number;
@@ -623,6 +623,29 @@ export class ApiService {
       `/api/auth-providers/${encodeURIComponent(id)}/check`,
       {},
     );
+  }
+
+  // The Others screen's switch: while off, the whole /apidocs surface is 404.
+  apiDocsSetting(): Observable<{ exposed: boolean }> {
+    return this.http.get<{ exposed: boolean }>('/api/settings/api-docs');
+  }
+
+  // Ephemeral test token for the API screen: pasted into swagger's Authorize,
+  // it carries the impersonated identity (user + roles) and dies on its own.
+  mintTestToken(
+    username: string,
+    roles: string[],
+    minutes: number,
+  ): Observable<{ token: string; expiresAt: number }> {
+    return this.http.post<{ token: string; expiresAt: number }>('/api/apidocs/token', {
+      username,
+      roles,
+      minutes,
+    });
+  }
+
+  saveApiDocsSetting(exposed: boolean): Observable<{ exposed: boolean }> {
+    return this.http.put<{ exposed: boolean }>('/api/settings/api-docs', { exposed });
   }
 
   mailRelay(): Observable<MailRelay> {

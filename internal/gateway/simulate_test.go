@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
@@ -107,6 +108,46 @@ func TestIdentitySimulation(t *testing.T) {
 	t.Run("the simulated roles are what the gate evaluates", func(t *testing.T) {
 		if res, _ := call(t, tessC, "ghost", "intern"); res.StatusCode != http.StatusForbidden {
 			t.Fatalf("got %d, want 403 (intern is not auditor)", res.StatusCode)
+		}
+	})
+
+	// Ephemeral test tokens: the token IS the authorization — no cookie, no
+	// session — and the upstream never sees it.
+	bearer := func(t *testing.T, token string) (*http.Response, string) {
+		t.Helper()
+		req, _ := http.NewRequest(http.MethodGet, srv.URL+"/x", nil)
+		req.Header.Set("Authorization", "Bearer "+token)
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = res.Body.Close() })
+		return res, readBody(t, res)
+	}
+
+	t.Run("a minted token passes the gate with its own roles", func(t *testing.T) {
+		token, _ := rt.MintSimulationToken("ghost", []string{"auditor"}, time.Minute)
+		res, body := bearer(t, token)
+		if res.StatusCode != http.StatusOK || body != "sim=|cookie=" {
+			t.Fatalf("got %d %q, want 200 with no internals leaked", res.StatusCode, body)
+		}
+	})
+
+	t.Run("wrong roles in the token are refused by the gate", func(t *testing.T) {
+		token, _ := rt.MintSimulationToken("ghost", []string{"intern"}, time.Minute)
+		if res, _ := bearer(t, token); res.StatusCode != http.StatusForbidden {
+			t.Fatalf("got %d, want 403", res.StatusCode)
+		}
+	})
+
+	t.Run("expired and tampered tokens are explicit 403s", func(t *testing.T) {
+		expired, _ := rt.MintSimulationToken("ghost", []string{"auditor"}, -time.Second)
+		if res, _ := bearer(t, expired); res.StatusCode != http.StatusForbidden {
+			t.Fatalf("expired: got %d, want 403", res.StatusCode)
+		}
+		token, _ := rt.MintSimulationToken("ghost", []string{"auditor"}, time.Minute)
+		if res, _ := bearer(t, token+"x"); res.StatusCode != http.StatusForbidden {
+			t.Fatalf("tampered: got %d, want 403", res.StatusCode)
 		}
 	})
 }

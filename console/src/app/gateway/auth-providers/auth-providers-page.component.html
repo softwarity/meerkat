@@ -80,7 +80,7 @@
     </button>
   </mat-drawer-content>
 
-  <mat-drawer position="end" mode="over" [opened]="editing() !== null" (closedStart)="closeEditor()">
+  <mat-drawer class="editor-drawer" position="end" mode="over" [opened]="editing() !== null" (closedStart)="closeEditor()">
     @if (editing() !== null) {
       <app-auth-provider-editor
         [provider]="editingProvider()"

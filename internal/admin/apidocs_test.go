@@ -10,6 +10,14 @@ import (
 	"testing"
 )
 
+// enableDocs flips the Others-screen switch on: the docs surface ships OFF.
+func enableDocs(t *testing.T, f fixture) {
+	t.Helper()
+	if code, body := f.call(t, "PUT", "/api/settings/api-docs", `{"exposed":true}`, f.rootC); code != 200 {
+		t.Fatalf("enable docs: %d %s", code, body)
+	}
+}
+
 func readAll(t *testing.T, res *http.Response) string {
 	t.Helper()
 	b, err := io.ReadAll(res.Body)
@@ -42,8 +50,55 @@ func (f fixture) get(t *testing.T, path string, cookie *http.Cookie) *http.Respo
 	return res
 }
 
+// The docs surface ships OFF: every path plays dead (404) until an infra
+// admin flips the Others-screen switch — and only an infra admin may.
+func TestAPIDocsShipOff(t *testing.T) {
+	f := setup(t)
+	for _, path := range []string{"/apidocs/", "/apidocs/specs.json",
+		"/apidocs/specs/meerkat-admin.json", "/apidocs/try/x", "/apidocs/assets/skin.css"} {
+		if res := f.get(t, path, f.rootC); res.StatusCode != http.StatusNotFound {
+			t.Fatalf("%s while off: %d, want 404", path, res.StatusCode)
+		}
+	}
+	if code, _ := f.call(t, "PUT", "/api/settings/api-docs", `{"exposed":true}`, f.plainC); code != http.StatusForbidden {
+		t.Fatalf("plain user flips the switch: %d, want 403", code)
+	}
+	enableDocs(t, f)
+	if res := f.get(t, "/apidocs/", f.rootC); res.StatusCode != http.StatusOK {
+		t.Fatalf("after enabling: %d, want 200", res.StatusCode)
+	}
+	if code, _ := f.call(t, "PUT", "/api/settings/api-docs", `{"exposed":false}`, f.rootC); code != http.StatusOK {
+		t.Fatal("disable failed")
+	}
+	if res := f.get(t, "/apidocs/", f.rootC); res.StatusCode != http.StatusNotFound {
+		t.Fatalf("after disabling: %d, want 404 again", res.StatusCode)
+	}
+}
+
+// Minting a test token: privileged capabilities only, bounded lifetime, and
+// the token authenticates a data-plane call on its own (simulate_test.go
+// proves the gate side; here the admin endpoint contract).
+func TestAPIDocsMintTestToken(t *testing.T) {
+	f := setup(t)
+	enableDocs(t, f)
+	code, body := f.call(t, "POST", "/api/apidocs/token",
+		`{"username":"ghost","roles":["auditor"],"minutes":5}`, f.rootC)
+	if code != http.StatusCreated || !strings.Contains(body, `"token":"mksim_`) {
+		t.Fatalf("mint: %d %s", code, body)
+	}
+	if code, _ := f.call(t, "POST", "/api/apidocs/token",
+		`{"username":"ghost","roles":[],"minutes":5}`, f.plainC); code != http.StatusForbidden {
+		t.Fatalf("plain user mints: %d, want 403", code)
+	}
+	if code, _ := f.call(t, "POST", "/api/apidocs/token",
+		`{"username":"","roles":[],"minutes":5}`, f.rootC); code != http.StatusUnprocessableEntity {
+		t.Fatalf("empty username: %d, want 422", code)
+	}
+}
+
 func TestAPIDocsPage(t *testing.T) {
 	f := setup(t)
+	enableDocs(t, f)
 
 	// Anonymous browsers land on the login page, and come back after.
 	res := f.get(t, "/apidocs/", nil)
@@ -70,6 +125,7 @@ func TestAPIDocsPage(t *testing.T) {
 
 func TestAPIDocsAssets(t *testing.T) {
 	f := setup(t)
+	enableDocs(t, f)
 	for file, wantType := range map[string]string{
 		"swagger-ui.css":       "text/css",
 		"skin.css":             "text/css",
@@ -87,6 +143,7 @@ func TestAPIDocsAssets(t *testing.T) {
 
 func TestAPIDocsAdminSpec(t *testing.T) {
 	f := setup(t)
+	enableDocs(t, f)
 	if res := f.get(t, "/apidocs/specs/meerkat-admin.json", nil); res.StatusCode != http.StatusUnauthorized {
 		t.Fatalf("anonymous: %d, want 401", res.StatusCode)
 	}
@@ -115,6 +172,7 @@ func TestAPIDocsAdminSpec(t *testing.T) {
 
 func TestAPIDocsSpecListAndRouteProxy(t *testing.T) {
 	f := setup(t)
+	enableDocs(t, f)
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case r.URL.Path == "/openapi.json":
@@ -127,8 +185,6 @@ func TestAPIDocsSpecListAndRouteProxy(t *testing.T) {
 		}
 	}))
 	t.Cleanup(upstream.Close)
-
-	f.api.DataAddr = ":18082" // what main wires: the data plane's -addr
 
 	// One route WITH a declared spec (public prefix /pets, stripped before the
 	// upstream — the classic mapping), one without.
@@ -182,8 +238,9 @@ func TestAPIDocsSpecListAndRouteProxy(t *testing.T) {
 	if err := json.Unmarshal([]byte(body), &spec); err != nil {
 		t.Fatal(err)
 	}
-	if len(spec.Servers) != 1 || spec.Servers[0].URL != "http://127.0.0.1:18082/pets" {
-		t.Fatalf("servers = %+v, want the data plane + the route prefix", spec.Servers)
+	// Same-origin tunnel: the page and its Try it out never leave this port.
+	if len(spec.Servers) != 1 || spec.Servers[0].URL != "/apidocs/try/pets" {
+		t.Fatalf("servers = %+v, want the same-origin tunnel + the route prefix", spec.Servers)
 	}
 	if res := f.get(t, "/apidocs/specs/route/pets", f.plainC); res.StatusCode != http.StatusForbidden {
 		t.Fatalf("plain user on a route spec: %d, want 403", res.StatusCode)

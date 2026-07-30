@@ -2,6 +2,22 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="Kind_github_hint" datatype="html">
+        <source>GitHub proves the account, but signs nothing: there is no token to verify, so the trust rests on the exchange and on TLS. Restrict the organisations below unless you mean to open the door to every GitHub account.</source>
+        <target>GitHub prouve le compte mais ne signe rien : il n'y a aucun jeton à vérifier, la confiance repose donc sur l'échange et sur TLS. Restreignez les organisations ci-dessous, sauf à vouloir ouvrir la porte à n'importe quel compte GitHub.</target>
+      </trans-unit>
+      <trans-unit id="Allowed_orgs" datatype="html">
+        <source>Allowed organisations</source>
+        <target>Organisations autorisées</target>
+      </trans-unit>
+      <trans-unit id="Allowed_orgs_hint" datatype="html">
+        <source>Comma separated. Empty lets in ANY GitHub account.</source>
+        <target>Séparées par des virgules. Vide laisse entrer N'IMPORTE QUEL compte GitHub.</target>
+      </trans-unit>
+      <trans-unit id="Github_setup_hint" datatype="html">
+        <source>Create an OAuth app under Settings, Developer settings, and paste the callback below into its Authorization callback URL. Organisations and teams come back as groups, an organisation as "org" and a team as "org/team".</source>
+        <target>Créez une OAuth app dans Settings, Developer settings, et collez l'adresse de retour ci-dessous dans son Authorization callback URL. Les organisations et les équipes reviennent comme groupes, une organisation sous la forme « org » et une équipe sous la forme « org/team ».</target>
+      </trans-unit>
       <trans-unit id="Disabled" datatype="html">
         <source>Disabled</source>
         <target>Désactivée</target>
@@ -3615,6 +3631,53 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/api-docs-page.component.ts</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="Others" datatype="html">
+        <source>Others</source>
+        <target>Divers</target>
+      </trans-unit>
+      <trans-unit id="Expose_API_docs" datatype="html">
+        <source>Expose the API documentation (swagger-ui)</source>
+        <target>Exposer la documentation des API (swagger-ui)</target>
+      </trans-unit>
+      <trans-unit id="Expose_API_docs_hint" datatype="html">
+        <source>
+              The API screen and /apidocs on this admin port: Meerkat's own API plus every route
+              declaring an OpenAPI spec. Off, the whole surface answers 404.
+            </source>
+        <target>L'écran API et /apidocs sur ce port admin : l'API de Meerkat et chaque route déclarant une spec OpenAPI. Désactivé, toute la surface répond 404.</target>
+      </trans-unit>
+      <trans-unit id="API_docs_exposed" datatype="html">
+        <source>API documentation exposed</source>
+        <target>Documentation des API exposée</target>
+      </trans-unit>
+      <trans-unit id="API_docs_hidden" datatype="html">
+        <source>API documentation hidden</source>
+        <target>Documentation des API masquée</target>
+      </trans-unit>
+      <trans-unit id="Test_as_user" datatype="html">
+        <source>Test as user</source>
+        <target>Tester en tant que</target>
+      </trans-unit>
+      <trans-unit id="Validity" datatype="html">
+        <source>Validity</source>
+        <target>Validité</target>
+      </trans-unit>
+      <trans-unit id="Generate_test_token" datatype="html">
+        <source>Test token</source>
+        <target>Token de test</target>
+      </trans-unit>
+      <trans-unit id="Copy_for_authorize" datatype="html">
+        <source>Copy for Authorize</source>
+        <target>Copier pour Authorize</target>
+      </trans-unit>
+      <trans-unit id="Test_token_failed" datatype="html">
+        <source>Could not mint the test token</source>
+        <target>Impossible de générer le token de test</target>
+      </trans-unit>
+      <trans-unit id="Test_token_copied" datatype="html">
+        <source>Copied — paste it into Authorize (MeerkatTestToken)</source>
+        <target>Copié — collez-le dans Authorize (MeerkatTestToken)</target>
       </trans-unit>
       <trans-unit id="API_tokens" datatype="html">
         <source>API tokens</source>

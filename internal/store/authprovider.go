@@ -22,6 +22,12 @@ const (
 	ProviderOIDC = "oidc"
 	ProviderLDAP = "ldap"
 	ProviderSAML = "saml"
+	// GitHub is its OWN kind, not a generic "oauth2" one. OAuth2 alone says how
+	// to get a token, never who the person is, so every vendor invents its own
+	// identity endpoint and its own field names. A generic form would ask an
+	// admin to fill in three URLs and a field mapping they should never have to
+	// know: the vendor is the setting, and the rest is ours to hold.
+	ProviderGitHub = "github"
 )
 
 // Tri-state policies: "" inherits the application setting.
@@ -56,7 +62,7 @@ type AuthProvider struct {
 // ValidProviderKind reports whether kind is one we know how to drive.
 func ValidProviderKind(kind string) bool {
 	switch kind {
-	case ProviderOIDC, ProviderLDAP, ProviderSAML:
+	case ProviderOIDC, ProviderLDAP, ProviderSAML, ProviderGitHub:
 		return true
 	}
 	return false

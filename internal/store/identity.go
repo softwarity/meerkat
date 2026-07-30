@@ -366,6 +366,10 @@ const (
 	// SettingSMTP is the gateway-wide outbound e-mail config (mail.Config):
 	// confirmations, admin notifications, later password resets.
 	SettingSMTP = "smtp"
+	// SettingAPIDocsExposed exposes the embedded swagger-ui surface (/apidocs)
+	// on the admin port. Ships OFF: API docs are attack surface until an infra
+	// admin decides otherwise.
+	SettingAPIDocsExposed = "api_docs_exposed"
 	// SettingRegistration is the self-registration policy (AUTH-20): who may
 	// create their own account. Ships closed.
 	SettingRegistration = "registration"

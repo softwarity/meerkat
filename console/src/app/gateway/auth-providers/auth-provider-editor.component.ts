@@ -48,7 +48,7 @@ export class AuthProviderEditorComponent {
   private readonly dialogs = inject(DialogsService);
 
   protected readonly id = signal('');
-  protected readonly kind = signal<'oidc' | 'ldap' | 'saml'>('oidc');
+  protected readonly kind = signal<'oidc' | 'ldap' | 'saml' | 'github'>('oidc');
   protected readonly name = signal('');
   protected readonly enabled = signal(false);
   protected readonly autoCreate = signal(true);

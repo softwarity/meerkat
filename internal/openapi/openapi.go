@@ -224,6 +224,10 @@ func InjectSimulation(raw []byte) ([]byte, error) {
 			"type": "apiKey", "in": "header", "name": "X-Meerkat-Simulate-Roles",
 			"description": "Comma-separated roles of the simulated identity (e.g. auditor,sales).",
 		},
+		"MeerkatTestToken": map[string]any{
+			"type": "apiKey", "in": "header", "name": "Authorization",
+			"description": "An ephemeral test token minted in the page header, prefixed: `Bearer mksim_…`. Carries its own identity and roles — no session needed.",
+		},
 	}
 	if _, isV2 := doc["swagger"]; isV2 {
 		defs, _ := doc["securityDefinitions"].(map[string]any)
@@ -250,7 +254,9 @@ func InjectSimulation(raw []byte) ([]byte, error) {
 		doc["components"] = comps
 	}
 	sec, _ := doc["security"].([]any)
-	doc["security"] = append(sec, map[string]any{"MeerkatSimulateUser": []any{}, "MeerkatSimulateRoles": []any{}})
+	doc["security"] = append(sec,
+		map[string]any{"MeerkatSimulateUser": []any{}, "MeerkatSimulateRoles": []any{}},
+		map[string]any{"MeerkatTestToken": []any{}})
 	out, err := json.Marshal(doc)
 	if err != nil {
 		return raw, fmt.Errorf("openapi: inject marshal: %w", err)

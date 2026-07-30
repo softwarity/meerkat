@@ -73,19 +73,19 @@
   </app-form-field>
 
   @if (kind() === 'oidc') {
-    <app-form-field i18n-label="@@Issuer" label="Issuer" i18n-hint="@@Issuer_hint" hint="Its discovery document is read from there" allowVault="values" vaultScope="app">
+    <app-form-field i18n-label="@@Issuer" label="Issuer" i18n-hint="@@Issuer_hint" hint="Its discovery document is read from there" allowVault="values" vaultScope="infra">
       <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
         [value]="cfg('issuer')" (input)="setCfg('issuer', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()" placeholder="https://sso.acme.io/realms/main"></textarea>
     </app-form-field>
 
-    <app-form-field i18n-label="@@Client_ID" label="Client ID" allowVault="secret/values" vaultScope="app">
+    <app-form-field i18n-label="@@Client_ID" label="Client ID" allowVault="secret/values" vaultScope="infra">
       <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
         [value]="cfg('clientId')" (input)="setCfg('clientId', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()"></textarea>
     </app-form-field>
 
-    <app-form-field i18n-label="@@Client_secret" label="Client secret" revealable masked allowVault="secret" vaultScope="app" [clearable]="false">
+    <app-form-field i18n-label="@@Client_secret" label="Client secret" revealable masked allowVault="secret" vaultScope="infra" [clearable]="false">
       <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
         [value]="cfg('clientSecret')" (input)="setCfg('clientSecret', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()"></textarea>
@@ -111,13 +111,13 @@
   }
 
   @if (kind() === 'github') {
-    <app-form-field i18n-label="@@Client_ID" label="Client ID" allowVault="secret/values" vaultScope="app">
+    <app-form-field i18n-label="@@Client_ID" label="Client ID" allowVault="secret/values" vaultScope="infra">
       <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
         [value]="cfg('clientId')" (input)="setCfg('clientId', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()" placeholder="Iv1.0123456789abcdef"></textarea>
     </app-form-field>
 
-    <app-form-field i18n-label="@@Client_secret" label="Client secret" revealable masked allowVault="secret" vaultScope="app" [clearable]="false">
+    <app-form-field i18n-label="@@Client_secret" label="Client secret" revealable masked allowVault="secret" vaultScope="infra" [clearable]="false">
       <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
         [value]="cfg('clientSecret')" (input)="setCfg('clientSecret', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()"></textarea>
@@ -162,25 +162,25 @@
       </mat-select>
     </mat-form-field>
 
-    <app-form-field i18n-label="@@Server_URL" label="Server URL" i18n-hint="@@Server_URL_hint" hint="ldap:// or ldaps://" allowVault="values" vaultScope="app">
+    <app-form-field i18n-label="@@Server_URL" label="Server URL" i18n-hint="@@Server_URL_hint" hint="ldap:// or ldaps://" allowVault="values" vaultScope="infra">
       <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
         [value]="cfg('url')" (input)="setCfg('url', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()" placeholder="ldaps://dc1.acme.io:636"></textarea>
     </app-form-field>
 
-    <app-form-field i18n-label="@@Base_DN" label="Search base" allowVault="values" vaultScope="app">
+    <app-form-field i18n-label="@@Base_DN" label="Search base" allowVault="values" vaultScope="infra">
       <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
         [value]="cfg('baseDn')" (input)="setCfg('baseDn', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()" placeholder="dc=acme,dc=io"></textarea>
     </app-form-field>
 
-    <app-form-field i18n-label="@@Service_account" label="Service account" i18n-hint="@@Service_account_hint" hint="Used to SEARCH, never to sign anyone in" allowVault="values" vaultScope="app">
+    <app-form-field i18n-label="@@Service_account" label="Service account" i18n-hint="@@Service_account_hint" hint="Used to SEARCH, never to sign anyone in" allowVault="values" vaultScope="infra">
       <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
         [value]="cfg('bindDn')" (input)="setCfg('bindDn', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()" placeholder="cn=meerkat,ou=services,dc=acme,dc=io"></textarea>
     </app-form-field>
 
-    <app-form-field i18n-label="@@Service_password" label="Service password" revealable masked allowVault="secret" vaultScope="app" [clearable]="false">
+    <app-form-field i18n-label="@@Service_password" label="Service password" revealable masked allowVault="secret" vaultScope="infra" [clearable]="false">
       <textarea matInput rows="1" class="oneline" spellcheck="false" autocapitalize="off" autocorrect="off"
         [value]="cfg('bindPassword')" (input)="setCfg('bindPassword', $any($event.target).value)"
         (keydown.enter)="$event.preventDefault()"></textarea>

@@ -47,7 +47,11 @@
       <span>{{ e.name }}</span>
     </button>
   } @empty {
-    <button mat-menu-item type="button" disabled i18n="@@No_vault_entry_yet">No entry yet</button>
+    <!-- Naming the scope matters: an entry created in another plane is simply
+         not offered here, and an unexplained empty menu reads as a bug. -->
+    <button mat-menu-item type="button" disabled>
+      <span i18n="@@No_vault_entry_in_SCOPE">No entry in the {{ vaultScope() }} scope</span>
+    </button>
   }
   <mat-divider />
   <button mat-menu-item type="button" (click)="createEntry()">

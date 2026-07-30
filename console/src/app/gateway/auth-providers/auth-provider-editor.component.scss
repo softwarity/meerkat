@@ -31,6 +31,13 @@ header h2 {
 .kinds {
   align-self: flex-start;
 }
+/* A flex column with a bounded height SHRINKS its children down to min-content,
+   and a button-toggle group has no text of its own to stop it: it collapsed to
+   a two-pixel line under the header. Nothing in this panel should shrink; the
+   body scrolls instead. */
+.body > * {
+  flex: none;
+}
 app-form-field,
 mat-form-field {
   display: block;

@@ -2,6 +2,10 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="No_vault_entry_in_SCOPE" datatype="html">
+        <source>No entry in the <x id="INTERPOLATION" equiv-text="{{ vaultScope() }}"/> scope</source>
+        <target>Aucune entrée dans le périmètre <x id="INTERPOLATION" equiv-text="{{ vaultScope() }}"/></target>
+      </trans-unit>
       <trans-unit id="Kind_github_hint" datatype="html">
         <source>GitHub proves the account, but signs nothing: there is no token to verify, so the trust rests on the exchange and on TLS. Restrict the organisations below unless you mean to open the door to every GitHub account.</source>
         <target>GitHub prouve le compte mais ne signe rien : il n'y a aucun jeton à vérifier, la confiance repose donc sur l'échange et sur TLS. Restreignez les organisations ci-dessous, sauf à vouloir ouvrir la porte à n'importe quel compte GitHub.</target>

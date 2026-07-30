@@ -156,7 +156,11 @@ func (s *Store) GetAuthProvider(ctx context.Context, id string) (AuthProvider, e
 }
 
 // ResolvedAuthProvider returns one authority ready to USE: its $name
-// references expanded in the application scope, in memory only. The unresolved
+// references expanded in the INFRA scope, in memory only. Infra, because that
+// is the plane an authority belongs to: it is a third-party service reached by
+// URL with credentials, configured by an infra admin, who creates their
+// secrets there. Resolving against the app scope meant an admin could never
+// find the entry they had just created. The unresolved
 // names come back so a misconfiguration names itself instead of failing as a
 // bad client secret.
 func (s *Store) ResolvedAuthProvider(ctx context.Context, id string) (AuthProvider, []string, error) {
@@ -164,7 +168,7 @@ func (s *Store) ResolvedAuthProvider(ctx context.Context, id string) (AuthProvid
 	if err != nil {
 		return p, nil, err
 	}
-	values, err := s.VaultValues(ctx, vault.ScopeApp)
+	values, err := s.VaultValues(ctx, vault.ScopeInfra)
 	if err != nil {
 		return p, nil, err
 	}

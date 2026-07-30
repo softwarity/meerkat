@@ -93,6 +93,37 @@ func TestRefsAndExpand(t *testing.T) {
 	}
 }
 
+// TestRefName: the rule a SECRET field is judged by. A value that merely
+// contains a reference is a literal, because what would leak is the rest of it.
+func TestRefName(t *testing.T) {
+	for in, want := range map[string]string{
+		"$smtp-password":   "smtp-password",
+		"${smtp-password}": "smtp-password",
+		"$a.b_c":           "a.b_c",
+		// Literals, every one of them: a fragment, a concatenation, an escaped
+		// $, and a password that simply happens to start with a dollar.
+		"http://${host}:8080": "",
+		"${a}${b}":            "",
+		"x-$token":            "",
+		"$$notaref":           "",
+		"$2y$10$abcdefg":      "",
+		" $host":              "",
+		"":                    "",
+	} {
+		if got := RefName(in); got != want {
+			t.Fatalf("RefName(%q) = %q, want %q", in, got, want)
+		}
+		if IsRef(in) != (want != "") {
+			t.Fatalf("IsRef(%q) disagrees with RefName", in)
+		}
+	}
+	// What Ref writes must read back as the same name, or a stash would store
+	// something the gateway cannot resolve.
+	if got := RefName(Ref("smtp-password")); got != "smtp-password" {
+		t.Fatalf("Ref/RefName round trip = %q", got)
+	}
+}
+
 func TestNameOK(t *testing.T) {
 	for _, ok := range []string{"host", "smtp-password", "db.url", "a_b1"} {
 		if !NameOK.MatchString(ok) {

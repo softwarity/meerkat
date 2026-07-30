@@ -88,9 +88,14 @@ func ResolutionOrder(scope string) []string {
 	return []string{scope}
 }
 
+// namePattern is what an entry name may look like, in one place: the bound on a
+// name and the reference syntaxes below all have to agree, or a name accepted at
+// creation would never resolve.
+const namePattern = `[A-Za-z][A-Za-z0-9_.-]*`
+
 // NameOK bounds an entry name: it must survive being written as $name inside a
 // configuration, so no spaces and no punctuation that could end the reference.
-var NameOK = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_.-]*$`)
+var NameOK = regexp.MustCompile(`^` + namePattern + `$`)
 
 // Entry is one named value. Value is the CLEAR text; the store encrypts it on
 // the way in for secrets, and the admin API blanks it on the way out.
@@ -111,7 +116,37 @@ type Entry struct {
 
 // refRe matches $name and ${name} — the second form lets a reference sit flush
 // against following text ("${host}:8080"). A doubled $$ escapes a literal $.
-var refRe = regexp.MustCompile(`\$\$|\$\{([A-Za-z][A-Za-z0-9_.-]*)\}|\$([A-Za-z][A-Za-z0-9_.-]*)`)
+var refRe = regexp.MustCompile(`\$\$|\$\{(` + namePattern + `)\}|\$(` + namePattern + `)`)
+
+// wholeRefRe matches a value that is ENTIRELY one reference, nothing else.
+var wholeRefRe = regexp.MustCompile(`^(?:\$\{(` + namePattern + `)\}|\$(` + namePattern + `))$`)
+
+// RefName returns the entry a value points at when the value is nothing but
+// that reference, "" otherwise.
+//
+// The distinction matters for SECRETS, and only for them. An upstream is built
+// around its references ("http://${host}:8080"), so a fragment is normal there.
+// A password is not a fragment: it either IS what the vault holds, or it is a
+// literal sitting in the configuration. "${a}${b}" and "x-$token" are literals
+// by this rule, which is the safe way round — a value we cannot certify as a
+// reference is treated as a secret to protect.
+func RefName(s string) string {
+	m := wholeRefRe.FindStringSubmatch(s)
+	if m == nil {
+		return ""
+	}
+	if m[1] != "" {
+		return m[1]
+	}
+	return m[2]
+}
+
+// IsRef reports whether s is entirely one reference (see RefName).
+func IsRef(s string) bool { return RefName(s) != "" }
+
+// Ref writes the reference to name in the form that survives anything following
+// it, which is what the console inserts and what a stash writes back.
+func Ref(name string) string { return "${" + name + "}" }
 
 // Refs returns the entry names s references, in order, without duplicates.
 func Refs(s string) []string {

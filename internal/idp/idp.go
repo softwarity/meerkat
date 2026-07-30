@@ -85,6 +85,25 @@ func New(p store.AuthProvider) (Driver, error) {
 	}
 }
 
+// SecretFields names the config keys of one kind that hold a SECRET, and it is
+// the only place that knowledge lives. Four behaviours read it: the admin API
+// never returns such a field in clear, a save carries the stored value forward
+// rather than blanking it, the audit trail redacts it, and the console offers
+// to move it into the vault.
+//
+// Declared rather than guessed: the audit's isSensitiveKey heuristic matches
+// "password" and "secret" but would miss an "apiKey" or a "privateKey", and a
+// heuristic that misses once leaks once.
+func SecretFields(kind string) []string {
+	switch kind {
+	case store.ProviderOIDC, store.ProviderGitHub:
+		return []string{"clientSecret"}
+	case store.ProviderLDAP:
+		return []string{"bindPassword"}
+	}
+	return nil
+}
+
 // cfgString reads a string out of a provider's config.
 func cfgString(cfg map[string]any, key string) string {
 	s, _ := cfg[key].(string)

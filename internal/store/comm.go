@@ -25,8 +25,7 @@ import (
 // application's. Resolving the relay's password against the app scope would let
 // an app admin decide what the relay authenticates with.
 func (s *Store) GetSMTP(ctx context.Context) mail.Config {
-	var cfg mail.Config
-	_ = s.GetSetting(ctx, SettingSMTP, &cfg)
+	cfg := s.RawSMTP(ctx)
 	cfg.Host, cfg.Username, cfg.Password = s.expandRelay(ctx, cfg.Host, cfg.Username, cfg.Password)
 	if values, err := s.VaultValues(ctx, vault.ScopeInfra); err == nil {
 		cfg.From, _ = vault.Expand(cfg.From, func(n string) (string, bool) { v, ok := values[n]; return v, ok })
@@ -34,6 +33,16 @@ func (s *Store) GetSMTP(ctx context.Context) mail.Config {
 	if values, err := s.VaultValues(ctx, vault.ScopeApp); err == nil {
 		cfg.FromName, _ = vault.Expand(cfg.FromName, func(n string) (string, bool) { v, ok := values[n]; return v, ok })
 	}
+	return cfg
+}
+
+// RawSMTP reads the relay AS STORED, references unexpanded. It is what the
+// admin screen must be served: a form showing the resolved value would send
+// that value back on the next save and quietly replace the reference with the
+// secret itself — the screen would eat the very thing it is meant to display.
+func (s *Store) RawSMTP(ctx context.Context) mail.Config {
+	var cfg mail.Config
+	_ = s.GetSetting(ctx, SettingSMTP, &cfg)
 	return cfg
 }
 

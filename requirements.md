@@ -255,6 +255,7 @@ sans modification de leur code :
 | VAULT-02 | CRUD des secrets depuis la console, valeur jamais réaffichée en clair ; **ré-encryption globale** (rotation de la clé maître). | ✔ | M |
 | VAULT-03 | Import en masse des secrets (bootstrap d'environnement). | ✔ | S |
 | VAULT-04 | Option d'adossement à un coffre externe (HashiCorp Vault, secrets Kubernetes/Docker) comme source alternative. | ✘ | C |
+| VAULT-05 | **Un champ sensible passe par le coffre.** Les champs qui portent un secret sont déclarés (pas devinés) ; l'API ne renvoie jamais un littéral, seulement la référence `$nom` quand c'en est une, sinon le fait qu'une valeur est posée. Dans la console, un secret saisi en clair **bloque l'enregistrement** tant qu'il n'est pas rangé dans le coffre, l'action étant offerte dans le message lui-même ; un littéral hérité (fichier d'amorçage, configuration antérieure) est signalé sans bloquer et déplacé **côté serveur**, la console ne le voyant jamais. | ✔ | M |
 
 ### 3.9 SSL/TLS (SSL)
 

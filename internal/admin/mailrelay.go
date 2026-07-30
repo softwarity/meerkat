@@ -6,6 +6,7 @@ import (
 
 	"github.com/softwarity/meerkat/internal/mail"
 	"github.com/softwarity/meerkat/internal/store"
+	"github.com/softwarity/meerkat/internal/vault"
 )
 
 // The mail relay (AUTH-20) is INFRASTRUCTURE: a third-party service reached by
@@ -24,15 +25,20 @@ func (a *API) registerMailRelay(mux *http.ServeMux) {
 	mux.Handle("POST /api/settings/mail-relay/test", a.infraAdmin(a.testMailRelay))
 }
 
-// mailRelayPayload is the transport as the console sees it: the password is
-// WRITE-ONLY — accepted on PUT ("" keeps the stored one), never returned.
+// mailRelayPayload is the transport as the console sees it. Same rule as
+// everywhere else: a REFERENCE is public and comes back as itself, a LITERAL
+// password never leaves — it is accepted on PUT ("" keeps the stored one) and
+// only reported as being set.
 type mailRelayPayload struct {
-	Host        string `json:"host"`
-	Port        int    `json:"port"`
-	Security    string `json:"security"` // "" | starttls | tls | none
-	Username    string `json:"username"`
-	Password    string `json:"password"`
-	PasswordSet bool   `json:"passwordSet"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Security string `json:"security"` // "" | starttls | tls | none
+	Username string `json:"username"`
+	Password string `json:"password"`
+	// PasswordSet says a LITERAL password is stored: something is configured
+	// that this payload does not carry. A reference is carried, so it does not
+	// raise this flag — the console tells the two states apart by that.
+	PasswordSet bool `json:"passwordSet"`
 	// From is the sender ADDRESS, editable here. Empty means "the account", as
 	// long as Username is itself an address.
 	From string `json:"from"`
@@ -43,16 +49,28 @@ type mailRelayPayload struct {
 	Sender string `json:"sender,omitempty"`
 }
 
+// relayView takes the relay AS STORED, so every editable field comes back the
+// way it was written, references included.
 func (a *API) relayView(cfg mail.Config) mailRelayPayload {
-	return mailRelayPayload{
+	v := mailRelayPayload{
 		Host: cfg.Host, Port: cfg.Port, Security: cfg.Security,
-		Username: cfg.Username, PasswordSet: cfg.Password != "",
-		From: cfg.From, FromName: cfg.FromName, Sender: cfg.Sender(),
+		Username: cfg.Username, From: cfg.From, FromName: cfg.FromName,
 	}
+	if vault.IsRef(cfg.Password) {
+		v.Password = cfg.Password
+	} else {
+		v.PasswordSet = cfg.Password != ""
+	}
+	return v
 }
 
 func (a *API) getMailRelay(w http.ResponseWriter, r *http.Request, _ store.User) {
-	writeJSON(w, http.StatusOK, a.relayView(a.st.GetSMTP(r.Context())))
+	v := a.relayView(a.st.RawSMTP(r.Context()))
+	// Sender is the one READ-ONLY field: it previews what a recipient will
+	// actually see, so it is answered from the RESOLVED relay. Showing
+	// "${mail-from}" there would preview nothing.
+	v.Sender = a.st.GetSMTP(r.Context()).Sender()
+	writeJSON(w, http.StatusOK, v)
 }
 
 func (a *API) putMailRelay(w http.ResponseWriter, r *http.Request, actor store.User) {
@@ -68,7 +86,9 @@ func (a *API) putMailRelay(w http.ResponseWriter, r *http.Request, actor store.U
 		return
 	}
 	// The display NAME is not ours to change: carry the stored one forward.
-	stored := a.st.GetSMTP(r.Context())
+	// Read the relay UNRESOLVED, or saving would replace every reference the
+	// form carries with whatever it currently resolves to.
+	stored := a.st.RawSMTP(r.Context())
 	cfg := mail.Config{
 		Host: strings.TrimSpace(p.Host), Port: p.Port, Security: p.Security,
 		Username: p.Username, From: strings.TrimSpace(p.From),

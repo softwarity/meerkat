@@ -20,6 +20,9 @@ func (a *API) registerVault(mux *http.ServeMux) {
 	mux.Handle("GET /api/vault", a.authed(a.listVault))
 	mux.Handle("PUT /api/vault/{scope}/{name}", a.authed(a.putVaultEntry))
 	mux.Handle("DELETE /api/vault/{scope}/{name}", a.authed(a.deleteVaultEntry))
+	// Moving a stored secret in (see secrets.go): the value never leaves the
+	// server, so this cannot be done through PUT /api/vault.
+	mux.Handle("POST /api/vault/stash", a.authed(a.stashSecret))
 }
 
 // vaultScopes lists the planes a caller may WRITE: root covers the global ones,
@@ -178,24 +181,46 @@ func (a *API) deleteVaultEntry(w http.ResponseWriter, r *http.Request, actor sto
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// vaultUsage maps an entry name to the objects referencing it. It scans the
-// routes' JSON, so a reference counts wherever it sits (upstream, a filter
-// argument, a header name) without enumerating fields.
+// vaultUsage maps an entry name to the objects referencing it. Each holder is
+// scanned as JSON, so a reference counts wherever it sits (an upstream, a
+// filter argument, a client secret) without enumerating fields.
+//
+// Completeness is the point: this is what refuses the deletion of a live entry,
+// and a holder missing from here is a holder whose secret can be deleted from
+// under it, leaving an authority to fail at the next sign-in with an
+// unresolved $name.
 func (a *API) vaultUsage(ctx context.Context) (map[string][]string, error) {
+	usage := map[string][]string{}
+	add := func(label string, holder any) error {
+		raw, err := json.Marshal(holder)
+		if err != nil {
+			return err
+		}
+		for _, name := range vault.Refs(string(raw)) {
+			usage[name] = append(usage[name], label)
+		}
+		return nil
+	}
 	routes, err := a.st.ListRoutes(ctx)
 	if err != nil {
 		return nil, err
 	}
-	usage := map[string][]string{}
 	for _, r := range routes {
-		raw, err := json.Marshal(r)
-		if err != nil {
+		if err := add("route: "+r.Name, r); err != nil {
 			return nil, err
 		}
-		label := "route: " + r.Name
-		for _, name := range vault.Refs(string(raw)) {
-			usage[name] = append(usage[name], label)
+	}
+	providers, err := a.st.ListAuthProviders(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, p := range providers {
+		if err := add("authority: "+p.Name, p.Config); err != nil {
+			return nil, err
 		}
+	}
+	if err := add("mail relay", a.st.RawSMTP(ctx)); err != nil {
+		return nil, err
 	}
 	return usage, nil
 }

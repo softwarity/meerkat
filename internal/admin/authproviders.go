@@ -1,11 +1,13 @@
 package admin
 
 import (
+	"maps"
 	"net/http"
 	"strings"
 
 	"github.com/softwarity/meerkat/internal/idp"
 	"github.com/softwarity/meerkat/internal/store"
+	"github.com/softwarity/meerkat/internal/vault"
 )
 
 // External authorities (AUTH-19), INFRA plane. A directory or an identity
@@ -19,10 +21,12 @@ func (a *API) registerAuthProviders(mux *http.ServeMux) {
 	mux.Handle("POST /api/auth-providers/{id}/check", a.infraAdmin(a.checkAuthProvider))
 }
 
-// providerView is the transport. Secrets inside Config are NOT redacted here
-// on purpose: an admin who may configure the authority may read what they
-// configured, and the recommended shape is a $name vault reference anyway,
-// which is what actually keeps the secret out of this payload.
+// providerView is the transport, and it obeys the rule the whole configuration
+// obeys: A REFERENCE IS PUBLIC, A LITERAL NEVER IS. A ${name} comes back as
+// itself — it names an entry, not a value, and the console needs it to show
+// which one. A literal secret is stripped out entirely and only named in
+// SecretsSet, so it never travels through a response, a browser, a cache or an
+// export, whoever is entitled to read it.
 type providerView struct {
 	store.AuthProvider
 	// Linked counts the accounts reachable through this authority: deleting
@@ -32,6 +36,64 @@ type providerView struct {
 	// the single most common reason a first setup fails, so it is handed over
 	// rather than described.
 	CallbackURL string `json:"callbackUrl,omitempty"`
+	// SecretsSet names the secret fields that hold a stored LITERAL: the value
+	// is not in this payload, but the console has to know one exists, or an
+	// empty-looking field reads as "not configured" and invites a reset.
+	SecretsSet []string `json:"secretsSet,omitempty"`
+}
+
+// publicProvider returns the authority as the console may see it, plus the
+// fields whose literal was withheld.
+func publicProvider(p store.AuthProvider) (store.AuthProvider, []string) {
+	fields := idp.SecretFields(p.Kind)
+	if len(fields) == 0 || len(p.Config) == 0 {
+		return p, nil
+	}
+	// Copy: the config comes from the store's own decode, and stripping it in
+	// place would blank it for whatever else holds that map.
+	cfg := make(map[string]any, len(p.Config))
+	maps.Copy(cfg, p.Config)
+	var held []string
+	for _, field := range fields {
+		s, ok := cfg[field].(string)
+		if !ok || s == "" || vault.IsRef(s) {
+			continue
+		}
+		delete(cfg, field)
+		held = append(held, field)
+	}
+	p.Config = cfg
+	return p, held
+}
+
+// view builds the transport for one authority, callback URL included.
+func (a *API) providerView(r *http.Request, p store.AuthProvider) providerView {
+	public, held := publicProvider(p)
+	v := providerView{AuthProvider: public, SecretsSet: held}
+	if p.Kind == store.ProviderOIDC || p.Kind == store.ProviderSAML || p.Kind == store.ProviderGitHub {
+		v.CallbackURL = a.callbackURL(r, p.ID)
+	}
+	return v
+}
+
+// carrySecretsForward fills back the secrets the console could not send. It
+// never received the literal, so a blank field means "leave it alone", not
+// "erase it" — without this, opening an authority and renaming it would wipe
+// its client secret.
+func carrySecretsForward(incoming *store.AuthProvider, stored store.AuthProvider) {
+	for _, field := range idp.SecretFields(incoming.Kind) {
+		if s, ok := incoming.Config[field].(string); ok && s != "" {
+			continue // the admin typed a new one, or picked a reference
+		}
+		kept, ok := stored.Config[field]
+		if !ok {
+			continue
+		}
+		if incoming.Config == nil {
+			incoming.Config = map[string]any{}
+		}
+		incoming.Config[field] = kept
+	}
 }
 
 func (a *API) listAuthProviders(w http.ResponseWriter, r *http.Request, _ store.User) {
@@ -42,11 +104,7 @@ func (a *API) listAuthProviders(w http.ResponseWriter, r *http.Request, _ store.
 	}
 	out := make([]providerView, 0, len(all))
 	for _, p := range all {
-		v := providerView{AuthProvider: p}
-		if p.Kind == store.ProviderOIDC || p.Kind == store.ProviderSAML {
-			v.CallbackURL = a.callbackURL(r, p.ID)
-		}
-		out = append(out, v)
+		out = append(out, a.providerView(r, p))
 	}
 	writeJSON(w, http.StatusOK, out)
 }
@@ -73,6 +131,12 @@ func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor stor
 			"a policy must be empty (inherit), "+store.PolicyYes+" or "+store.PolicyNo)
 		return
 	}
+	// Bring the stored secrets back BEFORE validating: the console never
+	// received them, so a driver built on the payload alone would be refused
+	// for a missing client secret that is in fact perfectly well set.
+	before, _ := a.st.GetAuthProvider(r.Context(), p.ID)
+	carrySecretsForward(&p, before)
+
 	// Build the driver before storing: a configuration that cannot even be
 	// compiled must be refused at save time, not discovered by the first
 	// person trying to sign in.
@@ -80,8 +144,6 @@ func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor stor
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-
-	before, _ := a.st.GetAuthProvider(r.Context(), p.ID)
 	if err := a.st.SaveAuthProvider(r.Context(), p); err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
@@ -91,8 +153,14 @@ func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor stor
 		a.internal(w, err)
 		return
 	}
-	a.auditUpdate(r.Context(), actor, "authprovider.update", "authprovider", saved.ID, saved.Name, "", before, saved)
-	writeJSON(w, http.StatusOK, providerView{AuthProvider: saved, CallbackURL: a.callbackURL(r, saved.ID)})
+	// The audit trail sees the PUBLIC form for the same reason the console
+	// does: a literal secret has no business being written down, and the diff
+	// still records a field going from unset to set through SecretsSet.
+	view := a.providerView(r, saved)
+	beforeView, beforeHeld := publicProvider(before)
+	a.auditUpdate(r.Context(), actor, "authprovider.update", "authprovider", saved.ID, saved.Name, "",
+		providerView{AuthProvider: beforeView, SecretsSet: beforeHeld}, view)
+	writeJSON(w, http.StatusOK, view)
 }
 
 func (a *API) deleteAuthProvider(w http.ResponseWriter, r *http.Request, actor store.User) {

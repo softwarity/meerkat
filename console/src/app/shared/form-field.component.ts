@@ -8,6 +8,7 @@ import {
   forwardRef,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -69,6 +70,17 @@ export class FormFieldComponent {
   // through ng-content is invisible to mat-form-field's content queries (same
   // reason the label is an input).
   readonly hint = input('');
+  // An error under the field, in place of the hint, with the field itself
+  // marked invalid. Same reason as the hint for being an input, plus one:
+  // mat-form-field only reveals a <mat-error> when the CONTROL says it is in
+  // error, so the projected control is handed a matcher below.
+  readonly error = input('');
+  // One extra action in the suffix row: an icon and what it does. Declared
+  // rather than projected, because a [matSuffix] passed through ng-content is
+  // invisible to mat-form-field's content queries.
+  readonly actionIcon = input('');
+  readonly actionLabel = input('');
+  readonly action = output<void>();
   readonly clearable = input(true, { transform: booleanAttribute });
   readonly copyable = input(false, { transform: booleanAttribute });
   readonly revealable = input(false, { transform: booleanAttribute });
@@ -163,7 +175,15 @@ export class FormFieldComponent {
   constructor() {
     effect(() => {
       const control = this.control();
-      if (control) this.formField()._control = control;
+      if (!control) return;
+      this.formField()._control = control;
+      // Nothing here is a form control, so hand Material a matcher that reads
+      // our input instead. And drive it ourselves: MatInput only re-evaluates
+      // its error state on ngDoCheck WHEN IT HAS AN NgControl, so without this
+      // call the outline never turns red and <mat-error> is never let through.
+      control.errorStateMatcher = { isErrorState: () => !!this.error() };
+      this.error(); // re-run whenever the message appears or clears
+      control.updateErrorState();
     });
     effect(() => {
       this.masked();

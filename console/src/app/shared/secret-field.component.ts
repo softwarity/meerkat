@@ -1,7 +1,5 @@
 import { booleanAttribute, Component, computed, inject, input, model, output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SecretLocation, VaultEntry } from '../api.service';
 import { FormFieldComponent } from './form-field.component';
@@ -34,7 +32,7 @@ export type SecretState = 'empty' | 'reference' | 'typed' | 'held';
 //              click moves it, server-side.
 @Component({
   selector: 'app-secret-field',
-  imports: [MatButtonModule, MatIconModule, MatInputModule, FormFieldComponent],
+  imports: [MatInputModule, FormFieldComponent],
   styleUrl: './secret-field.component.scss',
   templateUrl: './secret-field.component.html',
 })
@@ -69,8 +67,11 @@ export class SecretFieldComponent {
   // the one case where the admin has the value in hand.
   readonly invalid = computed(() => this.state() === 'typed');
 
-  // The issue shown under the field, with its way out. A blocking error that
-  // offers no action is a dead end, so the button lives in the message.
+  protected readonly moveLabel = $localize`:@@Move_into_the_vault:Move into the vault`;
+
+  // What the field says about itself, and whether it can be acted on. A
+  // blocking state that offers no way out is a dead end, so the action rides
+  // in the field's own suffix row rather than somewhere else on the screen.
   protected readonly issue = computed(() => {
     switch (this.state()) {
       case 'typed':

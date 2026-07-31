@@ -42,6 +42,10 @@ export class SecretFieldComponent {
   readonly label = input('');
   readonly hint = input('');
   readonly placeholder = input('');
+  // Classes for the field itself. The host is display:contents, so a class put
+  // on <app-secret-field> would reach no box — the layout ones (a grid span)
+  // have to land on the field that is actually laid out.
+  readonly fieldClass = input('');
   // The field's value: a ${name} reference, a literal being typed, or ''.
   readonly value = model('');
   // A LITERAL is stored server-side and was not sent here. Without this the

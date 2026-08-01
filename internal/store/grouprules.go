@@ -3,7 +3,9 @@ package store
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -118,6 +120,44 @@ func (s *Store) DeleteGroupRule(ctx context.Context, tenantID, id string) (bool,
 	}
 	n, _ := res.RowsAffected()
 	return n > 0, nil
+}
+
+// ReportedGroups lists every group name the authorities have been heard to
+// say, across all the identity links, sorted and without duplicates. It is
+// what the rule editor offers instead of asking someone to retype a DN: a
+// rule written against a remembered name matches nothing, silently, and
+// "cn=Developers,OU=Groups" and "cn=developers,ou=groups" look identical to
+// the person writing them.
+func (s *Store) ReportedGroups(ctx context.Context) ([]string, error) {
+	rows, err := s.db.QueryContext(ctx,
+		`SELECT groups FROM user_identities WHERE groups != ''`)
+	if err != nil {
+		return nil, fmt.Errorf("store: reported groups: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+	seen := map[string]bool{}
+	for rows.Next() {
+		var raw string
+		if err := rows.Scan(&raw); err != nil {
+			return nil, fmt.Errorf("store: scan reported groups: %w", err)
+		}
+		var names []string
+		if err := json.Unmarshal([]byte(raw), &names); err != nil {
+			continue // a row we cannot read must not hide the others
+		}
+		for _, n := range names {
+			seen[n] = true
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	out := make([]string, 0, len(seen))
+	for n := range seen {
+		out = append(out, n)
+	}
+	sort.Strings(out)
+	return out, nil
 }
 
 // matches reports whether a rule applies to this authority and these reported

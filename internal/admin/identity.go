@@ -121,6 +121,7 @@ func (a *API) registerIdentity(mux *http.ServeMux) {
 	mux.Handle("PUT /api/users/{id}", a.appAdmin(a.updateUser))
 	mux.Handle("POST /api/users/{id}/reset-password", a.appAdmin(a.resetPassword))
 	mux.Handle("GET /api/users/{id}/logins", a.appAdmin(a.userLogins))
+	mux.Handle("GET /api/users/{id}/identities", a.appAdmin(a.userIdentities))
 	mux.Handle("DELETE /api/users/{id}", a.appAdmin(a.deleteUser))
 
 	mux.Handle("GET /api/tenants", a.authed(a.listTenants))
@@ -310,6 +311,48 @@ func (a *API) userLogins(w http.ResponseWriter, r *http.Request, _ store.User) {
 		return
 	}
 	a.writeLogins(w, r, r.PathValue("id"))
+}
+
+// identityView is one authority someone can sign in through, and what that
+// authority said about them last time. The provider NAME travels with it: an
+// id names a row, not a service.
+type identityView struct {
+	store.Identity
+	ProviderName string `json:"providerName"`
+	ProviderKind string `json:"providerKind"`
+}
+
+// userIdentities answers "how can this person get in, and what does the
+// authority say about them" — the two questions an admin has when someone
+// arrives through SSO and reaches nothing. The reported GROUPS are the ones a
+// mapping would be written against, so they are shown verbatim, upstream's own
+// names, rather than translated into anything of ours.
+func (a *API) userIdentities(w http.ResponseWriter, r *http.Request, _ store.User) {
+	userID := r.PathValue("id")
+	if _, err := a.st.GetUserByID(r.Context(), userID); err != nil {
+		writeErr(w, http.StatusNotFound, "user not found")
+		return
+	}
+	links, err := a.st.IdentitiesOfUser(r.Context(), userID)
+	if err != nil {
+		a.internal(w, err)
+		return
+	}
+	providers, err := a.st.ListAuthProviders(r.Context())
+	if err != nil {
+		a.internal(w, err)
+		return
+	}
+	byID := make(map[string]store.AuthProvider, len(providers))
+	for _, p := range providers {
+		byID[p.ID] = p
+	}
+	out := make([]identityView, 0, len(links))
+	for _, l := range links {
+		p := byID[l.ProviderID]
+		out = append(out, identityView{Identity: l, ProviderName: p.Name, ProviderKind: p.Kind})
+	}
+	writeJSON(w, http.StatusOK, out)
 }
 
 // memberLogins is the tenant-scoped view of the same history: an OWNER/ADMIN

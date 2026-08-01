@@ -102,7 +102,7 @@ func (s *Store) Close() error { return s.db.Close() }
 // data plane only, an admin (control-plane) token on the admin port only —
 // each plane accepts its own scope, never the other's. Admin tokens are the
 // foundation for headless management (CLI/MCP), minted by root.
-const schemaVersion = 30
+const schemaVersion = 31
 
 func (s *Store) migrate() error {
 	var v int
@@ -318,11 +318,17 @@ CREATE TABLE IF NOT EXISTS auth_providers (
 -- The link between a local account and what an authority calls that person.
 -- Keyed by (provider, external id) because the authority's id is the only
 -- stable handle: a username or an address can change upstream.
+-- groups and last_seen_at are refreshed on EVERY sign-in (v31): what the
+-- authority says about someone is a fact of the last sign-in, not of the day
+-- the link was made, and an admin has to see the real group names before any
+-- mapping can be configured against them.
 CREATE TABLE IF NOT EXISTS user_identities (
-  provider_id TEXT NOT NULL REFERENCES auth_providers(id) ON DELETE CASCADE,
-  external_id TEXT NOT NULL,
-  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at  INTEGER NOT NULL DEFAULT 0,
+  provider_id  TEXT NOT NULL REFERENCES auth_providers(id) ON DELETE CASCADE,
+  external_id  TEXT NOT NULL,
+  user_id      TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  groups       TEXT NOT NULL DEFAULT '',
+  created_at   INTEGER NOT NULL DEFAULT 0,
+  last_seen_at INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (provider_id, external_id)
 );
 CREATE INDEX IF NOT EXISTS user_identities_user ON user_identities(user_id);

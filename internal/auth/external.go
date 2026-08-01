@@ -192,6 +192,12 @@ func (h *Handler) linkOrCreate(ctx context.Context, p store.AuthProvider, id idp
 		return store.User{}, false, fmt.Errorf("auth: %s returned no subject", p.Name)
 	}
 	if u, err := h.st.UserByIdentity(ctx, p.ID, id.Subject); err == nil {
+		// Re-record even though the link exists: this is the ONLY moment the
+		// authority speaks, and what it says about someone's groups changes
+		// between sign-ins.
+		if err := h.st.LinkIdentity(ctx, p.ID, id.Subject, u.ID, id.Groups); err != nil {
+			return store.User{}, false, err
+		}
 		return u, false, nil
 	}
 
@@ -201,7 +207,7 @@ func (h *Handler) linkOrCreate(ctx context.Context, p store.AuthProvider, id idp
 			if err != nil {
 				return store.User{}, false, err
 			}
-			if err := h.st.LinkIdentity(ctx, p.ID, id.Subject, u.ID); err != nil {
+			if err := h.st.LinkIdentity(ctx, p.ID, id.Subject, u.ID, id.Groups); err != nil {
 				return store.User{}, false, err
 			}
 			return u, false, nil
@@ -229,7 +235,7 @@ func (h *Handler) linkOrCreate(ctx context.Context, p store.AuthProvider, id idp
 	if err := h.st.CreateUser(ctx, u); err != nil {
 		return store.User{}, false, err
 	}
-	if err := h.st.LinkIdentity(ctx, p.ID, id.Subject, u.ID); err != nil {
+	if err := h.st.LinkIdentity(ctx, p.ID, id.Subject, u.ID, id.Groups); err != nil {
 		return store.User{}, false, err
 	}
 	slog.Info("external account created", "provider", p.ID, "user", u.Username, "groups", id.Groups)

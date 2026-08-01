@@ -1,0 +1,36 @@
+@if (identities(); as list) {
+  @for (i of list; track i.providerId + i.externalId) {
+    <div class="row">
+      <mat-icon class="kind">{{ icon(i.providerKind) }}</mat-icon>
+      <div class="lines">
+        <span class="label">{{ i.providerName }}</span>
+        <!-- The authority's own handle for this person: the only stable one,
+             and what a support request will quote. -->
+        <span class="meta mono">{{ i.externalId }}</span>
+        @if (i.groups?.length) {
+          <div class="groups">
+            @for (g of i.groups; track g) {
+              <span class="group mono">{{ g }}</span>
+            }
+          </div>
+        } @else {
+          <span class="meta" i18n="@@No_group_reported">No group reported</span>
+        }
+      </div>
+      @if (i.lastSeenAt) {
+        <span
+          class="when"
+          i18n-matTooltip="@@Last_sign_in_through_this_authority"
+          matTooltip="Last sign-in through this authority"
+          >{{ i.lastSeenAt * 1000 | date: 'yyyy-MM-dd HH:mm' }}</span
+        >
+      }
+    </div>
+  } @empty {
+    <p class="empty" i18n="@@No_external_authority_for_this_account">
+      This account signs in with its local password only.
+    </p>
+  }
+} @else {
+  <loading-indicator />
+}

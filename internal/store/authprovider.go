@@ -195,25 +195,44 @@ func (s *Store) DeleteAuthProvider(ctx context.Context, id string) (bool, error)
 
 // ── identity links ───────────────────────────────────────────────────────────
 
-// Identity links a local account to what one authority calls that person.
+// Identity links a local account to what one authority calls that person, plus
+// what that authority last said about them.
 type Identity struct {
 	ProviderID string `json:"providerId"`
 	ExternalID string `json:"externalId"`
 	UserID     string `json:"userId"`
-	CreatedAt  int64  `json:"createdAt"`
+	// Groups is what the authority reported at the LAST sign-in: its own group
+	// names, verbatim. Kept because an admin cannot map what they cannot see,
+	// and because "which groups does upstream actually send" is the first
+	// question every mapping raises.
+	Groups     []string `json:"groups,omitempty"`
+	CreatedAt  int64    `json:"createdAt"`
+	LastSeenAt int64    `json:"lastSeenAt,omitempty"`
 }
 
-// LinkIdentity records that providerID's externalID is userID. Re-linking the
-// same pair is a no-op, so a repeated sign-in costs one upsert.
-func (s *Store) LinkIdentity(ctx context.Context, providerID, externalID, userID string) error {
+// LinkIdentity records that providerID's externalID is userID, and what the
+// authority reported this time. Called on EVERY sign-in, not only the first:
+// group membership changes upstream, and a snapshot from the day the account
+// was created would describe someone who has since changed teams.
+func (s *Store) LinkIdentity(ctx context.Context, providerID, externalID, userID string, groups []string) error {
 	if providerID == "" || externalID == "" || userID == "" {
 		return fmt.Errorf("store: an identity link needs a provider, an external id and a user")
 	}
-	_, err := s.db.ExecContext(ctx,
-		`INSERT INTO user_identities (provider_id, external_id, user_id, created_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(provider_id, external_id) DO UPDATE SET user_id = excluded.user_id`,
-		providerID, externalID, userID, time.Now().Unix())
+	raw, err := json.Marshal(groups)
+	if err != nil {
+		return fmt.Errorf("store: identity groups: %w", err)
+	}
+	if len(groups) == 0 {
+		raw = nil // an authority that reports nothing stores nothing
+	}
+	now := time.Now().Unix()
+	_, err = s.db.ExecContext(ctx,
+		`INSERT INTO user_identities (provider_id, external_id, user_id, groups, created_at, last_seen_at)
+		 VALUES (?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(provider_id, external_id) DO UPDATE SET
+		   user_id = excluded.user_id, groups = excluded.groups,
+		   last_seen_at = excluded.last_seen_at`,
+		providerID, externalID, userID, string(raw), now, now)
 	if err != nil {
 		return fmt.Errorf("store: link identity %s/%s: %w", providerID, externalID, err)
 	}
@@ -240,8 +259,8 @@ func (s *Store) UserByIdentity(ctx context.Context, providerID, externalID strin
 // what the profile and the admin's user drawer show.
 func (s *Store) IdentitiesOfUser(ctx context.Context, userID string) ([]Identity, error) {
 	rows, err := s.db.QueryContext(ctx,
-		`SELECT provider_id, external_id, user_id, created_at FROM user_identities
-		 WHERE user_id = ? ORDER BY created_at`, userID)
+		`SELECT provider_id, external_id, user_id, groups, created_at, last_seen_at
+		 FROM user_identities WHERE user_id = ? ORDER BY created_at`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("store: identities of %q: %w", userID, err)
 	}
@@ -249,8 +268,15 @@ func (s *Store) IdentitiesOfUser(ctx context.Context, userID string) ([]Identity
 	var out []Identity
 	for rows.Next() {
 		var i Identity
-		if err := rows.Scan(&i.ProviderID, &i.ExternalID, &i.UserID, &i.CreatedAt); err != nil {
+		var groups string
+		if err := rows.Scan(&i.ProviderID, &i.ExternalID, &i.UserID, &groups,
+			&i.CreatedAt, &i.LastSeenAt); err != nil {
 			return nil, fmt.Errorf("store: scan identity: %w", err)
+		}
+		if groups != "" {
+			if err := json.Unmarshal([]byte(groups), &i.Groups); err != nil {
+				return nil, fmt.Errorf("store: identity %s/%s groups: %w", i.ProviderID, i.ExternalID, err)
+			}
 		}
 		out = append(out, i)
 	}

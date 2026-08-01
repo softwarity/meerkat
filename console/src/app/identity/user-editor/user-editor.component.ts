@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService, User } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
+import { ExternalIdentitiesComponent } from '../external-identities.component';
 import { LoginHistoryComponent } from '../login-history.component';
 import { MfaSelectComponent } from '../mfa-select.component';
 import { PasswordDialogComponent } from '../password-dialog.component';
@@ -20,6 +21,7 @@ import { PasswordDialogComponent } from '../password-dialog.component';
     MatDividerModule,
     MatIconModule,
     MatTooltipModule,
+    ExternalIdentitiesComponent,
     LoginHistoryComponent,
     MfaSelectComponent,
   ],

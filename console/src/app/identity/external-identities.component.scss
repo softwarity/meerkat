@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+}
+.row + .row {
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+.kind {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.lines {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.label {
+  font-size: 0.9rem;
+}
+.meta {
+  font-size: 0.72rem;
+  color: var(--mat-sys-on-surface-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// The group names are shown verbatim and can be long (a full LDAP DN), so they
+// wrap rather than being cut: a truncated name is one nobody can map.
+.groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.group {
+  font-size: 0.7rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 999px;
+  padding: 1px 8px;
+  color: var(--mat-sys-on-surface-variant);
+  word-break: break-all;
+}
+
+.when {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  white-space: nowrap;
+}
+
+.empty {
+  margin: 0;
+  padding: 8px 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}

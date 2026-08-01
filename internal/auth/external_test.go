@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -79,6 +80,58 @@ func TestFirstExternalSignInCreatesAPendingAccount(t *testing.T) {
 	}
 	if created || again.ID != user.ID {
 		t.Fatalf("the subject must key the account, got created=%v id=%s want %s", created, again.ID, user.ID)
+	}
+}
+
+// TestReportedGroupsFollowEverySignIn: what the authority says about someone's
+// groups is a fact of the LAST sign-in. Recording it only on the day the link
+// was made would describe someone who has since changed teams, and every
+// mapping written against it would act on stale membership.
+func TestReportedGroupsFollowEverySignIn(t *testing.T) {
+	h, st := externalFixture(t)
+	ctx := context.Background()
+	p, err := st.GetAuthProvider(ctx, "acme")
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := idp.Identity{Subject: "sub-1", Username: "jdoe", Groups: []string{"staff", "eng"}}
+	user, _, err := h.linkOrCreate(ctx, p, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	groupsOf := func() []string {
+		links, err := st.IdentitiesOfUser(ctx, user.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(links) != 1 {
+			t.Fatalf("want one identity link, got %d", len(links))
+		}
+		return links[0].Groups
+	}
+	if got := groupsOf(); !reflect.DeepEqual(got, []string{"staff", "eng"}) {
+		t.Fatalf("groups at creation: %v", got)
+	}
+
+	// The person moves team upstream, and signs in again.
+	moved := id
+	moved.Groups = []string{"staff", "support"}
+	if _, created, err := h.linkOrCreate(ctx, p, moved); err != nil || created {
+		t.Fatalf("second sign-in: created=%v err=%v", created, err)
+	}
+	if got := groupsOf(); !reflect.DeepEqual(got, []string{"staff", "support"}) {
+		t.Fatalf("groups must follow the authority, got %v", got)
+	}
+
+	// And an authority that stops reporting any group clears them rather than
+	// leaving a membership nobody can see the source of.
+	silent := id
+	silent.Groups = nil
+	if _, _, err := h.linkOrCreate(ctx, p, silent); err != nil {
+		t.Fatal(err)
+	}
+	if got := groupsOf(); len(got) != 0 {
+		t.Fatalf("no group reported should mean none stored, got %v", got)
 	}
 }
 

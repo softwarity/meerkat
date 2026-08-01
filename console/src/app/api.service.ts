@@ -482,6 +482,19 @@ export interface AuthProvider {
   secretsSet?: string[];
 }
 
+// One authority a person can sign in through, and what it last said about
+// them. groups holds the AUTHORITY's own names, verbatim: nothing of ours is
+// derived from them yet, and an admin cannot map what they cannot see.
+export interface ExternalIdentity {
+  providerId: string;
+  providerName: string;
+  providerKind: string;
+  externalId: string;
+  groups?: string[];
+  createdAt: number;
+  lastSeenAt?: number;
+}
+
 // Where a secret already sits, for the server to move it into the vault
 // itself. The console sends a NAME, never a value: this is the one path that
 // works for a literal it never received (bootstrap file, earlier save).
@@ -643,20 +656,6 @@ export class ApiService {
     return this.http.get<{ exposed: boolean }>('/api/settings/api-docs');
   }
 
-  // Ephemeral test token for the API screen: pasted into swagger's Authorize,
-  // it carries the impersonated identity (user + roles) and dies on its own.
-  mintTestToken(
-    username: string,
-    roles: string[],
-    minutes: number,
-  ): Observable<{ token: string; expiresAt: number }> {
-    return this.http.post<{ token: string; expiresAt: number }>('/api/apidocs/token', {
-      username,
-      roles,
-      minutes,
-    });
-  }
-
   saveApiDocsSetting(exposed: boolean): Observable<{ exposed: boolean }> {
     return this.http.put<{ exposed: boolean }>('/api/settings/api-docs', { exposed });
   }
@@ -754,6 +753,13 @@ export class ApiService {
   }
 
   // A user's sign-in history (root scope), newest first.
+  // How this person can get in through an authority, and what that authority
+  // said about them last time — the reported groups above all, since those are
+  // what any mapping would be written against.
+  userIdentities(id: string): Observable<ExternalIdentity[]> {
+    return this.http.get<ExternalIdentity[]>(`/api/users/${encodeURIComponent(id)}/identities`);
+  }
+
   userLogins(id: string): Observable<LoginEvent[]> {
     return this.http.get<LoginEvent[]>(`/api/users/${encodeURIComponent(id)}/logins`);
   }

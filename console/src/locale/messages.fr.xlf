@@ -3641,15 +3641,16 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <target>Divers</target>
       </trans-unit>
       <trans-unit id="Expose_API_docs" datatype="html">
-        <source>Expose Meerkat's own API documentation</source>
-        <target>Exposer la documentation de l'API de Meerkat</target>
+        <source>Developer API docs on the data plane</source>
+        <target>Docs API développeur sur le plan data</target>
       </trans-unit>
       <trans-unit id="Expose_API_docs_hint" datatype="html">
         <source>
-              Lists Meerkat's admin API in the swagger picker. The routes' specs stay on the API
-              screen regardless — this switch only concerns Meerkat's own contract.
+              Opens /meerkat/apidocs on the application port: every route's OpenAPI spec, for
+              signed-in users with the developer capability. Off, the page answers 404. The
+              console's own API screen (Meerkat's contract) is not concerned.
             </source>
-        <target>Liste l'API admin de Meerkat dans le sélecteur swagger. Les specs des routes restent disponibles sur l'écran API quoi qu'il arrive — ce réglage ne concerne que le contrat propre de Meerkat.</target>
+        <target>Ouvre /meerkat/apidocs sur le port applicatif : la spec OpenAPI de chaque route, pour les utilisateurs connectés ayant la capacité développeur. Désactivé, la page répond 404. L'écran API de la console (le contrat de Meerkat) n'est pas concerné.</target>
       </trans-unit>
       <trans-unit id="API_docs_exposed" datatype="html">
         <source>API documentation exposed</source>
@@ -3658,30 +3659,6 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
       <trans-unit id="API_docs_hidden" datatype="html">
         <source>API documentation hidden</source>
         <target>Documentation des API masquée</target>
-      </trans-unit>
-      <trans-unit id="Test_as_user" datatype="html">
-        <source>Test as user</source>
-        <target>Tester en tant que</target>
-      </trans-unit>
-      <trans-unit id="Validity" datatype="html">
-        <source>Validity</source>
-        <target>Validité</target>
-      </trans-unit>
-      <trans-unit id="Generate_test_token" datatype="html">
-        <source>Test token</source>
-        <target>Token de test</target>
-      </trans-unit>
-      <trans-unit id="Copy_for_authorize" datatype="html">
-        <source>Copy for Authorize</source>
-        <target>Copier pour Authorize</target>
-      </trans-unit>
-      <trans-unit id="Test_token_failed" datatype="html">
-        <source>Could not mint the test token</source>
-        <target>Impossible de générer le token de test</target>
-      </trans-unit>
-      <trans-unit id="Test_token_copied" datatype="html">
-        <source>Copied — paste it into Authorize (MeerkatTestToken)</source>
-        <target>Copié — collez-le dans Authorize (MeerkatTestToken)</target>
       </trans-unit>
       <trans-unit id="API_tokens" datatype="html">
         <source>API tokens</source>
@@ -3943,6 +3920,26 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
       <trans-unit id="Secret_stored_leave_empty_to_keep" datatype="html">
         <source>A secret is stored. Leave empty to keep it.</source>
         <target>Un secret est enregistré. Laissez vide pour le conserver.</target>
+      </trans-unit>
+      <trans-unit id="External_authorities" datatype="html">
+        <source>External authorities</source>
+        <target>Autorités externes</target>
+      </trans-unit>
+      <trans-unit id="No_group_reported" datatype="html">
+        <source>No group reported</source>
+        <target>Aucun groupe remonté</target>
+      </trans-unit>
+      <trans-unit id="No_external_authority_for_this_account" datatype="html">
+        <source>
+      This account signs in with its local password only.
+    </source>
+        <target>
+      Ce compte se connecte uniquement avec son mot de passe local.
+    </target>
+      </trans-unit>
+      <trans-unit id="Last_sign_in_through_this_authority" datatype="html">
+        <source>Last sign-in through this authority</source>
+        <target>Dernière connexion via cette autorité</target>
       </trans-unit>
     </body>
   </file>

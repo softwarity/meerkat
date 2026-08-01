@@ -37,6 +37,13 @@
 
   <mat-divider />
 
+  <section>
+    <h3 i18n="@@External_authorities">External authorities</h3>
+    <app-external-identities [userId]="user().id" />
+  </section>
+
+  <mat-divider />
+
   <section class="history">
     <h3 i18n="@@Sign_in_history">Sign-in history</h3>
     <app-login-history [userId]="user().id" />

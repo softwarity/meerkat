@@ -102,7 +102,7 @@ func (s *Store) Close() error { return s.db.Close() }
 // data plane only, an admin (control-plane) token on the admin port only —
 // each plane accepts its own scope, never the other's. Admin tokens are the
 // foundation for headless management (CLI/MCP), minted by root.
-const schemaVersion = 31
+const schemaVersion = 32
 
 func (s *Store) migrate() error {
 	var v int
@@ -169,6 +169,9 @@ CREATE TABLE IF NOT EXISTS memberships (
   user_id         TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   tenant_id       TEXT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   type            TEXT NOT NULL DEFAULT 'USER',
+  -- Who placed this person here (v32): '' an administrator, 'rule' a group
+  -- rule. A synchronisation only removes what it added itself.
+  source          TEXT NOT NULL DEFAULT '',
   enabled         INTEGER NOT NULL DEFAULT 1,
   business_access TEXT NOT NULL DEFAULT '{"inherited":true}',
   session_ttl     TEXT NOT NULL DEFAULT '',
@@ -223,13 +226,37 @@ CREATE TABLE IF NOT EXISTS group_roles (
   PRIMARY KEY (group_id, role_id)
 );
 
+-- source (v32) says who put this row here: '' placed by an administrator,
+-- 'rule' derived from a group rule. A synchronisation only ever adds or
+-- removes its OWN rows, so it can never undo a hand-made decision.
 CREATE TABLE IF NOT EXISTS member_groups (
   tenant_id TEXT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   user_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   group_id  TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  source    TEXT NOT NULL DEFAULT '',
   PRIMARY KEY (tenant_id, user_id, group_id)
 );
 CREATE INDEX IF NOT EXISTS member_groups_member ON member_groups(tenant_id, user_id);
+
+-- Group rules (v32, RBAC-10): how what an authority SAYS becomes membership
+-- and groups HERE. A rule is declared IN a tenant and can only grant what
+-- belongs to that tenant, which is what keeps an authority (infra) from
+-- deciding what anyone may do (application).
+--
+-- external is the authority's own group name, verbatim. EMPTY means "anyone
+-- who signs in through this authority", which is how one gives an
+-- organisation its own directory rather than one directory carrying per-org
+-- groups. group_id NULL grants the membership alone, no group.
+CREATE TABLE IF NOT EXISTS group_rules (
+  id          TEXT PRIMARY KEY,
+  tenant_id   TEXT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  provider_id TEXT NOT NULL DEFAULT '',
+  external    TEXT NOT NULL DEFAULT '',
+  group_id    TEXT REFERENCES groups(id) ON DELETE CASCADE,
+  created_at  INTEGER NOT NULL DEFAULT 0,
+  UNIQUE (tenant_id, provider_id, external, group_id)
+);
+CREATE INDEX IF NOT EXISTS group_rules_tenant ON group_rules(tenant_id);
 
 -- Trusted browsers (v10, MFA-03): after a successful second factor a user may
 -- mark the browser as trusted, skipping the TOTP challenge until expiry. Only

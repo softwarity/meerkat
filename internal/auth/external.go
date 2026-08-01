@@ -171,6 +171,15 @@ func (h *Handler) completeExternal(w http.ResponseWriter, r *http.Request,
 		// the person lands in the waiting room rather than on a trap route.
 		h.notifyAdminsNewAccount(r.Context(), user)
 	}
+	// What the authority said is confronted with each tenant's own rules
+	// (RBAC-10). On EVERY sign-in, because membership changes upstream: this is
+	// what turns "an admin places everyone by hand" into "upstream decides".
+	// A failure here must not refuse the sign-in — the person is who they say
+	// they are, and what they reach is decided a line below by what the store
+	// actually holds.
+	if _, err := h.st.SyncMappedGroups(r.Context(), user.ID, p.ID, identity.Groups); err != nil {
+		slog.Error("group rules could not be applied", "provider", p.ID, "user", user.Username, "err", err)
+	}
 
 	dest := safeNext(next)
 	// The authority may already enforce a second factor; a provider that says

@@ -324,13 +324,18 @@ func (s *Store) SetMemberGroups(ctx context.Context, tenantID, userID string, gr
 		return fmt.Errorf("store: set member groups: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	// Only the rows an administrator owns are replaced. What a GROUP RULE
+	// granted (RBAC-10) is not this call's to remove: it would come straight
+	// back at the next sign-in, so taking it away here would only look like it
+	// worked. Changing it means changing the rule.
 	if _, err = tx.ExecContext(ctx,
-		`DELETE FROM member_groups WHERE tenant_id = ? AND user_id = ?`, tenantID, userID); err != nil {
+		`DELETE FROM member_groups WHERE tenant_id = ? AND user_id = ? AND source = ''`,
+		tenantID, userID); err != nil {
 		return fmt.Errorf("store: set member groups: %w", err)
 	}
 	for _, gid := range groupIDs {
 		if _, err = tx.ExecContext(ctx,
-			`INSERT OR IGNORE INTO member_groups (tenant_id, user_id, group_id) VALUES (?, ?, ?)`,
+			`INSERT OR IGNORE INTO member_groups (tenant_id, user_id, group_id, source) VALUES (?, ?, ?, '')`,
 			tenantID, userID, gid); err != nil {
 			return fmt.Errorf("store: set member groups: %w", err)
 		}

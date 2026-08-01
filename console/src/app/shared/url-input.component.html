@@ -1,20 +1,25 @@
-<mat-select
-  class="proto"
-  [value]="protocol()"
-  (selectionChange)="setProtocol($event.value)"
-  i18n-aria-label="@@Protocol"
-  aria-label="Protocol"
->
-  @for (p of protoOptions(); track p) {
-    <mat-option [value]="p">{{ p }}</mat-option>
-  }
-</mat-select>
-<span class="sep">://</span>
+<!-- While the parent's label sits in the placeholder position, it must be the
+     ONLY thing in the box: showing the protocol select underneath puts the two
+     on top of each other. Everything appears as soon as the label floats, which
+     is exactly when the field is focused or holds a value. -->
+@if (shouldLabelFloat) {
+  <mat-select
+    class="proto"
+    [value]="protocol()"
+    (selectionChange)="setProtocol($event.value)"
+    i18n-aria-label="@@Protocol"
+    aria-label="Protocol"
+  >
+    @for (p of protoOptions(); track p) {
+      <mat-option [value]="p">{{ p }}</mat-option>
+    }
+  </mat-select>
+  <span class="sep">://</span>
+}
 <input
   class="host-input"
   [value]="rest()"
   (input)="onInput($any($event.target).value)"
-  placeholder="service:8080/base"
-  i18n-aria-label="@@Upstream"
-  aria-label="Upstream"
+  [placeholder]="shouldLabelFloat ? hostPlaceholder() : ''"
+  [attr.aria-label]="hostLabel() || null"
 />

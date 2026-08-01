@@ -127,8 +127,8 @@
         <target>Adresse du serveur</target>
       </trans-unit>
       <trans-unit id="Server_URL_hint" datatype="html">
-        <source>ldap:// or ldaps://</source>
-        <target>ldap:// ou ldaps://</target>
+        <source>ldaps is the one to use unless the directory is on a private network</source>
+        <target>ldaps est celui à utiliser, sauf si l'annuaire est sur un réseau privé</target>
       </trans-unit>
       <trans-unit id="Base_DN" datatype="html">
         <source>Search base</source>

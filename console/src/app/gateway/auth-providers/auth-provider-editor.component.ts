@@ -12,6 +12,7 @@ import { ApiService, AuthProvider, SecretLocation } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
 import { FormFieldComponent } from '../../shared/form-field.component';
 import { SecretFieldComponent } from '../../shared/secret-field.component';
+import { UrlInputComponent } from '../../shared/url-input.component';
 import { isRef } from '../../shared/vault-ref';
 
 // Which config field of each kind holds a secret. Mirrors idp.SecretFields:
@@ -44,6 +45,7 @@ const SECRET_FIELDS: Record<string, string[]> = {
     MatSlideToggleModule,
     FormFieldComponent,
     SecretFieldComponent,
+    UrlInputComponent,
   ],
   templateUrl: './auth-provider-editor.component.html',
   styleUrl: './auth-provider-editor.component.scss',

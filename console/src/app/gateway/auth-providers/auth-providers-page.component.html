@@ -45,14 +45,22 @@
           <ng-container matColumnDef="state">
             <mat-header-cell *matHeaderCellDef></mat-header-cell>
             <mat-cell *matCellDef="let p">
-              @if (p.enabled) {
-                <span class="pill on" i18n="@@Enabled">Enabled</span>
-              } @else {
-                <span class="pill" i18n="@@Disabled">Disabled</span>
-              }
               @if (!p.autoCreate) {
                 <span class="pill" i18n="@@No_auto_create" matTooltip="Only already-linked people may sign in">Invite only</span>
               }
+              <!-- Turning an authority on and off is a one-click decision, not
+                   an edit: it belongs on the row. The click must not also open
+                   the drawer underneath. -->
+              <mat-slide-toggle
+                [checked]="p.enabled"
+                [disabled]="toggling() === p.id"
+                (click)="$event.stopPropagation()"
+                (change)="toggle(p, $event.checked)"
+                i18n-matTooltip="@@Enabled"
+                matTooltip="Enabled"
+                i18n-aria-label="@@Enabled"
+                aria-label="Enabled"
+              />
             </mat-cell>
           </ng-container>
 

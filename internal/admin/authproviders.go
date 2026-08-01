@@ -1,6 +1,8 @@
 package admin
 
 import (
+	"context"
+	"errors"
 	"maps"
 	"net/http"
 	"strings"
@@ -76,6 +78,28 @@ func (a *API) providerView(r *http.Request, p store.AuthProvider) providerView {
 	return v
 }
 
+// lastWayIn refuses to take away the last authority while the local password
+// is restricted (AUTH-24). Two screens, two admins, one hole: the password can
+// be closed on the application side and the authority disabled on the infra
+// side, and neither knows about the other. This is the check on the second
+// side. excludeID is the authority about to be disabled or deleted.
+func (a *API) lastWayIn(ctx context.Context, excludeID string) error {
+	if a.st.GetPasswordLoginPolicy(ctx).Mode == store.PasswordLoginEveryone {
+		return nil
+	}
+	all, err := a.st.ListAuthProviders(ctx)
+	if err != nil {
+		return err
+	}
+	for _, p := range all {
+		if p.Enabled && p.ID != excludeID {
+			return nil
+		}
+	}
+	return errors.New("password sign-in is restricted (Application, Security): " +
+		"this is the last authority, and taking it away would leave no way into the data plane")
+}
+
 // carrySecretsForward fills back the secrets the console could not send. It
 // never received the literal, so a blank field means "leave it alone", not
 // "erase it" — without this, opening an authority and renaming it would wipe
@@ -144,6 +168,15 @@ func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor stor
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
+	// The other half of the AUTH-24 guard: restricting the password checks that
+	// an authority exists, and this checks that the last one does not go away
+	// underneath it. Either way round, the data plane keeps a way in.
+	if !p.Enabled && before.Enabled {
+		if err := a.lastWayIn(r.Context(), p.ID); err != nil {
+			writeErr(w, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
+	}
 	if err := a.st.SaveAuthProvider(r.Context(), p); err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
@@ -169,6 +202,12 @@ func (a *API) deleteAuthProvider(w http.ResponseWriter, r *http.Request, actor s
 	if err != nil {
 		writeErr(w, http.StatusNotFound, "unknown provider "+id)
 		return
+	}
+	if before.Enabled {
+		if err := a.lastWayIn(r.Context(), id); err != nil {
+			writeErr(w, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
 	}
 	ok, err := a.st.DeleteAuthProvider(r.Context(), id)
 	if err != nil {

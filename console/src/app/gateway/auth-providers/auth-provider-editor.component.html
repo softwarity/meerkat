@@ -158,11 +158,16 @@
       </mat-select>
     </mat-form-field>
 
-    <app-form-field i18n-label="@@Server_URL" label="Server URL" i18n-hint="@@Server_URL_hint" hint="ldap:// or ldaps://" allowVault="values" vaultScope="infra">
-      <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
-        [value]="cfg('url')" (input)="setCfg('url', $any($event.target).value)"
-        (keydown.enter)="$event.preventDefault()" placeholder="ldaps://dc1.acme.io:636"></textarea>
-    </app-form-field>
+    <mat-form-field>
+      <mat-label i18n="@@Server_URL">Server URL</mat-label>
+      <!-- Same control as a route's upstream, with the schemes that apply
+           here: the protocol is chosen, never typed, so ldap:// on a port
+           expecting TLS stops being a plausible typo. -->
+      <app-url-input [protocols]="['ldaps', 'ldap']"
+        hostPlaceholder="dc1.acme.io:636" i18n-hostLabel="@@Server_URL" hostLabel="Server URL"
+        [value]="cfg('url')" (valueChange)="setCfg('url', $event)" />
+      <mat-hint i18n="@@Server_URL_hint">ldaps is the one to use unless the directory is on a private network</mat-hint>
+    </mat-form-field>
 
     <app-form-field i18n-label="@@Base_DN" label="Search base" allowVault="values" vaultScope="infra">
       <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off" autocorrect="off"
@@ -214,10 +219,6 @@
         <mat-option value="no" i18n="@@Left_to_the_authority">Left to the authority</mat-option>
       </mat-select>
     </mat-form-field>
-
-    <mat-slide-toggle [checked]="enabled()" (change)="enabled.set($event.checked)">
-      <ng-container i18n="@@Enabled">Enabled</ng-container>
-    </mat-slide-toggle>
   </section>
 
   @if (!creating()) {

@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -22,6 +23,7 @@ import { AuthProviderEditorComponent } from './auth-provider-editor.component';
     MatButtonModule,
     MatIconModule,
     MatSidenavModule,
+    MatSlideToggleModule,
     MatTableModule,
     MatTooltipModule,
     LoadingIndicatorComponent,
@@ -39,6 +41,8 @@ export class AuthProvidersPageComponent {
   protected readonly loading = signal(true);
   protected readonly providers = signal<AuthProvider[]>([]);
   protected readonly columns = ['name', 'kind', 'target', 'state'];
+  // The row whose switch is in flight, so it cannot be clicked twice.
+  protected readonly toggling = signal('');
 
   // The URL drives the drawer, like routes and roles.
   private readonly params = toSignal(this.ar.paramMap);
@@ -94,6 +98,30 @@ export class AuthProvidersPageComponent {
       default:
         return 'SAML';
     }
+  }
+
+  // Enabling an authority is a decision, not an edit, so it happens on the row
+  // and saves at once. The whole provider is sent back: the server carries the
+  // secrets forward, so a toggle never costs an authority its client secret.
+  protected toggle(p: AuthProvider, enabled: boolean): void {
+    this.toggling.set(p.id);
+    this.api.saveAuthProvider({ ...p, enabled }).subscribe({
+      next: (saved) => {
+        this.providers.update((list) => list.map((x) => (x.id === saved.id ? saved : x)));
+        this.toggling.set('');
+      },
+      error: (err: unknown) => {
+        this.toggling.set('');
+        const e = err as { error?: { error?: string } };
+        this.snack.open(
+          typeof e?.error?.error === 'string' ? e.error.error : $localize`:@@Save_failed:Save failed`,
+          undefined,
+          { duration: 6000 },
+        );
+        // Put the switch back where the server left it.
+        this.load();
+      },
+    });
   }
 
   protected open(p: AuthProvider): void {

@@ -58,7 +58,8 @@
 
         <mat-form-field>
           <mat-label i18n="@@Upstream">Upstream</mat-label>
-          <app-url-input [value]="draft().upstream" (valueChange)="patch('upstream', $event)" />
+          <app-url-input [value]="draft().upstream" (valueChange)="patch('upstream', $event)"
+            hostPlaceholder="service:8080/base" i18n-hostLabel="@@Upstream" hostLabel="Upstream" />
           <!-- No whitespace inside the @if: with preserveWhitespaces (i18n) a
                stray text node stops the hint from reaching its projection slot. -->
           @if (hasTerminalFilter()) {<mat-hint i18n="@@Upstream_ignored_terminal">Ignored: a redirect answers this route</mat-hint>}

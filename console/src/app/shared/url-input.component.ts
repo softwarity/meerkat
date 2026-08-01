@@ -87,7 +87,14 @@ export class UrlInputComponent implements MatFormFieldControl<string> {
   readonly valueChange = output<string>();
 
   // ── protocol / host split ──────────────────────────────────────────────────
+  // The schemes this field accepts, in preference order: an upstream is
+  // http(s), a directory ldap(s). The first one is what a fresh field uses.
   readonly protocols = input<string[]>(['https', 'http']);
+  // What the host part suggests once the label floats, and what a screen
+  // reader calls this control. Both belong to the caller: "service:8080/base"
+  // means nothing on a directory.
+  readonly hostPlaceholder = input('');
+  readonly hostLabel = input('');
   protected readonly protocol = computed(() => split(this._value()).proto ?? this.protocols()[0] ?? 'https');
   protected readonly rest = computed(() => split(this._value()).rest);
   // Keep an out-of-catalogue stored scheme selectable.

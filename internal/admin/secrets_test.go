@@ -310,6 +310,57 @@ func TestStashTheRelayPassword(t *testing.T) {
 	}
 }
 
+// TestLastAuthorityCannotBeTakenAway closes the hole two screens leave open:
+// the password is restricted from the application side, the authority disabled
+// from the infra side, and neither knows about the other. Between them, nobody
+// can sign in to the data plane any more.
+func TestLastAuthorityCannotBeTakenAway(t *testing.T) {
+	f := setup(t)
+	enabled := `{"kind":"oidc","name":"Acme SSO","enabled":true,"config":{` +
+		`"issuer":"https://sso.acme.io","clientId":"meerkat"}}`
+	if code, body := f.call(t, "PUT", "/api/auth-providers/acme", enabled, f.rootC); code != http.StatusOK {
+		t.Fatalf("save: %d %s", code, body)
+	}
+	// While everyone may still use a password, disabling is nobody's business.
+	disabled := strings.Replace(enabled, `"enabled":true`, `"enabled":false`, 1)
+	if code, body := f.call(t, "PUT", "/api/auth-providers/acme", disabled, f.rootC); code != http.StatusOK {
+		t.Fatalf("disabling with the password open: %d %s", code, body)
+	}
+
+	// Re-enable, then close the password.
+	if code, _ := f.call(t, "PUT", "/api/auth-providers/acme", enabled, f.rootC); code != http.StatusOK {
+		t.Fatal("re-enable")
+	}
+	settings := get(t, f, "/api/settings")
+	closed := strings.Replace(settings, `"passwordLogin":""`, `"passwordLogin":"nobody"`, 1)
+	if closed == settings {
+		t.Fatalf("the settings payload no longer carries passwordLogin: %s", settings)
+	}
+	if code, body := f.call(t, "PUT", "/api/settings", closed, f.rootC); code != http.StatusOK {
+		t.Fatalf("closing the password: %d %s", code, body)
+	}
+
+	// Now the same disabling must be refused, and say why.
+	code, body := f.call(t, "PUT", "/api/auth-providers/acme", disabled, f.rootC)
+	if code != http.StatusUnprocessableEntity || !strings.Contains(body, "last authority") {
+		t.Fatalf("disabling the last authority: %d %s, want 422 saying so", code, body)
+	}
+	// Deleting it is the same act by another route.
+	code, body = f.call(t, "DELETE", "/api/auth-providers/acme", "", f.rootC)
+	if code != http.StatusUnprocessableEntity || !strings.Contains(body, "last authority") {
+		t.Fatalf("deleting the last authority: %d %s, want 422", code, body)
+	}
+	// And a SECOND authority makes the first one expendable again.
+	second := `{"kind":"oidc","name":"Other","enabled":true,"config":{` +
+		`"issuer":"https://other.io","clientId":"meerkat"}}`
+	if code, body := f.call(t, "PUT", "/api/auth-providers/other", second, f.rootC); code != http.StatusOK {
+		t.Fatalf("second authority: %d %s", code, body)
+	}
+	if code, body := f.call(t, "PUT", "/api/auth-providers/acme", disabled, f.rootC); code != http.StatusOK {
+		t.Fatalf("with a spare authority, disabling must pass: %d %s", code, body)
+	}
+}
+
 func get(t *testing.T, f fixture, path string) string {
 	t.Helper()
 	code, body := f.call(t, "GET", path, "", f.rootC)

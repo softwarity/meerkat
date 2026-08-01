@@ -366,10 +366,11 @@ const (
 	// SettingSMTP is the gateway-wide outbound e-mail config (mail.Config):
 	// confirmations, admin notifications, later password resets.
 	SettingSMTP = "smtp"
-	// SettingAPIDocsExposed exposes the embedded swagger-ui surface (/apidocs)
-	// on the admin port. Ships OFF: API docs are attack surface until an infra
-	// admin decides otherwise.
-	SettingAPIDocsExposed = "api_docs_exposed"
+	// SettingDevDocsExposed opens the DATA-plane developer docs
+	// (/meerkat/apidocs — the routes' specs, dev capability required). Ships
+	// OFF until an infra admin flips it on the Others screen. Meerkat's own
+	// admin spec is a console matter and needs no switch.
+	SettingDevDocsExposed = "dev_docs_exposed"
 	// SettingRegistration is the self-registration policy (AUTH-20): who may
 	// create their own account. Ships closed.
 	SettingRegistration = "registration"
@@ -382,6 +383,11 @@ const (
 	// users may register passkeys and sign in with them. Global, never per
 	// tenant: a passkey login happens before the tenant is known.
 	SettingPasskeys = "passkeys_allowed"
+	// SettingPasswordLogin says who may still sign in with a LOCAL password on
+	// the data plane (AUTH-24). Closing it is what makes an external authority
+	// exclusive: as long as the form answers, every local password is a way in
+	// that bypasses the authority entirely.
+	SettingPasswordLogin = "password_login"
 	// One-time guard: the theme presets have been topped up into an existing
 	// install (THEME-04). Prevents resurrecting a preset the admin deleted.
 	SettingThemePresetsSeeded = "theme_presets_seeded"

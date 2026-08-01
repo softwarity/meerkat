@@ -86,6 +86,32 @@
     </mat-card>
 
     <mat-card appearance="outlined">
+      <h3 i18n="@@Password_sign_in">Password sign-in</h3>
+      <p class="hint text-muted" i18n="@@Password_sign_in_hint">
+        Who may still sign in with a password held here, rather than through an external
+        authority. Closing it is what makes an authority exclusive: while it answers, every local
+        password is a way in that bypasses the authority. This console always keeps its password
+        sign-in, so a broken authority can still be repaired.
+      </p>
+      <mat-form-field>
+        <mat-label i18n="@@Password_sign_in">Password sign-in</mat-label>
+        <mat-select [value]="passwordLogin()" (selectionChange)="passwordLogin.set($event.value)">
+          <mat-option value="" i18n="@@Password_everyone">Everyone</mat-option>
+          <mat-option value="admins" i18n="@@Password_admins_only">Administrators only</mat-option>
+          <mat-option value="nobody" i18n="@@Password_nobody">Nobody</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <!-- Saying it here rather than only on the error: someone reads this
+           screen to decide, not after being refused. -->
+      @if (passwordLogin() !== '' && !authorities()) {
+        <p class="hint text-error" i18n="@@Password_needs_an_authority">
+          No authority is enabled yet. Configure one under Infra, Authentication, or nobody will
+          be able to sign in to the data plane.
+        </p>
+      }
+    </mat-card>
+
+    <mat-card appearance="outlined">
       <h3 i18n="@@Self_registration">Self-registration</h3>
       <p class="hint text-muted" i18n="@@Self_registration_hint">
         Let visitors create their own account on the sign-in page. The address is confirmed by

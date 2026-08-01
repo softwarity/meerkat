@@ -551,6 +551,12 @@ export interface Settings {
   selfRegistration: boolean;
   // The built-in anti-robot check on /register (default on).
   selfRegisterCaptcha: boolean;
+  // Who may still sign in with a LOCAL password on the data plane (AUTH-24):
+  // '' everyone, 'admins', 'nobody'. Never affects this console.
+  passwordLogin?: string;
+  // Read-only: how many authorities are enabled. Restricting the password
+  // without one would leave nobody able to sign in.
+  authoritiesEnabled?: number;
   // The APPLICATION's locale pool: routes pick from it, the flow pages speak
   // its intersection with Meerkat's embedded languages. May be empty.
   languages: string[];

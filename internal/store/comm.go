@@ -96,6 +96,42 @@ func (s *Store) GetRegistrationPolicy(ctx context.Context) RegistrationPolicy {
 	return p
 }
 
+// Who may still sign in with a local password on the DATA plane (AUTH-24).
+const (
+	// PasswordLoginEveryone is the zero value: nothing changes for an
+	// installation that has no external authority.
+	PasswordLoginEveryone = ""
+	// PasswordLoginAdmins keeps a door for the people who operate the place
+	// while the users go through their authority. The sensible setting the day
+	// SSO is switched on: an authority that breaks does not lock everyone out.
+	PasswordLoginAdmins = "admins"
+	// PasswordLoginNobody makes the authority exclusive on the data plane.
+	PasswordLoginNobody = "nobody"
+)
+
+// PasswordLoginPolicy is that setting. It NEVER applies to the admin plane:
+// the console is the tool one repairs a broken authority with, and putting it
+// behind that authority is how an installation becomes unrecoverable.
+type PasswordLoginPolicy struct {
+	Mode string `json:"mode"`
+}
+
+// ValidPasswordLoginMode reports whether m is one of the three modes.
+func ValidPasswordLoginMode(m string) bool {
+	return m == PasswordLoginEveryone || m == PasswordLoginAdmins || m == PasswordLoginNobody
+}
+
+// GetPasswordLoginPolicy reads the policy; an unset key means everyone, so an
+// installation that never touches it keeps signing in exactly as before.
+func (s *Store) GetPasswordLoginPolicy(ctx context.Context) PasswordLoginPolicy {
+	var p PasswordLoginPolicy
+	_ = s.GetSetting(ctx, SettingPasswordLogin, &p)
+	if !ValidPasswordLoginMode(p.Mode) {
+		p.Mode = PasswordLoginEveryone
+	}
+	return p
+}
+
 // RateLimitPolicy throttles the unauthenticated credential endpoints
 // (SEC-10): failed sign-ins per IP+account, wrong TOTP codes per account.
 // Zero attempts disables a limiter (debug); missing fields take the defaults.

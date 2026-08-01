@@ -792,6 +792,15 @@ type settingsPayload struct {
 	// SelfRegisterCaptcha: the home-grown anti-robot check on /register
 	// (default on whenever registration opens).
 	SelfRegisterCaptcha bool `json:"selfRegisterCaptcha"`
+	// PasswordLogin: who may still sign in with a LOCAL password on the data
+	// plane (AUTH-24) — "" everyone, "admins", "nobody". The console is never
+	// affected: it is what one repairs a broken authority with.
+	PasswordLogin string `json:"passwordLogin"`
+	// AuthoritiesEnabled is read-only, and travels because this screen needs
+	// it: restricting the password with no authority in place would leave
+	// nobody able to sign in. The authorities themselves are an INFRA matter,
+	// which an app admin may not list, so the count comes from here.
+	AuthoritiesEnabled int `json:"authoritiesEnabled"`
 	// RateLimit throttles the credential endpoints (SEC-10).
 	RateLimit store.RateLimitPolicy `json:"rateLimit"`
 	// Languages is the APPLICATION's locale pool (free BCP 47). The flow pages
@@ -845,8 +854,28 @@ func (a *API) loadSettingsPayload(ctx context.Context) (settingsPayload, error) 
 	reg := a.st.GetRegistrationPolicy(ctx)
 	p.SelfRegistration = reg.LocalEnabled
 	p.SelfRegisterCaptcha = !reg.CaptchaDisabled
+	p.PasswordLogin = a.st.GetPasswordLoginPolicy(ctx).Mode
+	if n, err := a.enabledAuthorities(ctx); err == nil {
+		p.AuthoritiesEnabled = n
+	}
 	p.RateLimit = a.st.GetRateLimitPolicy(ctx)
 	return p, nil
+}
+
+// enabledAuthorities counts the authorities that could actually authenticate
+// someone if the local password stopped doing it.
+func (a *API) enabledAuthorities(ctx context.Context) (int, error) {
+	all, err := a.st.ListAuthProviders(ctx)
+	if err != nil {
+		return 0, err
+	}
+	n := 0
+	for _, p := range all {
+		if p.Enabled {
+			n++
+		}
+	}
+	return n, nil
 }
 
 func (a *API) getSettings(w http.ResponseWriter, r *http.Request, _ store.User) {
@@ -933,6 +962,33 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 		a.internal(w, err)
 		return
 	}
+	// Closing the local password (AUTH-24). Refused when nothing else could
+	// answer: an installation whose only way in is a password it no longer
+	// accepts is one nobody signs into, and the setting that did it is on a
+	// screen that now requires signing in.
+	if !store.ValidPasswordLoginMode(p.PasswordLogin) {
+		writeErr(w, http.StatusUnprocessableEntity,
+			"password sign-in must be empty (everyone), "+store.PasswordLoginAdmins+" or "+store.PasswordLoginNobody)
+		return
+	}
+	if p.PasswordLogin != store.PasswordLoginEveryone {
+		enabled, err := a.enabledAuthorities(r.Context())
+		if err != nil {
+			a.internal(w, err)
+			return
+		}
+		if enabled == 0 {
+			writeErr(w, http.StatusUnprocessableEntity,
+				"no authority is enabled: restricting the password would leave no way into the data plane "+
+					"(configure one under Infra, Authentication)")
+			return
+		}
+	}
+	if err := a.st.SetSetting(r.Context(), store.SettingPasswordLogin,
+		store.PasswordLoginPolicy{Mode: p.PasswordLogin}); err != nil {
+		a.internal(w, err)
+		return
+	}
 	// Rate limiting (SEC-10): sane bounds; 0 attempts disables a limiter.
 	if p.RateLimit.LoginAttempts < 0 || p.RateLimit.LoginAttempts > 1000 ||
 		p.RateLimit.TotpAttempts < 0 || p.RateLimit.TotpAttempts > 100 {
@@ -962,6 +1018,12 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 	if err := a.router.Reload(r.Context()); err != nil {
 		a.internal(w, fmt.Errorf("saved, but reload failed: %w", err))
 		return
+	}
+	// Read-only facts are answered by the server, never echoed back from the
+	// payload: the console's copy was taken before this save and may already be
+	// stale (an authority enabled meanwhile).
+	if n, err := a.enabledAuthorities(r.Context()); err == nil {
+		p.AuthoritiesEnabled = n
 	}
 	// Audit the changed knobs only (SMTP secrets redacted by the differ).
 	a.auditUpdate(r.Context(), actor, "settings.update", "settings", "", "", "", before, p)

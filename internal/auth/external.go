@@ -47,6 +47,24 @@ type externalProvider struct {
 	Kind string
 }
 
+// hasDirectory reports whether a DIRECTORY is configured and enabled. It
+// decides whether the username/password form is still worth showing once the
+// local password is closed (AUTH-24): the form is not only the local
+// password's, it is also how a directory is asked.
+func (h *Handler) hasDirectory(ctx context.Context) bool {
+	all, err := h.st.ListAuthProviders(ctx)
+	if err != nil {
+		slog.Error("auth providers lookup failed", "err", err)
+		return false
+	}
+	for _, p := range all {
+		if p.Enabled && p.Kind == store.ProviderLDAP {
+			return true
+		}
+	}
+	return false
+}
+
 // redirectProviders lists the authorities that deserve a button.
 func (h *Handler) redirectProviders(ctx context.Context) []externalProvider {
 	all, err := h.st.ListAuthProviders(ctx)

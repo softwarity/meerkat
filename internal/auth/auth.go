@@ -426,7 +426,7 @@ const flowBottom = `    {{if .Brand.Meerkat}}<p class="foot">on watch</p>{{end}}
 </body>
 </html>`
 
-const loginBody = `    <form method="post" action="login">
+const loginBody = `    {{if .Credentials}}<form method="post" action="login">
       {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
       <label class="field">
         <span>{{.T.username}}</span>
@@ -439,6 +439,7 @@ const loginBody = `    <form method="post" action="login">
       <input type="hidden" name="next" value="{{.Next}}">
       <button type="submit">{{.T.signIn}}</button>
     </form>
+    {{else if .Error}}<p class="error">{{.Error}}</p>{{end}}
     {{if .Providers}}
     <p class="sep">{{.T.orSignInWith}}</p>
     {{range .Providers}}<a class="choice" href="/login/{{.ID}}?next={{$.Next}}">{{.Name}}</a>{{end}}
@@ -1035,6 +1036,39 @@ func (h *Handler) showLogin(w http.ResponseWriter, r *http.Request) {
 	h.render(w, r, r.URL.Query().Get("next"), "", http.StatusOK)
 }
 
+// localPasswordAllowed says whether this person may still come in with a LOCAL
+// password (AUTH-24). Closing it is what makes an external authority
+// exclusive: while the form answers, every local password bypasses it.
+//
+// The ADMIN PLANE always says yes, and that is deliberate. The console is what
+// one repairs a broken authority with; putting it behind that same authority
+// is how an installation becomes unrecoverable at the worst possible moment.
+func (h *Handler) localPasswordAllowed(ctx context.Context, u store.User) bool {
+	if h.adminPlane {
+		return true
+	}
+	switch h.st.GetPasswordLoginPolicy(ctx).Mode {
+	case store.PasswordLoginNobody:
+		return false
+	case store.PasswordLoginAdmins:
+		// The people who operate the place keep a door while the users go
+		// through their authority.
+		return u.Root || u.AppAdmin || u.InfraAdmin
+	}
+	return true
+}
+
+// credentialFormOpen says whether the username/password form is still of any
+// use. It closes only when NOTHING can answer it: no local password accepted
+// and no directory to ask. With "admins only" it stays — the admins use it —
+// and with a directory it stays whatever the local policy says.
+func (h *Handler) credentialFormOpen(ctx context.Context) bool {
+	if h.adminPlane || h.st.GetPasswordLoginPolicy(ctx).Mode != store.PasswordLoginNobody {
+		return true
+	}
+	return h.hasDirectory(ctx)
+}
+
 func (h *Handler) doLogin(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -1077,7 +1111,13 @@ func (h *Handler) doLogin(w http.ResponseWriter, r *http.Request) {
 		fail()
 		return
 	}
-	if user.PasswordHash == "" || bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
+	// A password that is CORRECT but no longer accepted (AUTH-24) takes the
+	// same path as a wrong one: the directories are still asked — someone whose
+	// local and LDAP passwords match must come in through the directory — and
+	// the refusal is worded identically, so nothing is enumerated.
+	if user.PasswordHash == "" ||
+		bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil ||
+		!h.localPasswordAllowed(r.Context(), user) {
 		if h.tryCredentialProviders(w, r, username, password, next) {
 			h.regLimit.reset(loginKey)
 			return
@@ -1918,10 +1958,15 @@ func (h *Handler) render(w http.ResponseWriter, r *http.Request, next, errMsg st
 		// Providers are the redirect authorities (AUTH-19), one button each.
 		// A directory needs no button: it answers the ordinary form.
 		Providers []externalProvider
+		// Credentials shows the username/password form. It serves TWO
+		// mechanisms, which is why closing the local password does not always
+		// close the form: a directory is asked through this very field.
+		Credentials bool
 	}{flowChrome: h.flowData(r, "titleSignIn"), Next: next, Error: errMsg,
 		Public: h.publicLinks(r.Context()), Passkeys: h.st.PasskeysAllowed(r.Context()),
 		Register: h.selfRegisterOpen(r.Context()), Forgot: h.forgotOpen(r),
-		Providers: h.redirectProviders(r.Context())}, status)
+		Providers:   h.redirectProviders(r.Context()),
+		Credentials: h.credentialFormOpen(r.Context())}, status)
 }
 
 // publicLink is one UI route reachable without signing in, offered on the

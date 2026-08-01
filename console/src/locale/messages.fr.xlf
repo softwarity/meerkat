@@ -3941,6 +3941,46 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <source>Last sign-in through this authority</source>
         <target>Dernière connexion via cette autorité</target>
       </trans-unit>
+      <trans-unit id="Password_sign_in" datatype="html">
+        <source>Password sign-in</source>
+        <target>Connexion par mot de passe</target>
+      </trans-unit>
+      <trans-unit id="Password_sign_in_hint" datatype="html">
+        <source>
+        Who may still sign in with a password held here, rather than through an external
+        authority. Closing it is what makes an authority exclusive: while it answers, every local
+        password is a way in that bypasses the authority. This console always keeps its password
+        sign-in, so a broken authority can still be repaired.
+      </source>
+        <target>
+        Qui peut encore se connecter avec un mot de passe conservé ici, plutôt que par une autorité
+        externe. La fermer est ce qui rend une autorité exclusive : tant qu'elle répond, chaque mot de
+        passe local est une entrée qui la contourne. Cette console garde toujours sa connexion par mot
+        de passe, afin qu'une autorité en panne reste réparable.
+      </target>
+      </trans-unit>
+      <trans-unit id="Password_everyone" datatype="html">
+        <source>Everyone</source>
+        <target>Tout le monde</target>
+      </trans-unit>
+      <trans-unit id="Password_admins_only" datatype="html">
+        <source>Administrators only</source>
+        <target>Administrateurs uniquement</target>
+      </trans-unit>
+      <trans-unit id="Password_nobody" datatype="html">
+        <source>Nobody</source>
+        <target>Personne</target>
+      </trans-unit>
+      <trans-unit id="Password_needs_an_authority" datatype="html">
+        <source>
+          No authority is enabled yet. Configure one under Infra, Authentication, or nobody will
+          be able to sign in to the data plane.
+        </source>
+        <target>
+          Aucune autorité n'est activée. Configurez-en une dans Infra, Authentification, sinon plus
+          personne ne pourra se connecter au plan données.
+        </target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

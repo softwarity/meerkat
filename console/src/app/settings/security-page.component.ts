@@ -59,6 +59,12 @@ export class SecurityPageComponent {
   protected readonly passkeysAllowed = signal(true);
   protected readonly apiTokens = signal(true);
   protected readonly selfRegistration = signal(false);
+  // Who may still sign in with a local password on the data plane (AUTH-24):
+  // '' everyone, 'admins', 'nobody'. The console is never affected.
+  protected readonly passwordLogin = signal('');
+  // How many authorities are enabled: restricting the password without one
+  // would leave nobody able to sign in, and the server refuses it.
+  protected readonly authorities = signal(0);
   protected readonly selfRegisterCaptcha = signal(true);
   protected readonly trustAllowed = signal(false);
   protected readonly trustTtl = signal('P7D');
@@ -99,6 +105,8 @@ export class SecurityPageComponent {
         this.passkeysAllowed.set(s.passkeysAllowed);
         this.apiTokens.set(s.apiTokens);
         this.selfRegistration.set(s.selfRegistration);
+        this.passwordLogin.set(s.passwordLogin ?? '');
+        this.authorities.set(s.authoritiesEnabled ?? 0);
         this.selfRegisterCaptcha.set(s.selfRegisterCaptcha);
         this.trustAllowed.set(s.trustedBrowser?.allowed ?? false);
         this.trustTtl.set(s.trustedBrowser?.ttl || 'P7D');
@@ -125,6 +133,7 @@ export class SecurityPageComponent {
         passkeysAllowed: this.passkeysAllowed(),
         apiTokens: this.apiTokens(),
         selfRegistration: this.selfRegistration(),
+        passwordLogin: this.passwordLogin(),
         selfRegisterCaptcha: this.selfRegisterCaptcha(),
         trustedBrowser: { allowed: this.trustAllowed(), ttl: this.trustTtl() },
         sessionTTL: this.sessionTTL().trim(),

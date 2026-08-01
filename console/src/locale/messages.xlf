@@ -991,7 +991,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">148,149</context>
+          <context context-type="linenumber">174,175</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.html</context>
@@ -1273,7 +1273,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">140</context>
+          <context context-type="linenumber">149</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Test_email_sent_to_ADDR" datatype="html">
@@ -1350,7 +1350,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.ts</context>
-          <context context-type="linenumber">147</context>
+          <context context-type="linenumber">156</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/vault-entry-dialog.component.ts</context>
@@ -4365,11 +4365,65 @@
           <context context-type="linenumber">78,79</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Password_sign_in" datatype="html">
+        <source>Password sign-in</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
+          <context context-type="linenumber">89,90</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
+          <context context-type="linenumber">97,98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Password_sign_in_hint" datatype="html">
+        <source>
+        Who may still sign in with a password held here, rather than through an external
+        authority. Closing it is what makes an authority exclusive: while it answers, every local
+        password is a way in that bypasses the authority. This console always keeps its password
+        sign-in, so a broken authority can still be repaired.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
+          <context context-type="linenumber">91,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Password_everyone" datatype="html">
+        <source>Everyone</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
+          <context context-type="linenumber">99,100</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Password_admins_only" datatype="html">
+        <source>Administrators only</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
+          <context context-type="linenumber">100,101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Password_nobody" datatype="html">
+        <source>Nobody</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
+          <context context-type="linenumber">101,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Password_needs_an_authority" datatype="html">
+        <source>
+          No authority is enabled yet. Configure one under Infra, Authentication, or nobody will
+          be able to sign in to the data plane.
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
+          <context context-type="linenumber">108,114</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Self_registration" datatype="html">
         <source>Self-registration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">89,90</context>
+          <context context-type="linenumber">115,116</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Self_registration_hint" datatype="html">
@@ -4380,28 +4434,28 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">91,95</context>
+          <context context-type="linenumber">117,121</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allow_self_registration" datatype="html">
         <source>Allow self-registration (local accounts)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">96,97</context>
+          <context context-type="linenumber">122,123</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Require_captcha" datatype="html">
         <source>Require the anti-robot check (built-in captcha)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">101,102</context>
+          <context context-type="linenumber">127,128</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Passkeys" datatype="html">
         <source>Passkeys</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">107,108</context>
+          <context context-type="linenumber">133,134</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Passkeys_global_hint" datatype="html">
@@ -4410,21 +4464,21 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">109,111</context>
+          <context context-type="linenumber">135,137</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allow_passkeys" datatype="html">
         <source>Allow passkeys</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">112,113</context>
+          <context context-type="linenumber">138,139</context>
         </context-group>
       </trans-unit>
       <trans-unit id="API_tokens" datatype="html">
         <source>API tokens</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">117,118</context>
+          <context context-type="linenumber">143,144</context>
         </context-group>
       </trans-unit>
       <trans-unit id="API_tokens_hint" datatype="html">
@@ -4434,21 +4488,21 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">119,122</context>
+          <context context-type="linenumber">145,148</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allow_API_tokens" datatype="html">
         <source>Allow personal API tokens</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">123,124</context>
+          <context context-type="linenumber">149,150</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Trusted_browsers" datatype="html">
         <source>Trusted browsers</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">128,129</context>
+          <context context-type="linenumber">154,155</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Trusted_browsers_hint" datatype="html">
@@ -4457,21 +4511,21 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">130,132</context>
+          <context context-type="linenumber">156,158</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allow_trusted_browsers" datatype="html">
         <source>Allow trusted browsers</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">133,134</context>
+          <context context-type="linenumber">159,160</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Trust_duration" datatype="html">
         <source>Trust duration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
-          <context context-type="linenumber">137,138</context>
+          <context context-type="linenumber">163,164</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Toggle_visibility" datatype="html">

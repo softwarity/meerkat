@@ -3981,6 +3981,146 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           personne ne pourra se connecter au plan données.
         </target>
       </trans-unit>
+      <trans-unit id="Section_group_rules" datatype="html">
+        <source>Group rules</source>
+        <target>Règles de groupe</target>
+      </trans-unit>
+      <trans-unit id="Edit_rule" datatype="html">
+        <source>Edit rule</source>
+        <target>Modifier la règle</target>
+      </trans-unit>
+      <trans-unit id="New_rule" datatype="html">
+        <source>New rule</source>
+        <target>Nouvelle règle</target>
+      </trans-unit>
+      <trans-unit id="Who_it_applies_to" datatype="html">
+        <source>Who it applies to</source>
+        <target>À qui elle s'applique</target>
+      </trans-unit>
+      <trans-unit id="Authority" datatype="html">
+        <source>Authority</source>
+        <target>Autorité</target>
+      </trans-unit>
+      <trans-unit id="Any_authority" datatype="html">
+        <source>Any authority</source>
+        <target>N'importe quelle autorité</target>
+      </trans-unit>
+      <trans-unit id="Upstream_group" datatype="html">
+        <source>Upstream group</source>
+        <target>Groupe amont</target>
+      </trans-unit>
+      <trans-unit id="Upstream_group_hint" datatype="html">
+        <source>Exactly as the authority spells it. Leave empty for anyone from that authority.</source>
+        <target>Exactement comme l'autorité l'écrit. Laissez vide pour toute personne venant de cette autorité.</target>
+      </trans-unit>
+      <trans-unit id="No_group_reported_yet" datatype="html">
+        <source>
+        No group reported yet: nobody has signed in through an authority that sends any.
+      </source>
+        <target>
+        Aucun groupe remonté pour l'instant : personne ne s'est connecté via une autorité qui en envoie.
+      </target>
+      </trans-unit>
+      <trans-unit id="What_it_grants" datatype="html">
+        <source>What it grants</source>
+        <target>Ce qu'elle donne</target>
+      </trans-unit>
+      <trans-unit id="Rule_grants_membership_of" datatype="html">
+        <source>Membership of</source>
+        <target>L'appartenance à</target>
+      </trans-unit>
+      <trans-unit id="Rule_grants_and" datatype="html">
+        <source>, and:</source>
+        <target>, et :</target>
+      </trans-unit>
+      <trans-unit id="Membership_only" datatype="html">
+        <source>Membership only</source>
+        <target>Appartenance seule</target>
+      </trans-unit>
+      <trans-unit id="Rule_needs_a_criterion" datatype="html">
+        <source>
+      Name an authority, an upstream group, or both. A rule matching everything would admit anyone
+      the gateway ever authenticates, through an authority added later for something else.
+    </source>
+        <target>
+      Nommez une autorité, un groupe amont, ou les deux. Une règle qui correspond à tout admettrait
+      quiconque la gateway authentifie un jour, via une autorité ajoutée plus tard pour tout autre chose.
+    </target>
+      </trans-unit>
+      <trans-unit id="Group_rules_intro" datatype="html">
+        <source>
+  What an authority says about someone, turned into access here. A rule reads: whoever arrives
+  with this group upstream becomes a member of this organization, with this group. Nothing else
+  is taken from the authority, and a rule can only grant what belongs here.
+</source>
+        <target>
+  Ce qu'une autorité dit de quelqu'un, transformé en accès ici. Une règle se lit : qui arrive avec ce
+  groupe amont devient membre de cette organisation, avec ce groupe. Rien d'autre n'est repris de
+  l'autorité, et une règle ne peut donner que ce qui appartient à cette organisation.
+</target>
+      </trans-unit>
+      <trans-unit id="Group_rules_example_1" datatype="html">
+        <source>For a directory carrying a group per site:</source>
+        <target>Pour un annuaire portant un groupe par site :</target>
+      </trans-unit>
+      <trans-unit id="Group_rules_example_2" datatype="html">
+        <source>grants the</source>
+        <target>donne le groupe</target>
+      </trans-unit>
+      <trans-unit id="Group_rules_example_3" datatype="html">
+        <source>
+    group here. For an organization with its OWN directory, leave the upstream group empty: anyone
+    who signs in through that authority becomes a member.
+  </source>
+        <target>
+    ici. Pour une organisation disposant de SON PROPRE annuaire, laissez le groupe amont vide : toute
+    personne se connectant via cette autorité en devient membre.
+  </target>
+      </trans-unit>
+      <trans-unit id="Rules_need_an_authority" datatype="html">
+        <source>
+    No authority is enabled yet. These rules act on what an authority reports, so there is nothing
+    to map until one is configured (Infra, Authentication).
+  </source>
+        <target>
+    Aucune autorité n'est activée. Ces règles agissent sur ce qu'une autorité remonte : il n'y a rien à
+    associer tant qu'aucune n'est configurée (Infra, Authentification).
+  </target>
+      </trans-unit>
+      <trans-unit id="Rules_need_a_group" datatype="html">
+        <source>
+    This organization has no group yet. Create one first: a rule grants a group, and the roles it
+    carries are what someone may actually do here.
+  </source>
+        <target>
+    Cette organisation n'a encore aucun groupe. Créez-en un d'abord : une règle donne un groupe, et les
+    rôles qu'il porte sont ce que la personne pourra réellement faire ici.
+  </target>
+      </trans-unit>
+      <trans-unit id="No_rule_yet" datatype="html">
+        <source>
+      No rule yet: everyone arriving through an authority waits for an administrator to place them.
+    </source>
+        <target>
+      Aucune règle : toute personne arrivant par une autorité attend qu'un administrateur la place.
+    </target>
+      </trans-unit>
+      <trans-unit id="Grants" datatype="html">
+        <source>Grants</source>
+        <target>Donne</target>
+      </trans-unit>
+      <trans-unit id="Delete_rule" datatype="html">
+        <source>Delete this rule?</source>
+        <target>Supprimer cette règle ?</target>
+      </trans-unit>
+      <trans-unit id="Delete_rule_hint" datatype="html">
+        <source>What it granted is taken back the next time each person signs in. Anyone an administrator placed by hand stays.</source>
+        <target>Ce qu'elle a donné est repris à la prochaine connexion de chaque personne. Celles qu'un administrateur a placées à la main restent.</target>
+      </trans-unit>
+      <trans-unit id="Anyone_from_AUTHORITY" datatype="html">
+        <source>Anyone from <x id="AUTHORITY" equiv-text="rule.providerName || rule.providerId"/></source>
+        <target>Toute personne venant de <x id="AUTHORITY" equiv-text="rule.providerName || rule.providerId"/></target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,0 +1,92 @@
+<p class="intro text-muted" i18n="@@Group_rules_intro">
+  What an authority says about someone, turned into access here. A rule reads: whoever arrives
+  with this group upstream becomes a member of this organization, with this group. Nothing else
+  is taken from the authority, and a rule can only grant what belongs here.
+</p>
+
+<!-- One worked example, because the abstract wording above never makes the
+     mechanism click on its own. -->
+<p class="example text-muted">
+  <ng-container i18n="@@Group_rules_example_1">For a directory carrying a group per site:</ng-container>
+  <code class="mono">cn=brest-agents,ou=groups,dc=acme,dc=io</code>
+  <ng-container i18n="@@Group_rules_example_2">grants the</ng-container>
+  <code class="mono">Agents</code>
+  <ng-container i18n="@@Group_rules_example_3">
+    group here. For an organization with its OWN directory, leave the upstream group empty: anyone
+    who signs in through that authority becomes a member.
+  </ng-container>
+</p>
+
+@if (loading()) {
+  <loading-indicator withContainer />
+} @else if (blocker() === 'authority') {
+  <div class="empty" i18n="@@Rules_need_an_authority">
+    No authority is enabled yet. These rules act on what an authority reports, so there is nothing
+    to map until one is configured (Infra, Authentication).
+  </div>
+} @else if (blocker() === 'group') {
+  <div class="empty" i18n="@@Rules_need_a_group">
+    This organization has no group yet. Create one first: a rule grants a group, and the roles it
+    carries are what someone may actually do here.
+  </div>
+} @else {
+  @if (rules().length === 0) {
+    <div class="empty" i18n="@@No_rule_yet">
+      No rule yet: everyone arriving through an authority waits for an administrator to place them.
+    </div>
+  } @else {
+    <mat-table [dataSource]="rules()">
+      <ng-container matColumnDef="when">
+        <mat-header-cell *matHeaderCellDef i18n="@@Upstream_group">Upstream group</mat-header-cell>
+        <mat-cell *matCellDef="let r">
+          <span class="mono truncate">{{ when(r) }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="grants">
+        <mat-header-cell *matHeaderCellDef i18n="@@Grants">Grants</mat-header-cell>
+        <mat-cell *matCellDef="let r">
+          @if (r.groupName) {
+            <span>{{ r.groupName }}</span>
+          } @else {
+            <span class="text-muted" i18n="@@Membership_only">Membership only</span>
+          }
+          @if (r.providerName && r.external) {
+            <span class="pill" [matTooltip]="r.providerName">{{ r.providerName }}</span>
+          }
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let r">
+          <button
+            matIconButton
+            (click)="$event.stopPropagation(); remove(r)"
+            i18n-matTooltip="@@Delete"
+            matTooltip="Delete"
+            i18n-aria-label="@@Delete"
+            aria-label="Delete"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+      <mat-row *matRowDef="let r; columns: columns" class="clickable" (click)="edit(r)"></mat-row>
+    </mat-table>
+  }
+
+  <button
+    matFab
+    class="fab-new"
+    (click)="edit()"
+    i18n-matTooltip="@@New_rule"
+    matTooltip="New rule"
+    i18n-aria-label="@@New_rule"
+    aria-label="New rule"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+}

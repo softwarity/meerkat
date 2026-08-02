@@ -316,12 +316,16 @@
           <context context-type="linenumber">77,78</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">76,77</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
           <context context-type="linenumber">80,81</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/code-dialog.component.ts</context>
-          <context context-type="linenumber">48,49</context>
+          <context context-type="linenumber">53,54</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
@@ -851,7 +855,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">21,24</context>
+          <context context-type="linenumber">25,28</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete" datatype="html">
@@ -903,6 +907,18 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-danger.component.ts</context>
           <context context-type="linenumber">175</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">70,71</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.ts</context>
+          <context context-type="linenumber">115</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
@@ -959,12 +975,16 @@
           <context context-type="linenumber">81,82</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">77,78</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.html</context>
           <context context-type="linenumber">52,53</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/code-dialog.component.ts</context>
-          <context context-type="linenumber">49,50</context>
+          <context context-type="linenumber">54,55</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
@@ -1140,6 +1160,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
           <context context-type="linenumber">101</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.ts</context>
+          <context context-type="linenumber">136</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
@@ -1920,7 +1944,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">31,32</context>
+          <context context-type="linenumber">35,36</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.html</context>
@@ -2066,11 +2090,18 @@
           <context context-type="linenumber">17,19</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Section_group_rules" datatype="html">
+        <source>Group rules</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">21,23</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="All" datatype="html">
         <source>All</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">33,34</context>
+          <context context-type="linenumber">37,38</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.html</context>
@@ -2081,11 +2112,134 @@
         <source>Search</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">48,49</context>
+          <context context-type="linenumber">52,53</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.html</context>
           <context context-type="linenumber">35,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit_rule" datatype="html">
+        <source>Edit rule</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">2,4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="New_rule" datatype="html">
+        <source>New rule</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">4,6</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">86,87</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">88,90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Who_it_applies_to" datatype="html">
+        <source>Who it applies to</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">7,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Authority" datatype="html">
+        <source>Authority</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">10,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Any_authority" datatype="html">
+        <source>Any authority</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">12,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Upstream_group" datatype="html">
+        <source>Upstream group</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">21,22</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Upstream_group_hint" datatype="html">
+        <source>Exactly as the authority spells it. Leave empty for anyone from that authority.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">23,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_group_reported_yet" datatype="html">
+        <source>
+        No group reported yet: nobody has signed in through an authority that sends any.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">46,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="What_it_grants" datatype="html">
+        <source>What it grants</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">51,52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rule_grants_membership_of" datatype="html">
+        <source>Membership of</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">53,54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rule_grants_and" datatype="html">
+        <source>, and:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">55,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group" datatype="html">
+        <source>Group</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">59,60</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
+          <context context-type="linenumber">180,181</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Membership_only" datatype="html">
+        <source>Membership only</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">61,62</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">52,54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rule_needs_a_criterion" datatype="html">
+        <source>
+      Name an authority, an upstream group, or both. A rule matching everything would admit anyone
+      the gateway ever authenticates, through an authority added later for something else.
+    </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
+          <context context-type="linenumber">70,75</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Transfer_ownership" datatype="html">
@@ -2226,6 +2380,98 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
           <context context-type="linenumber">94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_rules_intro" datatype="html">
+        <source>
+  What an authority says about someone, turned into access here. A rule reads: whoever arrives
+  with this group upstream becomes a member of this organization, with this group. Nothing else
+  is taken from the authority, and a rule can only grant what belongs here.
+</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">2,7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_rules_example_1" datatype="html">
+        <source>For a directory carrying a group per site:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">10,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_rules_example_2" datatype="html">
+        <source>grants the</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">12,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_rules_example_3" datatype="html">
+        <source>
+    group here. For an organization with its OWN directory, leave the upstream group empty: anyone
+    who signs in through that authority becomes a member.
+  </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">15,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rules_need_an_authority" datatype="html">
+        <source>
+    No authority is enabled yet. These rules act on what an authority reports, so there is nothing
+    to map until one is configured (Infra, Authentication).
+  </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">24,27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Rules_need_a_group" datatype="html">
+        <source>
+    This organization has no group yet. Create one first: a rule grants a group, and the roles it
+    carries are what someone may actually do here.
+  </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">29,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_rule_yet" datatype="html">
+        <source>
+      No rule yet: everyone arriving through an authority waits for an administrator to place them.
+    </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">35,38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Grants" datatype="html">
+        <source>Grants</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.html</context>
+          <context context-type="linenumber">47,48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_rule" datatype="html">
+        <source>Delete this rule?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.ts</context>
+          <context context-type="linenumber">111</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Delete_rule_hint" datatype="html">
+        <source>What it granted is taken back the next time each person signs in. Anyone an administrator placed by hand stays.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.ts</context>
+          <context context-type="linenumber">114</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Anyone_from_AUTHORITY" datatype="html">
+        <source>Anyone from <x id="AUTHORITY" equiv-text="rule.providerName || rule.providerId"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.ts</context>
+          <context context-type="linenumber">128</context>
         </context-group>
       </trans-unit>
       <trans-unit id="New_user" datatype="html">
@@ -3181,13 +3427,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
           <context context-type="linenumber">155,156</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Group" datatype="html">
-        <source>Group</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/predicates/predicate-fields.component.ts</context>
-          <context context-type="linenumber">180,181</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Weight" datatype="html">

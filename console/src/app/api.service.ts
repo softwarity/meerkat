@@ -482,6 +482,25 @@ export interface AuthProvider {
   secretsSet?: string[];
 }
 
+// One rule turning what an authority SAYS into access here (RBAC-10). It is
+// declared IN a tenant and can only grant what belongs to it, which is what
+// keeps an authority (infra) from deciding what anyone may do (application).
+//
+// external is the authority's own group name, verbatim; empty means "anyone
+// who signs in through this authority", which is how an organisation with its
+// own directory is expressed. groupId empty grants the membership alone.
+export interface GroupRule {
+  id: string;
+  tenantId: string;
+  providerId?: string;
+  external?: string;
+  groupId?: string;
+  createdAt?: number;
+  // Read-only, for the table to read as a sentence rather than as ids.
+  providerName?: string;
+  groupName?: string;
+}
+
 // One authority a person can sign in through, and what it last said about
 // them. groups holds the AUTHORITY's own names, verbatim: nothing of ours is
 // derived from them yet, and an admin cannot map what they cannot see.
@@ -848,6 +867,34 @@ export class ApiService {
   }
 
   // ── RBAC: groups (per tenant) ─────────────────────────────────────────────
+  // ── group rules (RBAC-10) ──────────────────────────────────────────────────
+
+  listGroupRules(tenantId: string): Observable<GroupRule[]> {
+    return this.http.get<GroupRule[]>(`/api/tenants/${encodeURIComponent(tenantId)}/group-rules`);
+  }
+
+  saveGroupRule(tenantId: string, rule: Partial<GroupRule>): Observable<GroupRule> {
+    const base = `/api/tenants/${encodeURIComponent(tenantId)}/group-rules`;
+    return rule.id
+      ? this.http.put<GroupRule>(`${base}/${encodeURIComponent(rule.id)}`, rule)
+      : this.http.post<GroupRule>(base, rule);
+  }
+
+  deleteGroupRule(tenantId: string, id: string): Observable<void> {
+    return this.http.delete<void>(
+      `/api/tenants/${encodeURIComponent(tenantId)}/group-rules/${encodeURIComponent(id)}`,
+    );
+  }
+
+  // The group names the authorities have actually been heard to say. Offered
+  // in the editor so nobody retypes a DN from memory: a rule written against a
+  // remembered name matches nothing, silently.
+  reportedGroups(tenantId: string): Observable<string[]> {
+    return this.http.get<string[]>(
+      `/api/tenants/${encodeURIComponent(tenantId)}/group-rules/reported`,
+    );
+  }
+
   listGroups(tenantId: string): Observable<Group[]> {
     return this.http.get<Group[]>(`/api/tenants/${encodeURIComponent(tenantId)}/groups`);
   }

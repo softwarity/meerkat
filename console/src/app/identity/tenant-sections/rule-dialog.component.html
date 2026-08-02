@@ -1,0 +1,78 @@
+@if (data.rule) {
+  <h2 mat-dialog-title i18n="@@Edit_rule">Edit rule</h2>
+} @else {
+  <h2 mat-dialog-title i18n="@@New_rule">New rule</h2>
+}
+<mat-dialog-content>
+  <h3 class="half" i18n="@@Who_it_applies_to">Who it applies to</h3>
+
+  <mat-form-field>
+    <mat-label i18n="@@Authority">Authority</mat-label>
+    <mat-select [value]="providerId()" (selectionChange)="providerId.set($event.value)">
+      <mat-option value="" i18n="@@Any_authority">Any authority</mat-option>
+      @for (a of data.authorities; track a.id) {
+        <mat-option [value]="a.id">{{ a.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <app-form-field
+    i18n-label="@@Upstream_group"
+    label="Upstream group"
+    i18n-hint="@@Upstream_group_hint"
+    hint="Exactly as the authority spells it. Leave empty for anyone from that authority."
+  >
+    <!-- Offered from the names actually reported: a rule written against a
+         remembered spelling matches nothing, and says nothing about it. -->
+    <textarea
+      matInput
+      rows="1"
+      class="oneline mono"
+      spellcheck="false"
+      autocapitalize="off"
+      autocorrect="off"
+      [value]="external()"
+      [matAutocomplete]="auto"
+      (input)="external.set($any($event.target).value)"
+      (keydown.enter)="$event.preventDefault()"
+      placeholder="cn=brest-agents,ou=groups,dc=acme,dc=io"
+    ></textarea>
+  </app-form-field>
+  <mat-autocomplete #auto (optionSelected)="external.set($event.option.value)">
+    @for (name of suggestions(); track name) {
+      <mat-option [value]="name" class="mono">{{ name }}</mat-option>
+    } @empty {
+      <mat-option disabled i18n="@@No_group_reported_yet">
+        No group reported yet: nobody has signed in through an authority that sends any.
+      </mat-option>
+    }
+  </mat-autocomplete>
+
+  <h3 class="half" i18n="@@What_it_grants">What it grants</h3>
+  <p class="hint text-muted">
+    <ng-container i18n="@@Rule_grants_membership_of">Membership of</ng-container>
+    <strong> {{ data.tenantName }}</strong
+    ><ng-container i18n="@@Rule_grants_and">, and:</ng-container>
+  </p>
+
+  <mat-form-field>
+    <mat-label i18n="@@Group">Group</mat-label>
+    <mat-select [value]="groupId()" (selectionChange)="groupId.set($event.value)">
+      <mat-option value="" i18n="@@Membership_only">Membership only</mat-option>
+      @for (g of data.groups; track g.id) {
+        <mat-option [value]="g.id">{{ g.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (!canSave()) {
+    <p class="hint text-error" i18n="@@Rule_needs_a_criterion">
+      Name an authority, an upstream group, or both. A rule matching everything would admit anyone
+      the gateway ever authenticates, through an authority added later for something else.
+    </p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton (click)="ref.close()" i18n="@@Cancel">Cancel</button>
+  <button matButton="filled" [disabled]="!canSave()" (click)="apply()" i18n="@@Save">Save</button>
+</mat-dialog-actions>

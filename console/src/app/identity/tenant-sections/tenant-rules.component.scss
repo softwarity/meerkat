@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: 96px; // room under the last row for the fab
+}
+
+.intro,
+.example {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  max-width: 90ch;
+}
+.example {
+  margin-bottom: 20px;
+}
+.example code {
+  font-size: 0.8rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container-highest);
+}
+
+.empty {
+  padding: 48px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+  max-width: 70ch;
+  margin: 0 auto;
+}
+
+.pill {
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  padding: 1px 8px;
+  margin-left: 8px;
+  border-radius: 999px;
+  background: var(--mat-sys-surface-container-highest);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.fab-new {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2;
+}

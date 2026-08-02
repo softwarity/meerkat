@@ -197,6 +197,11 @@ export const routes: Routes = [
           import('./identity/tenant-sections/tenant-members.component').then((m) => m.TenantMembersComponent),
       },
       {
+        path: 'rules',
+        loadComponent: () =>
+          import('./identity/tenant-sections/tenant-rules.component').then((m) => m.TenantRulesComponent),
+      },
+      {
         path: 'danger',
         loadComponent: () =>
           import('./identity/tenant-sections/tenant-danger.component').then((m) => m.TenantDangerComponent),

@@ -1,0 +1,27 @@
+mat-dialog-content {
+  display: grid;
+  gap: 4px;
+  width: min(520px, 78vw);
+  padding-top: 8px;
+}
+
+// The two halves of the sentence: what has to be true, and what it gives.
+.half {
+  margin: 12px 0 4px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-surface-variant);
+}
+.half:first-child {
+  margin-top: 0;
+}
+
+.hint {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+}
+
+mat-form-field {
+  width: 100%;
+}

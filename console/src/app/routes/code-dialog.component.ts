@@ -45,14 +45,19 @@ export interface CodeDialogData {
       <div class="editor" #editor></div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button matButton mat-dialog-close i18n="@@Cancel">Cancel</button>
+      <!-- close() explicitly, NOT mat-dialog-close: written bare, that
+           directive closes with the empty STRING, which the caller cannot tell
+           from "the admin emptied the editor and saved" — so cancelling wiped
+           the block that was there. Escape and the backdrop already close with
+           undefined; this makes the button agree with them. -->
+      <button matButton (click)="ref.close()" i18n="@@Cancel">Cancel</button>
       <button matButton="filled" (click)="apply()" i18n="@@Save">Save</button>
     </mat-dialog-actions>
   `,
 })
 export class CodeDialogComponent {
   protected readonly data = inject<CodeDialogData>(MAT_DIALOG_DATA);
-  private readonly ref = inject(MatDialogRef<CodeDialogComponent, string>);
+  protected readonly ref = inject(MatDialogRef<CodeDialogComponent, string | undefined>);
   private readonly editorHost = viewChild.required<ElementRef<HTMLDivElement>>('editor');
   private view?: EditorView;
 

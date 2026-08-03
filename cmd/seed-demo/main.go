@@ -156,6 +156,34 @@ func run(dataDir string) error {
 		}
 	}
 
+	// ── the issue tracker, on, with two example reports (ISSUE-01/03) ───────
+	if err := st.SetSetting(ctx, store.SettingIssuesEnabled, true); err != nil {
+		return fmt.Errorf("issues setting: %w", err)
+	}
+	issues := []store.Issue{
+		{ID: "demo-issue-1", ReporterID: "demo-u-zoe", ReporterName: "zoe", TenantID: "demo-t-acme",
+			Description: "The ops dashboard freezes when I sort the incident table by date.\nSteps: open /ops-app, click the Date column twice.",
+			URL:         "https://localhost:8082/ops-app/dashboard", UserAgent: "Mozilla/5.0 (demo)",
+			Viewport: "1440x900", Screen: "2560x1440", DPR: 2, Language: "fr",
+			ConsoleLog: []store.ConsoleEntry{
+				{Level: "warn", Text: "sort worker took 4023ms"},
+				{Level: "error", Text: "TypeError: Cannot read properties of undefined (reading 'date')"},
+			}},
+		{ID: "demo-issue-2", ReporterID: "demo-u-marc", ReporterName: "marc", TenantID: "demo-t-acme",
+			Status:      store.IssueClosed,
+			Description: "Typo on the sales landing page: 'recieved' instead of 'received'.",
+			URL:         "https://localhost:8082/sales-app/", UserAgent: "Mozilla/5.0 (demo)",
+			Viewport: "1280x720", Screen: "1920x1080", DPR: 1, Language: "en"},
+	}
+	for _, is := range issues {
+		if _, err := st.GetIssue(ctx, is.ID); err == nil {
+			continue // idempotent: an existing demo report is left alone
+		}
+		if _, err := st.AddIssue(ctx, is); err != nil {
+			return fmt.Errorf("issue %s: %w", is.ID, err)
+		}
+	}
+
 	fmt.Println(`demo dataset seeded (idempotent). Accounts — password: ` + demoPassword + `
 
   marc   acme-demo(Support+Sales, CUMULATIVE) + globex-demo(Traders|Auditors, EXCLUSIVE)

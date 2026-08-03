@@ -67,8 +67,12 @@ type userButtonPayload struct {
 	GroupID string             `json:"groupId,omitempty"`
 	// Roles are the session's EFFECTIVE role names in the active tenant,
 	// filtered to class-safe tokens — what roles.js stamps on <body>.
-	Roles  []string          `json:"roles,omitempty"`
-	Scheme string            `json:"scheme"`
+	Roles  []string `json:"roles,omitempty"`
+	Scheme string   `json:"scheme"`
+	// Issues turns the "Report an issue" panel on (ISSUE-01): the tracker
+	// setting is enabled AND the caller is signed in. It travels here (this
+	// payload is no-store) because the component JS is cached for 5 minutes.
+	Issues bool              `json:"issues,omitempty"`
 	Labels map[string]string `json:"labels"`
 	// ThemeCSS carries the ACTIVE theme's tokens rescoped to :host — the
 	// button wears the selected theme inside its shadow root, falling back to
@@ -95,6 +99,13 @@ func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 		"schemeAuto":   t["schemeAuto"],
 		"schemeLight":  t["schemeLight"],
 		"schemeDark":   t["schemeDark"],
+		"cancel":       t["cancel"],
+	}
+	for _, k := range []string{"openIssue", "issueDescription", "issueCapture", "issueRecapture",
+		"issueCrop", "issueApply", "issueReset", "issueRemove", "issueSend", "issueSending",
+		"issueSent", "issueFailed", "issueTooLarge", "issueCaptureFailed",
+		"issueDescriptionRequired", "issueContextNote"} {
+		labels[k] = t[k]
 	}
 	css, _ := h.chrome()
 	// Lang/Labels are Meerkat's OWN strings, in a flow-page (embedded)
@@ -123,6 +134,7 @@ func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 	payload.Fullname = u.Fullname
 	payload.Email = u.Email
 	payload.Initials = initials(u)
+	payload.Issues = h.issuesEnabled(r)
 	if avatar, err := h.st.GetUserAvatar(r.Context(), sess.UserID); err == nil {
 		payload.Avatar = avatar
 	}
@@ -260,6 +272,9 @@ const userButtonJS = `(() => {
 
       const L = data.labels || {};
       const auth = !!data.authenticated;
+      // Issue reports (ISSUE-01): start collecting the console tail as soon
+      // as we know the tracker is on - a report attaches the recent output.
+      if (auth && data.issues) hookConsole();
 
       // Signed out: the button IS the sign-in action, no menu. Icon only in
       // the compact form (no username configured), icon + label otherwise.
@@ -358,6 +373,11 @@ const userButtonJS = `(() => {
             '<button class="sw on" data-scheme-cycle="' + (SCHEME_NEXT[data.scheme] || 'light') +
             '" title="' + esc(L.colorScheme) + '">' + (SCHEME_ICONS[data.scheme] || '◐') + '</button></div>');
         }
+        // The issue tracker's entry point (ISSUE-01), only when the payload
+        // says the feature is on - the flag never lives in this cached JS.
+        if (data.issues) {
+          items.push('<button class="item" id="issue"><span>' + esc(L.openIssue || 'Report an issue') + '</span></button>');
+        }
         items.push('<hr>');
         items.push('<button class="item out" id="logout"><span>' + esc(L.signOut) + '</span></button>');
       }
@@ -381,7 +401,7 @@ const userButtonJS = `(() => {
         ' background: var(--mk-surface-container, Canvas); color: var(--mk-on-surface, CanvasText);' +
         ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent));' +
         ' font-family: var(--mk-font, system-ui); border-radius: var(--mk-radius, 10px);' +
-        ' box-shadow: 0 8px 30px rgba(0,0,0,.25); display: none; }' +
+        ' box-shadow: 0 8px 30px rgba(0,0,0,.25); display: none; z-index: 3; }' +
         '.menu.open { display: block; }' +
         '.head { padding: 8px 10px; display: grid; color: inherit; text-decoration: none; border-radius: 7px; cursor: pointer; }' +
         '.head:hover { background: var(--mk-surface-container-high, color-mix(in srgb, CanvasText 10%, transparent)); }' +
@@ -415,6 +435,42 @@ const userButtonJS = `(() => {
         ' background: var(--mk-surface-container-high, color-mix(in srgb, CanvasText 10%, transparent)); }' +
         'hr { border: 0; border-top: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 15%, transparent)); margin: 6px 4px; }' +
         '.mark { font-weight: 700; }' +
+        // Issue panel (ISSUE-01): a non-blocking floating card - no backdrop,
+        // the page stays usable; the open dropdown (z-index 3) beats it.
+        '.ip { position: fixed; width: min(340px, calc(100vw - 16px)); z-index: 2;' +
+        ' background: var(--mk-surface-container, Canvas); color: var(--mk-on-surface, CanvasText);' +
+        ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent));' +
+        ' border-radius: var(--mk-radius, 10px); box-shadow: 0 12px 40px rgba(0,0,0,.3);' +
+        ' font-family: var(--mk-font, system-ui); font-size: 13px; }' +
+        '.ip-head { display: flex; align-items: center; justify-content: space-between; gap: 8px;' +
+        ' padding: 8px 12px; cursor: move; touch-action: none; user-select: none; font-weight: 600;' +
+        ' border-bottom: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 15%, transparent)); }' +
+        '.ip-x { border: 0; background: none; color: inherit; cursor: pointer; padding: 3px;' +
+        ' display: grid; place-items: center; border-radius: 6px; }' +
+        '.ip-x:hover { background: var(--mk-surface-container-high, color-mix(in srgb, CanvasText 10%, transparent)); }' +
+        '.ip-body { display: grid; gap: 8px; padding: 10px 12px 12px; max-height: calc(100vh - 140px); overflow-y: auto; }' +
+        '.ip-desc { width: 100%; resize: vertical; min-height: 64px; padding: 6px 8px; border-radius: 7px;' +
+        ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent));' +
+        ' background: var(--mk-surface, Canvas); color: inherit; font: inherit; }' +
+        '.ip-stage { position: relative; }' +
+        '.ip-stage canvas { display: block; width: 100%; border-radius: 6px;' +
+        ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent)); }' +
+        '.ip-ov { position: absolute; inset: 0; cursor: crosshair; touch-action: none; }' +
+        '.ip-sel { position: absolute; display: none; border: 1px dashed #fff; outline: 1px dashed #000;' +
+        ' background: rgba(0,0,0,.15); pointer-events: none; }' +
+        '.ip-tools { display: flex; flex-wrap: wrap; gap: 6px; }' +
+        '.ip-tools button { padding: 5px 10px; border-radius: 7px; background: none; color: inherit;' +
+        ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent));' +
+        ' cursor: pointer; font: inherit; font-size: .9em; }' +
+        '.ip-tools button:hover { background: var(--mk-surface-container-high, color-mix(in srgb, CanvasText 10%, transparent)); }' +
+        '.ip-note { margin: 0; font-size: .78em; opacity: .65; }' +
+        '.ip-msg { margin: 0; font-size: .85em; color: var(--mk-error, color-mix(in srgb, red 70%, CanvasText)); }' +
+        '.ip-msg.ok { color: var(--mk-primary, CanvasText); }' +
+        '.ip-actions { display: flex; justify-content: flex-end; }' +
+        '.ip-send { padding: 6px 14px; border-radius: 7px; border: 1px solid transparent; cursor: pointer;' +
+        ' background: var(--mk-primary, CanvasText); color: var(--mk-on-primary, Canvas); font: inherit; font-size: .9em; }' +
+        '.ip-send:hover { filter: brightness(1.1); }' +
+        '.ip-send:disabled { opacity: .6; cursor: default; }' +
         '</style>' +
         '<div class="wrap">' +
         '<button class="btn" id="toggle" aria-haspopup="menu">' +
@@ -488,6 +544,13 @@ const userButtonJS = `(() => {
       if (out) out.addEventListener('click', () => {
         fetch('/logout', { method: 'POST', credentials: 'same-origin' }).then(() => { location.href = '/login'; });
       });
+      // Open the issue panel: the menu closes, the panel floats free of it.
+      const iss = this.shadowRoot.getElementById('issue');
+      if (iss) iss.addEventListener('click', () => {
+        closeSubs();
+        menu.classList.remove('open');
+        openIssuePanel(this.shadowRoot, L);
+      });
 
       function parent(id, text) {
         return '<button class="item parent" data-sub="' + id + '"><span>' + esc(text) + '</span><span class="chev">›</span></button>';
@@ -498,6 +561,280 @@ const userButtonJS = `(() => {
 
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // ---- Issue reports (ISSUE-01) ----------------------------------------
+
+  // The console ring buffer: installed only when the payload says the tracker
+  // is on, so pages of a gateway with the feature off keep a pristine console.
+  // The originals are always called - devtools output never changes - and the
+  // hook itself may NEVER break the app (every push is fenced).
+  let issueRing = null;
+  function hookConsole() {
+    if (issueRing) return;
+    issueRing = [];
+    const cut = (s) => String(s).slice(0, 500);
+    const push = (level, text) => {
+      issueRing.push({ level: level, at: new Date().toISOString(), text: cut(text) });
+      if (issueRing.length > 150) issueRing.shift();
+    };
+    const fmt = (a) => {
+      if (typeof a === 'string') return a;
+      if (a instanceof Error) return (a.name || 'Error') + ': ' + a.message + (a.stack ? '\n' + cut(a.stack) : '');
+      try { return JSON.stringify(a); } catch { try { return String(a); } catch { return '[unserializable]'; } }
+    };
+    for (const level of ['log', 'info', 'warn', 'error']) {
+      const orig = console[level].bind(console);
+      console[level] = (...args) => {
+        try { push(level, args.map(fmt).join(' ')); } catch {}
+        orig(...args);
+      };
+    }
+    addEventListener('error', (e) => {
+      push('error', (e.message || 'error') + ' @ ' + (e.filename || '?') + ':' + (e.lineno || 0));
+    });
+    addEventListener('unhandledrejection', (e) => { push('error', 'unhandledrejection: ' + fmt(e.reason)); });
+  }
+
+  // Byte budgets: the encoded screenshot, then the whole JSON body, must fit
+  // under the gateway's 2 MiB cap with headroom.
+  const ISSUE_MAX_SHOT = 1400000;
+  const ISSUE_MAX_JSON = 1900000;
+
+  // The floating report panel: a singleton card in the component's shadow
+  // root. No backdrop - the page stays fully usable while it is open - and
+  // the header drags it out of the way of the bug being reported.
+  let issuePanel = null;
+  function openIssuePanel(root, L) {
+    const lb = (k, d) => L[k] || d;
+    if (issuePanel) { issuePanel.querySelector('.ip-desc').focus(); return; }
+    const canCapture = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+    const p = document.createElement('div');
+    p.className = 'ip';
+    p.setAttribute('role', 'dialog');
+    p.setAttribute('aria-label', lb('openIssue', 'Report an issue'));
+    const xSvg = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    p.innerHTML =
+      '<div class="ip-head"><span>' + esc(lb('openIssue', 'Report an issue')) + '</span>' +
+      '<button class="ip-x" title="' + esc(lb('cancel', 'Cancel')) + '">' + xSvg + '</button></div>' +
+      '<div class="ip-body">' +
+      '<textarea class="ip-desc" rows="4" placeholder="' + esc(lb('issueDescription', 'Describe the problem')) + '"></textarea>' +
+      '<div class="ip-stage"></div>' +
+      '<div class="ip-tools"></div>' +
+      '<p class="ip-note">' + esc(lb('issueContextNote', 'The page address, browser details and recent console output are attached to your report.')) + '</p>' +
+      '<p class="ip-msg" hidden></p>' +
+      '<div class="ip-actions"><button class="ip-send">' + esc(lb('issueSend', 'Send')) + '</button></div>' +
+      '</div>';
+    root.appendChild(p);
+    issuePanel = p;
+    p.style.left = Math.max(8, innerWidth - 356) + 'px';
+    p.style.top = '72px';
+
+    const q = (sel) => p.querySelector(sel);
+    const desc = q('.ip-desc'), stage = q('.ip-stage'), tools = q('.ip-tools'),
+      msgEl = q('.ip-msg'), send = q('.ip-send');
+    const st = { full: null, shot: null, rect: null, busy: false };
+    const msg = (text, ok) => {
+      msgEl.hidden = !text;
+      msgEl.textContent = text || '';
+      msgEl.classList.toggle('ok', !!ok);
+    };
+    const btn = (cls, label) => '<button class="' + cls + '">' + esc(label) + '</button>';
+    const close = () => { p.remove(); issuePanel = null; };
+    q('.ip-x').addEventListener('click', close);
+    p.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+
+    // Drag by the header (pointer capture keeps events flowing off-panel);
+    // clamped so at least a grabbable corner always stays on screen.
+    const head = q('.ip-head');
+    head.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('button')) return;
+      const r = p.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+      head.setPointerCapture(e.pointerId);
+      const mv = (ev) => {
+        p.style.left = Math.min(Math.max(ev.clientX - dx, 60 - r.width), innerWidth - 60) + 'px';
+        p.style.top = Math.min(Math.max(ev.clientY - dy, 0), innerHeight - 40) + 'px';
+      };
+      const up = () => { head.removeEventListener('pointermove', mv); head.removeEventListener('pointerup', up); };
+      head.addEventListener('pointermove', mv);
+      head.addEventListener('pointerup', up);
+    });
+
+    // Wait for a frame that reflects the just-hidden panel: capture streams
+    // emit on change, so two rVFC ticks; 300ms cap as universal fallback.
+    const frameReady = (v) => new Promise((res) => {
+      let done = false;
+      const fin = () => { if (!done) { done = true; res(); } };
+      if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(() => v.requestVideoFrameCallback(fin));
+      setTimeout(fin, 300);
+    });
+
+    // One-frame native capture. Called straight from a click (transient
+    // activation required); Chrome-only dictionary members are ignored by the
+    // other engines. NotAllowedError is a cancelled picker: benign silence.
+    async function capture() {
+      msg('');
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getDisplayMedia(
+          { video: true, audio: false, preferCurrentTab: true, selfBrowserSurface: 'include' });
+      } catch (err) {
+        if (!err || err.name !== 'NotAllowedError') msg(lb('issueCaptureFailed', 'Screen capture failed.'));
+        return;
+      }
+      try {
+        const v = document.createElement('video');
+        v.srcObject = stream; v.muted = true; v.playsInline = true;
+        await v.play();
+        p.style.visibility = 'hidden'; // keep the panel out of its own shot
+        await frameReady(v);
+        const k = Math.min(1, 1920 / Math.max(v.videoWidth || 1, v.videoHeight || 1));
+        const c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round((v.videoWidth || 1) * k));
+        c.height = Math.max(1, Math.round((v.videoHeight || 1) * k));
+        c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+        st.full = st.shot = c; st.rect = null;
+        renderPreview();
+      } catch { msg(lb('issueCaptureFailed', 'Screen capture failed.')); }
+      finally {
+        p.style.visibility = '';
+        for (const t of stream.getTracks()) t.stop();
+      }
+    }
+
+    const renderIdle = () => {
+      st.full = st.shot = st.rect = null;
+      stage.innerHTML = '';
+      tools.innerHTML = canCapture ? btn('ip-capture', lb('issueCapture', 'Capture screenshot')) : '';
+      if (canCapture) q('.ip-capture').addEventListener('click', capture);
+    };
+
+    const renderPreview = () => {
+      stage.innerHTML = '';
+      stage.appendChild(st.shot);
+      tools.innerHTML = btn('ip-crop', lb('issueCrop', 'Crop')) +
+        (st.shot !== st.full ? btn('ip-reset', lb('issueReset', 'Reset')) : '') +
+        btn('ip-retake', lb('issueRecapture', 'Retake')) +
+        btn('ip-remove', lb('issueRemove', 'Remove'));
+      q('.ip-crop').addEventListener('click', renderCrop);
+      const rs = q('.ip-reset');
+      if (rs) rs.addEventListener('click', () => { st.shot = st.full; renderPreview(); });
+      q('.ip-retake').addEventListener('click', capture);
+      q('.ip-remove').addEventListener('click', renderIdle);
+    };
+
+    // Crop: drag a rectangle on the displayed canvas; width and height scale
+    // by the SAME factor (aspect preserved), so one ratio maps the selection
+    // back to full resolution. A sub-8px drag is an accidental click.
+    const renderCrop = () => {
+      st.rect = null;
+      stage.innerHTML = '';
+      stage.appendChild(st.shot);
+      const ov = document.createElement('div'); ov.className = 'ip-ov';
+      const sel = document.createElement('div'); sel.className = 'ip-sel';
+      ov.appendChild(sel);
+      stage.appendChild(ov);
+      tools.innerHTML = btn('ip-apply', lb('issueApply', 'Apply')) + btn('ip-back', lb('cancel', 'Cancel'));
+      const cl = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+      ov.addEventListener('pointerdown', (e) => {
+        const r = ov.getBoundingClientRect();
+        const x0 = cl(e.clientX - r.left, 0, r.width), y0 = cl(e.clientY - r.top, 0, r.height);
+        ov.setPointerCapture(e.pointerId);
+        const mv = (ev) => {
+          const x1 = cl(ev.clientX - r.left, 0, r.width), y1 = cl(ev.clientY - r.top, 0, r.height);
+          st.rect = { x: Math.min(x0, x1), y: Math.min(y0, y1),
+            w: Math.abs(x1 - x0), h: Math.abs(y1 - y0), dw: r.width };
+          sel.style.cssText = 'display:block;left:' + st.rect.x + 'px;top:' + st.rect.y +
+            'px;width:' + st.rect.w + 'px;height:' + st.rect.h + 'px;';
+        };
+        const up = () => {
+          ov.removeEventListener('pointermove', mv);
+          ov.removeEventListener('pointerup', up);
+          if (st.rect && (st.rect.w < 8 || st.rect.h < 8)) { st.rect = null; sel.style.display = 'none'; }
+        };
+        ov.addEventListener('pointermove', mv);
+        ov.addEventListener('pointerup', up);
+      });
+      q('.ip-apply').addEventListener('click', () => {
+        if (st.rect) {
+          const k = st.shot.width / st.rect.dw;
+          const sx = Math.round(st.rect.x * k), sy = Math.round(st.rect.y * k);
+          const sw = Math.max(1, Math.round(st.rect.w * k)), sh = Math.max(1, Math.round(st.rect.h * k));
+          const c = document.createElement('canvas');
+          c.width = sw; c.height = sh;
+          c.getContext('2d').drawImage(st.shot, sx, sy, sw, sh, 0, 0, sw, sh);
+          st.shot = c; // st.full untouched: Reset restores the original
+        }
+        renderPreview();
+      });
+      q('.ip-back').addEventListener('click', renderPreview);
+    };
+
+    // JPEG only (a PNG screen grab easily blows the cap), encoded once at
+    // send time. Quality steps down, then the canvas shrinks: a safety net,
+    // the 1920px grab cap makes the first attempt fit in practice.
+    const encodeShot = () => {
+      if (!st.shot) return '';
+      let c = st.shot, qy = 0.85;
+      for (let i = 0; i < 6; i++) {
+        const uri = c.toDataURL('image/jpeg', qy);
+        if (Math.ceil(uri.length * 3 / 4) <= ISSUE_MAX_SHOT) return uri;
+        if (qy > 0.55) { qy -= 0.15; } else {
+          const d = document.createElement('canvas');
+          d.width = Math.max(1, Math.round(c.width * 0.7));
+          d.height = Math.max(1, Math.round(c.height * 0.7));
+          d.getContext('2d').drawImage(c, 0, 0, d.width, d.height);
+          c = d; qy = 0.7;
+        }
+      }
+      return null;
+    };
+
+    send.addEventListener('click', () => {
+      const text = desc.value.trim();
+      if (!text) { msg(lb('issueDescriptionRequired', 'A description is required.')); desc.focus(); return; }
+      if (st.busy) return;
+      const shot = encodeShot();
+      if (shot === null) { msg(lb('issueTooLarge', 'The screenshot is too large to send.')); return; }
+      const body = {
+        description: text,
+        url: location.href,
+        userAgent: navigator.userAgent,
+        viewport: innerWidth + 'x' + innerHeight,
+        screen: screen.width + 'x' + screen.height,
+        dpr: devicePixelRatio || 1,
+        language: navigator.language || '',
+        console: (issueRing || []).slice()
+      };
+      if (shot) body.screenshot = shot;
+      let json = JSON.stringify(body);
+      while (json.length > ISSUE_MAX_JSON && body.console.length) {
+        body.console.splice(0, Math.ceil(body.console.length / 2));
+        json = JSON.stringify(body);
+      }
+      if (json.length > ISSUE_MAX_JSON) { msg(lb('issueTooLarge', 'The screenshot is too large to send.')); return; }
+      st.busy = true;
+      send.disabled = true;
+      send.textContent = lb('issueSending', 'Sending...');
+      fetch('/meerkat/issues', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: json
+      }).then((res) => {
+        if (!res.ok) throw new Error('http ' + res.status);
+        msg(lb('issueSent', 'Thank you, your report was sent.'), true);
+        desc.value = '';
+        renderIdle();
+      }).catch(() => {
+        msg(lb('issueFailed', 'Sending failed. Please try again.'));
+      }).finally(() => {
+        st.busy = false;
+        send.disabled = false;
+        send.textContent = lb('issueSend', 'Send');
+      });
+    });
+
+    renderIdle();
+    desc.focus();
   }
 
   customElements.define('meerkat-user-button', MeerkatUserButton);

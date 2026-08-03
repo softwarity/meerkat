@@ -6,9 +6,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
 import { ApiService } from '../api.service';
 
-// Others — INFRA plane: the switches that fit no dedicated screen. First one:
-// exposing the embedded API docs (swagger-ui). It ships OFF — docs are attack
-// surface — and while off the whole /apidocs surface answers 404.
+// Others - INFRA plane: the switches that fit no dedicated screen. Exposing
+// the embedded API docs (swagger-ui), and the embedded issue tracker. Both
+// ship OFF; while off their whole surface answers 404.
 @Component({
   selector: 'app-others-page',
   imports: [MatCardModule, MatIconModule, MatSlideToggleModule, LoadingIndicatorComponent],
@@ -51,13 +51,28 @@ import { ApiService } from '../api.service';
         <div class="line">
           <mat-icon>api</mat-icon>
           <div class="grow">
-            <div i18n="@@Expose_API_docs">Expose the API documentation (swagger-ui)</div>
+            <div i18n="@@Expose_API_docs">Developer API docs on the data plane</div>
             <p class="hint" i18n="@@Expose_API_docs_hint">
-              The API screen and /apidocs on this admin port: Meerkat's own API plus every route
-              declaring an OpenAPI spec. Off, the whole surface answers 404.
+              Opens /meerkat/apidocs on the application port: every route's OpenAPI spec, for
+              signed-in users with the developer capability. Off, the page answers 404. The
+              console's own API screen (Meerkat's contract) is not concerned.
             </p>
           </div>
           <mat-slide-toggle [checked]="exposed()" [disabled]="saving()" (change)="save($event.checked)" />
+        </div>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <div class="line">
+          <mat-icon>bug_report</mat-icon>
+          <div class="grow">
+            <div i18n="@@Enable_issue_reports">Issue reports from the applications</div>
+            <p class="hint" i18n="@@Enable_issue_reports_hint">
+              Adds a "Report an issue" entry to the user button of proxied applications: signed-in
+              users file a description, a screenshot and the page context. Reports land in the
+              console's Issues section. Off, the entry disappears and the endpoint answers 404.
+            </p>
+          </div>
+          <mat-slide-toggle [checked]="issuesOn()" [disabled]="savingIssues()" (change)="saveIssues($event.checked)" />
         </div>
       </mat-card>
     }
@@ -70,6 +85,8 @@ export class OthersPageComponent {
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
   protected readonly exposed = signal(false);
+  protected readonly savingIssues = signal(false);
+  protected readonly issuesOn = signal(false);
 
   constructor() {
     this.api.apiDocsSetting().subscribe({
@@ -78,6 +95,10 @@ export class OthersPageComponent {
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
+    });
+    this.api.issuesSetting().subscribe({
+      next: (s) => this.issuesOn.set(s.enabled),
+      error: () => {},
     });
   }
 
@@ -97,6 +118,27 @@ export class OthersPageComponent {
       },
       error: () => {
         this.saving.set(false);
+        this.snack.open($localize`:@@Save_failed:Save failed`, undefined, { duration: 3000 });
+      },
+    });
+  }
+
+  protected saveIssues(enabled: boolean): void {
+    this.savingIssues.set(true);
+    this.api.saveIssuesSetting(enabled).subscribe({
+      next: (s) => {
+        this.issuesOn.set(s.enabled);
+        this.savingIssues.set(false);
+        this.snack.open(
+          s.enabled
+            ? $localize`:@@Issue_reports_enabled:Issue reports enabled`
+            : $localize`:@@Issue_reports_disabled:Issue reports disabled`,
+          undefined,
+          { duration: 2500 },
+        );
+      },
+      error: () => {
+        this.savingIssues.set(false);
         this.snack.open($localize`:@@Save_failed:Save failed`, undefined, { duration: 3000 });
       },
     });

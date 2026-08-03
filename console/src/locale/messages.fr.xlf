@@ -4121,6 +4121,106 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <source>Anyone from <x id="AUTHORITY" equiv-text="rule.providerName || rule.providerId"/></source>
         <target>Toute personne venant de <x id="AUTHORITY" equiv-text="rule.providerName || rule.providerId"/></target>
       </trans-unit>
+      <trans-unit id="Issues" datatype="html">
+        <source>Issues</source>
+        <target>Anomalies</target>
+      </trans-unit>
+      <trans-unit id="Enable_issue_reports" datatype="html">
+        <source>Issue reports from the applications</source>
+        <target>Signalements d'anomalies depuis les applications</target>
+      </trans-unit>
+      <trans-unit id="Enable_issue_reports_hint" datatype="html">
+        <source>Adds a "Report an issue" entry to the user button of proxied applications: signed-in users file a description, a screenshot and the page context. Reports land in the console's Issues section. Off, the entry disappears and the endpoint answers 404.</source>
+        <target>Ajoute une entrée « Signaler un problème » au bouton utilisateur des applications proxifiées : les utilisateurs connectés déposent une description, une capture d'écran et le contexte de la page. Les signalements arrivent dans la section Anomalies de la console. Désactivé, l'entrée disparaît et le point d'accès répond 404.</target>
+      </trans-unit>
+      <trans-unit id="Issue_reports_enabled" datatype="html">
+        <source>Issue reports enabled</source>
+        <target>Signalements d'anomalies activés</target>
+      </trans-unit>
+      <trans-unit id="Issue_reports_disabled" datatype="html">
+        <source>Issue reports disabled</source>
+        <target>Signalements d'anomalies désactivés</target>
+      </trans-unit>
+      <trans-unit id="Issues_hint" datatype="html">
+        <source>The reports your users file from the applications, with their screenshot and the context captured with them.</source>
+        <target>Les signalements déposés par vos utilisateurs depuis les applications, avec leur capture d'écran et le contexte relevé avec eux.</target>
+      </trans-unit>
+      <trans-unit id="Status" datatype="html">
+        <source>Status</source>
+        <target>Statut</target>
+      </trans-unit>
+      <trans-unit id="Screenshot" datatype="html">
+        <source>Screenshot</source>
+        <target>Capture d'écran</target>
+      </trans-unit>
+      <trans-unit id="No_issue_reported" datatype="html">
+        <source>No issue reported.</source>
+        <target>Aucune anomalie signalée.</target>
+      </trans-unit>
+      <trans-unit id="Reported_by" datatype="html">
+        <source>Reported by</source>
+        <target>Signalé par</target>
+      </trans-unit>
+      <trans-unit id="Tenant" datatype="html">
+        <source>Tenant</source>
+        <target>Tenant</target>
+      </trans-unit>
+      <trans-unit id="When" datatype="html">
+        <source>When</source>
+        <target>Quand</target>
+      </trans-unit>
+      <trans-unit id="Browser" datatype="html">
+        <source>Browser</source>
+        <target>Navigateur</target>
+      </trans-unit>
+      <trans-unit id="Console_output" datatype="html">
+        <source>Console output</source>
+        <target>Sortie console</target>
+      </trans-unit>
+      <trans-unit id="Comments" datatype="html">
+        <source>Comments</source>
+        <target>Commentaires</target>
+      </trans-unit>
+      <trans-unit id="No_comment_yet" datatype="html">
+        <source>No comment yet.</source>
+        <target>Aucun commentaire pour l'instant.</target>
+      </trans-unit>
+      <trans-unit id="Add_a_comment" datatype="html">
+        <source>Add a comment</source>
+        <target>Ajouter un commentaire</target>
+      </trans-unit>
+      <trans-unit id="Send" datatype="html">
+        <source>Send</source>
+        <target>Envoyer</target>
+      </trans-unit>
+      <trans-unit id="Delete_report" datatype="html">
+        <source>Delete report</source>
+        <target>Supprimer le signalement</target>
+      </trans-unit>
+      <trans-unit id="Delete_this_report" datatype="html">
+        <source>Delete this report?</source>
+        <target>Supprimer ce signalement ?</target>
+      </trans-unit>
+      <trans-unit id="Delete_report_message" datatype="html">
+        <source>The report, its screenshot and its comments will be permanently removed.</source>
+        <target>Le signalement, sa capture d'écran et ses commentaires seront définitivement supprimés.</target>
+      </trans-unit>
+      <trans-unit id="Report_deleted" datatype="html">
+        <source>Report deleted</source>
+        <target>Signalement supprimé</target>
+      </trans-unit>
+      <trans-unit id="Issue_open" datatype="html">
+        <source>Open</source>
+        <target>Ouverte</target>
+      </trans-unit>
+      <trans-unit id="Issue_in_progress" datatype="html">
+        <source>In progress</source>
+        <target>En cours</target>
+      </trans-unit>
+      <trans-unit id="Issue_closed" datatype="html">
+        <source>Closed</source>
+        <target>Fermée</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

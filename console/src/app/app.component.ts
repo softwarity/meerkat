@@ -108,6 +108,7 @@ export class AppComponent {
   // itself server-side to the caller's domains (gateway/app/tenant).
   protected readonly inVault = computed(() => this.url().startsWith('/vault'));
   protected readonly inAudit = computed(() => this.url().startsWith('/audit'));
+  protected readonly inIssues = computed(() => this.url().startsWith('/issues'));
   protected readonly inApiDocs = computed(() => this.url().startsWith('/api'));
 
   constructor() {

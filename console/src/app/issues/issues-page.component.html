@@ -1,0 +1,150 @@
+<mat-drawer-container hasBackdrop="true">
+  <mat-drawer-content>
+    <div class="banner">
+      <h1 i18n="@@Issues">Issues</h1>
+      <button matIconButton (click)="reload()" i18n-matTooltip="@@Refresh" matTooltip="Refresh" i18n-aria-label="@@Refresh" aria-label="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <p class="hint" i18n="@@Issues_hint">
+        The reports your users file from the applications, with their screenshot and the context captured with them.
+      </p>
+      <div class="filters">
+        <mat-form-field class="short" subscriptSizing="dynamic">
+          <mat-label i18n="@@Status">Status</mat-label>
+          <mat-select [value]="view.$status()" (selectionChange)="view.status = $event.value; reload()">
+            <mat-option value="" i18n="@@All">All</mat-option>
+            @for (s of statuses; track s) {
+              <mat-option [value]="s">{{ statusLabel(s) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="grow" subscriptSizing="dynamic">
+          <mat-label i18n="@@Search">Search</mat-label>
+          <input matInput [value]="search()" (input)="search.set($any($event.target).value)" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="scroll">
+      @if (loading()) {
+        <loading-indicator withContainer />
+      } @else {
+        <div class="cards">
+          @for (i of filtered(); track i.id) {
+            <div class="card clickable" (click)="open(i)">
+              <div class="line1">
+                <span class="dot" [class.open]="i.status === 'open'" [class.progress]="i.status === 'in-progress'" [title]="statusLabel(i.status)"></span>
+                <span class="desc truncate">{{ firstLine(i.description) }}</span>
+                @if (i.hasScreenshot) {
+                  <mat-icon class="shot-ic" i18n-matTooltip="@@Screenshot" matTooltip="Screenshot">image</mat-icon>
+                }
+              </div>
+              <div class="line2">
+                <span class="who">{{ i.reporterName || i.reporterId }}</span>
+                @if (i.tenantName) {
+                  <span class="tenant">{{ i.tenantName }}</span>
+                }
+                <span class="when" [title]="fullWhen(i.createdAt)">{{ relWhen(i.createdAt) }}</span>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty" i18n="@@No_issue_reported">No issue reported.</div>
+          }
+        </div>
+      }
+    </div>
+  </mat-drawer-content>
+
+  <mat-drawer position="end" mode="over" [opened]="openedId() !== null" (closedStart)="onClose()">
+    @if (detailLoading()) {
+      <loading-indicator withContainer />
+    } @else if (detail(); as d) {
+      <div class="detail">
+        <div class="detail-head">
+          <h2 class="truncate">{{ firstLine(d.description) }}</h2>
+          <button matIconButton (click)="onClose()" i18n-aria-label="@@Close" aria-label="Close">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="meta">
+          <mat-form-field class="short" subscriptSizing="dynamic">
+            <mat-label i18n="@@Status">Status</mat-label>
+            <mat-select [value]="d.status" (selectionChange)="setStatus($event.value)">
+              @for (s of statuses; track s) {
+                <mat-option [value]="s">{{ statusLabel(s) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <div class="facts">
+            <div><span class="k" i18n="@@Reported_by">Reported by</span> {{ d.reporterName || d.reporterId }}</div>
+            @if (d.tenantName) {
+              <div><span class="k" i18n="@@Tenant">Tenant</span> {{ d.tenantName }}</div>
+            }
+            <div><span class="k" i18n="@@When">When</span> <span [title]="fullWhen(d.createdAt)">{{ relWhen(d.createdAt) }}</span></div>
+            @if (d.url) {
+              <div class="url"><span class="k">URL</span> <span class="mono">{{ d.url }}</span></div>
+            }
+            @if (d.viewport) {
+              <div>
+                <span class="k" i18n="@@Browser">Browser</span>
+                <span class="mono">{{ d.viewport }}@{{ d.dpr || 1 }}x {{ d.language }}</span>
+              </div>
+            }
+            @if (d.userAgent) {
+              <div class="ua mono">{{ d.userAgent }}</div>
+            }
+          </div>
+        </div>
+
+        <p class="description">{{ d.description }}</p>
+
+        @if (d.hasScreenshot && !shotBroken()) {
+          <a class="shot" [href]="'/api/issues/' + d.id + '/screenshot'" target="_blank" rel="noopener">
+            <img [src]="'/api/issues/' + d.id + '/screenshot'" alt="" (error)="shotBroken.set(true)" />
+          </a>
+        }
+
+        @if (d.console?.length) {
+          <h3 i18n="@@Console_output">Console output</h3>
+          <pre class="console">@for (c of d.console; track $index) {<span [class]="'lv-' + c.level">{{ c.level }}</span> {{ c.text }}
+}</pre>
+        }
+
+        <h3 i18n="@@Comments">Comments</h3>
+        <div class="comments">
+          @for (c of d.comments ?? []; track c.id) {
+            <div class="comment">
+              <div class="c-head">
+                <span class="who">{{ c.author || c.authorId }}</span>
+                <span class="when" [title]="fullWhen(c.at)">{{ relWhen(c.at) }}</span>
+              </div>
+              <div class="c-text">{{ c.text }}</div>
+            </div>
+          } @empty {
+            <div class="empty" i18n="@@No_comment_yet">No comment yet.</div>
+          }
+        </div>
+        <div class="comment-form">
+          <mat-form-field class="grow" subscriptSizing="dynamic">
+            <mat-label i18n="@@Add_a_comment">Add a comment</mat-label>
+            <textarea matInput rows="2" [value]="comment()" (input)="comment.set($any($event.target).value)"></textarea>
+          </mat-form-field>
+          <button matButton="tonal" [disabled]="!comment().trim() || sending()" (click)="addComment()">
+            <ng-container i18n="@@Send">Send</ng-container>
+          </button>
+        </div>
+
+        <div class="danger-zone">
+          <button matButton class="danger" (click)="remove()">
+            <mat-icon>delete</mat-icon>
+            <ng-container i18n="@@Delete_report">Delete report</ng-container>
+          </button>
+        </div>
+      </div>
+    }
+  </mat-drawer>
+</mat-drawer-container>

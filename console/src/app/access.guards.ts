@@ -64,6 +64,17 @@ export const auditAccess: CanActivateFn = async () => {
   return ok ? true : router.parseUrl(landing(me));
 };
 
+// issuesAccess gates the transverse Issues section: anyone who administers a
+// domain may open it (root, infra-admin, app-admin, or a tenant admin). The
+// API scopes the CONTENT (a tenant admin sees their tenants' reports only).
+export const issuesAccess: CanActivateFn = async () => {
+  const me = inject(MeService);
+  const router = inject(Router);
+  await me.ensureLoaded();
+  const ok = me.isRoot() || me.isInfraAdmin() || me.isAppAdmin() || me.isTenantAdmin();
+  return ok ? true : router.parseUrl(landing(me));
+};
+
 // apiDocsAccess gates the API-docs screen: the capabilities that consume the
 // control plane (root, infra-admin, app-admin). The spec LIST is scoped
 // again server-side — route-declared specs need the routing plane.

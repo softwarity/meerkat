@@ -371,6 +371,11 @@ const (
 	// OFF until an infra admin flips it on the Others screen. Meerkat's own
 	// admin spec is a console matter and needs no switch.
 	SettingDevDocsExposed = "dev_docs_exposed"
+	// SettingIssuesEnabled turns on the embedded issue tracker (ISSUE-04):
+	// the user-button of proxied apps gains a "Report an issue" panel and the
+	// data plane accepts reports. Ships OFF until an infra admin flips it on
+	// the Others screen.
+	SettingIssuesEnabled = "issues_enabled"
 	// SettingRegistration is the self-registration policy (AUTH-20): who may
 	// create their own account. Ships closed.
 	SettingRegistration = "registration"

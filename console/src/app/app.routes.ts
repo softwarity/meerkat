@@ -4,6 +4,7 @@ import {
   apiDocsAccess,
   appOnly,
   auditAccess,
+  issuesAccess,
   vaultAccess,
   firstTenantRedirect,
   infraOnly,
@@ -29,6 +30,14 @@ function routesMatcher(segments: UrlSegment[]): UrlMatchResult | null {
 // users and users/:id, one config (see routesMatcher above).
 function usersMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   if (segments.length === 0 || segments[0].path !== 'users' || segments.length > 2) return null;
+  const posParams: Record<string, UrlSegment> = {};
+  if (segments.length === 2) posParams['id'] = segments[1];
+  return { consumed: segments, posParams };
+}
+
+// issues and issues/:id, one config (see routesMatcher above).
+function issuesMatcher(segments: UrlSegment[]): UrlMatchResult | null {
+  if (segments.length === 0 || segments[0].path !== 'issues' || segments.length > 2) return null;
   const posParams: Record<string, UrlSegment> = {};
   if (segments.length === 2) posParams['id'] = segments[1];
   return { consumed: segments, posParams };
@@ -217,6 +226,11 @@ export const routes: Routes = [
     path: 'audit',
     canActivate: [auditAccess],
     loadComponent: () => import('./settings/audit-page.component').then((m) => m.AuditPageComponent),
+  },
+  {
+    matcher: issuesMatcher,
+    canActivate: [issuesAccess],
+    loadComponent: () => import('./issues/issues-page.component').then((m) => m.IssuesPageComponent),
   },
   {
     // The swagger-ui screen: an iframe over the gateway-served /apidocs/ page.

@@ -38,7 +38,7 @@ var auditIgnore = map[string]bool{
 // sees everything. A user who administers nothing sees nothing.
 var (
 	infraTargets = []string{"route", "theme", "token"}
-	appTargets   = []string{"user", "role", "settings"}
+	appTargets   = []string{"user", "role", "settings", "issue"}
 )
 
 // auditRegisterViewer mounts the read-only audit endpoint. It is a section of

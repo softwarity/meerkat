@@ -55,6 +55,15 @@
     >
       <mat-icon>history_edu</mat-icon>
     </rail-nav-item>
+    <rail-nav-item
+      i18n-label="@@Issues"
+      label="Issues"
+      routerLink="/issues"
+      [active]="inIssues()"
+      any-role="root infra-admin app-admin tenant-admin"
+    >
+      <mat-icon>bug_report</mat-icon>
+    </rail-nav-item>
     <rail-nav-spacer />
     <app-user-menu />
   </rail-nav>

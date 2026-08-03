@@ -397,6 +397,21 @@ de YAML : on configure dans la console, on observe dans la console.
 | AUD-01 | **Journal d'audit intégré et consultable dans la console** (recherche, filtres, pagination) couvrant : actions d'administration (qui a modifié quoi — routes, services, rôles, membres, configs), connexions (AUTH-13), activations de configuration (CFG-05), activités dev/plug (DEV), dépassements de quotas. | ◐ | M |
 | AUD-02 | Journal **append-only**, avec rétention configurable et **export** (Parquet/CSV — STORE-06) pour archivage ou analyse externe ; aucune dépendance à un outil tiers pour la consultation courante. | ✘ | M |
 
+### 3.18 Remontée d'incidents (ISSUE)
+
+Un suivi d'anomalies **simple et embarqué**, pensé pour une équipe : l'utilisateur signale
+depuis l'application (via le bouton utilisateur injecté, UIF-03/PAGE-04), l'équipe traite
+dans la console. Pas un vrai tracker — les connecteurs vers un dépôt central viendront le
+compléter, pas le remplacer.
+
+| ID | Exigence | V1 | Prio |
+|---|---|---|---|
+| ISSUE-01 | **Signalement injecté** : une entrée « Signaler un problème » dans le bouton utilisateur des applications proxifiées ouvre un panneau flottant **non bloquant** (la page reste utilisable, panneau déplaçable) : description, **capture d'écran native** (getDisplayMedia, écran/fenêtre/onglet, recadrage d'une zone), et contexte auto-joint (URL, user-agent, viewport, langue, **sortie console récente**). Tout utilisateur connecté peut signaler. | ✔ | S |
+| ISSUE-02 | **Stockage embarqué** : le signalement est enregistré dans le store du gateway, estampillé côté serveur (rapporteur, **tenant courant** de la session, horodatage) ; la capture est bornée (~1,5 Mio) et servie à la demande, jamais dans les listes. | ✔ | S |
+| ISSUE-03 | **Gestion dans la console** : section transverse « Anomalies » — liste filtrable par statut, détail (capture, console, contexte), cycle de vie `open / in-progress / closed`, **commentaires d'équipe**, suppression. Visibilité cadrée comme l'audit : root et admins infra/appli voient tout, un admin de tenant les signalements de ses tenants. Chaque mutation est auditée. | ✔ | S |
+| ISSUE-04 | **Interrupteur infra, livré ÉTEINT** (écran Autres) : éteint, l'entrée disparaît du bouton utilisateur et le point d'accès de dépôt répond 404. | ✔ | S |
+| ISSUE-05 | **Connecteurs vers un dépôt central** (GitHub Issues, GitLab, Jira…) : pousser un signalement vers l'extérieur, manuellement puis par règle. | ✘ | C |
+
 ---
 
 ## 4. Exigences non fonctionnelles

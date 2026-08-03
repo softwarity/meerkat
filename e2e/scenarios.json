@@ -141,6 +141,30 @@
       }
     },
     {
+      "id": "api-app-issues",
+      "domain": "application",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/issues" },
+      "allowed": ["root", "infra-admin", "app-admin", "tenant-admin"],
+      "title": { "en": "Read the issue reports", "fr": "Lire les signalements d'anomalies" },
+      "description": {
+        "en": "The embedded issue tracker (ISSUE-03) is a transverse section: root and infra/app admins see every report, a tenant admin only those filed under their tenants. Anyone who administers nothing is refused.",
+        "fr": "Le suivi d'anomalies embarqué (ISSUE-03) est une section transverse : root et les admins infra/appli voient tous les signalements, un admin de tenant seulement ceux déposés sous ses tenants. Quiconque n'administre rien est refusé."
+      }
+    },
+    {
+      "id": "api-infra-issues-setting",
+      "domain": "infra",
+      "kind": "api",
+      "probe": { "method": "GET", "path": "/api/settings/issues" },
+      "allowed": ["root", "infra-admin"],
+      "title": { "en": "Read the issue tracker switch", "fr": "Lire l'interrupteur du suivi d'anomalies" },
+      "description": {
+        "en": "Turning user-filed issue reports on is an infrastructure decision (ISSUE-04, Others screen): the switch ships OFF and only infra admins read or flip it.",
+        "fr": "Activer les signalements d'anomalies est une décision d'infrastructure (ISSUE-04, écran Autres) : l'interrupteur est livré ÉTEINT et seuls les admins infra le lisent ou le basculent."
+      }
+    },
+    {
       "id": "api-tenant-members",
       "domain": "tenant",
       "kind": "api",
@@ -194,22 +218,10 @@
       "kind": "api",
       "probe": { "method": "GET", "path": "/apidocs/specs.json" },
       "allowed": ["root", "infra-admin", "app-admin", "tenant-admin", "user"],
-      "title": { "en": "The API-docs spec list follows the session", "fr": "La liste des specs API suit la session" },
+      "title": { "en": "The console documents the control plane", "fr": "La console documente le control plane" },
       "description": {
-        "en": "Every signed-in console user may open the swagger-ui page and list the available specifications (the admin API at least); anonymous callers get 401. Route-declared specs only appear for the routing plane.",
-        "fr": "Tout utilisateur connecté à la console peut ouvrir la page swagger-ui et lister les spécifications disponibles (au moins l'API admin) ; un appel anonyme reçoit 401. Les specs déclarées par les routes n'apparaissent que pour le plan de routage."
-      }
-    },
-    {
-      "id": "api-docs-route-spec",
-      "domain": "gateway",
-      "kind": "api",
-      "probe": { "method": "GET", "path": "/apidocs/specs/route/ghost", "allowedStatus": [404] },
-      "allowed": ["root", "infra-admin"],
-      "title": { "en": "Route-declared specs stay on the routing plane", "fr": "Les specs déclarées par les routes restent sur le plan de routage" },
-      "description": {
-        "en": "Fetching a route's OpenAPI spec through the gateway is gateway scope: root and infra-admin pass the guard (404 here — the probed route does not exist), everyone else is refused.",
-        "fr": "Récupérer la spec OpenAPI d'une route via la gateway relève du périmètre gateway : root et l'admin gateway passent la garde (404 ici — la route sondée n'existe pas), tous les autres sont refusés."
+        "en": "Every signed-in console user may open the swagger-ui page: it lists Meerkat's own admin API, and nothing else — the routes' specs live on the data plane, for developers. Anonymous callers get 401.",
+        "fr": "Tout utilisateur connecté à la console peut ouvrir la page swagger-ui : elle liste l'API admin de Meerkat, et rien d'autre — les specs des routes vivent sur le plan data, pour les développeurs. Un appel anonyme reçoit 401."
       }
     },
     {
@@ -246,6 +258,18 @@
       "description": {
         "en": "A tenant owner or ADMIN (or a tenant creator) sees the Tenants scope; plain members and capability admins without a tenant do not.",
         "fr": "Un propriétaire ou ADMIN de tenant (ou un créateur de tenants) voit le périmètre Tenants ; les membres simples et les admins par capacité sans tenant, non."
+      }
+    },
+    {
+      "id": "ui-rail-issues",
+      "domain": "console",
+      "kind": "ui",
+      "check": { "railItem": "Issues" },
+      "allowed": ["root", "infra-admin", "app-admin", "tenant-admin"],
+      "title": { "en": "The Issues rail entry shows for administrators", "fr": "L'entrée Anomalies du rail apparaît pour les administrateurs" },
+      "description": {
+        "en": "The issue reports section (ISSUE-03) follows the audit rule: anyone administering a domain may open it, the API scopes the content.",
+        "fr": "La section des signalements (ISSUE-03) suit la règle de l'audit : quiconque administre un domaine peut l'ouvrir, l'API cadre le contenu."
       }
     },
     {

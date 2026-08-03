@@ -102,7 +102,10 @@ func (s *Store) Close() error { return s.db.Close() }
 // data plane only, an admin (control-plane) token on the admin port only —
 // each plane accepts its own scope, never the other's. Admin tokens are the
 // foundation for headless management (CLI/MCP), minted by root.
-const schemaVersion = 32
+// v33 issue reports (ISSUE-01/02): user-filed reports from the injected
+// user-button panel - description, captured context (url, console, browser),
+// an optional screenshot, statuses and team comments.
+const schemaVersion = 33
 
 func (s *Store) migrate() error {
 	var v int
@@ -399,7 +402,36 @@ CREATE TABLE IF NOT EXISTS audit_events (
 );
 CREATE INDEX IF NOT EXISTS audit_events_at ON audit_events(at);
 CREATE INDEX IF NOT EXISTS audit_events_tenant ON audit_events(tenant_id, at);
-CREATE INDEX IF NOT EXISTS audit_events_actor ON audit_events(actor_id, at);`)
+CREATE INDEX IF NOT EXISTS audit_events_actor ON audit_events(actor_id, at);
+
+-- Issue reports (v33, ISSUE-01/02): one row per report filed from the injected
+-- user-button panel. reporter_id is NOT a foreign key - the report must
+-- outlive its author (reporter_name is captured at write time). tenant_id is
+-- the reporter's CURRENT tenant ("" = none: visible to root/infra only). The
+-- screenshot data URI lives in its own column and is only ever read on demand
+-- (lists never carry it). console_log and comments are JSON arrays.
+CREATE TABLE IF NOT EXISTS issues (
+  id            TEXT PRIMARY KEY,
+  created_at    INTEGER NOT NULL,
+  updated_at    INTEGER NOT NULL,
+  reporter_id   TEXT NOT NULL DEFAULT '',
+  reporter_name TEXT NOT NULL DEFAULT '',
+  tenant_id     TEXT NOT NULL DEFAULT '',
+  status        TEXT NOT NULL DEFAULT 'open',
+  description   TEXT NOT NULL,
+  url           TEXT NOT NULL DEFAULT '',
+  user_agent    TEXT NOT NULL DEFAULT '',
+  viewport      TEXT NOT NULL DEFAULT '',
+  screen        TEXT NOT NULL DEFAULT '',
+  dpr           REAL NOT NULL DEFAULT 0,
+  language      TEXT NOT NULL DEFAULT '',
+  console_log   TEXT NOT NULL DEFAULT '[]',
+  comments      TEXT NOT NULL DEFAULT '[]',
+  screenshot    TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS issues_at ON issues(created_at);
+CREATE INDEX IF NOT EXISTS issues_tenant ON issues(tenant_id, created_at);
+CREATE INDEX IF NOT EXISTS issues_status ON issues(status, created_at);`)
 	if err != nil {
 		return fmt.Errorf("store: migrate: %w", err)
 	}

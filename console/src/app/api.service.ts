@@ -426,6 +426,49 @@ export interface AuditQuery {
   limit?: number;
 }
 
+// One captured console line inside an issue report.
+export interface IssueConsoleEntry {
+  level: string;
+  at?: string;
+  text: string;
+}
+
+// One team note on an issue.
+export interface IssueComment {
+  id: string;
+  authorId?: string;
+  author?: string;
+  at: number;
+  text: string;
+}
+
+export type IssueStatus = 'open' | 'in-progress' | 'closed';
+
+// One user-filed report from the injected user-button panel (ISSUE-01): the
+// description plus the context captured with it. Lists come back light -
+// console/comments ride on the detail read only, the screenshot streams from
+// its own endpoint (hasScreenshot tells whether to ask).
+export interface Issue {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+  reporterId?: string;
+  reporterName?: string;
+  tenantId?: string;
+  tenantName?: string;
+  status: IssueStatus;
+  description: string;
+  url?: string;
+  userAgent?: string;
+  viewport?: string;
+  screen?: string;
+  dpr?: number;
+  language?: string;
+  console?: IssueConsoleEntry[];
+  comments?: IssueComment[];
+  hasScreenshot: boolean;
+}
+
 // A control-plane API token as listed (never carries the secret out).
 export interface AdminToken {
   id: string;
@@ -683,6 +726,40 @@ export class ApiService {
 
   saveApiDocsSetting(exposed: boolean): Observable<{ exposed: boolean }> {
     return this.http.put<{ exposed: boolean }>('/api/settings/api-docs', { exposed });
+  }
+
+  // The issue tracker's switch (ISSUE-04): while off, the user-button hides
+  // the entry and the data plane refuses reports.
+  issuesSetting(): Observable<{ enabled: boolean }> {
+    return this.http.get<{ enabled: boolean }>('/api/settings/issues');
+  }
+
+  saveIssuesSetting(enabled: boolean): Observable<{ enabled: boolean }> {
+    return this.http.put<{ enabled: boolean }>('/api/settings/issues', { enabled });
+  }
+
+  // Issue reports (ISSUE-03), scoped server-side: root and infra/app admins
+  // see everything, a tenant admin their tenants' reports.
+  listIssues(status?: IssueStatus | ''): Observable<Issue[]> {
+    let params = new HttpParams();
+    if (status) params = params.set('status', status);
+    return this.http.get<Issue[]>('/api/issues', { params });
+  }
+
+  getIssue(id: string): Observable<Issue> {
+    return this.http.get<Issue>(`/api/issues/${encodeURIComponent(id)}`);
+  }
+
+  setIssueStatus(id: string, status: IssueStatus): Observable<Issue> {
+    return this.http.put<Issue>(`/api/issues/${encodeURIComponent(id)}/status`, { status });
+  }
+
+  addIssueComment(id: string, text: string): Observable<Issue> {
+    return this.http.post<Issue>(`/api/issues/${encodeURIComponent(id)}/comments`, { text });
+  }
+
+  deleteIssue(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/issues/${encodeURIComponent(id)}`);
   }
 
   mailRelay(): Observable<MailRelay> {

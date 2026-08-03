@@ -116,6 +116,15 @@ func (s *Store) VaultValues(ctx context.Context, scope string) (map[string]strin
 			}
 			e.Value = plain
 		}
+		// An entry holding NOTHING does not answer. A configuration import
+		// reserves the names it expects (ReserveVaultEntry), and those sit empty
+		// until someone fills them: resolving them would turn
+		// "https://${api-host}" into "https://" and a password into the empty
+		// string — two failures nobody can read back to a missing entry. Left
+		// unresolved instead, the name comes out verbatim and is reported.
+		if e.Value == "" {
+			continue
+		}
 		if rank[e.Scope] < best[e.Name] {
 			continue // a more specific scope already answered this name
 		}

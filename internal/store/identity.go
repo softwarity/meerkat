@@ -396,6 +396,12 @@ const (
 	// One-time guard: the theme presets have been topped up into an existing
 	// install (THEME-04). Prevents resurrecting a preset the admin deleted.
 	SettingThemePresetsSeeded = "theme_presets_seeded"
+	// SettingConfigSeed records the configuration file this gateway was seeded
+	// from and its digest (CFG-03). It is what stops a bootstrap file from
+	// being replayed at every restart, quietly resurrecting what an admin
+	// deleted in the console. Never exported: it describes this install's
+	// history, not how it is configured.
+	SettingConfigSeed = "config_seed"
 )
 
 // SupportedLanguages is every language the flow pages can speak — the

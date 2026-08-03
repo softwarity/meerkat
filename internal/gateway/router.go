@@ -110,7 +110,15 @@ func (rt *Router) Reload(ctx context.Context) error {
 			return fmt.Errorf("gateway: route %q: %w", raw.Name, err)
 		}
 		if len(missing) > 0 {
-			slog.Warn("route references unknown vault entries", "route", raw.Name, "names", missing)
+			// Left OUT rather than compiled. A route whose references do not
+			// resolve cannot serve anything — its upstream is "https://" with no
+			// host — and failing the whole reload over it would take every other
+			// route down with it. That is the normal state of a gateway just
+			// seeded from a file (CFG-03): the configuration is in place, the
+			// vault is not filled yet, and it has to start anyway.
+			slog.Warn("route left out: it references vault entries that hold nothing",
+				"route", raw.Name, "names", missing)
+			continue
 		}
 		cr, err := rt.compile(r, appLangs)
 		if err != nil {

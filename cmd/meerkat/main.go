@@ -20,6 +20,7 @@ import (
 
 	"github.com/softwarity/meerkat/internal/admin"
 	"github.com/softwarity/meerkat/internal/auth"
+	"github.com/softwarity/meerkat/internal/config"
 	"github.com/softwarity/meerkat/internal/gateway"
 	"github.com/softwarity/meerkat/internal/mail"
 	"github.com/softwarity/meerkat/internal/routing"
@@ -34,6 +35,8 @@ func main() {
 	adminAddr := flag.String("admin-addr", envOr("MEERKAT_ADMIN_ADDR", ":9090"), "administration (control plane) listen address")
 	consoleURL := flag.String("console-url", envOr("MEERKAT_CONSOLE_URL", ""), "dev only: proxy the console UI to a front dev server (e.g. http://localhost:4200)")
 	dataDir := flag.String("data", envOr("MEERKAT_DATA", "data"), "data directory (embedded storage)")
+	configFile := flag.String("config", envOr("MEERKAT_CONFIG_FILE", ""),
+		"configuration file (YAML or JSON) seeding an EMPTY gateway on first start; never overwrites a configured one")
 	flag.Parse()
 
 	if *showVersion {
@@ -41,13 +44,13 @@ func main() {
 		return
 	}
 
-	if err := run(*addr, *adminAddr, *consoleURL, *dataDir); err != nil {
+	if err := run(*addr, *adminAddr, *consoleURL, *dataDir, *configFile); err != nil {
 		slog.Error("fatal", "err", err)
 		os.Exit(1)
 	}
 }
 
-func run(addr, adminAddr, consoleURL, dataDir string) error {
+func run(addr, adminAddr, consoleURL, dataDir, configFile string) error {
 	if err := os.MkdirAll(dataDir, 0o750); err != nil {
 		return fmt.Errorf("data dir: %w", err)
 	}
@@ -58,8 +61,17 @@ func run(addr, adminAddr, consoleURL, dataDir string) error {
 	defer func() { _ = st.Close() }()
 
 	ctx := context.Background()
-	if err := seedDemoRoute(ctx, st); err != nil {
+	// A configuration file gets first say (CFG-03): it seeds an empty gateway
+	// and is ignored by a configured one. When it does seed, the demo routes
+	// stay away — the operator has said what this gateway serves.
+	seeded, err := config.Seed(ctx, st, configFile, time.Now().Unix())
+	if err != nil {
 		return err
+	}
+	if !seeded {
+		if err := seedDemoRoute(ctx, st); err != nil {
+			return err
+		}
 	}
 	if err := auth.SeedAdmin(ctx, st); err != nil {
 		return err

@@ -566,6 +566,14 @@ export interface SecretLocation {
   field: string;
 }
 
+// The client-credentials grant that mints the SMTP token.
+export interface MailOAuth2 {
+  tokenUrl?: string;
+  clientId?: string;
+  clientSecret?: string;
+  scope?: string;
+}
+
 export interface MailRelay {
   host: string;
   port: number;
@@ -573,6 +581,13 @@ export interface MailRelay {
   username: string;
   password?: string;
   passwordSet?: boolean;
+  // How the relay is authenticated: '' or 'password', or 'oauth2' (XOAUTH2,
+  // the only way into Microsoft 365). Two modes with their own fields, never
+  // one generic form.
+  auth?: string;
+  oauth2?: MailOAuth2;
+  // A LITERAL client secret is stored (the value is not in this payload).
+  oauth2SecretSet?: boolean;
   // The sender ADDRESS: part of the relay, because a provider only accepts the
   // account it authenticated. Empty sends as the account when that is itself
   // an address.

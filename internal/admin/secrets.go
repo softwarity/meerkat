@@ -72,14 +72,24 @@ func (a *API) secretHolders() map[string]secretHolder {
 		"mailrelay": {
 			scope: vault.ScopeInfra,
 			load: func(ctx context.Context, _ string) (string, map[string]string, error) {
-				return "mail relay", map[string]string{"password": a.st.RawSMTP(ctx).Password}, nil
+				cfg := a.st.RawSMTP(ctx)
+				// Both modes hold a secret, and either can arrive as a literal
+				// through the bootstrap file.
+				return "mail relay", map[string]string{
+					"password":           cfg.Password,
+					"oauth2ClientSecret": cfg.OAuth2.ClientSecret,
+				}, nil
 			},
 			stash: func(ctx context.Context, _, field, value string) error {
-				if field != "password" {
+				cfg := a.st.RawSMTP(ctx)
+				switch field {
+				case "password":
+					cfg.Password = value
+				case "oauth2ClientSecret":
+					cfg.OAuth2.ClientSecret = value
+				default:
 					return fmt.Errorf("the mail relay holds no secret named %q", field)
 				}
-				cfg := a.st.RawSMTP(ctx)
-				cfg.Password = value
 				return a.st.SetSetting(ctx, store.SettingSMTP, cfg)
 			},
 		},

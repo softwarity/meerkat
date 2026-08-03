@@ -21,8 +21,20 @@ type Config struct {
 	Port int    `json:"port"`
 	// Security: "starttls" (587, default), "tls" (465, implicit), "none".
 	Security string `json:"security"`
+	// Auth picks HOW the relay is authenticated: "" or "password" is the
+	// ordinary account and secret, "oauth2" is XOAUTH2 with a token minted by
+	// client credentials. The two are separate modes with separate fields
+	// rather than one generic form, because they have nothing in common: one
+	// asks for a password, the other for a tenant, an application and a scope.
+	//
+	// The second exists because Microsoft 365 REFUSES basic SMTP AUTH outright:
+	// without it a password-only client cannot send through the relay most
+	// companies actually run.
+	Auth     string `json:"auth"`
 	Username string `json:"username"`
 	Password string `json:"password"`
+	// OAuth2 holds the client-credentials settings of the "oauth2" mode.
+	OAuth2 OAuth2Config `json:"oauth2"`
 	// From is the sender ADDRESS. It belongs to the relay, not to the product:
 	// most providers refuse (or silently rewrite) a MAIL FROM that is not the
 	// account they authenticated, so it is set with the transport. Empty falls
@@ -32,6 +44,47 @@ type Config struct {
 	// `Meerkat <no-reply@acme.io>`). THIS is the product's to choose: it is
 	// what the recipient reads, and no relay constrains it.
 	FromName string `json:"fromName"`
+}
+
+// The two authentication modes.
+const (
+	// AuthPassword is the zero value: an account and a secret, sent as PLAIN
+	// over TLS. What every transactional relay uses (SendGrid, Mailgun, SES,
+	// Postmark), and what Gmail still accepts with an application password.
+	AuthPassword = "password"
+	// AuthOAuth2 is XOAUTH2: a token obtained by client credentials stands in
+	// for the password. Required by Microsoft 365, which has switched basic
+	// SMTP AUTH off for good.
+	AuthOAuth2 = "oauth2"
+)
+
+// ValidAuth reports whether m is a known mode ("" reads as password).
+func ValidAuth(m string) bool {
+	return m == "" || m == AuthPassword || m == AuthOAuth2
+}
+
+// OAuth2Config is the client-credentials grant that mints the SMTP token. The
+// mailbox is Username, as in the other mode: XOAUTH2 authenticates an
+// application but still sends AS someone.
+type OAuth2Config struct {
+	// TokenURL is the token endpoint, e.g.
+	// https://login.microsoftonline.com/<tenant>/oauth2/v2.0/token
+	TokenURL string `json:"tokenUrl"`
+	ClientID string `json:"clientId"`
+	// ClientSecret is a SECRET field (see idp.SecretFields for the same rule
+	// on the authorities): a vault reference travels, a literal never does.
+	ClientSecret string `json:"clientSecret"`
+	// Scope defaults to Microsoft's SMTP scope, the only one anybody asks for
+	// today, so the common case needs no typing.
+	Scope string `json:"scope"`
+}
+
+// EffectiveScope is Scope, or Microsoft's SMTP scope when unset.
+func (o OAuth2Config) EffectiveScope() string {
+	if s := strings.TrimSpace(o.Scope); s != "" {
+		return s
+	}
+	return "https://outlook.office365.com/.default"
 }
 
 // Address is the envelope sender: the explicit From, or the relay account when
@@ -54,6 +107,20 @@ func (c Config) Sender() string {
 		return addr
 	}
 	return (&netmail.Address{Name: c.FromName, Address: addr}).String()
+}
+
+// auth builds the mechanism for the configured mode. The token is minted per
+// send: it is short lived, and a gateway sends few enough mails that caching
+// one would buy nothing but a stale-token bug.
+func (c Config) auth(ctx context.Context) (smtp.Auth, error) {
+	if c.Auth == AuthOAuth2 {
+		token, err := fetchToken(ctx, c.OAuth2)
+		if err != nil {
+			return nil, err
+		}
+		return xoauth2Auth{username: c.Username, token: token}, nil
+	}
+	return smtp.PlainAuth("", c.Username, c.Password, c.Host), nil
 }
 
 // Configured reports whether the config can send at all.
@@ -111,7 +178,11 @@ func Send(ctx context.Context, cfg Config, msg Message) error {
 		}
 	}
 	if cfg.Username != "" {
-		if err := c.Auth(smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)); err != nil {
+		auth, err := cfg.auth(ctx)
+		if err != nil {
+			return err
+		}
+		if err := c.Auth(auth); err != nil {
 			return fmt.Errorf("mail: authentication refused by %s: %w", addr, err)
 		}
 	}

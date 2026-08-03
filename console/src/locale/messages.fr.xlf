@@ -4221,6 +4221,62 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <source>Closed</source>
         <target>Fermée</target>
       </trans-unit>
+      <trans-unit id="Auth_password" datatype="html">
+        <source>Password</source>
+        <target>Mot de passe</target>
+      </trans-unit>
+      <trans-unit id="Auth_oauth2" datatype="html">
+        <source>OAuth2</source>
+        <target>OAuth2</target>
+      </trans-unit>
+      <trans-unit id="Auth_password_hint" datatype="html">
+        <source>
+              An account and a secret. What every transactional relay uses, and what Gmail still
+              accepts with an application password.
+            </source>
+        <target>
+              Un compte et un secret. Ce qu'utilisent tous les relais transactionnels, et ce que Gmail
+              accepte encore avec un mot de passe d'application.
+            </target>
+      </trans-unit>
+      <trans-unit id="Auth_oauth2_hint" datatype="html">
+        <source>
+              A token minted by client credentials stands in for the password (XOAUTH2). This is
+              the only way into Microsoft 365, which no longer accepts a password over SMTP.
+            </source>
+        <target>
+              Un jeton obtenu par client credentials remplace le mot de passe (XOAUTH2). C'est la seule
+              entrée vers Microsoft 365, qui n'accepte plus de mot de passe en SMTP.
+            </target>
+      </trans-unit>
+      <trans-unit id="SMTP_username_hint" datatype="html">
+        <source>The account that authenticates, not always an address</source>
+        <target>Le compte qui s'authentifie, pas toujours une adresse</target>
+      </trans-unit>
+      <trans-unit id="Token_URL" datatype="html">
+        <source>Token URL</source>
+        <target>URL du jeton</target>
+      </trans-unit>
+      <trans-unit id="Token_URL_hint" datatype="html">
+        <source>The tenant&apos;s token endpoint</source>
+        <target>Le point de terminaison de jeton du tenant</target>
+      </trans-unit>
+      <trans-unit id="Scope" datatype="html">
+        <source>Scope</source>
+        <target>Portée</target>
+      </trans-unit>
+      <trans-unit id="Scope_hint" datatype="html">
+        <source>Empty uses Microsoft&apos;s SMTP scope</source>
+        <target>Vide utilise la portée SMTP de Microsoft</target>
+      </trans-unit>
+      <trans-unit id="Sender_address_hint_account" datatype="html">
+        <source>Empty sends as the account. Most providers accept only that address, or a verified alias.</source>
+        <target>Vide envoie avec le compte. La plupart des fournisseurs n'acceptent que cette adresse, ou un alias vérifié.</target>
+      </trans-unit>
+      <trans-unit id="Sender_address_hint_key" datatype="html">
+        <source>The account is not an address, so one is required here. It must be verified with the provider.</source>
+        <target>Le compte n'est pas une adresse, il en faut donc une ici. Elle doit être vérifiée chez le fournisseur.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

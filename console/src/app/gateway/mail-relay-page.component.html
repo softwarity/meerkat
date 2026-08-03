@@ -29,8 +29,34 @@
             <mat-option value="none" i18n="@@None">None</mat-option>
           </mat-select>
         </mat-form-field>
+        <!-- The two modes are separate forms, not one generic set of boxes:
+             a password and a client-credentials grant have nothing in common
+             but the account they send as. -->
+        <mat-button-toggle-group
+          class="col-span-full auth-modes"
+          [value]="auth()"
+          (change)="auth.set($event.value)"
+          hideSingleSelectionIndicator
+        >
+          <mat-button-toggle value="password" i18n="@@Auth_password">Password</mat-button-toggle>
+          <mat-button-toggle value="oauth2" i18n="@@Auth_oauth2">OAuth2</mat-button-toggle>
+        </mat-button-toggle-group>
+        <p class="hint text-muted col-span-full">
+          @if (auth() === 'oauth2') {
+            <ng-container i18n="@@Auth_oauth2_hint">
+              A token minted by client credentials stands in for the password (XOAUTH2). This is
+              the only way into Microsoft 365, which no longer accepts a password over SMTP.
+            </ng-container>
+          } @else {
+            <ng-container i18n="@@Auth_password_hint">
+              An account and a secret. What every transactional relay uses, and what Gmail still
+              accepts with an application password.
+            </ng-container>
+          }
+        </p>
+
         <mat-form-field>
-          <mat-label i18n="@@SMTP_username">Username</mat-label>
+          <mat-label i18n="@@SMTP_username">Account</mat-label>
           <textarea
             matInput
             rows="1"
@@ -41,28 +67,79 @@
             [value]="username()"
             (input)="username.set($any($event.target).value)"
             (keydown.enter)="$event.preventDefault()"
+            [placeholder]="auth() === 'oauth2' ? 'no-reply@acme.io' : ''"
           ></textarea>
+          <mat-hint i18n="@@SMTP_username_hint">The account that authenticates, not always an address</mat-hint>
         </mat-form-field>
-        <!-- Full width: when a secret is typed in clear the field carries a
-             message and its way out, and half a column crushes both. -->
-        <app-secret-field
-          #relayPassword
-          fieldClass="col-span-full"
-          i18n-label="@@SMTP_password"
-          label="Password"
-          [(value)]="password"
-          [held]="passwordSet()"
-          [at]="{ holder: 'mailrelay', id: '', field: 'password' }"
-          scope="infra"
-          (moved)="reload()"
-        />
+        <!-- Side by side with the account it belongs to: they are one
+             credential, and reading them apart was the confusing part. -->
+        @if (auth() !== 'oauth2') {
+          <app-secret-field
+            #relayPassword
+            i18n-label="@@SMTP_password"
+            label="Password"
+            [(value)]="password"
+            [held]="passwordSet()"
+            [at]="{ holder: 'mailrelay', id: '', field: 'password' }"
+            scope="infra"
+            (moved)="reload()"
+          />
+        }
+
+        @if (auth() === 'oauth2') {
+          <app-form-field
+            class="col-span-full"
+            i18n-label="@@Token_URL"
+            label="Token URL"
+            i18n-hint="@@Token_URL_hint"
+            hint="The tenant's token endpoint"
+            allowVault="values"
+            vaultScope="infra"
+          >
+            <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off"
+              autocorrect="off" [value]="tokenUrl()" (input)="tokenUrl.set($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault()"
+              placeholder="https://login.microsoftonline.com/TENANT/oauth2/v2.0/token"></textarea>
+          </app-form-field>
+
+          <app-form-field i18n-label="@@Client_ID" label="Client ID" allowVault="values" vaultScope="infra">
+            <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off"
+              autocorrect="off" [value]="clientId()" (input)="clientId.set($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault()"></textarea>
+          </app-form-field>
+
+          <app-secret-field
+            #relaySecret
+            i18n-label="@@Client_secret"
+            label="Client secret"
+            [(value)]="clientSecret"
+            [held]="clientSecretSet()"
+            [at]="{ holder: 'mailrelay', id: '', field: 'oauth2ClientSecret' }"
+            scope="infra"
+            (moved)="reload()"
+          />
+
+          <app-form-field
+            class="col-span-full"
+            i18n-label="@@Scope"
+            label="Scope"
+            i18n-hint="@@Scope_hint"
+            hint="Empty uses Microsoft's SMTP scope"
+            allowVault="values"
+            vaultScope="infra"
+          >
+            <textarea matInput rows="1" class="oneline mono" spellcheck="false" autocapitalize="off"
+              autocorrect="off" [value]="scope()" (input)="scope.set($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault()"
+              placeholder="https://outlook.office365.com/.default"></textarea>
+          </app-form-field>
+        }
       </div>
 
       <app-form-field
         i18n-label="@@Sender_address"
         label="Sender address"
-        i18n-hint="@@Sender_address_hint"
-        hint="Leave empty to send as the relay account"
+        [hint]="fromHint()"
         allowVault="secret/values"
         vaultScope="infra"
       >
@@ -104,7 +181,7 @@
         <button
           matButton
           (click)="test()"
-          [disabled]="testing() || !host().trim() || !recipientOK() || relayPassword.invalid()"
+          [disabled]="testing() || !host().trim() || !recipientOK() || typedSecret()"
         >
           <!-- The one place with a slow round-trip and no other feedback: the
                icon spins while the relay is being tried. Written without any
@@ -123,7 +200,7 @@
       <button
         matButton="filled"
         (click)="save()"
-        [disabled]="saving() || relayPassword.invalid()"
+        [disabled]="saving() || typedSecret()"
         i18n="@@Save"
       >
         Save

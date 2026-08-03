@@ -33,6 +33,9 @@ type mailRelayPayload struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Security string `json:"security"` // "" | starttls | tls | none
+	// Auth is the mode: "" or "password", or "oauth2". The two carry
+	// different fields and are edited as different forms.
+	Auth     string `json:"auth"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 	// PasswordSet says a LITERAL password is stored: something is configured
@@ -45,8 +48,13 @@ type mailRelayPayload struct {
 	// FromName is read-only here: the display name is the application's to set.
 	FromName string `json:"fromName,omitempty"`
 	// Sender is what the recipient will actually see, address and name
-	// combined — the console shows it rather than making an admin guess.
+	// combined: the console shows it rather than making an admin guess.
 	Sender string `json:"sender,omitempty"`
+	// OAuth2 carries the client-credentials settings of the oauth2 mode. Its
+	// client secret follows the rule every secret follows (VAULT-05): a
+	// reference travels, a literal never does and only raises OAuth2SecretSet.
+	OAuth2          mail.OAuth2Config `json:"oauth2"`
+	OAuth2SecretSet bool              `json:"oauth2SecretSet"`
 }
 
 // relayView takes the relay AS STORED, so every editable field comes back the
@@ -60,6 +68,14 @@ func (a *API) relayView(cfg mail.Config) mailRelayPayload {
 		v.Password = cfg.Password
 	} else {
 		v.PasswordSet = cfg.Password != ""
+	}
+	v.Auth = cfg.Auth
+	v.OAuth2 = cfg.OAuth2
+	// Same treatment as the password: the literal is stripped, a reference
+	// stays, or the console could not show WHICH vault entry is used.
+	if !vault.IsRef(cfg.OAuth2.ClientSecret) {
+		v.OAuth2.ClientSecret = ""
+		v.OAuth2SecretSet = cfg.OAuth2.ClientSecret != ""
 	}
 	return v
 }
@@ -89,13 +105,24 @@ func (a *API) putMailRelay(w http.ResponseWriter, r *http.Request, actor store.U
 	// Read the relay UNRESOLVED, or saving would replace every reference the
 	// form carries with whatever it currently resolves to.
 	stored := a.st.RawSMTP(r.Context())
+	if !mail.ValidAuth(p.Auth) {
+		writeErr(w, http.StatusUnprocessableEntity,
+			"mail relay authentication must be "+mail.AuthPassword+" or "+mail.AuthOAuth2)
+		return
+	}
 	cfg := mail.Config{
 		Host: strings.TrimSpace(p.Host), Port: p.Port, Security: p.Security,
-		Username: p.Username, From: strings.TrimSpace(p.From),
-		FromName: stored.FromName, Password: p.Password,
+		Auth: p.Auth, Username: p.Username, From: strings.TrimSpace(p.From),
+		FromName: stored.FromName, Password: p.Password, OAuth2: p.OAuth2,
 	}
+	// Both secrets are carried forward when the form sends nothing: the console
+	// never received the literal, so a blank means "leave it alone" rather than
+	// "erase it" (VAULT-05).
 	if cfg.Password == "" {
 		cfg.Password = stored.Password
+	}
+	if strings.TrimSpace(cfg.OAuth2.ClientSecret) == "" {
+		cfg.OAuth2.ClientSecret = stored.OAuth2.ClientSecret
 	}
 	if err := a.st.SetSetting(r.Context(), store.SettingSMTP, cfg); err != nil {
 		a.internal(w, err)
@@ -147,12 +174,23 @@ func (a *API) testMailRelay(w http.ResponseWriter, r *http.Request, actor store.
 		strings.TrimSpace(body.Host), body.Username, body.Password)
 	cfg := mail.Config{
 		Host: host, Port: body.Port, Security: body.Security,
-		Username: username, From: a.st.ExpandInfra(r.Context(), strings.TrimSpace(body.From)),
-		FromName: stored.FromName, Password: password,
+		Auth: body.Auth, Username: username,
+		From:     a.st.ExpandInfra(r.Context(), strings.TrimSpace(body.From)),
+		FromName: stored.FromName, Password: password, OAuth2: body.OAuth2,
 	}
 	if cfg.Password == "" {
 		cfg.Password = stored.Password
 	}
+	// The oauth2 side is resolved and carried forward the same way: a test has
+	// to try what the form holds, secrets included, without ever asking the
+	// console to resend one it never received.
+	if strings.TrimSpace(cfg.OAuth2.ClientSecret) == "" {
+		cfg.OAuth2.ClientSecret = stored.OAuth2.ClientSecret
+	} else {
+		cfg.OAuth2.ClientSecret = a.st.ExpandInfra(r.Context(), cfg.OAuth2.ClientSecret)
+	}
+	cfg.OAuth2.TokenURL = a.st.ExpandInfra(r.Context(), strings.TrimSpace(cfg.OAuth2.TokenURL))
+	cfg.OAuth2.ClientID = a.st.ExpandInfra(r.Context(), strings.TrimSpace(cfg.OAuth2.ClientID))
 	if cfg.Host == "" {
 		writeErr(w, http.StatusUnprocessableEntity, "set a relay host before testing")
 		return

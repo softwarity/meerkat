@@ -109,7 +109,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">162</context>
+          <context context-type="linenumber">204</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/vault-page.component.ts</context>
@@ -648,6 +648,10 @@
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
           <context context-type="linenumber">112</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">105</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="Client_secret" datatype="html">
         <source>Client secret</source>
@@ -658,6 +662,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
           <context context-type="linenumber">118,119</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">114,115</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allowed_domains" datatype="html">
@@ -983,7 +991,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">129,131</context>
+          <context context-type="linenumber">206,208</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
@@ -1286,39 +1294,101 @@
           <context context-type="linenumber">142,143</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="SMTP_username" datatype="html">
-        <source>Username</source>
+      <trans-unit id="Auth_password" datatype="html">
+        <source>Password</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">33,34</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Auth_oauth2" datatype="html">
+        <source>OAuth2</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">42,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Auth_oauth2_hint" datatype="html">
+        <source>
+              A token minted by client credentials stands in for the password (XOAUTH2). This is
+              the only way into Microsoft 365, which no longer accepts a password over SMTP.
+            </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">47,50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Auth_password_hint" datatype="html">
+        <source>
+              An account and a secret. What every transactional relay uses, and what Gmail still
+              accepts with an application password.
+            </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">52,56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_username" datatype="html">
+        <source>Account</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">59,60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="SMTP_username_hint" datatype="html">
+        <source>The account that authenticates, not always an address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">72,73</context>
         </context-group>
       </trans-unit>
       <trans-unit id="SMTP_password" datatype="html">
         <source>Password</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">52,53</context>
+          <context context-type="linenumber">80,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Token_URL" datatype="html">
+        <source>Token URL</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">93,94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Token_URL_hint" datatype="html">
+        <source>The tenant&apos;s token endpoint</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">95,96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Scope" datatype="html">
+        <source>Scope</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Scope_hint" datatype="html">
+        <source>Empty uses Microsoft&apos;s SMTP scope</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
+          <context context-type="linenumber">127,128</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Sender_address" datatype="html">
         <source>Sender address</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">63,64</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Sender_address_hint" datatype="html">
-        <source>Leave empty to send as the relay account</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">65,66</context>
+          <context context-type="linenumber">141,142</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Recipients_will_see" datatype="html">
         <source>Recipients will see</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">85,86</context>
+          <context context-type="linenumber">162,163</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
@@ -1331,28 +1401,42 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">88,93</context>
+          <context context-type="linenumber">165,170</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Test_recipient" datatype="html">
         <source>Test recipient</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">95,96</context>
+          <context context-type="linenumber">172,173</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Send_a_test" datatype="html">
         <source>Send a test</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">115,116</context>
+          <context context-type="linenumber">192,193</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Sender_address_hint_account" datatype="html">
+        <source>Empty sends as the account. Most providers accept only that address, or a verified alias.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Sender_address_hint_key" datatype="html">
+        <source>The account is not an address, so one is required here. It must be verified with the provider.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
+          <context context-type="linenumber">77</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Settings_saved" datatype="html">
         <source>Settings saved</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">132</context>
+          <context context-type="linenumber">174</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
@@ -1371,7 +1455,7 @@
         <source>Test email sent to <x id="ADDR" equiv-text="sent"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
-          <context context-type="linenumber">148</context>
+          <context context-type="linenumber">190</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Others" datatype="html">

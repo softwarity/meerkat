@@ -101,7 +101,8 @@ func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 		"schemeDark":   t["schemeDark"],
 		"cancel":       t["cancel"],
 	}
-	for _, k := range []string{"openIssue", "issueDescription", "issueCapture", "issueRecapture",
+	for _, k := range []string{"openIssue", "issueDescription",
+		"issueCaptureScreen", "issueCaptureHint", "issueIncludeConsole", "issueRecapture",
 		"issueCrop", "issueApply", "issueReset", "issueRemove", "issueSend", "issueSending",
 		"issueSent", "issueFailed", "issueTooLarge", "issueCaptureFailed",
 		"issueDescriptionRequired", "issueContextNote"} {
@@ -284,7 +285,7 @@ const userButtonJS = `(() => {
         this.shadowRoot.innerHTML =
           '<style>' + (data.themeCss || '') + '</style>' +
           '<style>' +
-          ':host { position: fixed; z-index: 2147483000; ' + Object.entries(host).map(([k, v]) => k + ':' + v + ';').join('') + ' }' +
+          ':host { all: initial; color-scheme: light dark; position: fixed; z-index: 2147483000; ' + Object.entries(host).map(([k, v]) => k + ':' + v + ';').join('') + ' }' +
           '* { box-sizing: border-box; }' +
           '.btn { display: inline-flex; align-items: center; gap: .4em; height: ' + h + 'px;' +
           ' padding: 0 ' + (compact ? Math.max(3, Math.round((h - ic) / 2)) + 'px' : '.6em') + ';' +
@@ -385,7 +386,7 @@ const userButtonJS = `(() => {
       this.shadowRoot.innerHTML =
         '<style>' + (data.themeCss || '') + '</style>' +
         '<style>' +
-        ':host { position: fixed; z-index: 2147483000; ' + Object.entries(host).map(([k, v]) => k + ':' + v + ';').join('') + ' }' +
+        ':host { all: initial; color-scheme: light dark; position: fixed; z-index: 2147483000; ' + Object.entries(host).map(([k, v]) => k + ':' + v + ';').join('') + ' }' +
         '* { box-sizing: border-box; font-family: system-ui, sans-serif; }' +
         '.btn { display: flex; align-items: center; gap: .45em; height: ' + h + 'px;' +
         ' padding: 0 ' + (namePos === 'after' && auth ? '.55em' : '.15em') + ' 0 ' + (namePos === 'before' && auth ? '.55em' : '.15em') + ';' +
@@ -463,9 +464,11 @@ const userButtonJS = `(() => {
         ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent));' +
         ' cursor: pointer; font: inherit; font-size: .9em; }' +
         '.ip-tools button:hover { background: var(--mk-surface-container-high, color-mix(in srgb, CanvasText 10%, transparent)); }' +
+        '.ip-cap-hint { flex-basis: 100%; margin: 0; }' +
+        '.ip-opt { display: flex; align-items: center; gap: 8px; font-size: .85em; cursor: pointer; user-select: none; }' +
+        '.ip-opt input { margin: 0; accent-color: var(--mk-primary, CanvasText); }' +
         '.ip-note { margin: 0; font-size: .78em; opacity: .65; }' +
         '.ip-msg { margin: 0; font-size: .85em; color: var(--mk-error, color-mix(in srgb, red 70%, CanvasText)); }' +
-        '.ip-msg.ok { color: var(--mk-primary, CanvasText); }' +
         '.ip-actions { display: flex; justify-content: flex-end; }' +
         '.ip-send { padding: 6px 14px; border-radius: 7px; border: 1px solid transparent; cursor: pointer;' +
         ' background: var(--mk-primary, CanvasText); color: var(--mk-on-primary, Canvas); font: inherit; font-size: .9em; }' +
@@ -621,7 +624,9 @@ const userButtonJS = `(() => {
       '<textarea class="ip-desc" rows="4" placeholder="' + esc(lb('issueDescription', 'Describe the problem')) + '"></textarea>' +
       '<div class="ip-stage"></div>' +
       '<div class="ip-tools"></div>' +
-      '<p class="ip-note">' + esc(lb('issueContextNote', 'The page address, browser details and recent console output are attached to your report.')) + '</p>' +
+      '<label class="ip-opt"><input type="checkbox" class="ip-console" checked><span>' +
+      esc(lb('issueIncludeConsole', 'Attach recent console output')) + '</span></label>' +
+      '<p class="ip-note">' + esc(lb('issueContextNote', 'The page address and browser details are attached to your report.')) + '</p>' +
       '<p class="ip-msg" hidden></p>' +
       '<div class="ip-actions"><button class="ip-send">' + esc(lb('issueSend', 'Send')) + '</button></div>' +
       '</div>';
@@ -634,10 +639,9 @@ const userButtonJS = `(() => {
     const desc = q('.ip-desc'), stage = q('.ip-stage'), tools = q('.ip-tools'),
       msgEl = q('.ip-msg'), send = q('.ip-send');
     const st = { full: null, shot: null, rect: null, busy: false };
-    const msg = (text, ok) => {
+    const msg = (text) => {
       msgEl.hidden = !text;
       msgEl.textContent = text || '';
-      msgEl.classList.toggle('ok', !!ok);
     };
     const btn = (cls, label) => '<button class="' + cls + '">' + esc(label) + '</button>';
     const close = () => { p.remove(); issuePanel = null; };
@@ -705,8 +709,18 @@ const userButtonJS = `(() => {
     const renderIdle = () => {
       st.full = st.shot = st.rect = null;
       stage.innerHTML = '';
-      tools.innerHTML = canCapture ? btn('ip-capture', lb('issueCapture', 'Capture screenshot')) : '';
-      if (canCapture) q('.ip-capture').addEventListener('click', capture);
+      // ONE capture mode, the exact one (Francois's call): real pixels via
+      // the native picker. A DOM re-render was tried and dropped - it can
+      // erase the very glitch being reported. The hint under the button
+      // reassures whoever shares a whole screen: nothing leaves the panel
+      // before Send, and a crop step narrows the image first.
+      tools.innerHTML = canCapture
+        ? btn('ip-screen', lb('issueCaptureScreen', 'Capture the screen')) +
+          '<p class="ip-note ip-cap-hint">' +
+          esc(lb('issueCaptureHint', 'The capture stays in this panel until you send it; you can crop it to the relevant area first.')) +
+          '</p>'
+        : '';
+      if (canCapture) q('.ip-screen').addEventListener('click', capture);
     };
 
     const renderPreview = () => {
@@ -804,7 +818,7 @@ const userButtonJS = `(() => {
         screen: screen.width + 'x' + screen.height,
         dpr: devicePixelRatio || 1,
         language: navigator.language || '',
-        console: (issueRing || []).slice()
+        console: q('.ip-console').checked ? (issueRing || []).slice() : []
       };
       if (shot) body.screenshot = shot;
       let json = JSON.stringify(body);
@@ -821,12 +835,13 @@ const userButtonJS = `(() => {
         headers: { 'Content-Type': 'application/json' }, body: json
       }).then((res) => {
         if (!res.ok) throw new Error('http ' + res.status);
-        msg(lb('issueSent', 'Thank you, your report was sent.'), true);
-        desc.value = '';
-        renderIdle();
+        // Send -> Sent -> close: once the report left there is nothing to
+        // read here, the panel dismisses itself.
+        send.textContent = lb('issueSent', 'Sent');
+        setTimeout(close, 900);
       }).catch(() => {
+        // Failure keeps everything: message, inputs, and a live Send button.
         msg(lb('issueFailed', 'Sending failed. Please try again.'));
-      }).finally(() => {
         st.busy = false;
         send.disabled = false;
         send.textContent = lb('issueSend', 'Send');

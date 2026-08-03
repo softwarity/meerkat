@@ -369,7 +369,9 @@ var messages = map[string]map[string]string{
 		// issue panel (ISSUE-01)
 		"openIssue":                "Report an issue",
 		"issueDescription":         "Describe the problem",
-		"issueCapture":             "Capture screenshot",
+		"issueCaptureScreen":       "Capture the screen",
+		"issueCaptureHint":         "The capture stays in this panel until you send it; you can crop it to the relevant area first.",
+		"issueIncludeConsole":      "Attach recent console output",
 		"issueRecapture":           "Retake",
 		"issueCrop":                "Crop",
 		"issueApply":               "Apply",
@@ -377,12 +379,12 @@ var messages = map[string]map[string]string{
 		"issueRemove":              "Remove",
 		"issueSend":                "Send",
 		"issueSending":             "Sending...",
-		"issueSent":                "Thank you, your report was sent.",
+		"issueSent":                "Sent",
 		"issueFailed":              "Sending failed. Please try again.",
 		"issueTooLarge":            "The screenshot is too large to send.",
 		"issueCaptureFailed":       "Screen capture failed.",
 		"issueDescriptionRequired": "A description is required.",
-		"issueContextNote":         "The page address, browser details and recent console output are attached to your report.",
+		"issueContextNote":         "The page address and browser details are attached to your report.",
 
 		// profile photo
 		"changePhoto":   "Change photo",
@@ -599,7 +601,9 @@ var messages = map[string]map[string]string{
 		// issue panel (ISSUE-01)
 		"openIssue":                "Signaler un problème",
 		"issueDescription":         "Décrivez le problème",
-		"issueCapture":             "Capturer l'écran",
+		"issueCaptureScreen":       "Capturer l'écran",
+		"issueCaptureHint":         "La capture reste dans ce panneau tant que vous n'envoyez pas ; vous pourrez la rogner à la zone utile avant l'envoi.",
+		"issueIncludeConsole":      "Joindre la sortie console récente",
 		"issueRecapture":           "Reprendre",
 		"issueCrop":                "Rogner",
 		"issueApply":               "Appliquer",
@@ -607,12 +611,12 @@ var messages = map[string]map[string]string{
 		"issueRemove":              "Retirer",
 		"issueSend":                "Envoyer",
 		"issueSending":             "Envoi en cours...",
-		"issueSent":                "Merci, votre signalement a été envoyé.",
+		"issueSent":                "Envoyé",
 		"issueFailed":              "L'envoi a échoué. Veuillez réessayer.",
 		"issueTooLarge":            "La capture d'écran est trop volumineuse.",
 		"issueCaptureFailed":       "La capture d'écran a échoué.",
 		"issueDescriptionRequired": "Une description est requise.",
-		"issueContextNote":         "L'adresse de la page, les détails du navigateur et la console récente sont joints au signalement.",
+		"issueContextNote":         "L'adresse de la page et les détails du navigateur sont joints au signalement.",
 
 		// profile photo
 		"changePhoto":   "Changer la photo",

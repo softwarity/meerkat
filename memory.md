@@ -405,18 +405,264 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   (`Router.AdminAddr`, cors_test.go) reste en place — inoffensif et utile à
   d'éventuels appels directs. Leçon : itération coûteuse, poser le schéma des
   origines AVANT de choisir.
-  **Exposition pilotée (Others, 2026-07-30 — sémantique CORRIGÉE après
-  malentendu)** : le switch ne cache QUE **l'API propre de Meerkat**
-  (`SettingMeerkatAPIExposed`, défaut OFF : absente du picker et 404 sur
-  `specs/meerkat-admin.json`) — la page, les specs des ROUTES, le tunnel et
-  les tokens de test restent toujours servis (gates de session inchangées).
-  1re version (toute la surface en 404) avait été comprise de travers et a
-  produit « un joli 404 » chez François. `GET/PUT /api/settings/api-docs`
-  (infra, audité `apidocs.expose` — l'audit a d'ailleurs résolu l'enquête du
-  404 en une requête), page console **Infra → Others**. Question ouverte
-  (François) : exposer les docs aux users **dev** côté PLAN DATA
-  (`/meerkat/apidocs`, session data + capacité dev, specs de routes seulement,
-  servers relatifs sans tunnel) — cadré, pas construit, en attente de GO.
+  **PIVOT FINAL (2026-07-31, décision François) — chaque plan documente chez
+  lui.** La console (port admin) ne montre plus QUE la spec **Meerkat Admin
+  API** (servers `/`, Try it out same-origin direct sur /api — le tunnel
+  `/apidocs/try` et le proxy de specs de routes ont été SUPPRIMÉS du plan
+  admin). Le bandeau tokens `mksim_` a finalement été RETIRÉ de la console
+  aussi (remarque François : « si je suis ici j'ai déjà les droits » — exact,
+  et un token mksim ne sert à rien contre /api : il ne parle qu'au plan data).
+  L'endpoint `POST /api/apidocs/token` reste (gaté, audité, testé) : frappe en
+  curl/CI pour tester les routes, et candidat à un bouton « copier en token »
+  sur la page dev si le besoin émerge. Les specs des ROUTES vivent sur le
+  **plan data** :
+  **`/meerkat/apidocs`** (`gateway/devdocs.go` + `apidocs/devpage.html`,
+  monté par main AVANT le fallback routeur) — session data + capacité **dev**
+  (même famille que `/profile/dev-cert`), TOUTES les routes à `openapiUrl`
+  listées (désactivées badgées : le dev voit ce qui se construit), spec
+  récupérée à travers la route (in-process, `WithSpecRead`) et réécrite en
+  base RELATIVE (`/préfixe-route` — les routes vivent sur cette origine,
+  zéro tunnel/CORS). **Bandeau profil DX-first** : « Tous les rôles » par
+  défaut (catalogue résolu au clic — les rôles futurs suivent), profil
+  personnalisé rôles+groupes de tenant (groupes → rôles effectifs résolus
+  SERVEUR via `catalog.json` : username, rôles, tenants/groupes, specs — un
+  seul fetch), « En tant que moi » (session réelle) ; la page injecte les
+  en-têtes de simulation par `requestInterceptor`, aucun Authorize à
+  manipuler. `applySimulation` autorise désormais AUSSI une **session data
+  dont l'user est dev** (`simulationActor` : admin root/infra/dev/tester OU
+  data+dev). Toggle **Others** re-scopé : `SettingDevDocsExposed`
+  (`dev_docs_exposed`, défaut OFF → 404 sur toute la surface dev),
+  `GET/PUT /api/settings/api-docs` (infra, audité `apidocs.expose`), le seed
+  e2e l'active. Assumé : « tous les rôles » = un dev appelle tout ce que
+  n'importe quel rôle permet sur les routes documentées (contrat de l'écran,
+  gaté dev + toggle infra). Tests `gateway/devdocs_test.go` (ship-off, gates,
+  catalogue résolu, servers relatifs, simulation dev-data) + admin
+  `TestAPIDocsConsoleIsMeerkatOnly`/`TestAPIDocsSetting`. Scénario e2e
+  `api-docs-route-spec` retiré (surface disparue), `api-docs-specs` recadré.
+  **Hub Developer (2026-08-02)** : `/profile/dev` n'affiche plus le cert en
+  ligne — c'est devenu un **hub** (auth.go, pages Go vanilla) listant les
+  outils du dev, deux pour l'instant : **Certificat** (déplacé sur sa propre
+  sous-page `/profile/dev/cert` ; POST `/profile/dev-cert` inchangé, redirige
+  là ; la commande d'installation le rejoindra) et **API** (lien vers
+  `/meerkat/apidocs/`, visible seulement si `SettingDevDocsExposed` est ON —
+  `Handler.devDocsExposed`). Extensible (d'autres sections viendront). Chaque
+  entrée = deux lignes (quoi + pourquoi court). i18n en/fr (devCertDesc,
+  devApi, devApiDesc, backToDeveloper). Test `auth/devpage_test.go`.
+  **Bandeau profil dev refait (2026-08-02, retours François)** :
+  `apidocs/devpage.html`. **Hauteur du bandeau FIXE** — le popup de rôles est
+  `position:absolute`, ne pousse jamais la barre (piège précédent : `<details>`
+  qui poussait / se cachait). **Tri-toggle segmenté** All roles / Custom / As
+  myself + **sélecteur de rôles toujours visible** à côté (bouton + popup
+  flottant, jamais caché ; seulement DISABLED en As myself). Logique : All roles
+  coche tout ; Custom vide ; As myself désactive (session réelle) ; décocher un
+  rôle en mode All roles bascule en Custom (préfill = tout-sauf-lui). **Plus de
+  tenants** (François : inutile) — groupes **à plat** (`catalog.groups`, label
+  `tenant / groupe`, rôles résolus serveur) comme raccourcis qui cochent des
+  rôles, + champ **Impersonate** (user particulier). Vérifié navigateur (3 modes
+  OK, popup flottant, hauteur fixe).
+  **4e mode « By groups » + synchro bidirectionnelle (2026-08-02, retour
+  François)** : toggle passé à 4 (All roles / By groups / Custom / As myself).
+  **Source de vérité UNIQUE = l'ensemble des rôles cochés** ; les groupes en
+  sont DÉRIVÉS : un groupe est « on » ssi tous ses rôles (résolus, hiérarchie
+  incluse — `catalog.groups[].roles` = `EffectiveRoleNames` serveur) sont
+  cochés. Cocher un groupe coche ses rôles (mode→groups) ET cocher tous les
+  rôles d'un groupe rallume le groupe (`syncGroups` recalcule les cases groupe
+  à chaque refresh) — deux vues synchronisées d'un seul set. Nuance seed : des
+  groupes role-équivalents s'allument ensemble (logique, pas un bug). Vérifié
+  en JS navigateur (groupe→10 rôles ; synchro inverse→case groupe cochée).
+  **REVIREMENT (2026-08-02, même jour) — binding SUPPRIMÉ** : François ne
+  pouvait plus sélectionner un groupe (venant de All roles, tout était pré-coché
+  → cliquer un groupe le décochait ; pire, 9 groupes role-équivalents du seed
+  s'allumaient ensemble). Décision : **deux sélections INDÉPENDANTES** (cases
+  groupes / cases rôles), sans dérivation. Le MODE choisit la source des rôles
+  effectifs : all = tout le catalogue (au call, futurs rôles inclus) ; groups =
+  union des groupes cochés ; custom = rôles cochés ; self = rien. Cocher un
+  groupe ne coche QUE lui (badge `(1)`). **Liste sous le bouton** : By groups /
+  Custom déposent leur popup ancré à `offsetLeft` du segment cliqué (re-clic =
+  toggle) ; All roles / As myself agissent direct. **Nom du groupe seul** dans
+  la liste (rôles en tooltip). **Bouton user** dans le header (pastille
+  initiales + username) → `/profile` (hub vers Developer/applis). Vérifié en JS
+  navigateur (popup sous By groups à 73px, badge (1), 10 rôles, nav davide→
+  /profile). Screenshots de l'extension instables sur cette page swagger —
+  validation par `javascript_tool`.
+  **« As » picker + groupes tenant courant + nav (2026-08-02, suite)** :
+  (a) « As myself » remplacé par un **dropdown « As »** — input libre (username
+  arbitraire type ghost) + option **Myself (real session)** + **liste des
+  usernames** (catalog `users` = `ListUsers`). Deux axes séparés : **qui** (As)
+  et **quels rôles** (toggle 3 segments All roles / By groups / Custom). Quand
+  As=Myself (`asUser===''`) → AUCUNE simulation (session réelle) et le toggle de
+  rôles est **désactivé** ; dès qu'un user est choisi → simulation + toggle
+  actif. (b) Groupes **scopés au tenant COURANT de la session** (`sess.TenantID`
+  via `devDocsSession`, plus `ListTenants` global) — label = nom du groupe seul.
+  Un dev sans tenant courant voit « no group in this tenant » (correct). (c)
+  **Bouton user** (pastille initiales + username) → `/profile`. Vérifié JS
+  navigateur : Myself→toggle disabled/0 rôle ; pick alice→toggle actif, 16
+  rôles ; liste 8 users + Myself. Tests `devdocs_test.go` (session avec tenant
+  via `IssueWith`, groupes tenant-scoped, `users`).
+  **Bouton natif + simplifications (2026-08-02, suite)** : (a) mon lien profil
+  maison REMPLACÉ par le vrai **`<meerkat-user-button>`** injecté naturellement
+  (`<script src="/meerkat/user-button.js">` + le tag, servi sur le plan data par
+  `registerUserButton`) — profil/switch tenant-groupe/apps/logout, flotte
+  top-right (position:fixed) ; le bandeau a un `padding-right:52px` pour ne pas
+  passer dessous (vérifié : pas de chevauchement). (b) « real session vs mon
+  user » (remarque François) : redondant → **l'utilisateur courant est EXCLU de
+  la liste d'impersonation** (ton user = « Myself »). (c) Scrollbar parasite du
+  menu As corrigée (`overflow-x:hidden`, `max-height:340px` ; vérifié
+  scrollHeight===clientHeight). Toggle rôles désactivé tant que « Myself » est
+  choisi — c'est voulu (as toi = tes vrais rôles), François a confirmé.
+  **SIMPLIFICATION MAJEURE (2026-08-02, retour François « toujours pas moyen de
+  select les rôles »)** : le mode « Myself = pas de simulation » désactivait le
+  toggle → frustrant. Abandonné. La page est maintenant un **forgeur pur** : on
+  choisit TOUJOURS un user (défaut = toi, « (you) » dans la liste) + des rôles,
+  **toujours sélectionnables**. `requestInterceptor` envoie TOUJOURS
+  Simulate-User + Simulate-Roles (plus de cas « no sim »). UI : bouton **as**
+  (username), **By roles** (popup « Select all » + cases), **By groups** (chaque
+  groupe = raccourci ONE-WAY qui coche ses rôles ; plus de binding inverse,
+  source unique = cases rôles), + **readout de l'identité forgée** live
+  (`→ davide · all roles`). Bouton user natif aligné (`pad-y="13"` pour centrer
+  dans la barre 52px). Go vert, HTML servi confirmé (grep). **NB env** : dans
+  cette session, le login navigateur ne persiste plus le cookie de session
+  (souci Chrome/extension, PAS le code — curl login 303 + page 200 OK) et les
+  screenshots timeoutent sur cette page swagger → validation par curl + revue
+  code ; à revérifier visuellement côté François.
+  **REDESIGN 3 MODES EXCLUSIFS (2026-08-03, spec précise François)** — la barre
+  forge l'identité via 3 modes exclusifs (toggle-buttons, style actif) + un
+  bouton d'ÉTAT : **User** (`as <user>` — teste un user avec SES droits ; en
+  mode tenant exclusif `groupMode SINGLE` + user à plusieurs groupes → sous-menu
+  pour choisir le groupe ; sinon direct/union), **Groups** (`By groups` —
+  exclusif=radio un seul, cumulatif=checkbox plusieurs ; l'en-tête signale le
+  mode), **Roles** (`By roles` + Select all). 4e bouton `→ user · N roles`,
+  popup détaillant User/Group(s)/Roles. Catalogue serveur enrichi
+  (`devdocs.go`) : `groupMode`, `groups` (tenant courant, rôles résolus),
+  `users`=`[{name, groups:[{name,roles}]}]` (groupes de CHAQUE user via
+  `MemberGroups`). Bouton user natif `height=28 pad-y=11` pour aligner. Logique
+  3 modes **prouvée en Node** (8 cas) ; catalogue testé `devdocs_test.go`
+  (groupMode MULTIPLE défaut, bob→staff, devon→aucun). Session navigateur
+  toujours inétablissable dans cet env → validé Node+Go+HTML servi, rendu à
+  confirmer par François.
+  **Alignement bouton user + état propre (2026-08-03)** : le
+  `<meerkat-user-button>` ship en `:host{position:fixed}` (float coin) → jamais
+  alignable au pixel via `pad-y`. FIX ROBUSTE : le remettre DANS le flux de la
+  barre en surchargeant depuis le light DOM
+  (`.mk-bar meerkat-user-button { position:static !important; inset:auto !important; flex:none }`),
+  élément placé dans le `<header>` ; la barre étant `align-items:center`, il se
+  centre tout seul avec les autres. `!important` externe bat le `:host` non-
+  important. Bouton d'ÉTAT restylé en **pastille discrète pointillée** (icône
+  envoi + user en cyan + résumé rôles) au lieu du bouton monospace « moche ».
+  Rappel design confirmé à François : les 3 modes sont **exclusifs** (groupes
+  XOR rôles), et choisir un groupe/rôle écarte les rôles du user (voulu).
+  **Reset exclusif + flyout + ASCII (2026-08-03)** : (a) entrer dans un mode
+  VIDE la selection des autres (clearGroups/clearRoles dans pickUser/syncRoles/
+  group-change) - avant, un groupe restait coche en mode roles. (b) Sous-menu
+  groupes d'un user (mode SINGLE, plusieurs groupes) = flyout a gauche
+  (right:100%, #pop-user overflow:visible pour ne pas clipper) avec radio.
+  (c) INTERDICTION ABSOLUE de caracteres speciaux (voir memoire auto
+  no-special-chars) : Francois s'est enerve fortement, son clavier ne tape pas
+  tiret long / fleches / chevrons / point median. Page passee en ASCII pur
+  (chevrons remplaces par SVG). Verifier: grep '[^ -~]'.
+  **Popup d'etat aligne + page au THEME actif (2026-08-03)** : (a) dans le popup
+  d'etat, `.mk-detail` passe en flex (label `b` min-width 62px + valeur) et la
+  ligne Roles utilise le MEME layout avec une colonne `.mk-rlist` en valeur :
+  premier role sur la ligne du label, colonne calee sur les valeurs User/Group
+  (retour image Francois). (b) La page dev (plan DATA) suit le theme choisi :
+  `devDocsPage` injecte avant `</head>` un `<style>` = `GetActiveTheme().CSS()`
+  (fallback DefaultTheme) + pont `devDocsThemeBridge` remappant les tokens
+  Sentinel du skin (--mk-field/bar/panel/panel-2/ink/muted/line/teal/cyan/
+  code-bg) vers les tokens du theme (--mk-surface/surface-container/on-surface/
+  on-surface-variant/outline/primary...), plus `.mk-btn.on` en on-primary (le
+  blanc du skin peut disparaitre sur un primary clair). Injection sur CETTE page
+  seulement : skin.css intact, la page console /apidocs reste Sentinel. Teste
+  dans `devdocs_test.go` (page 200 + bloc theme + pont ; lire le corps en
+  ENTIER, le helper `readBody` s'arrete a 4096 octets). devdocs.go nettoye en
+  ASCII pur lui aussi. Verifie live via curl (login davide :8082, page servie =
+  theme + pont + nouveau renderState, 0 non-ASCII).
+  **FIX flyout inatteignable (2026-08-03, retour Francois)** : le flyout groupes
+  d'un user se fermait des qu'on essayait d'y aller - CAUSE : trou de 6px
+  (`margin-right`) entre la ligne `.uname` et le flyout, hover perdu en le
+  traversant -> display:none avant d'arriver. DOUBLE FIX devpage.html :
+  (a) pont invisible `.uname::before` (bande 12px a gauche de la ligne,
+  right:100%) qui couvre le trou - le pointeur reste "dans" la ligne pendant la
+  traversee ; (b) le clic sur la ligne EPINGLE le flyout (`.uname.open >
+  .flyout`, re-clic ferme, un seul epingle a la fois, clics dans le flyout
+  ignores par le pin). Regle `.flyout:hover` supprimee (redondante : le flyout
+  est enfant de .uname, son hover remonte). cursor:pointer sur la ligne.
+  **Validation reelle DIFFEREE (Francois, 2026-08-03)** : httpbin comme upstream
+  de demo ne verifie pas grand chose (pas de vraie spec riche, pas de controle
+  d'acces cote backend). La page dev apidocs (forge d'identite, Try it out,
+  marqueurs X-Meerkat-Test) sera testee a fond lors de l'integration de vrais
+  services derriere le gateway - a prevoir dans cette future phase.
+- **ISSUE TRACKER EMBARQUE (2026-08-03, LIVRE) - section 3.18 ISSUE-01..05 de
+  requirements.md.** Cadrage valide par Francois : capture getDisplayMedia
+  NATIVE seule (pas de lib DOM), statuts open/in-progress/closed + commentaires
+  (pas d'assignation), visibilite = root/infra/app-admin voient tout + admin de
+  tenant ses tenants, TOUT user loggue peut signaler une fois le toggle ON
+  (OFF par defaut, ecran Others, `SettingIssuesEnabled` "issues_enabled").
+  ISSUE-05 (connecteurs GitHub/Jira) = V1 non, prio C.
+  **Store v33** : table `issues` (reporter non-FK denormalise comme audit_events,
+  tenant_id = tenant COURANT de la session, console_log/comments en JSON TEXT,
+  screenshot data URI dans sa colonne, JAMAIS dans les SELECT de liste -
+  `HasScreenshot` = length()>0 ; `SanitizeScreenshot` cap 2M chars ~1.5 Mio).
+  `internal/store/issues.go` + test.
+  **Plan data** : `POST /meerkat/issues` (internal/auth/issues.go, monte a cote
+  du user-button) - 404 toggle OFF, 401 anonyme, `http.MaxBytesReader` 2 Mio
+  (PREMIER usage dans le repo), identite/tenant estampilles depuis la SESSION
+  jamais du body, caps serveur sur chaque champ. Flag `issues:true` + 16 labels
+  dans user-button.json (no-store) car le JS est cache 5 min.
+  **Panneau client** (userButtonJS, ~280 lignes ASCII) : entree "Report an
+  issue" -> carte flottante `.ip` SANS backdrop (page utilisable), draggable
+  par le header (pointer capture), singleton dans le shadow root ; capture
+  getDisplayMedia sur geste (preferCurrentTab, une frame video->canvas via
+  double requestVideoFrameCallback + timeout 300ms, panneau visibility:hidden
+  pendant le grab, tracks stoppees en finally, downscale 1920 au grab) ; crop
+  au rectangle (un seul ratio largeur, <8px = clic accidentel, st.full garde
+  l'original pour Reset) ; encodage JPEG a l'envoi (echelle q 0.85->0.55 puis
+  downscale 0.7x, budgets 1.4M image / 1.9M JSON, on jette la vieille moitie
+  de la console avant d'abandonner) ; ring buffer console (150 x 500 chars,
+  hooke SEULEMENT si data.issues, originaux toujours appeles, push fence
+  try/catch) + window error/unhandledrejection. Z-index shadow : .menu 3 > .ip 2.
+  Preview = le canvas lui-meme (jamais <img data:> -> immune aux CSP img-src).
+  NotAllowedError = annulation benigne ; API absente -> bouton cache, rapport
+  texte seul OK.
+  **API admin** (internal/admin/issues.go) : GET/PUT /api/settings/issues
+  (infra, audit issues.expose) ; GET /api/issues (+status), GET /{id},
+  GET /{id}/screenshot (decode le data URI -> vrais octets image, <img src>
+  direct cote console), PUT /{id}/status, POST /{id}/comments, DELETE - tous
+  `a.authed` + scope explicite calque listAudit (hors scope = 404, pas 403) ;
+  "issue" ajoute a appTargets ; auditUpdate/auditEvent sur chaque mutation.
+  Spec meerkat-admin.json completee (tag Issues, schemas Issue/ConsoleEntry/
+  IssueComment, 6 paths). Tests admin (matrice tina/tenant-admin).
+  **Console** : section transverse /issues (rail bug_report, guard issuesAccess
+  = clone auditAccess), issuesMatcher (/issues + /issues/:id, UNE instance),
+  liste type audit (cards, dot statut, filtre statut sessionStored
+  'issues-view.v1', recherche client) + drawer detail (statut select,
+  screenshot <img> clic = plein onglet, console <pre> colorisee, fil de
+  commentaires, suppression confirm). 2e carte toggle sur Others. 25 tokens
+  i18n ajoutes a messages.fr.xlf ("Anomalies" pour Issues).
+  **e2e** : scenarios api-app-issues, api-infra-issues-setting, ui-rail-issues ;
+  seed.setup.ts active le toggle ; seed-demo cree 2 issues d'exemple + toggle ON.
+  **Valide LIVE par curl** : toggle via :9092, user-button.json porte le flag,
+  POST 201 estampille davide, liste/screenshot (image/png)/statut/commentaire/
+  audit OK. La CAPTURE navigateur (getDisplayMedia/crop/drag) reste A VERIFIER
+  VISUELLEMENT par Francois (env navigateur de session capricieux). make fmt
+  lint test vert, ng build en+fr vert.
+  **Piege connu** : pas de purge/retention des issues (contrairement a l'audit) ;
+  a prevoir si volume. Le fichier fr.xlf et requirements.md utilisent les
+  guillemets francais « » comme le reste de ces fichiers (contenu francais,
+  orthographe requise) - la regle ASCII vaut pour code/UI/chat.
+  **PIÈGE VÉCU** : `air` ne surveille que les
+  `.go` → éditer `devpage.html` (embarqué `go:embed`) NE rebuild PAS ; le binaire
+  servait l'ancien HTML (crash `catalog.tenants.find`). Forcer en touchant un
+  `.go` du paquet (`apidocs/embed.go`).
+  **Marquage « test via swagger » (demande François — le log d'action doit
+  distinguer un test)** : toute requête simulée (headers ou token) est loggée
+  côté gateway `simulated request (swagger test)` avec le VRAI acteur + `via`
+  (dev-swagger | console-swagger | test-token), et l'upstream reçoit deux
+  en-têtes marqueurs **`X-Meerkat-Test`** (l'outil) et **`X-Meerkat-Test-By`**
+  (le développeur réel derrière, pas l'identité incarnée) — posés dans
+  `cookieStrippingTransport` via `simMeta` en contexte. Le backend peut donc
+  écarter un test swagger de son propre journal d'actions. Vérifié en live
+  (httpbin renvoie `X-Meerkat-Test: dev-swagger`, `-By: davide`). Tests
+  `devdocs_test.go` (marqueurs à l'upstream) + `simulate.go`.
   **Identité simulée (2026-07-29, choix François — « plus simple que des
   sessions »)** : dans le swagger, Authorize permet de saisir un **user et des
   rôles arbitraires** pour Try it out. Mécanique : `openapi.InjectSimulation`

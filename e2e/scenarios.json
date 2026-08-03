@@ -117,6 +117,75 @@
       }
     },
     {
+      "id": "api-config-export",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": {
+        "method": "GET",
+        "path": "/api/config/export"
+      },
+      "allowed": [
+        "root"
+      ],
+      "title": {
+        "en": "Export the whole configuration",
+        "fr": "Exporter toute la configuration"
+      },
+      "description": {
+        "en": "Downloads routes, roles, authorities, mail relay, themes and settings as one YAML file. Root only: a configuration crosses both planes at once, so administering one of them is not enough. Secrets never travel — a declared secret field leaves as its $name reference or not at all, which is what makes the file safe to put in a ticket or a git repository.",
+        "fr": "Télécharge routes, rôles, autorités, relais mail, thèmes et paramètres dans un seul fichier YAML. Root uniquement : une configuration traverse les deux plans à la fois, en administrer un seul ne suffit donc pas. Les secrets ne voyagent jamais : un champ secret déclaré part sous forme de référence $nom ou pas du tout, ce qui rend le fichier partageable dans un ticket ou un dépôt git."
+      }
+    },
+    {
+      "id": "api-config-report",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": {
+        "method": "GET",
+        "path": "/api/config/report"
+      },
+      "allowed": [
+        "root"
+      ],
+      "title": {
+        "en": "What an export will not contain",
+        "fr": "Ce que l'export ne contiendra pas"
+      },
+      "description": {
+        "en": "Lists the secret fields holding a literal rather than a vault reference: they stay behind, so the console can say so next to the download button, while the admin can still act on it. Lists as well every $name the configuration expects, which is what the target gateway will have to hold in its own vault.",
+        "fr": "Liste les champs secrets qui portent une valeur en clair plutôt qu'une référence au coffre : ils ne partiront pas, la console peut donc le dire à côté du bouton de téléchargement, au moment où l'admin peut encore agir. Liste aussi tous les $nom attendus par la configuration, c'est-à-dire ce que le coffre de la gateway cible devra contenir."
+      }
+    },
+    {
+      "id": "api-config-preview",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": {
+        "method": "POST",
+        "path": "/api/config/preview",
+        "body": {
+          "version": 1,
+          "roles": [
+            {
+              "id": "e2e-preview",
+              "name": "E2E preview"
+            }
+          ]
+        }
+      },
+      "allowed": [
+        "root"
+      ],
+      "title": {
+        "en": "Preview what importing a file would do",
+        "fr": "Prévisualiser ce qu'un import ferait"
+      },
+      "description": {
+        "en": "Reports what an imported file would add, change or remove, and which vault entries it expects that the vault does not hold, without writing anything. That preview is the one moment an admin still knows what a given secret was, which is why the missing ones are asked for right there.",
+        "fr": "Rapporte ce qu'un fichier importé ajouterait, modifierait ou supprimerait, et quelles entrées de coffre il attend sans que le coffre les possède, sans rien écrire. Cette prévisualisation est le seul moment où l'admin sait encore à quoi correspond un secret donné : c'est donc là qu'on demande ceux qui manquent."
+      }
+    },
+    {
       "id": "api-infra-mail-relay-test",
       "domain": "gateway",
       "kind": "api",

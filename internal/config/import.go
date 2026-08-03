@@ -100,7 +100,31 @@ func run(ctx context.Context, st *store.Store, doc *Document, prune, commit bool
 		return nil, fmt.Errorf("config: this file configures nothing " +
 			"(no routes, roles, authorities, mail relay, themes or settings)")
 	}
+	if err := check(doc); err != nil {
+		return nil, err
+	}
 	plan := &Plan{Prune: prune}
+
+	// The vault first: the objects about to be written reference it, and a
+	// route saved before its $name exists reloads with an unresolved reference.
+	if commit {
+		missing, err := missingRefs(ctx, st, doc)
+		if err != nil {
+			return nil, err
+		}
+		for _, m := range missing {
+			// Empty, so the hole is visible on the vault screen and carries a
+			// name the admin can search for. Never overwrites: this only runs
+			// for names the vault does not have.
+			if _, err := st.ReserveVaultEntry(ctx, vault.Entry{
+				Name: m.Name, Kind: m.Kind, Scope: m.Scope,
+				Description: "expected by an imported configuration",
+			}); err != nil {
+				return nil, fmt.Errorf("config: reserve vault entry %s: %w", m.Name, err)
+			}
+		}
+		plan.Missing = missing
+	}
 
 	if err := importRoutes(ctx, st, doc, plan, prune, commit); err != nil {
 		return nil, err
@@ -121,25 +145,54 @@ func run(ctx context.Context, st *store.Store, doc *Document, prune, commit bool
 		return nil, err
 	}
 
-	missing, err := missingRefs(ctx, st, doc)
-	if err != nil {
-		return nil, err
-	}
-	plan.Missing = missing
-	if commit {
-		for _, m := range missing {
-			// An empty entry, so the hole is visible on the vault screen and
-			// gets a name the admin can search for. Never overwrite: this only
-			// runs for names the vault does not have.
-			if _, err := st.ReserveVaultEntry(ctx, vault.Entry{
-				Name: m.Name, Kind: m.Kind, Scope: m.Scope,
-				Description: "expected by an imported configuration",
-			}); err != nil {
-				return nil, fmt.Errorf("config: reserve vault entry %s: %w", m.Name, err)
-			}
+	if !commit {
+		missing, err := missingRefs(ctx, st, doc)
+		if err != nil {
+			return nil, err
 		}
+		plan.Missing = missing
 	}
 	return plan, nil
+}
+
+// check refuses a document that cannot possibly apply, BEFORE anything is
+// written. It is deliberately shallow — a route's predicates are compiled by
+// the engine on reload, and duplicating that here would be a second truth to
+// keep in step. What it catches is what a hand-written file gets wrong: an
+// object with no id, a route with nothing to match on, an authority of a kind
+// this Meerkat cannot drive.
+func check(doc *Document) error {
+	for _, r := range doc.Routes {
+		switch {
+		case strings.TrimSpace(r.ID) == "":
+			return fmt.Errorf("config: a route has no id (%q)", r.Name)
+		case strings.TrimSpace(r.Name) == "":
+			return fmt.Errorf("config: route %q has no name", r.ID)
+		case len(r.Predicates) == 0:
+			return fmt.Errorf("config: route %q has no predicate: it would match nothing", r.Name)
+		}
+	}
+	for _, r := range doc.Roles {
+		if strings.TrimSpace(r.ID) == "" {
+			return fmt.Errorf("config: a role has no id (%q)", r.Name)
+		}
+	}
+	for _, p := range doc.AuthProviders {
+		if strings.TrimSpace(p.ID) == "" {
+			return fmt.Errorf("config: an authority has no id (%q)", p.Name)
+		}
+		if !store.ValidProviderKind(p.Kind) {
+			return fmt.Errorf("config: authority %q is of kind %q, which this Meerkat cannot drive "+
+				"(allowed: %s, %s, %s)", p.Name, p.Kind,
+				store.ProviderOIDC, store.ProviderLDAP, store.ProviderGitHub)
+		}
+	}
+	for _, t := range doc.Themes {
+		if strings.TrimSpace(t.ID) == "" {
+			return fmt.Errorf("config: a theme has no id (%q)", t.Name)
+		}
+	}
+	return nil
 }
 
 func importRoutes(ctx context.Context, st *store.Store, doc *Document, plan *Plan, prune, commit bool) error {

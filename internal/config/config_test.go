@@ -288,7 +288,10 @@ func TestPartialImportRemovesNothing(t *testing.T) {
 	seed(t, s)
 
 	only := &Document{Version: Version, Routes: []store.Route{
-		{ID: "extra", Name: "Extra", Order: 2, Upstream: "http://extra"},
+		{ID: "extra", Name: "Extra", Order: 2, Upstream: "http://extra",
+			Predicates: []routing.Spec{
+				{Type: "path", Args: map[string]any{"patterns": []any{"/extra/**"}}},
+			}},
 	}}
 	if _, err := Apply(ctx, s, only, true); err != nil { // prune ON
 		t.Fatalf("Apply: %v", err)

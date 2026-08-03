@@ -4249,10 +4249,6 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
               entrée vers Microsoft 365, qui n'accepte plus de mot de passe en SMTP.
             </target>
       </trans-unit>
-      <trans-unit id="SMTP_username_hint" datatype="html">
-        <source>The account that authenticates, not always an address</source>
-        <target>Le compte qui s'authentifie, pas toujours une adresse</target>
-      </trans-unit>
       <trans-unit id="Token_URL" datatype="html">
         <source>Token URL</source>
         <target>URL du jeton</target>

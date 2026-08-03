@@ -69,7 +69,6 @@
             (keydown.enter)="$event.preventDefault()"
             [placeholder]="auth() === 'oauth2' ? 'no-reply@acme.io' : ''"
           ></textarea>
-          <mat-hint i18n="@@SMTP_username_hint">The account that authenticates, not always an address</mat-hint>
         </mat-form-field>
         <!-- Side by side with the account it belongs to: they are one
              credential, and reading them apart was the confusing part. -->

@@ -650,7 +650,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">105</context>
+          <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Client_secret" datatype="html">
@@ -665,7 +665,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">114,115</context>
+          <context context-type="linenumber">113,114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allowed_domains" datatype="html">
@@ -991,7 +991,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">206,208</context>
+          <context context-type="linenumber">205,207</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
@@ -1335,60 +1335,53 @@
           <context context-type="linenumber">59,60</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="SMTP_username_hint" datatype="html">
-        <source>The account that authenticates, not always an address</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">72,73</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="SMTP_password" datatype="html">
         <source>Password</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">80,81</context>
+          <context context-type="linenumber">79,80</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Token_URL" datatype="html">
         <source>Token URL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">93,94</context>
+          <context context-type="linenumber">92,93</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Token_URL_hint" datatype="html">
         <source>The tenant&apos;s token endpoint</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">95,96</context>
+          <context context-type="linenumber">94,95</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scope" datatype="html">
         <source>Scope</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">126</context>
+          <context context-type="linenumber">125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Scope_hint" datatype="html">
         <source>Empty uses Microsoft&apos;s SMTP scope</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">127,128</context>
+          <context context-type="linenumber">126,127</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Sender_address" datatype="html">
         <source>Sender address</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">141,142</context>
+          <context context-type="linenumber">140,141</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Recipients_will_see" datatype="html">
         <source>Recipients will see</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">162,163</context>
+          <context context-type="linenumber">161,162</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/security-page.component.html</context>
@@ -1401,21 +1394,21 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">165,170</context>
+          <context context-type="linenumber">164,169</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Test_recipient" datatype="html">
         <source>Test recipient</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">172,173</context>
+          <context context-type="linenumber">171,172</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Send_a_test" datatype="html">
         <source>Send a test</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
-          <context context-type="linenumber">192,193</context>
+          <context context-type="linenumber">191,192</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Sender_address_hint_account" datatype="html">

@@ -28,6 +28,18 @@ var Skin []byte
 //go:embed page.html
 var Page []byte
 
+// DevPage is the DATA-plane developer shell (/meerkat/apidocs): the routes'
+// specs plus a bar forging the Try-it-out identity through THREE EXCLUSIVE
+// modes (user, groups, roles). Entering a mode clears the others; the user
+// mode offers a group flyout in an exclusive tenant (hover-bridged over the
+// gap, and click pins it open). A status readout shows the
+// effective identity (roles listed in a column aligned with the other values),
+// and the gateway user button is pulled into the bar flow so it aligns. The
+// gateway injects the ACTIVE theme before </head> at serve time. ASCII only.
+//
+//go:embed devpage.html
+var DevPage []byte
+
 // AdminSpec describes Meerkat's own admin API (the first entry of the list).
 //
 //go:embed meerkat-admin.json

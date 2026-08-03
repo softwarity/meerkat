@@ -14,7 +14,8 @@
     { "name": "Settings", "description": "Application-wide configuration (working hours, session TTL, SMTP, security)" },
     { "name": "Themes", "description": "Built-in flow pages: palettes, branding (GATEWAY scope)" },
     { "name": "Audit", "description": "Field-level audit trail, scoped per capability" },
-    { "name": "Tokens", "description": "Control-plane API tokens (root only)" }
+    { "name": "Tokens", "description": "Control-plane API tokens (root only)" },
+    { "name": "Issues", "description": "Embedded issue tracker: reports filed from the injected user-button panel (visibility scoped per capability)" }
   ],
   "paths": {
     "/api/me": {
@@ -386,6 +387,71 @@
     },
     "/api/admin-tokens/{id}/toggle": {
       "post": { "tags": ["Tokens"], "summary": "Enable or disable a token", "parameters": [{ "$ref": "#/components/parameters/id" }], "responses": { "200": { "description": "Toggled" } } }
+    },
+    "/api/settings/issues": {
+      "get": {
+        "tags": ["Issues"],
+        "summary": "Whether the issue tracker is enabled on the data plane",
+        "responses": { "200": { "description": "The switch", "content": { "application/json": { "schema": { "type": "object", "properties": { "enabled": { "type": "boolean" } } } } } }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      },
+      "put": {
+        "tags": ["Issues"],
+        "summary": "Enable or disable the issue tracker (infra only, ships off)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "enabled": { "type": "boolean" } }, "required": ["enabled"] } } } },
+        "responses": { "200": { "description": "The applied switch" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/api/issues": {
+      "get": {
+        "tags": ["Issues"],
+        "summary": "The reports the actor may see, newest first",
+        "description": "root and infra/app admins see everything; a tenant admin the reports filed under their tenants. Lists stay light: no console log, no comments, no screenshot.",
+        "parameters": [{ "name": "status", "in": "query", "schema": { "type": "string", "enum": ["open", "in-progress", "closed"] } }],
+        "responses": {
+          "200": { "description": "Reports", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Issue" } } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/api/issues/{id}": {
+      "get": {
+        "tags": ["Issues"],
+        "summary": "One report with its console log and comments",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "200": { "description": "The report", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Issue" } } } }, "404": { "description": "Unknown or out of the actor's scope" } }
+      },
+      "delete": {
+        "tags": ["Issues"],
+        "summary": "Delete a report",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "204": { "description": "Deleted" }, "404": { "description": "Unknown or out of the actor's scope" } }
+      }
+    },
+    "/api/issues/{id}/screenshot": {
+      "get": {
+        "tags": ["Issues"],
+        "summary": "The report's screenshot, streamed as an image",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": { "200": { "description": "The image (png, jpeg or webp)" }, "404": { "description": "No screenshot, unknown report, or out of scope" } }
+      }
+    },
+    "/api/issues/{id}/status": {
+      "put": {
+        "tags": ["Issues"],
+        "summary": "Move a report through its lifecycle",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "status": { "type": "string", "enum": ["open", "in-progress", "closed"] } }, "required": ["status"] } } } },
+        "responses": { "200": { "description": "The updated report", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Issue" } } } }, "422": { "description": "Unknown status" } }
+      }
+    },
+    "/api/issues/{id}/comments": {
+      "post": {
+        "tags": ["Issues"],
+        "summary": "Append a team comment",
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "text": { "type": "string" } }, "required": ["text"] } } } },
+        "responses": { "200": { "description": "The updated report", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Issue" } } } }, "422": { "description": "Empty or oversized comment" } }
+      }
     }
   },
   "components": {
@@ -621,6 +687,47 @@
           "tenantId": { "type": "string" },
           "changes": { "type": "array", "items": { "$ref": "#/components/schemas/FieldChange" } },
           "detail": { "type": "string" }
+        }
+      },
+      "Issue": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "createdAt": { "type": "integer", "description": "Unix seconds" },
+          "updatedAt": { "type": "integer", "description": "Unix seconds" },
+          "reporterId": { "type": "string" },
+          "reporterName": { "type": "string", "description": "Captured at filing time - survives the reporter's deletion" },
+          "tenantId": { "type": "string", "description": "The reporter's tenant at filing time; empty = global" },
+          "tenantName": { "type": "string" },
+          "status": { "type": "string", "enum": ["open", "in-progress", "closed"] },
+          "description": { "type": "string" },
+          "url": { "type": "string", "description": "The page the report was filed from" },
+          "userAgent": { "type": "string" },
+          "viewport": { "type": "string", "example": "1280x720" },
+          "screen": { "type": "string", "example": "2560x1440" },
+          "dpr": { "type": "number", "description": "Device pixel ratio" },
+          "language": { "type": "string" },
+          "console": { "type": "array", "description": "Recent console output (detail read only)", "items": { "$ref": "#/components/schemas/ConsoleEntry" } },
+          "comments": { "type": "array", "description": "Team notes (detail read only)", "items": { "$ref": "#/components/schemas/IssueComment" } },
+          "hasScreenshot": { "type": "boolean", "description": "The image itself streams from /api/issues/{id}/screenshot" }
+        }
+      },
+      "ConsoleEntry": {
+        "type": "object",
+        "properties": {
+          "level": { "type": "string", "example": "error" },
+          "at": { "type": "string" },
+          "text": { "type": "string" }
+        }
+      },
+      "IssueComment": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "authorId": { "type": "string" },
+          "author": { "type": "string" },
+          "at": { "type": "integer", "description": "Unix seconds" },
+          "text": { "type": "string" }
         }
       }
     }

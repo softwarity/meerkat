@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/softwarity/meerkat/internal/store"
 )
 
 // Identity simulation (Try it out): the API-docs page lets a privileged tester
@@ -28,9 +30,52 @@ const (
 )
 
 var errSimulationRefused = errors.New(
-	"identity simulation requires a signed-in admin session with the root, infra-admin, dev or tester capability")
+	"identity simulation requires a signed-in admin session (root, infra-admin, dev or tester) or a data session with the dev capability")
+
+// simulationActor decides WHO may simulate: a privileged admin session (the
+// console's swagger and test tools) or a data-plane session whose user holds
+// the dev capability (the developer docs simulate on their own plane). via
+// names the tool for the audit trail.
+func (rt *Router) simulationActor(req *http.Request) (actor store.User, via string, ok bool) {
+	if rt.AdminSessions != nil {
+		if sess, err := rt.AdminSessions.Resolve(req.Context(), req); err == nil && sess.Pending == "" {
+			if u, err := rt.st.GetUserByID(req.Context(), sess.UserID); err == nil && u.Enabled &&
+				(u.Root || u.InfraAdmin || u.Dev || u.Tester) {
+				return u, "console-swagger", true
+			}
+		}
+	}
+	if rt.sm != nil {
+		if sess, err := rt.sm.Resolve(req.Context(), req); err == nil && sess.Pending == "" {
+			if u, err := rt.st.GetUserByID(req.Context(), sess.UserID); err == nil && u.Enabled && u.Dev {
+				return u, "dev-swagger", true
+			}
+		}
+	}
+	return store.User{}, "", false
+}
 
 type simKey struct{}
+
+// simMeta records that THIS request is a simulated (test) call, not a genuine
+// user action: who is really behind it and through which tool. It becomes a
+// log line on the gateway and marker headers on the upstream request, so the
+// backend's own action log can tell a swagger test from real traffic.
+type simMeta struct {
+	By  string // the real signed-in user driving the test ("" for a bare token)
+	Via string // dev-swagger | console-swagger | test-token
+}
+
+type simMetaKey struct{}
+
+func withSimMeta(ctx context.Context, m simMeta) context.Context {
+	return context.WithValue(ctx, simMetaKey{}, m)
+}
+
+func simulationMeta(ctx context.Context) (simMeta, bool) {
+	m, ok := ctx.Value(simMetaKey{}).(simMeta)
+	return m, ok
+}
 
 // specReadKey marks an IN-PROCESS spec read (admin API docs): the caller was
 // already verified root/infra-admin on the control plane, and reading a
@@ -65,25 +110,19 @@ func (rt *Router) applySimulation(req *http.Request) (*http.Request, error) {
 		if !ok {
 			return nil, errSimTokenInvalid
 		}
-		slog.Info("identity simulation (token)", "as", d.Username, "roles", d.Roles,
-			"method", req.Method, "path", req.URL.Path)
-		return req.WithContext(context.WithValue(req.Context(), simKey{}, d)), nil
+		slog.Info("simulated request (swagger test)", "via", "test-token", "as", d.Username,
+			"roles", d.Roles, "method", req.Method, "path", req.URL.Path)
+		ctx := context.WithValue(req.Context(), simKey{}, d)
+		ctx = withSimMeta(ctx, simMeta{Via: "test-token"})
+		return req.WithContext(ctx), nil
 	}
 	user := strings.TrimSpace(req.Header.Get(SimulateUserHeader))
 	rolesRaw := strings.TrimSpace(req.Header.Get(SimulateRolesHeader))
 	if user == "" && rolesRaw == "" {
 		return req, nil
 	}
-	if rt.AdminSessions == nil {
-		return nil, errSimulationRefused
-	}
-	sess, err := rt.AdminSessions.Resolve(req.Context(), req)
-	if err != nil || sess.Pending != "" {
-		return nil, errSimulationRefused
-	}
-	actor, err := rt.st.GetUserByID(req.Context(), sess.UserID)
-	maySimulate := actor.Root || actor.InfraAdmin || actor.Dev || actor.Tester
-	if err != nil || !actor.Enabled || !maySimulate {
+	actor, via, ok := rt.simulationActor(req)
+	if !ok {
 		return nil, errSimulationRefused
 	}
 	d := identityData{UserID: "simulated", Username: user, Fullname: "Simulated identity"}
@@ -92,9 +131,11 @@ func (rt *Router) applySimulation(req *http.Request) (*http.Request, error) {
 			d.Roles = append(d.Roles, role)
 		}
 	}
-	slog.Info("identity simulation", "by", actor.Username, "as", user, "roles", d.Roles,
-		"method", req.Method, "path", req.URL.Path)
-	return req.WithContext(context.WithValue(req.Context(), simKey{}, d)), nil
+	slog.Info("simulated request (swagger test)", "via", via, "by", actor.Username, "as", user,
+		"roles", d.Roles, "method", req.Method, "path", req.URL.Path)
+	ctx := context.WithValue(req.Context(), simKey{}, d)
+	ctx = withSimMeta(ctx, simMeta{By: actor.Username, Via: via})
+	return req.WithContext(ctx), nil
 }
 
 // ── Ephemeral test tokens ────────────────────────────────────────────────────

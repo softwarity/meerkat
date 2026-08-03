@@ -70,6 +70,8 @@ func run(addr, adminAddr, consoleURL, dataDir string) error {
 	sessions := session.NewManager(st)
 	adminSessions := session.NewManager(st, session.ForAdminPlane())
 	router := gateway.New(st, sessions)
+	router.AdminAddr = adminAddr         // CORS for the admin console's Try it out
+	router.AdminSessions = adminSessions // authorizes identity simulation (Try it out)
 	if err := router.Reload(ctx); err != nil {
 		return err
 	}
@@ -87,6 +89,7 @@ func run(addr, adminAddr, consoleURL, dataDir string) error {
 	authHandler := auth.New(st, sessions)
 	authHandler.Mailer = mailer
 	authHandler.Register(mux)
+	router.RegisterDevDocs(mux) // /meerkat/apidocs — developer docs (dev capability)
 	mux.Handle("/", router)
 
 	// Control plane (:9090): admin API and the console. Keep this port off
@@ -99,6 +102,7 @@ func run(addr, adminAddr, consoleURL, dataDir string) error {
 	adminAuth.Register(adminMux)
 	adminAPI := admin.New(st, adminSessions, router)
 	adminAPI.Mailer = mailer
+	adminAPI.DataAddr = addr
 	adminAPI.Register(adminMux)
 	if err := admin.RegisterConsole(adminMux, consoleURL, st, adminSessions); err != nil {
 		return err

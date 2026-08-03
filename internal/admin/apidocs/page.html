@@ -61,7 +61,12 @@
         o.textContent = s.name;
         sel.appendChild(o);
       }
-      if (specs.length) mount(specs[0].url);
+      if (specs.length) {
+        mount(specs[0].url);
+      } else {
+        document.getElementById('swagger').innerHTML =
+          '<p class="mk-error">No specification to show — declare an OpenAPI url on a route, or expose the Meerkat API (Infra › Others).</p>';
+      }
       sel.hidden = specs.length < 2;
     }).catch(() => {
       document.getElementById('swagger').innerHTML =

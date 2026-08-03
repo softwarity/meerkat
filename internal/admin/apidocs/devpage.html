@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API - developer</title>
+  <link rel="stylesheet" href="assets/swagger-ui.css">
+  <link rel="stylesheet" href="assets/skin.css">
+  <style>
+    /* Fixed-height bar; lists open in absolutely-positioned popups under their
+       trigger. */
+    .mk-bar { flex-wrap: nowrap; min-height: 52px; gap: 10px; }
+    /* The user button ships as a FIXED top-right float. Override it into the
+       bar flow so the flex row centers it vertically with everything else. */
+    .mk-bar meerkat-user-button { position: static !important; inset: auto !important; flex: none; }
+    .mk-pick select { max-width: 200px; }
+    .mk-spacer { flex: 1; }
+
+    /* Three EXCLUSIVE modes as toggle buttons, plus a status readout. */
+    .mk-dd { position: relative; }
+    .mk-btn {
+      appearance: none; cursor: pointer; font: inherit; font-size: 0.82rem;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 12px; color: var(--mk-ink); white-space: nowrap;
+      background: var(--mk-panel-2); border: 1px solid var(--mk-line); border-radius: 8px;
+    }
+    .mk-btn:hover { border-color: var(--mk-teal); }
+    .mk-btn b { color: var(--mk-cyan); font-weight: 600; }
+    .mk-btn .sum { color: var(--mk-muted); font-size: 0.74rem; }
+    .mk-btn svg { width: 11px; height: 11px; opacity: 0.7; }
+    .mk-btn.on { background: var(--mk-teal); border-color: var(--mk-teal); color: #fff; }
+    .mk-btn.on b, .mk-btn.on .sum { color: #fff; }
+    /* Status: a quiet dashed pill (a readout, not an action). */
+    .mk-state {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; font: inherit; font-size: 0.78rem; cursor: pointer;
+      background: transparent; border: 1px dashed var(--mk-line); border-radius: 999px;
+      color: var(--mk-muted); white-space: nowrap;
+    }
+    .mk-state:hover { border-color: var(--mk-teal); }
+    .mk-state svg { width: 13px; height: 13px; opacity: 0.7; }
+    .mk-state b { color: var(--mk-cyan); font-weight: 600; }
+
+    .mk-pop {
+      position: absolute; top: calc(100% + 6px); z-index: 30;
+      min-width: 240px; max-height: 360px; overflow-y: auto; overflow-x: hidden;
+      background: var(--mk-bar); border: 1px solid var(--mk-line); border-radius: 10px;
+      padding: 10px 12px; box-shadow: 0 8px 28px rgba(0,0,0,.45);
+    }
+    .mk-pop[hidden] { display: none; }
+    .mk-pop label, .mk-pop .opt { display: flex; gap: 8px; align-items: center; padding: 4px 6px;
+      color: var(--mk-ink); font-size: 0.88rem; cursor: pointer; border-radius: 6px; }
+    .mk-pop .opt:hover { background: var(--mk-panel-2); }
+    .mk-pop .head {
+      font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--mk-muted); padding: 2px 6px 6px;
+    }
+    /* The user popup must let its group flyouts escape - no clipping. */
+    #pop-user { overflow: visible; }
+    .mk-pop .uname { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 4px 6px; border-radius: 6px; cursor: pointer; }
+    .mk-pop .uname:hover { background: var(--mk-panel-2); }
+    .mk-pop .uname .caret { color: var(--mk-muted); font-size: 0.72rem; }
+    /* An invisible strip left of the row BRIDGES the 6px gap to the flyout:
+       the pointer crossing the gap never leaves the row's hover, so the
+       flyout does not vanish before it can be reached. */
+    .mk-pop .uname::before { content: ''; position: absolute; right: 100%; top: -6px; width: 12px; height: calc(100% + 12px); }
+    /* Group flyout: opens to the LEFT of the user row (room toward the centre). */
+    .mk-pop .flyout {
+      position: absolute; right: 100%; top: -6px; margin-right: 6px;
+      min-width: 170px; max-height: 300px; overflow-y: auto;
+      background: var(--mk-bar); border: 1px solid var(--mk-line); border-radius: 10px;
+      padding: 8px; box-shadow: 0 8px 28px rgba(0,0,0,.45); display: none; z-index: 40;
+    }
+    .mk-pop .uname:hover > .flyout, .mk-pop .uname.open > .flyout { display: block; }
+    .mk-pop input[type=text] {
+      width: 100%; margin-bottom: 8px; padding: 6px 8px; font: inherit; font-size: 0.85rem;
+      background: var(--mk-code-bg); color: var(--mk-ink);
+      border: 1px solid var(--mk-line); border-radius: 6px;
+    }
+    .mk-pop hr { border: 0; border-top: 1px solid var(--mk-line); margin: 6px 0; }
+    .mk-detail { display: flex; align-items: baseline; font-size: 0.82rem; color: var(--mk-ink); padding: 2px 0; }
+    .mk-detail b { color: var(--mk-muted); font-weight: 600; flex: none; min-width: 62px; }
+    .mk-rlist { display: grid; gap: 2px; min-width: 0; }
+    .mk-rlist .none { color: var(--mk-muted); }
+  </style>
+</head>
+<body>
+  <header class="mk-bar">
+    <span class="mk-brand">
+      <svg viewBox="0 0 44 64" aria-hidden="true">
+        <path d="M29 43c8.2 1.8 11.4 8.8 8.1 17.1-.4 1-1.9 1-2.5.1-1.8-2.6-2.4-5.2-2.4-7.9 0-3.7-1.5-7.1-4.4-9.4z" fill="currentColor" opacity=".85"/>
+        <path d="M22 2c-4.8 0-8.6 3.8-8.6 8.6 0 2.5 1 4.7 2.7 6.3-3.5 3-5.7 7.9-5.7 14.6 0 13 5.1 23.1 11.6 23.1s11.6-10.1 11.6-23.1c0-6.7-2.2-11.6-5.7-14.6 1.7-1.6 2.7-3.8 2.7-6.3C30.6 5.8 26.8 2 22 2z" fill="currentColor"/>
+        <circle cx="15.4" cy="6.4" r="3.1" fill="currentColor"/>
+        <circle cx="28.6" cy="6.4" r="3.1" fill="currentColor"/>
+        <ellipse cx="18.3" cy="10.3" rx="1.8" ry="2.5" fill="var(--mk-field)"/>
+        <ellipse cx="25.7" cy="10.3" rx="1.8" ry="2.5" fill="var(--mk-field)"/>
+        <path d="M22 14l2.5 2.1-2.5 1.3-2.5-1.3z" fill="var(--mk-field)"/>
+      </svg>
+      <span class="mk-word">meerkat</span><span class="mk-sub">dev</span>
+    </span>
+    <label class="mk-pick">
+      <select id="mk-spec" aria-label="OpenAPI specification"></select>
+    </label>
+    <span class="mk-spacer"></span>
+
+    <!-- Mode: USER - test as a user, with their rights. -->
+    <div class="mk-dd" id="user-wrap">
+      <button type="button" class="mk-btn on" id="user-btn">as <b id="user-name">you</b>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="mk-pop" id="pop-user" hidden>
+        <input type="text" id="user-input" placeholder="any username..." autocomplete="off">
+        <div id="user-list"></div>
+      </div>
+    </div>
+
+    <!-- Mode: GROUPS. -->
+    <div class="mk-dd" id="groups-wrap">
+      <button type="button" class="mk-btn" id="groups-btn">By groups<span class="sum" id="groups-sum"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="mk-pop" id="pop-groups" hidden></div>
+    </div>
+
+    <!-- Mode: ROLES. -->
+    <div class="mk-dd" id="roles-wrap">
+      <button type="button" class="mk-btn" id="roles-btn">By roles<span class="sum" id="roles-sum"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="mk-pop" id="pop-roles" hidden></div>
+    </div>
+
+    <!-- Status: the effective forged identity. -->
+    <div class="mk-dd" id="state-wrap">
+      <button type="button" class="mk-state" id="state-btn" title="What Try it out sends">...</button>
+      <div class="mk-pop" id="pop-state" hidden></div>
+    </div>
+
+    <span class="mk-spacer"></span>
+
+    <!-- The gateway user button (profile, tenant/group switch, apps, logout),
+         pulled into the bar flow (see CSS) so it aligns. -->
+    <script defer src="/meerkat/user-button.js"></script>
+    <meerkat-user-button height="28" shape="round"></meerkat-user-button>
+  </header>
+
+  <main id="swagger"></main>
+  <script src="assets/swagger-ui-bundle.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let catalog = { username: '', groupMode: 'MULTIPLE', roles: [], groups: [], users: [], specs: [] };
+    let mode = 'user';            // user | groups | roles (exclusive)
+    let simUser = '';             // impersonated username
+    let userGroup = null;         // SINGLE mode: chosen group NAME for the user
+    let selGroups = [];           // groups mode: chosen group NAMES
+    let selRoles = new Set();     // roles mode: chosen role names
+
+    const single = () => catalog.groupMode === 'SINGLE';
+    const userByName = (n) => catalog.users.find((u) => u.name === n);
+    const groupByName = (n) => catalog.groups.find((g) => g.name === n);
+
+    // The roles the current mode resolves to (server pre-resolved the hierarchy).
+    function effectiveRoles() {
+      if (mode === 'roles') return [...selRoles];
+      if (mode === 'groups') {
+        const s = new Set();
+        selGroups.forEach((n) => (groupByName(n)?.roles || []).forEach((r) => s.add(r)));
+        return [...s];
+      }
+      const u = userByName(simUser);
+      if (!u) return []; // a free-typed unknown user has no known rights
+      if (single()) {
+        const g = u.groups.find((x) => x.name === userGroup) || u.groups[0];
+        return g ? [...g.roles] : [];
+      }
+      const s = new Set();
+      u.groups.forEach((g) => g.roles.forEach((r) => s.add(r)));
+      return [...s];
+    }
+
+    const effectiveUser = () => simUser || catalog.username || 'dev';
+
+    // The modes are EXCLUSIVE: entering one clears the others selection so the
+    // bar never shows a stale group ticked while roles are active.
+    function clearGroups() { selGroups = []; $('pop-groups').querySelectorAll('input').forEach((i) => { i.checked = false; }); }
+    function clearRoles() { selRoles = new Set(); $('pop-roles').querySelectorAll('input').forEach((i) => { i.checked = false; }); }
+
+    function refresh() {
+      $('user-name').textContent = simUser || catalog.username || 'you';
+      $('user-btn').classList.toggle('on', mode === 'user');
+      $('groups-btn').classList.toggle('on', mode === 'groups');
+      $('roles-btn').classList.toggle('on', mode === 'roles');
+      $('groups-sum').textContent = mode === 'groups' && selGroups.length ? '(' + selGroups.join(', ') + ')' : '';
+      const rc = selRoles.size;
+      $('roles-sum').textContent = mode === 'roles' && rc ? '(' + rc + ')' : '';
+      const roles = effectiveRoles();
+      const rolesTxt = roles.length === catalog.roles.length && roles.length ? 'all roles'
+        : (roles.length ? roles.length + ' role' + (roles.length > 1 ? 's' : '') : 'no role');
+      const sb = $('state-btn'); sb.innerHTML = '';
+      sb.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>');
+      const bu = document.createElement('b'); bu.textContent = effectiveUser();
+      sb.append(bu, ' with ' + rolesTxt);
+    }
+
+    function openPop(el, btn) { closePops(); if (btn) el.style.left = btn.offsetLeft + 'px'; el.hidden = false; }
+    function closePops() { ['pop-user', 'pop-groups', 'pop-roles', 'pop-state'].forEach((id) => { $(id).hidden = true; }); }
+    const shownPop = (id) => !$(id).hidden;
+    const toggle = (id, btn, onOpen) => { if (shownPop(id)) { closePops(); } else { openPop($(id), btn); if (onOpen) onOpen(); } };
+
+    // USER mode: picking a user (and, in exclusive mode, one of their groups)
+    // clears the group/role selections.
+    function pickUser(name, group) {
+      mode = 'user'; simUser = name; userGroup = group || null;
+      clearGroups(); clearRoles();
+      $('user-input').value = name;
+      refresh(); closePops();
+    }
+
+    function renderUserList() {
+      const box = $('user-list'); box.innerHTML = '';
+      for (const u of catalog.users) {
+        if (single() && u.groups.length > 1) {
+          // Exclusive tenant, several groups: a flyout to pick one (radio).
+          const row = document.createElement('div'); row.className = 'uname';
+          const name = document.createElement('span');
+          name.textContent = u.name + (u.name === catalog.username ? ' (you)' : '');
+          const caret = document.createElement('span'); caret.className = 'caret'; caret.textContent = 'groups';
+          const fly = document.createElement('div'); fly.className = 'flyout';
+          const head = document.createElement('div'); head.className = 'head'; head.textContent = 'Pick one group';
+          fly.append(head);
+          for (const g of u.groups) {
+            const lab = document.createElement('label');
+            const rb = Object.assign(document.createElement('input'), { type: 'radio', name: 'grp-' + u.name });
+            rb.addEventListener('change', () => pickUser(u.name, g.name));
+            lab.title = g.roles.join(', ') || 'no role';
+            lab.append(rb, g.name);
+            fly.append(lab);
+          }
+          row.append(name, caret, fly);
+          // Hover alone is fragile on a small row: clicking the row PINS the
+          // flyout open (click again to unpin). Clicks inside the flyout are
+          // the radios' business.
+          row.addEventListener('click', (e) => {
+            if (fly.contains(e.target)) return;
+            const wasOpen = row.classList.contains('open');
+            for (const r of box.querySelectorAll('.uname.open')) r.classList.remove('open');
+            if (!wasOpen) row.classList.add('open');
+          });
+          box.append(row);
+        } else {
+          const row = document.createElement('div'); row.className = 'opt';
+          const g = u.groups[0];
+          row.textContent = u.name + (u.name === catalog.username ? ' (you)' : '');
+          row.title = single()
+            ? (g ? g.name + ': ' + g.roles.join(', ') : 'no group')
+            : (u.groups.flatMap((x) => x.roles).join(', ') || 'no role');
+          row.addEventListener('click', () => pickUser(u.name, single() && g ? g.name : null));
+          box.append(row);
+        }
+      }
+    }
+
+    // GROUPS mode: SINGLE = one (radio), MULTIPLE = several (checkbox); the
+    // header signals which. Entering the mode clears the roles selection.
+    function renderGroupList() {
+      const box = $('pop-groups'); box.innerHTML = '';
+      const head = document.createElement('div'); head.className = 'head';
+      head.textContent = single() ? 'Exclusive - pick one' : 'Cumulative - pick several';
+      box.append(head);
+      if (!catalog.groups.length) { const e = document.createElement('div'); e.className = 'opt'; e.textContent = 'no group in this tenant'; box.append(e); return; }
+      for (const g of catalog.groups) {
+        const label = document.createElement('label');
+        const cb = Object.assign(document.createElement('input'), { type: single() ? 'radio' : 'checkbox', name: 'grp', value: g.name });
+        cb.addEventListener('change', () => {
+          if (single()) selGroups = cb.checked ? [g.name] : [];
+          else selGroups = [...box.querySelectorAll('input:checked')].map((i) => i.value);
+          mode = 'groups'; clearRoles(); refresh();
+        });
+        label.title = g.roles.join(', ') || 'no role';
+        label.append(cb, g.name); box.append(label);
+      }
+    }
+
+    // ROLES mode: individual roles (with a Select all). Entering clears groups.
+    function renderRoleList() {
+      const box = $('pop-roles'); box.innerHTML = '';
+      const sa = document.createElement('label'); sa.className = 'head';
+      const saCb = Object.assign(document.createElement('input'), { type: 'checkbox', id: 'sel-all' });
+      saCb.addEventListener('change', () => { box.querySelectorAll('.role').forEach((c) => { c.checked = saCb.checked; }); syncRoles(); });
+      sa.append(saCb, 'Select all'); box.append(sa, document.createElement('hr'));
+      for (const r of catalog.roles) {
+        const label = document.createElement('label');
+        const cb = Object.assign(document.createElement('input'), { type: 'checkbox', className: 'role', value: r });
+        cb.addEventListener('change', syncRoles);
+        label.append(cb, r); box.append(label);
+      }
+    }
+    function syncRoles() {
+      selRoles = new Set([...$('pop-roles').querySelectorAll('.role:checked')].map((c) => c.value));
+      mode = 'roles'; clearGroups(); refresh();
+    }
+
+    // STATUS popup: the full effective identity. Roles go as a list, clearer.
+    function renderState() {
+      const box = $('pop-state'); box.innerHTML = '';
+      const roles = effectiveRoles();
+      const rows = [['User', effectiveUser()]];
+      if (mode === 'user' && single()) rows.push(['Group', userGroup || (userByName(simUser)?.groups[0]?.name) || 'none']);
+      if (mode === 'groups') rows.push(['Group(s)', selGroups.join(', ') || 'none']);
+      for (const [k, v] of rows) {
+        const d = document.createElement('div'); d.className = 'mk-detail';
+        const b = document.createElement('b'); b.textContent = k;
+        const s = document.createElement('span'); s.textContent = v;
+        d.append(b, s);
+        box.append(d);
+      }
+      // Roles: same row layout, but the value is a COLUMN. The first role sits
+      // on the label's line and the column aligns with the other values.
+      const rd = document.createElement('div'); rd.className = 'mk-detail';
+      const rb = document.createElement('b'); rb.textContent = 'Roles';
+      const list = document.createElement('div'); list.className = 'mk-rlist';
+      if (roles.length) {
+        for (const r of roles) { const it = document.createElement('div'); it.textContent = r; list.append(it); }
+      } else {
+        const it = document.createElement('div'); it.className = 'none'; it.textContent = 'none'; list.append(it);
+      }
+      rd.append(rb, list); box.append(rd);
+    }
+
+    function mount(url) {
+      window.ui = SwaggerUIBundle({
+        url, dom_id: '#swagger', presets: [SwaggerUIBundle.presets.apis],
+        layout: 'BaseLayout', docExpansion: 'list', defaultModelsExpandDepth: 0,
+        tryItOutEnabled: true, deepLinking: false, validatorUrl: null,
+        // Always forge the identity: the effective user + roles. The gateway
+        // marks it a swagger test (X-Meerkat-Test).
+        requestInterceptor: (req) => {
+          req.headers['X-Meerkat-Simulate-User'] = effectiveUser();
+          req.headers['X-Meerkat-Simulate-Roles'] = effectiveRoles().join(',');
+          return req;
+        }
+      });
+    }
+
+    // Wiring.
+    $('user-btn').addEventListener('click', () => toggle('pop-user', $('user-btn')));
+    $('groups-btn').addEventListener('click', () => toggle('pop-groups', $('groups-btn')));
+    $('roles-btn').addEventListener('click', () => toggle('pop-roles', $('roles-btn')));
+    $('state-btn').addEventListener('click', () => toggle('pop-state', $('state-btn'), renderState));
+    $('user-input').addEventListener('input', (e) => { mode = 'user'; simUser = e.target.value.trim(); userGroup = null; clearGroups(); clearRoles(); refresh(); });
+    document.addEventListener('click', (e) => { if (!e.target.closest('.mk-dd')) closePops(); });
+
+    fetch('catalog.json').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((c) => {
+      catalog = c; simUser = c.username || '';
+      const sel = $('mk-spec');
+      for (const s of c.specs) {
+        sel.append(Object.assign(document.createElement('option'), { value: 'spec/' + s.id, textContent: s.name + (s.disabled ? ' (disabled)' : '') }));
+      }
+      sel.hidden = c.specs.length < 2;
+      $('user-input').value = simUser;
+      renderUserList(); renderGroupList(); renderRoleList();
+      refresh();
+      if (c.specs.length) mount('spec/' + c.specs[0].id);
+      else $('swagger').innerHTML = '<p class="mk-error">No route declares an OpenAPI spec yet.</p>';
+    }).catch(() => {
+      $('swagger').innerHTML = '<p class="mk-error">Could not load the catalogue - is your session still alive?</p>';
+    });
+    $('mk-spec').addEventListener('change', (e) => mount(e.target.value));
+  </script>
+</body>
+</html>

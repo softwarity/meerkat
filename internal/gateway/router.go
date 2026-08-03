@@ -1294,6 +1294,15 @@ func (t cookieStrippingTransport) RoundTrip(req *http.Request) (*http.Response, 
 	if strings.HasPrefix(clone.Header.Get("Authorization"), "Bearer "+SimTokenPrefix) {
 		clone.Header.Del("Authorization")
 	}
+	// A simulated call is a TEST through swagger, not a genuine user action:
+	// mark the upstream request so the backend's own action log can tell them
+	// apart (X-Meerkat-Test = the tool, -By = the real developer behind it).
+	if meta, ok := simulationMeta(clone.Context()); ok {
+		clone.Header.Set("X-Meerkat-Test", meta.Via)
+		if meta.By != "" {
+			clone.Header.Set("X-Meerkat-Test-By", meta.By)
+		}
+	}
 	res, err := t.base.RoundTrip(clone)
 	if res != nil {
 		res.Request = req

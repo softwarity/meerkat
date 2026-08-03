@@ -48,6 +48,7 @@ var (
 	profilePasswordPage = flowPage("profile-password", profilePasswordBody)
 	profileSecurityPage = flowPage("profile-security", profileSecurityBody)
 	profileDevPage      = flowPage("profile-dev", profileDevBody)
+	profileDevCertPage  = flowPage("profile-dev-cert", profileDevCertBody)
 	specimenPage        = flowPage("specimen", specimenBody)
 )
 
@@ -245,6 +246,29 @@ const flowTop = `<!doctype html>
     input:focus {
       outline: none; border-color: var(--mk-primary);
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--mk-primary) 22%, transparent);
+    }
+    /* A browser fills a remembered field with a background of its own, and
+       background-color cannot override it: the browser applies it internally,
+       above any author rule. An INSET box-shadow can, because it paints over
+       that background instead of replacing it. Without this, a dark theme gets
+       Chrome's pale yellow blended into it, which reads as an olive slab.
+       :autofill is the standard name, :-webkit-autofill what most engines still
+       answer to, so both are given. The focus ring is repeated in the focused
+       case or this more specific rule would drop it. */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:autofill {
+      -webkit-text-fill-color: var(--mk-on-surface);
+      -webkit-box-shadow: 0 0 0 1000px var(--mk-surface-container-high) inset;
+      box-shadow: 0 0 0 1000px var(--mk-surface-container-high) inset;
+      caret-color: var(--mk-on-surface);
+    }
+    input:-webkit-autofill:focus,
+    input:autofill:focus {
+      -webkit-box-shadow: 0 0 0 3px color-mix(in srgb, var(--mk-primary) 22%, transparent),
+                          0 0 0 1000px var(--mk-surface-container-high) inset;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--mk-primary) 22%, transparent),
+                  0 0 0 1000px var(--mk-surface-container-high) inset;
     }
     button {
       margin-top: 4px; padding: 12px; border: 0; border-radius: var(--mk-radius-small);
@@ -759,16 +783,51 @@ const profileSecurityBody = `    <style>
     <p class="back"><a href="/profile">{{.T.backToProfile}}</a></p>
 `
 
-// profileDevBody is the DEVELOPER page: the public certificate today, the
-// coming dev tooling (keys, plug) tomorrow.
+// profileDevBody is the DEVELOPER hub: one entry per developer tool. Two for
+// now — the public certificate (to plug services) and the API documentation —
+// and room for more (the install command will land next to the cert). Each
+// entry is a two-line link: what it is, and a short why.
 const profileDevBody = `    <style>
-      .dc {
-        width: 100%; display: grid; gap: 8px; text-align: left;
+      .dev-link {
+        width: 100%; display: grid; gap: 3px; text-align: left;
+        padding: 12px 14px; margin-top: 8px;
+        border: 1px solid var(--mk-outline); border-radius: var(--mk-radius-small);
+        background: var(--mk-surface-container); text-decoration: none;
       }
-      .dc-title {
-        font-family: var(--mk-mono); font-size: .62rem; letter-spacing: .16em;
+      .dev-link:hover { border-color: var(--mk-primary); filter: none; box-shadow: none; transform: none; }
+      .dev-link .dl-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+      .dev-link .dl-label { font-size: .95rem; color: var(--mk-on-surface); }
+      .dev-link .dl-state {
+        font-family: var(--mk-mono); font-size: .62rem; letter-spacing: .14em;
         text-transform: uppercase; color: var(--mk-on-surface-variant);
       }
+      .dev-link .dl-state.on { color: var(--mk-primary); }
+      .dev-link .dl-desc { margin: 0; font-size: .76rem; color: var(--mk-on-surface-variant); }
+    </style>
+    <p class="lead">{{.T.developer}}</p>
+    {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+    <a class="dev-link" href="/profile/dev/cert">
+      <span class="dl-row">
+        <span class="dl-label">{{.T.devCert}}</span>
+        <span class="dl-state{{if .DevCertFingerprint}} on{{end}}">{{if .DevCertFingerprint}}{{.T.devCertSet}}{{else}}&rsaquo;{{end}}</span>
+      </span>
+      <p class="dl-desc">{{.T.devCertDesc}}</p>
+    </a>
+    {{if .APIDocsExposed}}
+    <a class="dev-link" href="/meerkat/apidocs/">
+      <span class="dl-row">
+        <span class="dl-label">{{.T.devApi}}</span>
+        <span class="dl-state">&rsaquo;</span>
+      </span>
+      <p class="dl-desc">{{.T.devApiDesc}}</p>
+    </a>
+    {{end}}
+    <p class="back"><a href="/profile">{{.T.backToProfile}}</a></p>
+`
+
+// profileDevCertBody is the certificate sub-page: paste a PUBLIC PEM so plugged
+// services authenticate with it. (The install command will join it here.)
+const profileDevCertBody = `    <style>
       .facts { margin: 0 0 8px; display: grid; gap: 10px; width: 100%; }
       .facts > div { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; }
       .facts dt {
@@ -776,7 +835,7 @@ const profileDevBody = `    <style>
         text-transform: uppercase; color: var(--mk-on-surface-variant);
       }
       .facts dd { margin: 0; text-align: right; overflow-wrap: anywhere; font-size: .92rem; }
-      .dc-form { display: grid; gap: 8px; }
+      .dc-form { display: grid; gap: 8px; width: 100%; }
       .dc-form textarea {
         width: 100%; resize: vertical; padding: 8px 10px;
         font-family: var(--mk-mono); font-size: .68rem;
@@ -791,29 +850,26 @@ const profileDevBody = `    <style>
       }
       .dc-clear:hover { color: var(--mk-error); filter: none; box-shadow: none; transform: none; }
     </style>
-    <p class="lead">{{.T.developer}}</p>
+    <p class="lead">{{.T.devCert}}</p>
     {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
-    <div class="dc">
-      <span class="dc-title">{{.T.devCert}}</span>
-      {{if .DevCertFingerprint}}
-      <dl class="facts">
-        {{if .DevCertSubject}}<div><dt>{{.T.devCertSubject}}</dt><dd>{{.DevCertSubject}}</dd></div>{{end}}
-        <div><dt>{{.T.devCertFingerprint}}</dt><dd class="dc-mono">{{.DevCertFingerprint}}</dd></div>
-        <div><dt>{{.T.devCertExpires}}</dt><dd>{{.DevCertExpires}}</dd></div>
-      </dl>
-      <form method="post" action="/profile/dev-cert">
-        <input type="hidden" name="action" value="clear">
-        <button class="dc-clear" type="submit">{{.T.devCertRemove}}</button>
-      </form>
-      {{else}}
-      <form method="post" action="/profile/dev-cert" class="dc-form">
-        <textarea name="cert" rows="5" placeholder="-----BEGIN CERTIFICATE-----" required></textarea>
-        <button type="submit">{{.T.devCertSave}}</button>
-      </form>
-      <p class="dc-hint">{{.T.devCertHint}}</p>
-      {{end}}
-    </div>
-    <p class="back"><a href="/profile">{{.T.backToProfile}}</a></p>
+    {{if .DevCertFingerprint}}
+    <dl class="facts">
+      {{if .DevCertSubject}}<div><dt>{{.T.devCertSubject}}</dt><dd>{{.DevCertSubject}}</dd></div>{{end}}
+      <div><dt>{{.T.devCertFingerprint}}</dt><dd class="dc-mono">{{.DevCertFingerprint}}</dd></div>
+      <div><dt>{{.T.devCertExpires}}</dt><dd>{{.DevCertExpires}}</dd></div>
+    </dl>
+    <form method="post" action="/profile/dev-cert">
+      <input type="hidden" name="action" value="clear">
+      <button class="dc-clear" type="submit">{{.T.devCertRemove}}</button>
+    </form>
+    {{else}}
+    <form method="post" action="/profile/dev-cert" class="dc-form">
+      <textarea name="cert" rows="5" placeholder="-----BEGIN CERTIFICATE-----" required></textarea>
+      <button type="submit">{{.T.devCertSave}}</button>
+    </form>
+    <p class="dc-hint">{{.T.devCertHint}}</p>
+    {{end}}
+    <p class="back"><a href="/profile/dev">{{.T.backToDeveloper}}</a></p>
 `
 
 // faviconSVG is the sentinel in Sentinel cyan, squared for a browser tab —
@@ -995,6 +1051,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 		mux.HandleFunc("GET /profile/tokens", h.showTokens)
 		mux.HandleFunc("POST /profile/tokens", h.doTokens)
 		mux.HandleFunc("GET /profile/dev", h.showProfileDev)
+		mux.HandleFunc("GET /profile/dev/cert", h.showProfileDevCert)
 		mux.HandleFunc("POST /profile/password", h.doProfilePassword)
 		// Self-service second-factor management (MFA-01): enrol, renew, disable.
 		mux.HandleFunc("GET /profile/mfa", h.showProfileMFA)
@@ -1007,6 +1064,8 @@ func (h *Handler) Register(mux *http.ServeMux) {
 		mux.HandleFunc("GET /account-pending", h.showAccountPending)
 		// The injected <meerkat-user-button> web component (UI routes).
 		h.registerUserButton(mux)
+		// Issue reports filed from the component's panel (ISSUE-01).
+		h.registerIssues(mux)
 	}
 	// External authentication (AUTH-19): one pair per redirect authority.
 	mux.HandleFunc("GET /login/{provider}", h.startExternal)
@@ -1474,10 +1533,13 @@ type profileSecurityData struct {
 	APITokens bool
 }
 
-// profileDevData drives the Developer page (dev users only).
+// profileDevData drives the Developer hub AND its certificate sub-page (dev
+// users only). APIDocsExposed hides the API entry when the data-plane docs are
+// switched off (SettingDevDocsExposed).
 type profileDevData struct {
 	flowChrome
 	Error              string
+	APIDocsExposed     bool
 	DevCertSubject     string
 	DevCertFingerprint string
 	DevCertExpires     string
@@ -1663,10 +1725,10 @@ func (h *Handler) doProfileDevCert(w http.ResponseWriter, r *http.Request) {
 		cert = strings.TrimSpace(r.PostFormValue("cert"))
 	}
 	if err := h.st.SetUserDevCert(r.Context(), sess.UserID, cert); err != nil {
-		h.renderProfileDev(w, r, sess, h.tr(r, "errBadCert"), http.StatusUnprocessableEntity)
+		h.renderProfileDevCert(w, r, sess, h.tr(r, "errBadCert"), http.StatusUnprocessableEntity)
 		return
 	}
-	http.Redirect(w, r, "/profile/dev", http.StatusSeeOther)
+	http.Redirect(w, r, "/profile/dev/cert", http.StatusSeeOther)
 }
 
 // devCertView summarizes a stored PEM certificate for the profile page.
@@ -1765,15 +1827,47 @@ func (h *Handler) showProfileDev(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "developer capability required", http.StatusForbidden)
 		return
 	}
-	h.renderProfileDev(w, r, sess, "", http.StatusOK)
+	// The hub: the API entry appears only when the data-plane docs are exposed.
+	data := profileDevData{flowChrome: h.flowData(r, "titleDeveloper"), APIDocsExposed: h.devDocsExposed(r)}
+	if cert, err := h.st.GetUserDevCert(r.Context(), sess.UserID); err == nil && cert != "" {
+		data.DevCertSubject, data.DevCertFingerprint, data.DevCertExpires = devCertView(cert)
+	}
+	writeFlow(w, profileDevPage, data, http.StatusOK)
 }
 
-func (h *Handler) renderProfileDev(w http.ResponseWriter, r *http.Request, sess store.Session, errMsg string, status int) {
+// showProfileDevCert renders the certificate sub-page.
+func (h *Handler) showProfileDevCert(w http.ResponseWriter, r *http.Request) {
+	sess, err := h.sm.Resolve(r.Context(), r)
+	if err != nil {
+		http.Redirect(w, r, "/login?next="+url.QueryEscape(r.URL.String()), http.StatusSeeOther)
+		return
+	}
+	if sess.Pending != "" {
+		http.Redirect(w, r, "/"+sess.Pending, http.StatusSeeOther)
+		return
+	}
+	u, err := h.st.GetUserByID(r.Context(), sess.UserID)
+	if err != nil || !u.Dev {
+		http.Error(w, "developer capability required", http.StatusForbidden)
+		return
+	}
+	h.renderProfileDevCert(w, r, sess, "", http.StatusOK)
+}
+
+func (h *Handler) renderProfileDevCert(w http.ResponseWriter, r *http.Request, sess store.Session, errMsg string, status int) {
 	data := profileDevData{flowChrome: h.flowData(r, "titleDeveloper"), Error: errMsg}
 	if cert, err := h.st.GetUserDevCert(r.Context(), sess.UserID); err == nil && cert != "" {
 		data.DevCertSubject, data.DevCertFingerprint, data.DevCertExpires = devCertView(cert)
 	}
-	writeFlow(w, profileDevPage, data, status)
+	writeFlow(w, profileDevCertPage, data, status)
+}
+
+// devDocsExposed reads the Others-screen switch (SettingDevDocsExposed): the
+// developer API docs default off.
+func (h *Handler) devDocsExposed(r *http.Request) bool {
+	var exposed bool
+	_ = h.st.GetSetting(r.Context(), store.SettingDevDocsExposed, &exposed)
+	return exposed
 }
 
 // initials builds a 1–2 letter avatar seed from the user's name (offline — no

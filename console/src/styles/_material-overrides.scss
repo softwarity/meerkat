@@ -56,3 +56,20 @@
  .editor-drawer .mat-drawer-inner-container {
    overflow: hidden;
  }
+
+// A browser fills a remembered field with a background of its own, applied
+// internally and above any author rule: background-color cannot touch it. An
+// inset box-shadow can, because it paints over that background rather than
+// replacing it. Without this, Chrome's pale fill blends into the dark theme
+// and reads as an olive slab. :autofill is the standard name, :-webkit-autofill
+// what most engines still answer to.
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:autofill,
+input:autofill:focus {
+  -webkit-text-fill-color: var(--mat-sys-on-surface);
+  -webkit-box-shadow: 0 0 0 1000px var(--mat-sys-surface-container) inset;
+  box-shadow: 0 0 0 1000px var(--mat-sys-surface-container) inset;
+  caret-color: var(--mat-sys-on-surface);
+}

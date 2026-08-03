@@ -201,6 +201,57 @@ func (s *Store) SaveVaultEntry(ctx context.Context, e vault.Entry) error {
 	return nil
 }
 
+// ReserveVaultEntry creates an entry holding NOTHING when the name is free, and
+// leaves it untouched when it is taken. It reports whether it created one.
+//
+// It exists for the configuration import (CFG-05). A document references
+// $names, and the ones this vault does not hold have to become something an
+// admin can find: an empty entry sitting on the vault screen is a hole someone
+// fills, where a reference resolving to nothing is a route that stops working
+// in production, weeks later.
+//
+// SaveVaultEntry cannot do this, and should not: an empty secret there means
+// "keep the stored value", which is what lets the console save a form it never
+// received the secret through. Here the emptiness IS the value.
+func (s *Store) ReserveVaultEntry(ctx context.Context, e vault.Entry) (bool, error) {
+	e.Name = strings.TrimSpace(e.Name)
+	if !vault.NameOK.MatchString(e.Name) {
+		return false, fmt.Errorf("store: vault name %q is not allowed: a letter then letters, digits, . _ -", e.Name)
+	}
+	if e.Scope == "" {
+		e.Scope = vault.ScopeInfra
+	}
+	if !vault.ValidScope(e.Scope) {
+		return false, fmt.Errorf("store: vault scope %q is not allowed: allowed scopes are %s, %s",
+			e.Scope, vault.ScopeInfra, vault.ScopeApp)
+	}
+	if !vault.ValidKind(e.Kind) {
+		return false, fmt.Errorf("store: vault kind %q is not allowed: allowed kinds are %s, %s",
+			e.Kind, vault.KindValue, vault.KindSecret)
+	}
+	// A secret reads back through the cipher, so even nothing has to be sealed:
+	// an unsealed empty column would fail to open rather than open empty.
+	stored := ""
+	if e.Kind == vault.KindSecret {
+		sealed, err := s.vaultCipher.Seal("")
+		if err != nil {
+			return false, err
+		}
+		stored = sealed
+	}
+	now := time.Now().Unix()
+	res, err := s.db.ExecContext(ctx,
+		`INSERT INTO vault_entries (name, kind, scope, value, description, tags, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?, '[]', ?, ?)
+		 ON CONFLICT(scope, name) DO NOTHING`,
+		e.Name, e.Kind, e.Scope, stored, e.Description, now, now)
+	if err != nil {
+		return false, fmt.Errorf("store: reserve vault entry %q: %w", e.Name, err)
+	}
+	n, _ := res.RowsAffected()
+	return n > 0, nil
+}
+
 // DeleteVaultEntry removes an entry and reports whether it existed.
 func (s *Store) DeleteVaultEntry(ctx context.Context, scope, name string) (bool, error) {
 	res, err := s.db.ExecContext(ctx, `DELETE FROM vault_entries WHERE scope = ? AND name = ?`, scope, name)

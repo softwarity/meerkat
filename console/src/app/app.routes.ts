@@ -115,6 +115,14 @@ export const routes: Routes = [
           import('./gateway/access-tokens-page.component').then((m) => m.AccessTokensPageComponent),
       },
       {
+        // Import and export of the whole configuration (CFG-03/05). Root only:
+        // a document crosses both planes at once.
+        path: 'configuration',
+        canActivate: [rootOnly],
+        loadComponent: () =>
+          import('./gateway/configuration-page.component').then((m) => m.ConfigurationPageComponent),
+      },
+      {
         path: 'others',
         canActivate: [infraOnly],
         loadComponent: () =>

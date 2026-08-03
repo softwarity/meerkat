@@ -33,6 +33,12 @@ const PLANES: Record<string, { title: string; links: SectionLink[] }> = {
         icon: 'key',
         roles: 'root',
       },
+      {
+        path: 'configuration',
+        label: $localize`:@@Configuration:Configuration`,
+        icon: 'import_export',
+        roles: 'root',
+      },
       { path: 'others', label: $localize`:@@Others:Others`, icon: 'more_horiz' },
     ],
   },

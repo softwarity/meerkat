@@ -4359,6 +4359,266 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
       Aucune route ne correspond : la gateway répondrait 404.
     </target>
       </trans-unit>
+      <trans-unit id="Configuration" datatype="html">
+        <source>Configuration</source>
+        <target>Configuration</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">151,152</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Configuration_intro" datatype="html">
+        <source>
+      Routes, roles, authorities, mail relay, themes and gateway settings travel as one file.
+      Users, organisations, sessions and the vault stay where they are: they are not
+      configuration, they are what this gateway lives with.
+    </source>
+        <target>Routes, rôles, autorités, relais mail, thèmes et paramètres de la gateway voyagent dans un seul fichier. Utilisateurs, organisations, sessions et coffre restent où ils sont : ce n'est pas de la configuration, c'est ce avec quoi cette gateway vit.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">153,159</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Export" datatype="html">
+        <source>Export</source>
+        <target>Exporter</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">162,163</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Export_hint" datatype="html">
+        <source>
+          A secret leaves as its vault reference or not at all, so the file is safe to put in a
+          ticket or a git repository. Two exports of the same configuration are the same bytes,
+          which is what makes the difference between two of them worth reading.
+        </source>
+        <target>Un secret part sous forme de référence au coffre ou pas du tout : le fichier peut donc aller dans un ticket ou un dépôt git. Deux exports d'une même configuration donnent les mêmes octets, ce qui rend la différence entre deux d'entre eux lisible.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">164,169</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Export_literals_note" datatype="html">
+        <source>
+                  These secrets are stored here as values rather than vault references, so they
+                  will NOT be in the file. Wherever it lands, the fields will be empty.
+                </source>
+        <target>Ces secrets sont enregistrés ici en clair plutôt qu'en référence au coffre : ils ne seront PAS dans le fichier. Là où il arrivera, les champs seront vides.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">175,179</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Export_refs_note" datatype="html">
+        <source>
+                  The file references these vault entries. The gateway that imports it needs them
+                  in its own vault, and will be told which ones are missing.
+                </source>
+        <target>Le fichier référence ces entrées du coffre. La gateway qui l'importera doit les avoir dans le sien, et on lui dira lesquelles manquent.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">191,194</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Download_the_configuration" datatype="html">
+        <source>Download the configuration</source>
+        <target>Télécharger la configuration</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">207,209</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Import" datatype="html">
+        <source>Import</source>
+        <target>Importer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">213,214</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Import_hint" datatype="html">
+        <source>
+          Nothing is applied before you have seen what would change. What the file does not
+          mention is left alone, and a secret it does not carry keeps the one already stored.
+        </source>
+        <target>Rien n'est appliqué avant que vous ayez vu ce qui changerait. Ce que le fichier ne mentionne pas reste en place, et un secret qu'il ne porte pas garde celui déjà enregistré.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">215,219</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Choose_a_file" datatype="html">
+        <source>Choose a file</source>
+        <target>Choisir un fichier</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">222,223</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Remove_what_the_file_does_not_mention" datatype="html">
+        <source>
+              Remove what the file does not mention
+            </source>
+        <target>Supprimer ce que le fichier ne mentionne pas</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">239,242</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Prune_hint" datatype="html">
+        <source>
+            Only inside the sections the file actually carries: a file holding routes alone never
+            touches the roles.
+          </source>
+        <target>Uniquement dans les sections que le fichier porte vraiment : un fichier qui ne contient que des routes ne touche jamais aux rôles.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">245,250</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Nothing_would_change" datatype="html">
+        <source>
+                This file describes what is already configured here. Importing it would change
+                nothing.
+              </source>
+        <target>Ce fichier décrit ce qui est déjà configuré ici. L'importer ne changerait rien.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">256,260</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Import_missing_note" datatype="html">
+        <source>
+                  This configuration expects vault entries that do not exist here. They will be
+                  created empty, and a route that references an empty entry does not serve until
+                  it is filled.
+                </source>
+        <target>Cette configuration attend des entrées de coffre qui n'existent pas ici. Elles seront créées vides, et une route qui référence une entrée vide ne sert pas tant qu'elle n'est pas remplie.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">279,284</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Import_this_file" datatype="html">
+        <source>Import this file</source>
+        <target>Importer ce fichier</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">293,294</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Vault_entries_to_fill" datatype="html">
+        <source>Vault entries to fill</source>
+        <target>Entrées de coffre à remplir</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">302,303</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Vault_entries_to_fill_hint" datatype="html">
+        <source>
+            The import created these empty. This is the moment to fill them: in a week nobody
+            remembers what they were for.
+          </source>
+        <target>L'import les a créées vides. C'est le moment de les remplir : dans une semaine, personne ne se souviendra de ce qu'elles étaient.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">304,307</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Used_by_WHAT" datatype="html">
+        <source>Used by <x id="INTERPOLATION" equiv-text="{{ used.join(&apos;, &apos;) }}"/></source>
+        <target>Utilisé par <x id="INTERPOLATION" equiv-text="{{ used.join(&apos;, &apos;) }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">321</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Configuration_imported" datatype="html">
+        <source>Configuration imported</source>
+        <target>Configuration importée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">434</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Saved" datatype="html">
+        <source>Saved</source>
+        <target>Enregistré</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">466</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Added" datatype="html">
+        <source>Added</source>
+        <target>Ajouté</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">475</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Updated" datatype="html">
+        <source>Updated</source>
+        <target>Modifié</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">477</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Removed" datatype="html">
+        <source>Removed</source>
+        <target>Supprimé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">479</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Unchanged" datatype="html">
+        <source>Unchanged</source>
+        <target>Inchangé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">481</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Route" datatype="html">
+        <source>Route</source>
+        <target>Route</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">488</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Role" datatype="html">
+        <source>Role</source>
+        <target>Rôle</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">490</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Theme" datatype="html">
+        <source>Theme</source>
+        <target>Thème</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">494</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting" datatype="html">
+        <source>Setting</source>
+        <target>Paramètre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">498</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

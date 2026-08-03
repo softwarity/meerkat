@@ -205,6 +205,48 @@ export interface VaultEntry {
   usedBy?: string[];
 }
 
+// ── the configuration as a file (CFG-01/03/05) ───────────────────────────────
+
+// A secret field that will NOT travel: it holds a literal rather than a $name
+// reference, and an export is public by construction.
+export interface ConfigLiteral {
+  holder: string;
+  id?: string;
+  label: string;
+  field: string;
+}
+
+// What an export will not contain, and what it expects to find on the other
+// side. Read before downloading, while the admin can still act on it.
+export interface ConfigReport {
+  literals: ConfigLiteral[];
+  refs: string[];
+}
+
+// One object an import would touch.
+export interface ConfigChange {
+  kind: 'route' | 'role' | 'authProvider' | 'theme' | 'setting' | 'mailRelay';
+  id?: string;
+  label: string;
+  action: 'add' | 'update' | 'same' | 'remove';
+}
+
+// A $name the file points at that this vault does not hold. The import creates
+// it EMPTY rather than refusing, so the hole is visible instead of being
+// discovered in production.
+export interface ConfigMissingRef {
+  name: string;
+  kind: 'value' | 'secret';
+  scope: string;
+  used?: string[];
+}
+
+export interface ConfigPlan {
+  changes: ConfigChange[];
+  missing: ConfigMissingRef[];
+  prune: boolean;
+}
+
 // One algorithm's public signing key, as shown in the signing-keys dialog.
 export interface SigningKey {
   algorithm: string;
@@ -837,6 +879,33 @@ export class ApiService {
   // from the application settings.
   testMailRelay(relay: MailRelay, to: string): Observable<{ sent: string }> {
     return this.http.post<{ sent: string }>('/api/settings/mail-relay/test', { ...relay, to });
+  }
+
+  // ── the configuration as a file ────────────────────────────────────────────
+
+  // The YAML itself, as text: the browser turns it into a download, and the
+  // same URL answers `curl -o` for anyone versioning their exports.
+  exportConfig(): Observable<string> {
+    return this.http.get('/api/config/export', { responseType: 'text' });
+  }
+
+  // What that file will NOT carry (literal secrets) and what it expects the
+  // target vault to hold.
+  configReport(): Observable<ConfigReport> {
+    return this.http.get<ConfigReport>('/api/config/report');
+  }
+
+  // What importing this file would do, writing nothing.
+  previewConfig(file: string, prune: boolean): Observable<ConfigPlan> {
+    return this.http.post<ConfigPlan>(`/api/config/preview?prune=${prune}`, file, {
+      headers: { 'Content-Type': 'application/yaml' },
+    });
+  }
+
+  importConfig(file: string, prune: boolean): Observable<ConfigPlan> {
+    return this.http.post<ConfigPlan>(`/api/config/import?prune=${prune}`, file, {
+      headers: { 'Content-Type': 'application/yaml' },
+    });
   }
 
   // ── vault ──────────────────────────────────────────────────────────────────

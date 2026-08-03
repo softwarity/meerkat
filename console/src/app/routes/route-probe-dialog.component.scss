@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  max-width: 720px;
+}
+.intro {
+  margin: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.base {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.base .method {
+  width: 130px;
+  flex: none;
+}
+.base .path {
+  flex: 1;
+  min-width: 0;
+}
+.crit {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.crit .kind {
+  flex: none;
+  width: 110px;
+  font-size: 0.78rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+.crit app-form-field {
+  flex: 1;
+  min-width: 0;
+}
+.crit .rm {
+  flex: none;
+}
+.add {
+  margin: 4px 0 0;
+}
+.err {
+  margin: 12px 0 0;
+  color: var(--mat-sys-error);
+  font-size: 0.85rem;
+}
+/* The traversal, in snapshot order: what production would evaluate until the
+   winner; the rows below it are dimmed (the matcher never reaches them). */
+.steps {
+  margin-top: 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mk-radius);
+  overflow: hidden;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+.step + .step {
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+.step .mark {
+  flex: none;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-on-surface-variant);
+}
+.step.win {
+  background: color-mix(in srgb, var(--mk-signal) 10%, transparent);
+}
+.step.win .mark {
+  color: var(--mk-signal);
+}
+.step.win .name {
+  font-weight: 600;
+}
+.step.after,
+.step.off {
+  opacity: 0.55;
+}
+.step .name {
+  flex: none;
+}
+.step .why {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.78rem;
+}
+.step .tag {
+  flex: none;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--mk-signal);
+  color: var(--mat-sys-on-secondary, #003);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+/* Below the list, so the traversal never shifts when a verdict lands. */
+.none {
+  margin: 10px 0 0;
+  color: var(--mat-sys-error);
+  font-size: 0.85rem;
+  font-weight: 600;
+}

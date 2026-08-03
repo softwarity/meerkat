@@ -224,6 +224,7 @@ découvrir automatiquement les services disponibles** auprès de l'orchestrateur
 | ROUTE-12 | Import/export des routes (JSON), avec substitution de secrets `$nom` depuis le Vault au chargement. | ✔ | M |
 | ROUTE-13 | Support **WebSocket** de bout en bout (proxy des connexions WS vers l'amont). | ✔ | M |
 | ROUTE-14 | Compression (gzip/brotli) et **HTTP/2** ; la réécriture de corps de réponse sait décoder gzip/brotli. | ✔ | M |
+| ROUTE-15 | **Testeur de routage** : composer depuis la console une requête fictive (méthode, path, host, header, cookie, query, adresse client, horloge, tirage canary) et voir la traversée du matching : chaque route dans l'ordre, le prédicat qui refuse, la route qui prend la requête. Rien n'est proxifié vers l'amont. | ✔ | S |
 
 ### 3.6 Filtres applicatifs « UI » — la spécificité app-gateway (UIF)
 

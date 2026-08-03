@@ -4273,6 +4273,92 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <source>The account is not an address, so one is required here. It must be verified with the provider.</source>
         <target>Le compte n'est pas une adresse, il en faut donc une ici. Elle doit être vérifiée chez le fournisseur.</target>
       </trans-unit>
+      <trans-unit id="Route_probe_intro" datatype="html">
+        <source>
+    Describe a request: the gateway replays it through the live routing table and names the route
+    that takes it. Nothing is sent to any upstream.
+  </source>
+        <target>
+    Décrivez une requête : la gateway la rejoue dans la table de routage active et nomme la route
+    qui la prend. Rien n'est envoyé vers un amont.
+  </target>
+      </trans-unit>
+      <trans-unit id="Host" datatype="html">
+        <source>Host</source>
+        <target>Hôte</target>
+      </trans-unit>
+      <trans-unit id="Header" datatype="html">
+        <source>Header</source>
+        <target>En-tête</target>
+      </trans-unit>
+      <trans-unit id="Cookie" datatype="html">
+        <source>Cookie</source>
+        <target>Cookie</target>
+      </trans-unit>
+      <trans-unit id="Client_address" datatype="html">
+        <source>Client address</source>
+        <target>Adresse client</target>
+      </trans-unit>
+      <trans-unit id="Date_and_time" datatype="html">
+        <source>Date and time</source>
+        <target>Date et heure</target>
+      </trans-unit>
+      <trans-unit id="Canary_draw" datatype="html">
+        <source>Canary draw</source>
+        <target>Tirage canary</target>
+      </trans-unit>
+      <trans-unit id="Add_criterion" datatype="html">
+        <source>Add criterion</source>
+        <target>Ajouter un critère</target>
+      </trans-unit>
+      <trans-unit id="refused_by_PREDS" datatype="html">
+        <source>
+              refused by <x id="INTERPOLATION" equiv-text="{{ failed(step) }}"/>
+            </source>
+        <target>
+              refusée par <x id="INTERPOLATION" equiv-text="{{ failed(step) }}"/>
+            </target>
+      </trans-unit>
+      <trans-unit id="not_evaluated_a_route_above_matched" datatype="html">
+        <source>
+              not evaluated: a route above already matched
+            </source>
+        <target>
+              non évaluée : une route au-dessus correspond déjà
+            </target>
+      </trans-unit>
+      <trans-unit id="Play" datatype="html">
+        <source>Play</source>
+        <target>Lancer</target>
+      </trans-unit>
+      <trans-unit id="Which_route_takes_a_request" datatype="html">
+        <source>Which route takes a request?</source>
+        <target>Quelle route prend une requête ?</target>
+      </trans-unit>
+      <trans-unit id="Routing_test" datatype="html">
+        <source>Routing test</source>
+        <target>Test de routage</target>
+      </trans-unit>
+      <trans-unit id="disabled_not_in_the_live_table" datatype="html">
+        <source>
+              disabled: not in the live routing table
+            </source>
+        <target>
+              désactivée : absente de la table de routage active
+            </target>
+      </trans-unit>
+      <trans-unit id="takes_this_request" datatype="html">
+        <source>takes this request</source>
+        <target>prend cette requête</target>
+      </trans-unit>
+      <trans-unit id="No_route_matches_the_gateway_would_answer_404" datatype="html">
+        <source>
+      No route matches: the gateway would answer 404.
+    </source>
+        <target>
+      Aucune route ne correspond : la gateway répondrait 404.
+    </target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

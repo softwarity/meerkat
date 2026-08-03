@@ -14,6 +14,15 @@
         <mat-icon svgIcon="jwt" />
         <ng-container i18n="@@Signing_keys">Signing keys</ng-container>
       </button>
+      <button
+        matButton="tonal"
+        (click)="openProbe()"
+        i18n-matTooltip="@@Which_route_takes_a_request"
+        matTooltip="Which route takes a request?"
+      >
+        <mat-icon>play_circle</mat-icon>
+        <ng-container i18n="@@Routing_test">Routing test</ng-container>
+      </button>
     </div>
 
     <div class="content">

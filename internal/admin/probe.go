@@ -9,7 +9,7 @@ import (
 	"github.com/softwarity/meerkat/internal/vault"
 )
 
-// Route probing (ROUTE-12), infra plane. Two ways in, one answer:
+// Route probing (ROUTE-15), infra plane. Two ways in, one answer:
 //
 //   - give a targetRouteId and the probe SYNTHESIZES a request from that
 //     route's predicates ("build me something that should land here");

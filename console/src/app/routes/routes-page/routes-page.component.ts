@@ -12,6 +12,7 @@ import { forkJoin } from 'rxjs';
 import { ApiService, CatalogEntry, Route } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
 import { RouteEditorComponent } from '../route-editor/route-editor.component';
+import { RouteProbeDialogComponent } from '../route-probe-dialog.component';
 import { RoutesTableComponent } from '../routes-table/routes-table.component';
 import { SigningKeysDialogComponent } from '../signing-keys-dialog.component';
 
@@ -73,6 +74,18 @@ export class RoutesPageComponent {
   // public keys / JWKS and rotate them.
   protected openSigningKeys(): void {
     this.dialog.open(SigningKeysDialogComponent, { width: '680px', restoreFocus: true });
+  }
+
+  // Route probe (ROUTE-15): compose a fictional request, see which route takes
+  // it. The dialog shows the page's route list from the start.
+  protected openProbe(): void {
+    // maxWidth too: Material clamps dialogs to 560px otherwise.
+    this.dialog.open(RouteProbeDialogComponent, {
+      width: '760px',
+      maxWidth: '760px',
+      data: { routes: this.routes() },
+      restoreFocus: true,
+    });
   }
 
   protected closeEditor(): void {

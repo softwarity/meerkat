@@ -1,0 +1,141 @@
+<h2 mat-dialog-title i18n="@@Routing_test">Routing test</h2>
+<mat-dialog-content>
+  <p class="intro" i18n="@@Route_probe_intro">
+    Describe a request: the gateway replays it through the live routing table and names the route
+    that takes it. Nothing is sent to any upstream.
+  </p>
+
+  <div class="base">
+    <mat-form-field class="method" subscriptSizing="dynamic">
+      <mat-label i18n="@@Method">Method</mat-label>
+      <mat-select [value]="method()" (selectionChange)="method.set($event.value)">
+        @for (m of METHODS; track m) {
+          <mat-option [value]="m">{{ m }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <app-form-field class="path" i18n-label="@@Path" label="Path">
+      <input
+        matInput
+        [value]="path()"
+        (input)="path.set($any($event.target).value)"
+        (keydown.enter)="play()"
+        placeholder="/api/orders/42"
+        cdkFocusInitial
+      />
+    </app-form-field>
+  </div>
+
+  @for (c of criteria(); track $index) {
+    <div class="crit">
+      <span class="kind">{{ kindLabel(c.kind) }}</span>
+      @if (named(c.kind)) {
+        <app-form-field class="name" i18n-label="@@Name" label="Name">
+          <input
+            matInput
+            [value]="c.name"
+            (input)="patch($index, { name: $any($event.target).value })"
+            (keydown.enter)="play()"
+          />
+        </app-form-field>
+      }
+      <app-form-field class="value" i18n-label="@@Value" label="Value">
+        @switch (c.kind) {
+          @case ('at') {
+            <input
+              matInput
+              type="datetime-local"
+              [value]="c.value"
+              (input)="patch($index, { value: $any($event.target).value })"
+            />
+          }
+          @case ('lottery') {
+            <input
+              matInput
+              type="number"
+              min="0"
+              max="0.999"
+              step="0.05"
+              [value]="c.value"
+              (input)="patch($index, { value: $any($event.target).value })"
+              (keydown.enter)="play()"
+            />
+          }
+          @default {
+            <input
+              matInput
+              [value]="c.value"
+              [placeholder]="placeholderFor(c.kind)"
+              (input)="patch($index, { value: $any($event.target).value })"
+              (keydown.enter)="play()"
+            />
+          }
+        }
+      </app-form-field>
+      <button
+        matIconButton
+        class="rm"
+        (click)="removeAt($index)"
+        i18n-matTooltip="@@Remove"
+        matTooltip="Remove"
+        i18n-aria-label="@@Remove"
+        aria-label="Remove"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  }
+
+  <button matButton [matMenuTriggerFor]="kindMenu" class="add">
+    <mat-icon>add</mat-icon>
+    <span i18n="@@Add_criterion">Add criterion</span>
+  </button>
+  <mat-menu #kindMenu>
+    @for (k of KINDS; track k) {
+      <button mat-menu-item [disabled]="taken(k)" (click)="add(k)">{{ kindLabel(k) }}</button>
+    }
+  </mat-menu>
+
+  @if (error()) {
+    <p class="err">{{ error() }}</p>
+  }
+
+  @if (rows().length) {
+    <div class="steps">
+      @for (row of rows(); track row.id) {
+        <div class="step" [class.win]="row.win" [class.after]="row.after" [class.off]="!row.enabled">
+          <mat-icon class="mark">{{ mark(row) }}</mat-icon>
+          <span class="name">{{ row.name }}</span>
+          @if (row.win) {
+            <span class="tag" i18n="@@takes_this_request">takes this request</span>
+          } @else if (!row.enabled) {
+            <span class="why" i18n="@@disabled_not_in_the_live_table">
+              disabled: not in the live routing table
+            </span>
+          } @else if (row.step && !row.step.matched) {
+            <span class="why" [matTooltip]="failedDetail(row.step)" i18n="@@refused_by_PREDS">
+              refused by {{ failed(row.step) }}
+            </span>
+          } @else if (row.after && row.step) {
+            <span class="why" i18n="@@not_evaluated_a_route_above_matched">
+              not evaluated: a route above already matched
+            </span>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (result()?.outcome === 'none') {
+    <p class="none" i18n="@@No_route_matches_the_gateway_would_answer_404">
+      No route matches: the gateway would answer 404.
+    </p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close i18n="@@Close">Close</button>
+  <button matButton="filled" [disabled]="running()" (click)="play()">
+    <mat-icon>play_arrow</mat-icon>
+    <span i18n="@@Play">Play</span>
+  </button>
+</mat-dialog-actions>

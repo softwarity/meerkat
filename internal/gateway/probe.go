@@ -9,7 +9,7 @@ import (
 	"github.com/softwarity/meerkat/internal/routing"
 )
 
-// Route probing (ROUTE-12): take a request, run it through the REAL matcher of
+// Route probing (ROUTE-15): take a request, run it through the REAL matcher of
 // the live snapshot, and report what every route answered, in order. Order is
 // significant (first match wins), so "my request lands on the wrong route" is
 // almost always a route ABOVE the intended one accepting it first — the probe

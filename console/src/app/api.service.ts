@@ -255,6 +255,46 @@ export interface CatalogEntry {
   params: Param[];
 }
 
+// Route probe (ROUTE-15): a fictional request replayed through the LIVE
+// routing table: matching only, no upstream is ever contacted.
+export interface RouteProbeRequest {
+  method?: string;
+  path?: string;
+  query?: Record<string, string>;
+  host?: string;
+  headers?: Record<string, string>;
+  cookies?: Record<string, string>;
+  remoteAddr?: string;
+  // Pins the clock for the time predicates (RFC3339; absent = now).
+  at?: string;
+  // Canary draw in [0,1) for weight predicates.
+  lottery?: number;
+}
+
+// One predicate's answer about the probed request.
+export interface RouteProbeVerdict {
+  type: string;
+  args?: Record<string, unknown>;
+  matched: boolean;
+}
+
+// One route's answer, in snapshot order (first match wins).
+export interface RouteProbeStep {
+  routeId: string;
+  name: string;
+  matched: boolean;
+  predicates: RouteProbeVerdict[];
+}
+
+export interface RouteProbeResult {
+  request: RouteProbeRequest;
+  steps: RouteProbeStep[];
+  winnerId?: string;
+  winnerName?: string;
+  targetId?: string;
+  outcome: 'match' | 'intercepted' | 'missed' | 'none';
+}
+
 // Identity — mirrors the Go types (store.User, store.Tenant, store.Member).
 // Superpowers (root/dev/tester/tenantCreator) are cross-cutting user flags;
 // tenant administration is either tenant ownership (Tenant.ownerId) or the
@@ -686,6 +726,12 @@ export class ApiService {
 
   deleteRoute(id: string): Observable<void> {
     return this.http.delete<void>(`/api/routes/${encodeURIComponent(id)}`);
+  }
+
+  // Replay a fictional request through the live matcher (ROUTE-15): every
+  // route's verdict in order, and the one that would take it.
+  probeRoutes(request: RouteProbeRequest): Observable<RouteProbeResult> {
+    return this.http.post<RouteProbeResult>('/api/routes/probe', { request });
   }
 
   // Endpoint security (RBAC-07): the spec is fetched and parsed server-side,

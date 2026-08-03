@@ -5,9 +5,10 @@
 > quand l'état change. Le contrat produit reste `requirements.md` ; les conventions,
 > `CLAUDE.md` ; ici : l'état courant, les chantiers, les pièges.
 
-_Derniere mise a jour : 2026-08-04 : **configuration portable** (CFG-01/03/05) - export,
-import et amorcage par fichier, avec l'ecran console. Avant cela le meme jour : testeur
-de routage (ROUTE-15). Rappel 2026-07-30 : auth externe (AUTH-19) livree ; tout est sur
+_Derniere mise a jour : 2026-08-04 : **configuration portable** (CFG-01/03/05) et
+**coffre chiffre** (VAULT-03) - deux fichiers de natures opposees : l'un public et
+versionnable, l'autre chiffre et jamais versionne ; ensemble ils amorcent une gateway
+vierge sans humain. Avant cela le meme jour : testeur de routage (ROUTE-15). Rappel 2026-07-30 : auth externe (AUTH-19) livree ; tout est sur
 `main`, la branche `feat/endpoint-security-openapi` avait ete repliee et supprimee
 (Francois : "je t'ai jamais demande de creer des branches")._
 
@@ -72,11 +73,45 @@ fichier, re-export -> octets identiques ; puis dans le navigateur, import,
 remplissage de l'entree, la route repond 200. Reimport du meme fichier : 17
 objets, tous "inchange".
 
-**Reste a faire** : export chiffre du coffre avec passphrase (Argon2id +
-AES-GCM, passphrase par variable d'environnement au demarrage et par dialogue
-dans la console) ; repertoire accepte en entree pour ceux qui versionnent en git
-(un fichier par route, diffs lisibles) ; CFG-02/04 (plusieurs configurations qui
-coexistent, diff, activation) - c'est la ou l'activation a chaud coute cher.
+### Le coffre chiffre, second fichier (VAULT-03) - meme session
+
+L'autre moitie, livree dans la foulee. Deux fichiers, deux natures : la
+configuration est publique et se versionne, le coffre est chiffre et ne se
+versionne jamais.
+
+- `internal/vault/portable.go` : Argon2id (t=3, 64 MiB, 4 threads) puis
+  AES-256-GCM. Le fichier **ecrit sa propre recette en clair** (version, KDF,
+  parametres, sel, nonce) parce qu'il survivra des annees au binaire qui l'a
+  produit : monter un parametre dans une release ne doit pas rendre illisible
+  un export d'aujourd'hui. Tout le reste est scelle : ni les valeurs, ni les
+  NOMS d'entree, ni les descriptions. Les parametres lus dans le fichier sont
+  bornes (un fichier annoncant 16 GiB tuerait la gateway avant de pouvoir
+  repondre "mauvaise passphrase").
+- Regles a l'import : une entree qui contient deja une AUTRE valeur est
+  laissee telle quelle et signalee (importer un coffre sur une gateway en
+  marche est le moment ou l'on sait le moins laquelle des deux est la bonne) ;
+  une entree **vide** est remplie, c'est le trou qu'un import de configuration
+  a reserve.
+- Au demarrage : `-vault` / `MEERKAT_VAULT_FILE`, passphrase par
+  `MEERKAT_VAULT_PASSPHRASE` ou `_FILE`. **Pas** par la console : un compose
+  qui redemarre a 4h du matin n'a personne pour la taper, et attendre
+  signifierait servir une gateway qui a l'air configuree et ne repond rien.
+  Ingere une fois, empreinte gardee, et le log dit que le fichier peut etre
+  supprime.
+- Console : deux boutons dans le bandeau du coffre, un dialogue. La passphrase
+  est **generee dans le navigateur** (une passphrase que le serveur propose est
+  une passphrase que le serveur a vue) et copiee dans le presse-papier.
+
+**Le scenario qui justifie tout le chantier, valide en vrai** : exporter la
+configuration et le coffre d'une gateway en marche, donner les deux fichiers
+plus une variable d'environnement a une gateway vierge, et la route repond 200
+au premier demarrage, sans humain dans la boucle.
+
+**Reste a faire** : repertoire accepte en entree pour ceux qui versionnent en
+git (un fichier par route, diffs lisibles, pas de conflits de merge) ; CFG-02/04
+(plusieurs configurations qui coexistent, diff, activation) - c'est la que
+l'activation a chaud coute cher, et elle exige que la validation a l'import soit
+solide d'abord.
 
 ## Session 2026-08-03 - testeur de routage : l'ecran console (ROUTE-15)
 

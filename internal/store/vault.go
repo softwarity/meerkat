@@ -210,6 +210,55 @@ func (s *Store) SaveVaultEntry(ctx context.Context, e vault.Entry) error {
 	return nil
 }
 
+// ExportVaultEntries returns the entries of the given scopes WITH their values,
+// secrets decrypted. It is the only read that hands secrets out, and it exists
+// for one caller: the encrypted vault export (VAULT-03), which re-encrypts them
+// immediately under the operator's passphrase.
+//
+// Everything else reads through ListVaultEntries (values blanked) or
+// VaultValues (resolution, never leaves the process).
+func (s *Store) ExportVaultEntries(ctx context.Context, scopes []string) ([]vault.PortableEntry, error) {
+	if len(scopes) == 0 {
+		return nil, nil
+	}
+	args := make([]any, len(scopes))
+	for i, sc := range scopes {
+		args[i] = sc
+	}
+	rows, err := s.db.QueryContext(ctx,
+		`SELECT name, kind, scope, value, description, tags, created_at, updated_at
+		 FROM vault_entries WHERE scope IN (`+placeholders(len(scopes))+`)
+		 ORDER BY scope ASC, name ASC`, args...)
+	if err != nil {
+		return nil, fmt.Errorf("store: export vault: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+	var out []vault.PortableEntry
+	for rows.Next() {
+		e, err := scanVaultEntry(rows)
+		if err != nil {
+			return nil, err
+		}
+		if e.Kind == vault.KindSecret {
+			plain, err := s.vaultCipher.Open(e.Value)
+			if err != nil {
+				return nil, fmt.Errorf("store: vault entry %q: %w", e.Name, err)
+			}
+			e.Value = plain
+		}
+		// A reserved entry holds nothing: exporting it would carry a hole into
+		// the file and, on the way back, look like a deliberate empty value.
+		if e.Value == "" {
+			continue
+		}
+		out = append(out, vault.PortableEntry{
+			Name: e.Name, Kind: e.Kind, Scope: e.Scope, Value: e.Value,
+			Description: e.Description, Tags: e.Tags,
+		})
+	}
+	return out, rows.Err()
+}
+
 // ReserveVaultEntry creates an entry holding NOTHING when the name is free, and
 // leaves it untouched when it is taken. It reports whether it created one.
 //

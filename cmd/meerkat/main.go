@@ -37,6 +37,8 @@ func main() {
 	dataDir := flag.String("data", envOr("MEERKAT_DATA", "data"), "data directory (embedded storage)")
 	configFile := flag.String("config", envOr("MEERKAT_CONFIG_FILE", ""),
 		"configuration file (YAML or JSON) seeding an EMPTY gateway on first start; never overwrites a configured one")
+	vaultFile := flag.String("vault", envOr("MEERKAT_VAULT_FILE", ""),
+		"encrypted vault file to ingest once (passphrase in MEERKAT_VAULT_PASSPHRASE or _FILE)")
 	flag.Parse()
 
 	if *showVersion {
@@ -44,13 +46,13 @@ func main() {
 		return
 	}
 
-	if err := run(*addr, *adminAddr, *consoleURL, *dataDir, *configFile); err != nil {
+	if err := run(*addr, *adminAddr, *consoleURL, *dataDir, *configFile, *vaultFile); err != nil {
 		slog.Error("fatal", "err", err)
 		os.Exit(1)
 	}
 }
 
-func run(addr, adminAddr, consoleURL, dataDir, configFile string) error {
+func run(addr, adminAddr, consoleURL, dataDir, configFile, vaultFile string) error {
 	if err := os.MkdirAll(dataDir, 0o750); err != nil {
 		return fmt.Errorf("data dir: %w", err)
 	}
@@ -61,9 +63,20 @@ func run(addr, adminAddr, consoleURL, dataDir, configFile string) error {
 	defer func() { _ = st.Close() }()
 
 	ctx := context.Background()
-	// A configuration file gets first say (CFG-03): it seeds an empty gateway
-	// and is ignored by a configured one. When it does seed, the demo routes
-	// stay away — the operator has said what this gateway serves.
+	// The VAULT first (VAULT-03): a configuration references $names, and a
+	// route saved before its reference resolves comes up inert. Ingested once,
+	// then never replayed.
+	passphrase, err := config.PassphraseFrom(
+		os.Getenv("MEERKAT_VAULT_PASSPHRASE"), os.Getenv("MEERKAT_VAULT_PASSPHRASE_FILE"))
+	if err != nil {
+		return err
+	}
+	if _, err := config.SeedVault(ctx, st, vaultFile, passphrase, time.Now().Unix()); err != nil {
+		return err
+	}
+	// Then the configuration file (CFG-03): it seeds an empty gateway and is
+	// ignored by a configured one. When it does seed, the demo routes stay
+	// away — the operator has said what this gateway serves.
 	seeded, err := config.Seed(ctx, st, configFile, time.Now().Unix())
 	if err != nil {
 		return err

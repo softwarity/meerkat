@@ -402,6 +402,10 @@ const (
 	// deleted in the console. Never exported: it describes this install's
 	// history, not how it is configured.
 	SettingConfigSeed = "config_seed"
+	// SettingVaultSeed records the encrypted vault file this gateway ingested
+	// (VAULT-03), same guard and same reason as SettingConfigSeed: a file left
+	// in a compose must not be replayed at every restart.
+	SettingVaultSeed = "vault_seed"
 )
 
 // SupportedLanguages is every language the flow pages can speak — the

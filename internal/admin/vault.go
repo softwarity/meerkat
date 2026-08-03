@@ -23,6 +23,8 @@ func (a *API) registerVault(mux *http.ServeMux) {
 	// Moving a stored secret in (see secrets.go): the value never leaves the
 	// server, so this cannot be done through PUT /api/vault.
 	mux.Handle("POST /api/vault/stash", a.authed(a.stashSecret))
+	// The vault as an encrypted file (see vaultfile.go).
+	a.registerVaultFile(mux)
 }
 
 // vaultScopes lists the planes a caller may WRITE: root covers the global ones,

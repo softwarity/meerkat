@@ -5,11 +5,65 @@
 > quand l'état change. Le contrat produit reste `requirements.md` ; les conventions,
 > `CLAUDE.md` ; ici : l'état courant, les chantiers, les pièges.
 
-_Dernière mise à jour : 2026-07-30 : **authentification externe** (AUTH-19) — OIDC,
-LDAP/Active Directory et GitHub implémentés et testés contre de vrais serveurs, flux de
-connexion câblé, écran d'administration. Plus le **testeur de routes** (ROUTE-12). Tout
-est sur `main` : la branche `feat/endpoint-security-openapi` a été repliée et supprimée
-(François : « je t'ai jamais demandé de créer des branches »)._
+_Derniere mise a jour : 2026-08-03 : **testeur de routage, ecran console** (ROUTE-15,
+renumerote : ROUTE-12 = import/export) - modal "Test" sur la page Routes branchee sur le
+backend probe livre le 29/07. Avant cela : issue tracker embarque (3.18) et durcissement
+du cloisonnement de style du user-button. Rappel 2026-07-30 : auth externe (AUTH-19)
+livree ; tout etait sur `main`, la branche `feat/endpoint-security-openapi` avait ete
+repliee et supprimee (Francois : "je t'ai jamais demande de creer des branches")._
+
+## Session 2026-08-03 - testeur de routage : l'ecran console (ROUTE-15)
+
+Le backend probe (commit `f17b726` du 29/07 : `internal/gateway/probe.go`,
+`internal/routing/synth.go`, `POST /api/routes/probe` infra-only, scenario e2e
+`api-infra-route-probe`) n'avait AUCUNE UI. Livre cette session :
+
+- **Bouton "Test"** dans le bandeau de la page Routes (a cote de Signing keys),
+  ouvre une **modal** (choix Francois : "cela peut etre une modal pour ce genre
+  de chose") `routes/route-probe-dialog.component.{ts,html,scss}`.
+- **Formulaire** : method + path toujours visibles ; critere ajoutable via menu
+  parmi host, header, cookie, query, adresse client, date/heure, tirage canary
+  (les nommes header/cookie/query sont multi-instance, les autres grises une
+  fois presents - meme regle que l'editeur de predicats). Entree = play.
+- **Resultat** : bandeau verdict (nom de la route gagnante, ou "aucune route,
+  404") + la traversee complete dans l'ordre du snapshot : verdict par route,
+  predicats refusants nommes (`humanize`, tooltip avec leurs args), routes SOUS
+  la gagnante grisees "non evaluee : une route au-dessus correspond deja"
+  (first match wins).
+- **Decisions Francois** : PAS de mesure de temps (proposee, refusee : "pas
+  besoin du temps dans ce cas") ; pas de synthese depuis une route cible dans
+  l'UI pour l'instant (le endpoint la supporte toujours, `targetRouteId`).
+- **Renumerotation** : exigence ajoutee `requirements.md` **ROUTE-15** (les
+  commentaires Go du probe referencaient ROUTE-12 a tort = import/export,
+  corriges). `api.service.ts` : `probeRoutes()` + interfaces `RouteProbe*`.
+- i18n : 16 nouvelles trans-units (Test_a_request, Route_probe_intro, Play...),
+  fr.xlf complete a la main. Tokens reutilises : Method, Path, Name, Value,
+  Query_param, Close, Remove, Request_failed.
+- **Valide** : ng build en+fr sans warning, gofmt, probe live via curl :9092
+  (outcome match, winner httpbin, refus par "path" nommes). PIEGE : le login
+  admin en dev est `POST /login` - `POST /auth/login` n'existe pas et tombe
+  dans le proxy du front dev (redirection /en/, X-Powered-By: Express).
+- **Iterations Francois (meme session)** : (1) "Test a request" trompeur (on
+  s'attend au resultat de la requete) -> renomme **"Routing test"** partout
+  (bouton + titre, tokens Test/Test_a_request supprimes de fr.xlf) ; (2) la
+  liste des routes est visible DES L'OUVERTURE (la page passe ses routes via
+  MAT_DIALOG_DATA, ronds neutres avant Play, verdicts poses dessus apres -
+  une route desactivee est grisee "absente de la table active", elle n'est
+  jamais dans les steps du probe) ; (3) le bandeau verdict SUPPRIME (il
+  decalait le tableau) -> l'info est portee par la ligne gagnante (badge
+  `.tag` "takes this request"), le cas "aucune route -> 404" s'affiche SOUS
+  le tableau pour ne rien decaler ; (4) scrollbar signalee par Francois :
+  non reproduite (contenu < 65vh ici), mais le retrait du bandeau reduit la
+  hauteur ; a re-verifier chez lui.
+- **PIEGE Material** : un MatDialog est clampe a **max-width 560px** par
+  defaut - passer `maxWidth` EN PLUS de `width` dans dialog.open() (le
+  dialog Signing keys a 680px est donc clampe lui aussi, jamais remarque).
+- **Valide en NAVIGATEUR cette fois** (la session browser marchait) : login
+  admin, page Routes, modal, Play sur /sales-app/dashboard -> sales-app
+  surlignee + badge, test/demo-secure/ops-app "refused by Path", httpbin
+  (catch-all) coche mais grise "not evaluated", menu des 7 criteres, ligne
+  Header (Name+Value+remove) OK. Content sans overflow (377px). Le champ
+  remoteAddr ajoute `:54321` si pas de port (le matcher attend ip:port).
 
 ## Session 2026-07-30 — authentification externe (AUTH-19) + testeur de routes
 
@@ -649,6 +703,56 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   a prevoir si volume. Le fichier fr.xlf et requirements.md utilisent les
   guillemets francais « » comme le reste de ces fichiers (contenu francais,
   orthographe requise) - la regle ASCII vaut pour code/UI/chat.
+  **Retours Francois (2026-08-03, iterations sur le panneau)** :
+  (a) case a cocher "Joindre la sortie console recente" (cochee par defaut,
+  decochee -> console vide dans le payload) ; la note de contexte ne parle
+  plus que URL + navigateur.
+  (b) Le prompt de partage getDisplayMedia le genait -> j'ai vendorise
+  modern-screenshot (rendu DOM sans prompt) en bouton principal... puis
+  **DECISION FINALE Francois : UNE seule option, la MEILLEURE = capture
+  native getDisplayMedia. Rendu DOM SUPPRIME** (lib devendorisee, route
+  /meerkat/dom-capture.mjs retiree) apres explication : le re-rendu DOM peut
+  effacer le glitch visuel qu'on veut montrer, iframes/canvas/video sortent
+  vides. NE PAS re-proposer le rendu DOM.
+  (c) A la place, une NOTE RASSURANTE sous le bouton de capture
+  (issueCaptureHint, .ip-cap-hint flex-basis 100%) : "la capture reste dans
+  ce panneau tant que vous n'envoyez pas ; vous pourrez la rogner a la zone
+  utile avant l'envoi" - pour l'utilisateur qui partage tout son ecran.
+  Labels finaux du panneau : openIssue, issueDescription, issueCaptureScreen
+  ("Capturer l'ecran"), issueCaptureHint, issueIncludeConsole, issueRecapture,
+  issueCrop, issueApply, issueReset, issueRemove, issueSend/Sending/Sent/
+  Failed/TooLarge/CaptureFailed/DescriptionRequired, issueContextNote, cancel.
+  Valide : node --check, tests auth, lint 0, live (JS servi sans capturePage,
+  hint + checkbox presents, dom-capture.mjs ne sert plus).
+  (d) **Send -> Sent -> fermeture auto** (demande Francois) : au succes le
+  bouton passe a "Sent"/"Envoye" (labels issueSent RACCOURCIS) puis le panneau
+  se ferme seul apres ~900ms - plus de message de remerciement, le panneau ne
+  reste plus ouvert pour rien. En echec : message d'erreur, saisie preservee,
+  bouton reactive. msg() ne sert plus qu'aux erreurs (.ip-msg.ok supprime).
+  (e) **Cloisonnement de style DURCI (inquietude Francois)** : sortant deja
+  garanti (tout vit dans le shadow root, y compris le panneau - zero CSS
+  ajoute a la page hote) ; ENTRANT renforce par `:host { all: initial;
+  color-scheme: light dark; ... }` sur les DEUX branches (signed-out et
+  signed-in) - l'heritage CSS de la page (letter-spacing, text-transform,
+  line-height...) ne traverse plus. PIEGES du all:initial : (1) il resetterait
+  color-scheme et casserait les tokens light-dark() du themeCss (declare dans
+  une feuille anterieure du meme shadow) -> re-declare juste apres ; (2) `all`
+  ne touche PAS les custom properties (--mk-* du theme passent toujours) ;
+  (3) le choix user light/dark reste en style INLINE (applyScheme), qui bat
+  le :host ; (4) l'override devpage `position: static !important` bat tout.
+  Touches volontaires a la page (features, pas des fuites) : applyScheme si
+  scheme=select (la route le demande), pageJS (stamp roles/identite configure
+  par route), hookConsole (wrappe console SEULEMENT si issues ON, originaux
+  toujours appeles).
+- **BACKLOG CADRAGE - messages Meerkat vers le plan DATA (Francois,
+  2026-08-03)** : si Meerkat doit afficher des notifications aux users des
+  apps proxifiees (au-dela du panneau issues), reflechir AVANT de coder :
+  1) canal temps reel (WS ? SSE ?) porte par le gateway ;
+  2) l'ouvre-t-on a l'APPLICATION fronted (une API pour que l'app pousse ses
+  propres messages a ses users via le canal Meerkat ?) ;
+  3) l'ouvre-t-on aux SERVICES (endpoint REST ? consommateur AMQP ?) ;
+  4) design UI (toasts via le user-button ? centre de notifications ?).
+  A rattacher au domaine NOTIF (requirements 3.10). Rien d'implemente.
   **PIÈGE VÉCU** : `air` ne surveille que les
   `.go` → éditer `devpage.html` (embarqué `go:embed`) NE rebuild PAS ; le binaire
   servait l'ancien HTML (crash `catalog.tenants.find`). Forcer en touchant un

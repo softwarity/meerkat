@@ -117,6 +117,33 @@
       }
     },
     {
+      "id": "api-vault-export",
+      "domain": "gateway",
+      "kind": "api",
+      "probe": {
+        "method": "POST",
+        "path": "/api/vault/export",
+        "body": {
+          "passphrase": "e2e passphrase long enough"
+        },
+        "allowedStatus": [200, 422]
+      },
+      "allowed": [
+        "root",
+        "infra-admin",
+        "app-admin",
+        "tenant-admin"
+      ],
+      "title": {
+        "en": "Export the vault, encrypted",
+        "fr": "Exporter le coffre, chiffré"
+      },
+      "description": {
+        "en": "Seals the entries the caller administers under a passphrase, and only those: an app admin's export holds no infrastructure entry, a tenant admin's holds only their organisation's. This is the half a configuration export never carries, which is what lets a configuration be public. A profile administering no vault at all is refused; 422 means the caller's scopes hold nothing yet.",
+        "fr": "Scelle les entrées que l'appelant administre, et elles seules : l'export d'un admin appli ne contient aucune entrée d'infrastructure, celui d'un admin de tenant seulement celles de son organisation. C'est la moitié qu'un export de configuration ne porte jamais, ce qui est précisément ce qui permet à une configuration d'être publique. Un profil qui n'administre aucun coffre est refusé ; 422 signifie que ses périmètres ne contiennent encore rien."
+      }
+    },
+    {
       "id": "api-config-export",
       "domain": "gateway",
       "kind": "api",

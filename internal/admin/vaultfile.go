@@ -69,6 +69,10 @@ func (a *API) exportVault(w http.ResponseWriter, r *http.Request, actor store.Us
 		return
 	}
 	scopes := a.vaultScopes(r.Context(), actor)
+	if len(scopes) == 0 {
+		writeErr(w, http.StatusForbidden, "you administer no vault")
+		return
+	}
 	entries, err := a.st.ExportVaultEntries(r.Context(), scopes)
 	if err != nil {
 		a.internal(w, err)
@@ -111,12 +115,17 @@ func (a *API) importVault(w http.ResponseWriter, r *http.Request, actor store.Us
 			"this file is not a Meerkat vault export: "+err.Error())
 		return
 	}
+	scopes := a.vaultScopes(r.Context(), actor)
+	if len(scopes) == 0 {
+		writeErr(w, http.StatusForbidden, "you administer no vault")
+		return
+	}
 	entries, err := vault.OpenVault(&file, req.Passphrase)
 	if err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	report, err := a.applyVaultEntries(r.Context(), entries, a.vaultScopes(r.Context(), actor), req.Overwrite)
+	report, err := a.applyVaultEntries(r.Context(), entries, scopes, req.Overwrite)
 	if err != nil {
 		a.internal(w, err)
 		return

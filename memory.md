@@ -5,12 +5,78 @@
 > quand l'état change. Le contrat produit reste `requirements.md` ; les conventions,
 > `CLAUDE.md` ; ici : l'état courant, les chantiers, les pièges.
 
-_Derniere mise a jour : 2026-08-03 : **testeur de routage, ecran console** (ROUTE-15,
-renumerote : ROUTE-12 = import/export) - modal "Test" sur la page Routes branchee sur le
-backend probe livre le 29/07. Avant cela : issue tracker embarque (3.18) et durcissement
-du cloisonnement de style du user-button. Rappel 2026-07-30 : auth externe (AUTH-19)
-livree ; tout etait sur `main`, la branche `feat/endpoint-security-openapi` avait ete
-repliee et supprimee (Francois : "je t'ai jamais demande de creer des branches")._
+_Derniere mise a jour : 2026-08-04 : **configuration portable** (CFG-01/03/05) - export,
+import et amorcage par fichier, avec l'ecran console. Avant cela le meme jour : testeur
+de routage (ROUTE-15). Rappel 2026-07-30 : auth externe (AUTH-19) livree ; tout est sur
+`main`, la branche `feat/endpoint-security-openapi` avait ete repliee et supprimee
+(Francois : "je t'ai jamais demande de creer des branches")._
+
+## Session 2026-08-04 - la configuration comme fichier (CFG-01/03/05)
+
+Cadrage decide avec Francois avant de coder (sa question : "config complete ou
+splittee ? credential en clair ou chiffre ?") :
+
+- la ligne de partage n'est pas la taille du fichier mais **configuration contre
+  objets vivants**. Routes, catalogue de roles, autorites, relais mail, themes,
+  parametres = configuration. Utilisateurs, organisations, membres, sessions,
+  certificats, tokens, audit, coffre = vivants, ils ne voyagent pas ;
+- **un secret ne voyage jamais**, ni en clair ni chiffre : il part sous forme de
+  reference `$nom` ou pas du tout. C'est ce qui rend un export **public par
+  construction** - le jour ou un export PEUT contenir un secret, plus personne
+  n'ose le partager et la fonctionnalite meurt de sa propre prudence ;
+- le coffre est un **second fichier**, d'une autre nature, qui ne se versionne
+  pas (chantier suivant : export chiffre avec passphrase).
+
+Livre :
+
+- `internal/config/` : le document (YAML lisible, JSON accepte en entree),
+  l'export deterministe (pas d'horodatage, ordre fixe, champs vides elagues -
+  deux exports d'un meme etat donnent les memes octets), l'import en deux temps
+  (Preview puis Apply, une seule traversee pour que l'apercu ne mente pas).
+- **Deux regles qui tiennent tout** : fusion et non remplacement (un fichier
+  partiel est legitime ; supprimer est opt-in et seulement dans les sections que
+  le fichier porte), et **un champ secret vide garde celui enregistre** (sinon
+  reimporter son propre export effacerait tous les identifiants).
+- Une reference que le coffre n'a pas ne bloque pas : l'entree est **reservee
+  vide** (`store.ReserveVaultEntry`, distincte de `SaveVaultEntry` ou vide veut
+  dire "garde l'existant"), donc le trou se voit sur l'ecran du coffre.
+- API root-only : `GET /api/config/export` (YAML brut, curl-able),
+  `GET /api/config/report` (ce qui ne partira pas + les `$nom` attendus),
+  `POST /api/config/preview`, `POST /api/config/import?prune=`. Trois scenarios
+  e2e. Root et pas infra-admin : un document traverse les deux plans.
+- Amorcage : `-config` / `MEERKAT_CONFIG_FILE`. Remplit une gateway vierge,
+  ignore par une gateway configuree (empreinte gardee dans le setting
+  `config_seed`). Quand il amorce, les routes de demo ne sont pas posees.
+- Ecran console `/infra/configuration` (root), avec l'apercu, la case "supprimer
+  ce que le fichier ne mentionne pas", et **les entrees reservees a remplir sur
+  place** (c'est le dernier moment ou quelqu'un sait a quoi sert un `$nom`).
+
+**Deux corrections que seul le binaire a revelees** (les tests passaient) :
+
+1. une gateway amorcee par fichier **refusait de demarrer** : l'entree reservee
+   resolvait en "", l'upstream devenait `https://` et le reload echouait, ce qui
+   emportait toutes les autres routes. Corrige en deux endroits : `VaultValues`
+   **ne repond plus pour une entree vide** (une reference non resolue sort
+   verbatim et est signalee, au lieu de devenir silencieusement du vide), et le
+   routeur **ecarte** une route dont les references ne resolvent pas au lieu de
+   faire echouer tout le rechargement ;
+2. dans l'ecran, un input lie a une cle absente d'un `Record<string,string>`
+   affiche la chaine "undefined" (le type dit `string`, l'execution non).
+
+**Piege Angular deja vu** : NG8011. Un `@if` indente dans un bouton ou un
+`mat-form-field` est plusieurs noeuds racine et le contenu n'atteint jamais son
+slot. Ecrire `@if (x) {<mat-icon>...</mat-icon>}` sans espaces.
+
+Valide en vrai : export d'une gateway, amorcage d'une gateway vierge avec ce
+fichier, re-export -> octets identiques ; puis dans le navigateur, import,
+remplissage de l'entree, la route repond 200. Reimport du meme fichier : 17
+objets, tous "inchange".
+
+**Reste a faire** : export chiffre du coffre avec passphrase (Argon2id +
+AES-GCM, passphrase par variable d'environnement au demarrage et par dialogue
+dans la console) ; repertoire accepte en entree pour ceux qui versionnent en git
+(un fichier par route, diffs lisibles) ; CFG-02/04 (plusieurs configurations qui
+coexistent, diff, activation) - c'est la ou l'activation a chaud coute cher.
 
 ## Session 2026-08-03 - testeur de routage : l'ecran console (ROUTE-15)
 

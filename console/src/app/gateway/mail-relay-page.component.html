@@ -29,18 +29,54 @@
             <mat-option value="none" i18n="@@None">None</mat-option>
           </mat-select>
         </mat-form-field>
+      </div>
+
+      <app-form-field
+        i18n-label="@@Sender_address"
+        label="Sender address"
+        [hint]="fromHint()"
+        allowVault="secret/values"
+        vaultScope="infra"
+      >
+        <textarea
+          matInput
+          rows="1"
+          class="oneline"
+          spellcheck="false"
+          autocapitalize="off"
+          autocorrect="off"
+          [value]="from()"
+          (input)="from.set($any($event.target).value)"
+          (keydown.enter)="$event.preventDefault()"
+          [placeholder]="username().includes('@') ? username() : 'no-reply@example.com'"
+        ></textarea>
+      </app-form-field>
+
+      @if (senderPreview()) {
+        <p class="hint text-muted">
+          <ng-container i18n="@@Recipients_will_see">Recipients will see</ng-container>
+          <span class="mono"> {{ senderPreview() }}</span>
+          <ng-container i18n="@@Sender_name_set_in_application">
+            . The name in front of the address is set in the application settings.
+          </ng-container>
+        </p>
+      }
+
+      <mat-divider />
+
+      <h3 class="sub" i18n="@@Authentication">Authentication</h3>
+      <div class="fields grid grid-cols-2">
         <!-- The two modes are separate forms, not one generic set of boxes:
              a password and a client-credentials grant have nothing in common
              but the account they send as. -->
-        <mat-button-toggle-group
+        <mat-radio-group
           class="col-span-full auth-modes"
           [value]="auth()"
           (change)="auth.set($event.value)"
-          hideSingleSelectionIndicator
         >
-          <mat-button-toggle value="password" i18n="@@Auth_password">Password</mat-button-toggle>
-          <mat-button-toggle value="oauth2" i18n="@@Auth_oauth2">OAuth2</mat-button-toggle>
-        </mat-button-toggle-group>
+          <mat-radio-button value="password" i18n="@@Auth_password">Password</mat-radio-button>
+          <mat-radio-button value="oauth2" i18n="@@Auth_oauth2">OAuth2</mat-radio-button>
+        </mat-radio-group>
         <p class="hint text-muted col-span-full">
           @if (auth() === 'oauth2') {
             <ng-container i18n="@@Auth_oauth2_hint">
@@ -134,37 +170,6 @@
           </app-form-field>
         }
       </div>
-
-      <app-form-field
-        i18n-label="@@Sender_address"
-        label="Sender address"
-        [hint]="fromHint()"
-        allowVault="secret/values"
-        vaultScope="infra"
-      >
-        <textarea
-          matInput
-          rows="1"
-          class="oneline"
-          spellcheck="false"
-          autocapitalize="off"
-          autocorrect="off"
-          [value]="from()"
-          (input)="from.set($any($event.target).value)"
-          (keydown.enter)="$event.preventDefault()"
-          [placeholder]="username().includes('@') ? username() : 'no-reply@example.com'"
-        ></textarea>
-      </app-form-field>
-
-      @if (senderPreview()) {
-        <p class="hint text-muted">
-          <ng-container i18n="@@Recipients_will_see">Recipients will see</ng-container>
-          <span class="mono"> {{ senderPreview() }}</span>
-          <ng-container i18n="@@Sender_name_set_in_application">
-            . The name in front of the address is set in the application settings.
-          </ng-container>
-        </p>
-      }
 
       <div class="test">
         <mat-form-field class="field" subscriptSizing="dynamic">

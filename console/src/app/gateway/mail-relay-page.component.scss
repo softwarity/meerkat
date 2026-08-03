@@ -4,8 +4,23 @@
   font-size: 0.85rem;
 }
 /* Two columns of fields: no row gap, the form fields bring their own. */
+// A hint fills the subscript a field reserves under itself, and that reserve
+// was the only thing separating two rows: as soon as one field explains
+// itself, the next one lands against its text. So the gap is stated here
+// rather than borrowed from an empty subscript.
 .fields {
   column-gap: 16px;
+  row-gap: 16px;
+}
+.sub {
+  margin: 20px 0 8px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-surface-variant);
+}
+mat-divider {
+  margin-top: 12px;
 }
 .banner {
   display: flex;
@@ -35,7 +50,17 @@ mat-card {
   display: flex;
   align-items: center;
   gap: 12px;
+  // The field above may end on a hint, and this row would otherwise start
+  // against its text.
+  margin-top: 16px;
 }
 .field {
   width: 280px;
+}
+
+// The two modes side by side, with a little air before the fields they drive.
+.auth-modes {
+  display: flex;
+  gap: 20px;
+  margin: 4px 0 8px;
 }

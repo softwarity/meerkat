@@ -1,7 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -26,11 +27,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   selector: 'app-mail-relay-page',
   imports: [
     MatButtonModule,
-    MatButtonToggleModule,
     MatCardModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatRadioModule,
     MatSelectModule,
     LoadingIndicatorComponent,
     FormFieldComponent,

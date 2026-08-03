@@ -23,6 +23,13 @@
   font-size: 0.82rem;
   max-width: 70ch;
 }
+// The file actions sit at the far end of the banner, away from the per-entry
+// ones: they act on the whole vault, not on a row.
+.file-actions {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
 .content {
   flex: 1 1 auto;
   min-height: 0;

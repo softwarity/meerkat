@@ -247,6 +247,19 @@ export interface ConfigPlan {
   prune: boolean;
 }
 
+// What an encrypted vault import did. Names only: this answers about secrets,
+// so it says what happened to them and never what they are.
+export interface VaultImportReport {
+  created: string[];
+  filled: string[];
+  replaced: string[];
+  unchanged: string[];
+  // Already hold a different value, and were LEFT ALONE.
+  conflicts: string[];
+  // Belong to a scope the caller does not administer, or to an unknown tenant.
+  skipped: string[];
+}
+
 // One algorithm's public signing key, as shown in the signing-keys dialog.
 export interface SigningKey {
   algorithm: string;
@@ -936,6 +949,20 @@ export class ApiService {
       ...at,
       name,
       description,
+    });
+  }
+
+  // The vault as an ENCRYPTED file (VAULT-03). A POST, because a passphrase has
+  // no business being in a URL where it would land in logs and history.
+  exportVault(passphrase: string): Observable<string> {
+    return this.http.post('/api/vault/export', { passphrase }, { responseType: 'text' });
+  }
+
+  importVault(file: string, passphrase: string, overwrite: boolean): Observable<VaultImportReport> {
+    return this.http.post<VaultImportReport>('/api/vault/import', {
+      passphrase,
+      file: JSON.parse(file),
+      overwrite,
     });
   }
 

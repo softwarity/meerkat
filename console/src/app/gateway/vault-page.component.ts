@@ -11,6 +11,7 @@ import { ApiService, VaultEntry } from '../api.service';
 import { DialogsService } from '../shared/dialogs.service';
 import { VaultEntryDialogComponent, VaultEntryDialogData } from '../shared/vault-entry-dialog.component';
 import { VaultService } from '../shared/vault.service';
+import { VaultFileDialogComponent, VaultFileDialogData } from './vault-file-dialog.component';
 
 // The vault (VAULT-01/02): every named value the configuration refers to, in
 // one place. Secrets are encrypted at rest and never shown again; plain values
@@ -43,6 +44,28 @@ export class VaultPageComponent {
 
   constructor() {
     void this.vault.reload().then(() => this.loading.set(false));
+  }
+
+  // The encrypted vault file: taking the values somewhere else, or bringing
+  // them in. An import may fill entries a configuration import left empty, so
+  // the table is reloaded after it.
+  protected exportFile(): void {
+    this.dialog.open<VaultFileDialogComponent, VaultFileDialogData>(VaultFileDialogComponent, {
+      data: { mode: 'export' },
+      width: '560px',
+      restoreFocus: true,
+    });
+  }
+
+  protected importFile(): void {
+    this.dialog
+      .open<VaultFileDialogComponent, VaultFileDialogData>(VaultFileDialogComponent, {
+        data: { mode: 'import' },
+        width: '560px',
+        restoreFocus: true,
+      })
+      .afterClosed()
+      .subscribe(() => void this.vault.reload());
   }
 
   protected create(): void {

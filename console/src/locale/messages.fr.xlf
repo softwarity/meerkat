@@ -4619,6 +4619,181 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">498</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Export_the_vault" datatype="html">
+        <source>Export the vault</source>
+        <target>Exporter le coffre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">83,84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Import_a_vault" datatype="html">
+        <source>Import a vault</source>
+        <target>Importer un coffre</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">85,87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Vault_export_hint" datatype="html">
+        <source>
+          Every entry you administer, encrypted under this passphrase. Unlike a configuration
+          export, this file holds the values themselves: do not version it, and delete it once it
+          has been used. Without the passphrase nobody reads it, not even Meerkat.
+        </source>
+        <target>Toutes les entrées que vous administrez, chiffrées avec cette phrase secrète. Contrairement à un export de configuration, ce fichier contient les valeurs elles-mêmes : ne le versionnez pas, et supprimez-le une fois qu'il a servi. Rangez la phrase secrète dans un gestionnaire de mots de passe : sans elle, personne ne lit le fichier, pas même Meerkat.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">92,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Vault_import_hint" datatype="html">
+        <source>
+          An entry that is missing here is created, one that was left empty is filled, and one
+          that already holds a different value is left alone unless you say otherwise.
+        </source>
+        <target>Une entrée absente ici est créée, une entrée laissée vide est remplie, et une entrée qui contient déjà une autre valeur est laissée telle quelle sauf indication contraire.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">98,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Passphrase" datatype="html">
+        <source>Passphrase</source>
+        <target>Phrase secrète</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Passphrase_hint" datatype="html">
+        <source>At least 12 characters. Store it in a password manager: it is the only way back in.</source>
+        <target>12 caractères au minimum</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">126,127</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Show_hide" datatype="html">
+        <source>Show or hide</source>
+        <target>Afficher ou masquer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">132,134</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Generate" datatype="html">
+        <source>
+            Generate
+          </source>
+        <target>Générer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">142,145</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Replace_entries_that_differ" datatype="html">
+        <source>
+            Replace entries that already hold a different value
+          </source>
+        <target>Remplacer les entrées qui contiennent déjà une autre valeur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">150,153</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="N_created" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ r.created.length }}"/> created</source>
+        <target><x id="INTERPOLATION" equiv-text="{{ r.created.length }}"/> créée(s)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">159,160</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="N_filled" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ r.filled.length }}"/> filled</source>
+        <target><x id="INTERPOLATION" equiv-text="{{ r.filled.length }}"/> remplie(s)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">165,166</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="N_replaced" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ r.replaced.length }}"/> replaced</source>
+        <target><x id="INTERPOLATION" equiv-text="{{ r.replaced.length }}"/> remplacée(s)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">171,172</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="N_already_identical" datatype="html">
+        <source>
+              <x id="INTERPOLATION" equiv-text="{{ r.unchanged.length }}"/> already identical
+            </source>
+        <target>
+              <x id="INTERPOLATION" equiv-text="{{ r.unchanged.length }}"/> déjà identique(s)
+            </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">177,179</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="N_left_alone" datatype="html">
+        <source>
+                <x id="INTERPOLATION" equiv-text="{{ r.conflicts.length }}"/> left alone: they already hold a different value
+              </source>
+        <target>
+                <x id="INTERPOLATION" equiv-text="{{ r.conflicts.length }}"/> laissée(s) telle(s) quelle(s) : elles contiennent déjà une autre valeur
+              </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">183,185</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="N_skipped" datatype="html">
+        <source>
+                <x id="INTERPOLATION" equiv-text="{{ r.skipped.length }}"/> skipped: not yours to write, or an unknown organisation
+              </source>
+        <target>
+                <x id="INTERPOLATION" equiv-text="{{ r.skipped.length }}"/> ignorée(s) : hors de votre périmètre, ou organisation inconnue
+              </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">191,193</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Download" datatype="html">
+        <source>Download</source>
+        <target>Télécharger</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">205,206</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Passphrase_copied" datatype="html">
+        <source>Passphrase generated and copied</source>
+        <target>Phrase secrète générée et copiée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
+          <context context-type="linenumber">244</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Export_the_vault_encrypted" datatype="html">
+        <source>Export the vault, encrypted</source>
+        <target>Exporter le coffre, chiffré</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.html</context>
+          <context context-type="linenumber">14,17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Import_an_encrypted_vault" datatype="html">
+        <source>Import an encrypted vault</source>
+        <target>Importer un coffre chiffré</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/vault-page.component.html</context>
+          <context context-type="linenumber">23,25</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

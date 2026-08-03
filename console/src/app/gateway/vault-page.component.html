@@ -4,6 +4,28 @@
     Every value the configuration refers to, in one place. Use one anywhere with $name: secrets
     are encrypted and never shown again, plain values stay readable.
   </p>
+  <!-- The vault as a FILE (VAULT-03): the half a configuration export never
+       carries, encrypted under a passphrase Meerkat does not keep. -->
+  <div class="file-actions">
+    <button
+      matButton="outlined"
+      (click)="exportFile()"
+      i18n-matTooltip="@@Export_the_vault_encrypted"
+      matTooltip="Export the vault, encrypted"
+    >
+      <mat-icon>lock</mat-icon>
+      <ng-container i18n="@@Export">Export</ng-container>
+    </button>
+    <button
+      matButton="outlined"
+      (click)="importFile()"
+      i18n-matTooltip="@@Import_an_encrypted_vault"
+      matTooltip="Import an encrypted vault"
+    >
+      <mat-icon>upload</mat-icon>
+      <ng-container i18n="@@Import">Import</ng-container>
+    </button>
+  </div>
 </div>
 
 <div class="content">

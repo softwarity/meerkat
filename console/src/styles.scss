@@ -67,9 +67,11 @@ html {
 // ── Role-based visibility (UIF-06) ───────────────────────────────────────────
 // Config lives in styles/_roles.scss. Elements carry `any-role="root dev"`
 // (space = OR); they show only when <body> has a matching role class. The
-// superuser role reveals every gated element (admin sees all). Material
-// components don't restore a useful display with `revert`, so the correct
-// display is restated per family.
+// superuser role reveals every gated element (admin sees all).
+//
+// Pure CSS on purpose: no directive and no runtime, so the same mechanism works
+// on content Angular never rendered (the injections of UIF-06) and cannot go
+// out of step with a second implementation.
 $mat-inline-flex: '[matButton], [matIconButton], [matFab], [matMiniFab],'
   + 'mat-chip, mat-chip-row, mat-chip-option, mat-basic-chip, mat-form-field';
 $mat-inline-block: 'mat-icon, mat-radio-button, mat-checkbox, mat-slide-toggle';
@@ -83,59 +85,51 @@ $mat-block: 'mat-card, mat-card-header, mat-card-content, mat-card-actions,'
   + 'mat-expansion-panel, mat-tab-group, mat-paginator, mat-tree, mat-table,'
   + 'mat-row, mat-header-row, mat-option, mat-optgroup';
 
-@mixin reveal($scope) {
-  #{$scope} [any-role],
-  #{$scope} [anyrole] {
+// Reveal the gated elements a scope is entitled to. $on is the attribute test:
+// empty matches every gated element (the superuser), "~='dev'" only those that
+// name that role. One mixin for both, because the four Material families were
+// previously written out twice and nothing would have caught them drifting.
+//
+// Material components do not restore a useful display with `revert`: it goes
+// back to the UA value, so a matButton would come back as `inline`. Hence the
+// display restated per family, which is the price of the mechanism and the one
+// part of it that can rot silently when a component is added or renamed.
+@mixin reveal($scope, $on: '') {
+  #{$scope} [any-role#{$on}],
+  #{$scope} [anyrole#{$on}] {
     display: revert !important;
   }
-  #{$scope} :is(#{$mat-inline-flex})[any-role],
-  #{$scope} :is(#{$mat-inline-flex})[anyrole] {
+  #{$scope} :is(#{$mat-inline-flex})[any-role#{$on}],
+  #{$scope} :is(#{$mat-inline-flex})[anyrole#{$on}] {
     display: inline-flex !important;
   }
-  #{$scope} :is(#{$mat-inline-block})[any-role],
-  #{$scope} :is(#{$mat-inline-block})[anyrole] {
+  #{$scope} :is(#{$mat-inline-block})[any-role#{$on}],
+  #{$scope} :is(#{$mat-inline-block})[anyrole#{$on}] {
     display: inline-block !important;
   }
-  #{$scope} :is(#{$mat-flex})[any-role],
-  #{$scope} :is(#{$mat-flex})[anyrole] {
+  #{$scope} :is(#{$mat-flex})[any-role#{$on}],
+  #{$scope} :is(#{$mat-flex})[anyrole#{$on}] {
     display: flex !important;
   }
-  #{$scope} :is(#{$mat-block})[any-role],
-  #{$scope} :is(#{$mat-block})[anyrole] {
+  #{$scope} :is(#{$mat-block})[any-role#{$on}],
+  #{$scope} :is(#{$mat-block})[anyrole#{$on}] {
     display: block !important;
   }
 }
 
-@if roles.$applyRoles {
-  [any-role],
-  [anyrole] {
-    display: none !important;
-  }
+// Hidden by default, revealed by what the body carries. This way round is not
+// a stylistic choice: `any-role` is an OR over a set that varies per element,
+// and the cascade can express "at least one rule reveals" but not "no rule
+// matches" without enumerating every combination of roles.
+[any-role],
+[anyrole] {
+  display: none !important;
+}
 
-  // Superuser: reveal every gated element, whatever its any-role value.
-  @include reveal('body.#{roles.$superuser-role}');
+// Superuser: reveal every gated element, whatever its any-role value.
+@include reveal('body.#{roles.$superuser-role}');
 
-  // Each known role reveals only the elements that name it.
-  @each $role in roles.$known-roles {
-    body.#{$role} [any-role~='#{$role}'],
-    body.#{$role} [anyrole~='#{$role}'] {
-      display: revert !important;
-    }
-    body.#{$role} :is(#{$mat-inline-flex})[any-role~='#{$role}'],
-    body.#{$role} :is(#{$mat-inline-flex})[anyrole~='#{$role}'] {
-      display: inline-flex !important;
-    }
-    body.#{$role} :is(#{$mat-inline-block})[any-role~='#{$role}'],
-    body.#{$role} :is(#{$mat-inline-block})[anyrole~='#{$role}'] {
-      display: inline-block !important;
-    }
-    body.#{$role} :is(#{$mat-flex})[any-role~='#{$role}'],
-    body.#{$role} :is(#{$mat-flex})[anyrole~='#{$role}'] {
-      display: flex !important;
-    }
-    body.#{$role} :is(#{$mat-block})[any-role~='#{$role}'],
-    body.#{$role} :is(#{$mat-block})[anyrole~='#{$role}'] {
-      display: block !important;
-    }
-  }
+// Each known role reveals only the elements that name it.
+@each $role in roles.$known-roles {
+  @include reveal('body.#{$role}', "~='#{$role}'");
 }

@@ -5,9 +5,6 @@
 // (see AppComponent). This is UIF-06 "roles-css": pure CSS, no directive, works
 // even on injected content, and survives being disabled wholesale.
 
-// Master switch — set to false to disable role hiding entirely (all visible).
-$applyRoles: true !default;
-
 // Roles the UI gates on. Maintained by hand: any role used in an `any-role="…"`
 // attribute must be listed here or it won't match. The superpowers (RBAC-05)
 // plus tenant-admin (derived from an OWNER/ADMIN membership — TENANT-02).

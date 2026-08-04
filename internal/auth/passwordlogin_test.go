@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/softwarity/meerkat/internal/mail"
 	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
 )
@@ -127,5 +128,125 @@ func TestClosedPasswordKeepsTheDirectoryForm(t *testing.T) {
 	}
 	if !strings.Contains(form(), `name="password"`) {
 		t.Fatal("a directory answers through this form: it must stay")
+	}
+}
+
+// TestClosingThePasswordClosesTheDeadEnds: the two journeys that succeed at
+// every step and help nobody once the local password is refused.
+//
+// Signing up mints a LOCAL account with a local password: where that password
+// is refused, the newcomer confirms their address, chooses a password, and
+// lands on a form that will never take it. Resetting is the same story, one
+// step longer.
+func TestClosingThePasswordClosesTheDeadEnds(t *testing.T) {
+	st, _, _ := planes(t)
+	ctx := context.Background()
+	// Both journeys need a mailer WIRED, not just a relay configured, so the
+	// planes are rebuilt here rather than taken from the helper.
+	mailer := func(context.Context, mail.Message) error { return nil }
+	h := New(st, session.NewManager(st))
+	h.Mailer = mailer
+	data := http.NewServeMux()
+	h.Register(data)
+	ah := NewAdmin(st, session.NewManager(st, session.ForAdminPlane()))
+	ah.Mailer = mailer
+	admin := http.NewServeMux()
+	ah.Register(admin)
+	// Both journeys need outbound mail before they are reachable at all.
+	if err := st.SetSetting(ctx, store.SettingSMTP, mail.Config{
+		Host: "smtp.example.com", Port: 587, From: "no-reply@example.com",
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SetSetting(ctx, store.SettingRegistration,
+		store.RegistrationPolicy{LocalEnabled: true}); err != nil {
+		t.Fatal(err)
+	}
+
+	reachable := func(mux *http.ServeMux, path string) bool {
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, httptest.NewRequest("GET", path, nil))
+		return rec.Code != http.StatusNotFound
+	}
+
+	// Everyone: both are open, as they have always been.
+	setPasswordLogin(t, st, store.PasswordLoginEveryone)
+	if !reachable(data, "/register") || !reachable(data, "/forgot-password") {
+		t.Fatal("nothing should change while the local password opens the data plane")
+	}
+
+	// Admins only: a newcomer is not an administrator, so signing up leads
+	// nowhere. Resetting stays: an administrator keeps a password worth
+	// resetting.
+	setPasswordLogin(t, st, store.PasswordLoginAdmins)
+	if reachable(data, "/register") {
+		t.Fatal("self-registration must close: a newcomer could not sign in with what it creates")
+	}
+	if !reachable(data, "/forgot-password") {
+		t.Fatal("an administrator still has a password worth resetting")
+	}
+
+	// Nobody: neither has any purpose left on the data plane.
+	setPasswordLogin(t, st, store.PasswordLoginNobody)
+	if reachable(data, "/register") || reachable(data, "/forgot-password") {
+		t.Fatal("both must close once no local password opens the data plane")
+	}
+
+	// And the admin plane is untouched throughout: it is the tool one repairs a
+	// broken authority with.
+	if !reachable(admin, "/forgot-password") {
+		t.Fatal("the console must keep its own way back in")
+	}
+}
+
+// TestResetMailFollowsTheAccount: under "admins only" the reset page answers
+// the same to everyone — saying otherwise would be a better enumeration oracle
+// than the address itself — but only an account that may still USE a password
+// is sent one.
+func TestResetMailFollowsTheAccount(t *testing.T) {
+	st, _, _ := planes(t)
+	ctx := context.Background()
+	if err := st.SetSetting(ctx, store.SettingSMTP, mail.Config{
+		Host: "smtp.example.com", Port: 587, From: "no-reply@example.com",
+	}); err != nil {
+		t.Fatal(err)
+	}
+	for id, addr := range map[string]string{"root": "root@example.com", "u1": "bob@example.com"} {
+		u, err := st.GetUserByID(ctx, id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		u.Email, u.EmailVerified = addr, true
+		if err := st.UpdateUser(ctx, u); err != nil {
+			t.Fatal(err)
+		}
+	}
+	setPasswordLogin(t, st, store.PasswordLoginAdmins)
+
+	var sent []string
+	h := New(st, session.NewManager(st))
+	h.Mailer = func(_ context.Context, msg mail.Message) error {
+		sent = append(sent, msg.To...)
+		return nil
+	}
+	mux := http.NewServeMux()
+	h.Register(mux)
+
+	ask := func(email string) int {
+		form := url.Values{"email": {email}}
+		req := httptest.NewRequest("POST", "/forgot-password", strings.NewReader(form.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+		return rec.Code
+	}
+	if code := ask("root@example.com"); code != http.StatusOK {
+		t.Fatalf("root: %d", code)
+	}
+	if code := ask("bob@example.com"); code != http.StatusOK {
+		t.Fatalf("bob: %d — the answer must not depend on the account", code)
+	}
+	if len(sent) != 1 || sent[0] != "root@example.com" {
+		t.Fatalf("only the account that may still use a password gets a mail, got %v", sent)
 	}
 }

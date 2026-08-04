@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/softwarity/meerkat/internal/mail"
+	"github.com/softwarity/meerkat/internal/store"
 )
 
 // Forgot password (AUTH-21): a one-shot mailed link, 1 hour, that lets the
@@ -91,9 +92,15 @@ func (h *Handler) showForgot(w http.ResponseWriter, r *http.Request) {
 	writeFlow(w, forgotPage, forgotData{flowChrome: h.flowData(r, "titleForgot")}, http.StatusOK)
 }
 
-// forgotOpen: the reset flow needs a working outbound mail — nothing else.
+// forgotOpen: the reset flow needs working outbound mail, and a local password
+// that still opens something (AUTH-24). Resetting a password the data plane
+// refuses is a journey that succeeds at every step and helps nobody.
+//
+// Under "admins only" it stays open: an administrator keeps a password worth
+// resetting. WHO actually receives a mail is decided in doForgot, per account.
 func (h *Handler) forgotOpen(r *http.Request) bool {
-	return h.Mailer != nil && h.st.GetSMTP(r.Context()).Configured()
+	return h.Mailer != nil && h.st.GetSMTP(r.Context()).Configured() &&
+		(h.adminPlane || h.st.GetPasswordLoginPolicy(r.Context()).Mode != store.PasswordLoginNobody)
 }
 
 func (h *Handler) doForgot(w http.ResponseWriter, r *http.Request) {
@@ -120,8 +127,13 @@ func (h *Handler) doForgot(w http.ResponseWriter, r *http.Request) {
 	}
 	// Whatever happens next, the SAME outcome page: no address enumeration.
 	if userID, err := h.st.UserIDByEmail(r.Context(), email); err == nil {
+		// localPasswordAllowed decides per ACCOUNT: under "admins only" the
+		// administrators get their mail and the users do not. The page below is
+		// the same either way — telling them apart would be an enumeration
+		// oracle, and a better one than the address itself.
 		if u, err := h.st.GetUserByID(r.Context(), userID); err == nil &&
-			u.Enabled && (!u.SelfRegistered || u.EmailVerified) {
+			u.Enabled && (!u.SelfRegistered || u.EmailVerified) &&
+			h.localPasswordAllowed(r.Context(), u) {
 			if err := h.sendReset(r, u.ID, u.Email, u.Locale); err != nil {
 				slog.Error("reset e-mail failed", "user", u.Username, "err", err)
 			}

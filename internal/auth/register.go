@@ -31,9 +31,17 @@ import (
 const confirmPurpose = "confirm"
 
 // selfRegisterOpen reports whether /register is reachable: the policy must be
-// on AND the gateway must be able to send the confirmation e-mail.
+// on, the gateway must be able to send the confirmation e-mail, AND a local
+// password must still open the data plane (AUTH-24).
+//
+// That last condition is what stops a dead end: signing up mints a LOCAL
+// account with a local password, and where such a password is refused the
+// person would confirm their address, choose a password, and land on a form
+// that will never accept it. A newcomer is not an administrator either, so
+// "admins only" closes this just as "nobody" does.
 func (h *Handler) selfRegisterOpen(ctx context.Context) bool {
 	return !h.adminPlane &&
+		h.st.GetPasswordLoginPolicy(ctx).Mode == store.PasswordLoginEveryone &&
 		h.st.GetRegistrationPolicy(ctx).LocalEnabled &&
 		h.st.GetSMTP(ctx).Configured()
 }

@@ -9,12 +9,13 @@
 //
 // Both are applied to the ROW and to its CELLS: a sticky column carries its own
 // background, and only a cell-level rule reaches it.
-@mixin banded-rows($band: 4%, $hover: 9%, $row-height: 36px) {
+@mixin banded-rows($band: 4%, $hover: 9%, $row-height: 48px) {
   mat-table {
     --mat-table-row-item-outline-width: 0;
   }
-  // Denser than Material's default: these tables are read by scanning a
-  // column, and every pixel of row height is one less line in view.
+  // One height for every table of the console. Denser than Material's default
+  // (56px) because these are read by scanning a column, and every pixel is one
+  // less line in view - but not so dense that a two-line cell gets cramped.
   mat-row,
   mat-cell {
     min-height: $row-height;

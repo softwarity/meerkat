@@ -468,6 +468,9 @@ CREATE INDEX IF NOT EXISTS issues_status ON issues(status, created_at);`)
 	if err := s.addMissingColumns("groups", groupColumns); err != nil {
 		return err
 	}
+	if err := s.addMissingColumns("user_identities", identityColumns); err != nil {
+		return err
+	}
 	if err := s.addMissingColumns("api_tokens", apiTokenColumns); err != nil {
 		return err
 	}
@@ -582,6 +585,15 @@ var tenantColumns = []columnDef{
 // members matrix's group menu.
 var groupColumns = []columnDef{
 	{"description", `TEXT NOT NULL DEFAULT ''`},
+}
+
+// identityColumns: v31 recorded what an authority SAYS about someone, its own
+// group names verbatim, so a rule can be written against something an admin has
+// actually seen rather than retyped from memory. A link table created before
+// that has no such column, and every read of it failed with "no such column:
+// groups" — which reads like a broken query and is in fact a missing migration.
+var identityColumns = []columnDef{
+	{"groups", `TEXT NOT NULL DEFAULT ''`},
 }
 
 // apiTokenColumns: v26 added the token PLANE (data|admin) — a data token

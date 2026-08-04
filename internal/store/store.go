@@ -781,8 +781,14 @@ type RolesConfig struct {
 }
 
 // PageUserFields are the signed-in user's facts a UI route may stamp on its
-// pages; each one's attribute/meta name is configurable, data-<field> or
-// meerkat-<field> being the defaults.
+// pages. Each one's attribute/meta name is configurable and DEFAULTS TO THE
+// FIELD ITSELF — `tenantid="acme"`, not `data-tenantid` (roles are the ones
+// that carry a prefix, see RolesConfig).
+//
+// Hence the lower case, which is not a slip: these values are written into the
+// page as attribute names, and an HTML attribute is case-insensitive and
+// normalised to lower case by the DOM. Spelling one "tenantId" here would
+// promise a casing the browser does not keep.
 var PageUserFields = []string{"username", "userid", "fullname", "email", "tenant", "tenantid", "timezone"}
 
 // UserInfoConfig exposes the signed-in user's identity to the page — the

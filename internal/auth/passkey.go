@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -138,6 +139,12 @@ func (h *Handler) passkeyRegisterStart(w http.ResponseWriter, r *http.Request) {
 	}
 	_, u, ok := h.passkeySession(w, r)
 	if !ok {
+		return
+	}
+	// Refused here rather than discovered later: a key someone registers and
+	// cannot use is worse than one they were never offered.
+	if allowed, why := h.passkeyRegistrationAllowed(r.Context(), u); !allowed {
+		http.Error(w, why, http.StatusForbidden)
 		return
 	}
 	wa, err := h.webAuthnFor(r)
@@ -321,6 +328,16 @@ func (h *Handler) passkeyLoginFinish(w http.ResponseWriter, r *http.Request) {
 	}, session, parsed)
 	if err != nil {
 		http.Error(w, "the passkey could not be verified", http.StatusUnauthorized)
+		return
+	}
+	// The key checked out; the ACCOUNT still has to. A passkey is a shortcut
+	// past the authority that owns this person, not a way around it: without
+	// this, disabling them in the directory would leave them a door it believes
+	// it has closed (see revalidate.go).
+	if ok, why := h.stillRecognised(r.Context(), matched); !ok {
+		slog.Info("passkey refused: the authority no longer recognises the account",
+			"user", matched.Username, "reason", why)
+		http.Error(w, why, http.StatusForbidden)
 		return
 	}
 	if blob, err := json.Marshal(cred); err == nil {

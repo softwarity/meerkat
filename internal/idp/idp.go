@@ -66,6 +66,27 @@ type Driver interface {
 	Name() string
 }
 
+// Revalidator is an authority that can be asked, with no credentials in hand,
+// whether it still recognises someone.
+//
+// This is what turns a passkey into a SHORTCUT rather than a second front door.
+// A passkey proves possession of a key tied to a LOCAL account; it says nothing
+// about the directory that owns the person. Without this call, disabling
+// someone in the annuaire would not stop them signing in here — they would keep
+// a way in that the directory believes it has closed.
+//
+// Only a directory can answer. A redirect authority has no equivalent that
+// works without sending the browser away (OIDC has prompt=none, which is a
+// redirect and belongs elsewhere), so it simply does not implement this.
+type Revalidator interface {
+	// Recognises reports whether subject is still an active account. The
+	// subject is what the identity was linked under — for LDAP, the entry's DN.
+	//
+	// An error means "could not ask", which is NOT the same as "no": a
+	// directory that is down must not sign everybody out.
+	Recognises(ctx context.Context, subject string) (bool, error)
+}
+
 // New builds the driver for one stored provider, with its config ALREADY
 // resolved (see store.ResolvedAuthProvider): a driver never reaches into the
 // vault itself.

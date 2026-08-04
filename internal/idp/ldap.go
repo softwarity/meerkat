@@ -367,6 +367,50 @@ func entryToMap(e *ldap.Entry) map[string]any {
 	return out
 }
 
+// Recognises reports whether the directory still holds an ACTIVE account under
+// this DN (idp.Revalidator).
+//
+// It searches with the authority's OWN user filter rather than reading the
+// entry by its DN, and that is the whole trick: there is no standard way to
+// mark an account disabled — Active Directory uses a bit inside
+// userAccountControl, 389 uses nsAccountLock, OpenLDAP has nothing — so any
+// code guessing at it would be wrong somewhere. The filter that decides who may
+// SIGN IN is already written by the administrator, and it is the same question.
+// Whoever excludes disabled accounts there gets them excluded here too, with no
+// second setting to keep in step.
+func (l *ldapProvider) Recognises(ctx context.Context, subject string) (bool, error) {
+	if strings.TrimSpace(subject) == "" {
+		return false, fmt.Errorf("idp: %s: no subject to look up", l.p.Name)
+	}
+	conn, err := l.connect(ctx)
+	if err != nil {
+		return false, err
+	}
+	defer func() { _ = conn.Close() }()
+	if l.cfg.BindDN != "" {
+		if err := conn.Bind(l.cfg.BindDN, l.cfg.BindPassword); err != nil {
+			return false, fmt.Errorf("idp: %s: the service account cannot bind: %w", l.p.Name, err)
+		}
+	}
+	// Scoped to the entry itself: the DN is known, and a subtree search for it
+	// would only be a slower way to ask the same thing.
+	res, err := conn.Search(ldap.NewSearchRequest(
+		subject, ldap.ScopeBaseObject, ldap.NeverDerefAliases, 1, 10, false,
+		strings.ReplaceAll(l.cfg.UserFilter, "%s", "*"),
+		[]string{l.cfg.UsernameAttr}, nil,
+	))
+	if err != nil {
+		// A DN that is gone answers "no such object", which is an ANSWER: the
+		// account was deleted. Anything else is the directory failing to talk,
+		// and that must not sign people out.
+		if ldap.IsErrorWithCode(err, ldap.LDAPResultNoSuchObject) {
+			return false, nil
+		}
+		return false, fmt.Errorf("idp: %s: cannot look up %s: %w", l.p.Name, subject, err)
+	}
+	return len(res.Entries) > 0, nil
+}
+
 // check binds with the service account and runs the user filter once: the two
 // things that break a directory setup, credentials and a base DN typo.
 func (l *ldapProvider) check(ctx context.Context) error {

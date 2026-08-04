@@ -4903,6 +4903,161 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">533</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="It_carries" datatype="html">
+        <source>It carries</source>
+        <target>Il contient</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">208,209</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="It_does_not_carry" datatype="html">
+        <source>It does not carry</source>
+        <target>Il ne contient pas</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">210,211</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Not_carried_list" datatype="html">
+        <source>
+                users, organisations and their members, sessions, the vault, the audit trail,
+                personal tokens, signing keys
+              </source>
+        <target>les utilisateurs, les organisations et leurs membres, les sessions, le coffre, le journal d'audit, les jetons personnels, les clés de signature</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">212,216</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_business_access" datatype="html">
+        <source>business hours</source>
+        <target>heures ouvrées</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_session_ttl" datatype="html">
+        <source>session lifetime</source>
+        <target>durée des sessions</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_branding" datatype="html">
+        <source>application identity</source>
+        <target>identité de l'application</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_languages" datatype="html">
+        <source>languages</source>
+        <target>langues</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_mfa" datatype="html">
+        <source>second factor</source>
+        <target>second facteur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_trusted_browser" datatype="html">
+        <source>trusted browsers</source>
+        <target>navigateurs de confiance</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_registration" datatype="html">
+        <source>self-registration</source>
+        <target>auto-inscription</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_rate_limit" datatype="html">
+        <source>rate limits</source>
+        <target>limitation de débit</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_api_tokens" datatype="html">
+        <source>personal tokens</source>
+        <target>jetons personnels</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_passkeys" datatype="html">
+        <source>passkeys</source>
+        <target>passkeys</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_password_login" datatype="html">
+        <source>password sign-in</source>
+        <target>connexion par mot de passe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_dev_docs" datatype="html">
+        <source>developer docs</source>
+        <target>documentation développeur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Setting_issues" datatype="html">
+        <source>issue reporting</source>
+        <target>signalements</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Which_settings" datatype="html">
+        <source>Which settings</source>
+        <target>Quels paramètres</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">229,230</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Image" datatype="html">
+        <source>Image</source>
+        <target>Image</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">233,234</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="The_application_logo" datatype="html">
+        <source>the application logo</source>
+        <target>le logo de l'application</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">235,236</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

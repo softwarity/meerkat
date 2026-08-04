@@ -398,8 +398,9 @@ func TestPortStaysAnInteger(t *testing.T) {
 	}
 }
 
-// TestInventorySaysWhatTravels: the console shows this before the download, so
-// nobody has to open a file to learn what is in it.
+// TestInventorySaysWhatTravels: the console shows this before the download. It
+// answers "what nature of information is in this file", not "which objects" —
+// that is what the file itself is for.
 func TestInventorySaysWhatTravels(t *testing.T) {
 	ctx := context.Background()
 	s := openTemp(t)
@@ -412,20 +413,79 @@ func TestInventorySaysWhatTravels(t *testing.T) {
 	for _, sec := range Inventory(doc) {
 		byKind[sec.Kind] = sec
 	}
-	if got := byKind["route"]; got.Count != 1 || got.Names[0] != "API" {
-		t.Fatalf("routes = %+v", got)
+	for kind, want := range map[string]int{
+		"route": 1, "role": 2, "authProvider": 1, "mailRelay": 1,
+	} {
+		if got := byKind[kind].Count; got != want {
+			t.Fatalf("%s = %d, want %d", kind, got, want)
+		}
 	}
-	if got := byKind["role"]; got.Count != 2 {
-		t.Fatalf("roles = %+v", got)
+	if byKind["setting"].Count == 0 {
+		t.Fatal("the settings must be counted")
 	}
-	if got := byKind["authProvider"]; got.Count != 1 || got.Names[0] != "Corp" {
-		t.Fatalf("authorities = %+v", got)
+}
+
+// TestOnlyTheActiveThemeTravels, and an untouched preset travels as its NAME.
+// Carrying every theme made them 71% of a typical export, most of it the
+// built-in palettes the receiving gateway already ships.
+func TestOnlyTheActiveThemeTravels(t *testing.T) {
+	ctx := context.Background()
+	s := openTemp(t)
+	seed(t, s)
+
+	doc, _, err := Export(ctx, s)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if got := byKind["mailRelay"]; got.Count != 1 || got.Names[0] != "smtp.example.com" {
-		t.Fatalf("relay = %+v", got)
+	if len(doc.Themes) != 1 || !doc.Themes[0].Active {
+		t.Fatalf("only the active theme should travel, got %d", len(doc.Themes))
 	}
-	// Settings are counted, not named: their keys say nothing to a reader.
-	if got := byKind["setting"]; got.Count == 0 || len(got.Names) != 0 {
-		t.Fatalf("settings = %+v", got)
+	if len(doc.Themes[0].Dark) != 0 || len(doc.Themes[0].Light) != 0 {
+		t.Fatalf("an untouched preset should travel without its palettes: %+v", doc.Themes[0])
+	}
+	file, err := Marshal(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The whole point, measured: the palettes are gone from the bytes.
+	if strings.Contains(string(file), "onSurfaceVariant") {
+		t.Fatalf("the preset's colours should not be in the file:\n%s", file)
+	}
+
+	// And it comes back whole on the other side.
+	to := openTemp(t)
+	if _, err := Apply(ctx, to, doc, false); err != nil {
+		t.Fatalf("Apply: %v", err)
+	}
+	active, err := to.GetActiveTheme(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if active.ID != doc.Themes[0].ID || len(active.Dark) == 0 {
+		t.Fatalf("the preset should be restored with its colours: %+v", active)
+	}
+}
+
+// TestATouchedThemeCarriesItsColours: the shortcut only applies to a preset
+// nobody edited. Change one token and the palettes have to travel, or the other
+// gateway would wear something else.
+func TestATouchedThemeCarriesItsColours(t *testing.T) {
+	ctx := context.Background()
+	s := openTemp(t)
+	seed(t, s)
+	active, err := s.GetActiveTheme(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	active.Dark["primary"] = "#ff0000"
+	if err := s.SaveTheme(ctx, active); err != nil {
+		t.Fatal(err)
+	}
+	doc, _, err := Export(ctx, s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.Themes) != 1 || doc.Themes[0].Dark["primary"] != "#ff0000" {
+		t.Fatalf("an edited theme must carry its colours: %+v", doc.Themes)
 	}
 }

@@ -216,13 +216,17 @@ export interface ConfigLiteral {
   field: string;
 }
 
-// One family of objects an export carries, with what is in it. Shown BEFORE
-// the download: "what exactly am I handing over" is the first question anyone
-// asks of an export, and answering it with a file to open is answering badly.
+// One KIND of thing an export carries, and how much of it. Shown before the
+// download: the question is "what nature of information am I handing over",
+// not "which objects" — that is what the file itself answers.
 export interface ConfigSection {
-  kind: 'route' | 'role' | 'authProvider' | 'theme' | 'mailRelay' | 'setting';
+  kind: 'route' | 'role' | 'authProvider' | 'theme' | 'mailRelay' | 'setting' | 'image';
   count: number;
-  names?: string[];
+  // Settings only: their storage keys, which the console turns into what they
+  // are about — "12 settings" says nothing.
+  keys?: string[];
+  // Images only: what they weigh. An export is text except for this.
+  bytes?: number;
 }
 
 // What an export will contain, what it will NOT contain, and what it expects to

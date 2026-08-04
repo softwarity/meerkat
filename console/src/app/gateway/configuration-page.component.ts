@@ -9,7 +9,32 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
-import { ApiService, BackupInfo, ConfigMissingRef, ConfigPlan, ConfigReport } from '../api.service';
+import {
+  ApiService,
+  BackupInfo,
+  ConfigMissingRef,
+  ConfigPlan,
+  ConfigReport,
+  ConfigSection,
+} from '../api.service';
+
+// What each gateway setting is about, in words rather than storage keys. Lazy
+// so $localize runs at call time, with the locale already resolved.
+const SETTING_LABELS: Record<string, () => string> = {
+  business_access: () => $localize`:@@Setting_business_access:business hours`,
+  session_ttl: () => $localize`:@@Setting_session_ttl:session lifetime`,
+  branding: () => $localize`:@@Setting_branding:application identity`,
+  languages: () => $localize`:@@Setting_languages:languages`,
+  mfa_required: () => $localize`:@@Setting_mfa:second factor`,
+  trusted_browser: () => $localize`:@@Setting_trusted_browser:trusted browsers`,
+  registration: () => $localize`:@@Setting_registration:self-registration`,
+  rate_limit: () => $localize`:@@Setting_rate_limit:rate limits`,
+  api_tokens: () => $localize`:@@Setting_api_tokens:personal tokens`,
+  passkeys_allowed: () => $localize`:@@Setting_passkeys:passkeys`,
+  password_login: () => $localize`:@@Setting_password_login:password sign-in`,
+  dev_docs_exposed: () => $localize`:@@Setting_dev_docs:developer docs`,
+  issues_enabled: () => $localize`:@@Setting_issues:issue reporting`,
+};
 
 // Import and export of the whole configuration (CFG-03/05) — INFRA plane,
 // root only.
@@ -137,24 +162,20 @@ import { ApiService, BackupInfo, ConfigMissingRef, ConfigPlan, ConfigReport } fr
         color: var(--mat-sys-on-surface-variant);
       }
       .contents {
-        margin-bottom: 16px;
+        margin: 0 0 16px;
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 4px 16px;
+        font-size: 0.88rem;
       }
-      .contents td {
-        border: none;
-        padding: 3px 8px 3px 0;
-        vertical-align: baseline;
-      }
-      .contents .count {
-        text-align: right;
-        width: 3ch;
-        font-variant-numeric: tabular-nums;
-      }
-      .contents .kind {
-        width: auto;
+      .contents dt {
+        color: var(--mat-sys-on-surface-variant);
         white-space: nowrap;
-        color: var(--mat-sys-on-surface);
       }
-      .contents .names {
+      .contents dd {
+        margin: 0;
+      }
+      .contents .absent {
         color: var(--mat-sys-on-surface-variant);
       }
       .file {
@@ -197,18 +218,29 @@ import { ApiService, BackupInfo, ConfigMissingRef, ConfigPlan, ConfigReport } fr
         </p>
 
         @if (report(); as r) {
-          <!-- What is actually in the file, before the download: nobody should
-               have to open an export to learn what it carries. -->
+          <!-- What KIND of thing is in the file, and what kind is not. Nobody
+               should have to open an export to learn what it carries, and the
+               second list is the one that reassures. -->
           @if (r.contents.length) {
-            <table class="contents">
-              @for (c of r.contents; track c.kind) {
-                <tr>
-                  <td class="count">{{ c.count }}</td>
-                  <td class="kind">{{ family(c.kind, c.count) }}</td>
-                  <td class="names">{{ c.names?.join(', ') }}</td>
-                </tr>
+            <dl class="contents">
+              <dt i18n="@@It_carries">It carries</dt>
+              <dd>{{ carried(r.contents) }}</dd>
+              @if (settingKinds(r.contents); as kinds) {
+                <dt i18n="@@Which_settings">Which settings</dt>
+                <dd class="absent">{{ kinds }}</dd>
               }
-            </table>
+              @if (imageWeight(r.contents); as weight) {
+                <dt i18n="@@Image">Image</dt>
+                <dd class="absent">
+                  <ng-container i18n="@@The_application_logo">the application logo</ng-container>, {{ weight }}
+                </dd>
+              }
+              <dt i18n="@@It_does_not_carry">It does not carry</dt>
+              <dd class="absent" i18n="@@Not_carried_list">
+                users, organisations and their members, sessions, the vault, the audit trail,
+                personal tokens, signing keys
+              </dd>
+            </dl>
           }
           @if (r.literals.length) {
             <div class="note warn">
@@ -513,6 +545,36 @@ export class ConfigurationPageComponent {
       `cp meerkat-YYYY-MM-DD.db ${b.dbFile}`,
       '# 4. start meerkat, then check a route and a sign-in',
     ].join('\n');
+  }
+
+  // "4 routes, 2 roles, the mail relay, 13 settings" — the NATURE of what is in
+  // the file and how much of it, on one line. Which objects exactly is what the
+  // file itself answers.
+  protected carried(sections: ConfigSection[]): string {
+    return sections
+      .map((s) =>
+        s.kind === 'mailRelay'
+          ? this.family(s.kind, s.count)
+          : `${s.count} ${this.family(s.kind, s.count).toLocaleLowerCase()}`,
+      )
+      .join(', ');
+  }
+
+  // The settings by NATURE. "12 settings" says nothing; what is configured is
+  // exactly the question. Unknown keys fall back to themselves rather than
+  // vanishing: a setting added server-side must show up here without waiting
+  // for this list to be updated.
+  protected settingKinds(sections: ConfigSection[]): string {
+    const keys = sections.find((s) => s.kind === 'setting')?.keys ?? [];
+    return keys.map((k) => SETTING_LABELS[k]?.() ?? k).join(', ');
+  }
+
+  // The logo is the only binary in the file and the only thing that can make it
+  // heavy, so it is weighed out loud.
+  protected imageWeight(sections: ConfigSection[]): string {
+    const bytes = sections.find((s) => s.kind === 'image')?.bytes ?? 0;
+    if (!bytes) return '';
+    return bytes < 1024 ? `${bytes} B` : `${Math.round(bytes / 1024)} kB`;
   }
 
   // "3 routes", "1 role" — the plural is the count's business, not the label's.

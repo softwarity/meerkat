@@ -365,6 +365,23 @@ func importThemes(ctx context.Context, st *store.Store, doc *Document, plan *Pla
 	for _, t := range doc.Themes {
 		seen[t.ID] = true
 		before, had := known[t.ID]
+		// No palettes means "the built-in one under this id", which is how an
+		// untouched preset travels. Fill it from what this gateway ships, or
+		// from what it already stores.
+		if len(t.Dark) == 0 && len(t.Light) == 0 {
+			switch {
+			case had:
+				t.Dark, t.Light = before.Dark, before.Light
+			default:
+				preset, ok := presetByID(t.ID)
+				if !ok {
+					return fmt.Errorf("config: theme %q carries no colours and %q is not a "+
+						"built-in palette of this Meerkat: export it again from a gateway that "+
+						"has its colours", t.Name, t.ID)
+				}
+				t.Dark, t.Light = preset.Dark, preset.Light
+			}
+		}
 		action := decide(had, before, t)
 		plan.Changes = append(plan.Changes, Change{
 			Kind: "theme", ID: t.ID, Label: t.Name, Action: action,
@@ -372,6 +389,13 @@ func importThemes(ctx context.Context, st *store.Store, doc *Document, plan *Pla
 		if commit && action != ActionSame {
 			if err := st.SaveTheme(ctx, t); err != nil {
 				return fmt.Errorf("config: theme %q: %w", t.Name, err)
+			}
+		}
+		// A document carries the ACTIVE theme, so importing one means wearing
+		// it: saving alone would leave the old one on the pages.
+		if commit && t.Active {
+			if err := st.ActivateTheme(ctx, t.ID); err != nil {
+				return fmt.Errorf("config: activate theme %q: %w", t.Name, err)
 			}
 		}
 	}
@@ -573,6 +597,16 @@ func sameJSON(a, b json.RawMessage) bool {
 	ca, errA := canonical(a)
 	cb, errB := canonical(b)
 	return errA == nil && errB == nil && ca == cb
+}
+
+// presetByID finds a built-in palette by id.
+func presetByID(id string) (store.Theme, bool) {
+	for _, p := range store.PresetThemes() {
+		if p.ID == id {
+			return p, true
+		}
+	}
+	return store.Theme{}, false
 }
 
 // byDepth orders roles parents-first. A role whose parent is not in the list is

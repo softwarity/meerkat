@@ -60,12 +60,26 @@ func Export(ctx context.Context, st *store.Store) (*Document, []Literal, error) 
 	})
 	doc.AuthProviders = providers
 
+	// The ACTIVE theme, and it alone. The others are colour trials kept on the
+	// side; carrying them made themes 71% of a typical export, most of it the
+	// built-in palettes the receiving gateway already ships.
 	themes, err := st.ListThemes(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
-	sort.Slice(themes, func(i, j int) bool { return themes[i].ID < themes[j].ID })
-	doc.Themes = themes
+	for _, t := range themes {
+		if !t.Active {
+			continue
+		}
+		// A preset the admin never touched travels as its NAME: the palettes
+		// are in the binary on the other side too, and twenty colour tokens
+		// that say "the ones you already have" are noise.
+		if presetLike(t) {
+			t.Dark, t.Light = nil, nil
+		}
+		doc.Themes = []store.Theme{t}
+		break
+	}
 
 	// The relay travels only if there is one: an empty section in every file
 	// would read as "no relay configured, on purpose", which is a different
@@ -129,57 +143,93 @@ func stripSecrets(doc *Document) []Literal {
 	return found
 }
 
-// Section is one family of objects a document carries, with what is in it. The
-// console shows this BEFORE the download: "what exactly am I about to hand
-// over" is the first question anyone asks of an export, and answering it with a
-// file they have to open first is answering it badly.
+// presetLike reports whether t is one of the built-in palettes, unmodified.
+// Compared on what is actually seen — the two palettes and the flat switch —
+// not on the name, which an admin may rename without changing a colour.
+func presetLike(t store.Theme) bool {
+	for _, p := range store.PresetThemes() {
+		if p.ID != t.ID || p.Flat != t.Flat {
+			continue
+		}
+		if sameMap(p.Dark, t.Dark) && sameMap(p.Light, t.Light) {
+			return true
+		}
+	}
+	return false
+}
+
+func sameMap(a, b map[string]string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if b[k] != v {
+			return false
+		}
+	}
+	return true
+}
+
+// Section is one KIND of thing a document carries, and how much of it. The
+// console shows this before the download, and the question it answers is "what
+// nature of information am I handing over" — not "which objects", which is what
+// the file itself is for.
 type Section struct {
 	Kind  string `json:"kind"`
 	Count int    `json:"count"`
-	// Names is the objects themselves, in the document's own order. Absent for
-	// settings, whose keys say nothing to a reader.
-	Names []string `json:"names,omitempty"`
+	// Keys names the settings: "12 settings" says nothing, and the nature of
+	// what is configured is exactly the question being asked.
+	Keys []string `json:"keys,omitempty"`
+	// Bytes is what an image weighs. An export is mostly text; a logo is not,
+	// and it is the one thing that makes a file heavy without saying so.
+	Bytes int `json:"bytes,omitempty"`
 }
 
-// Inventory lists what doc holds, in the order it is written.
+// Inventory lists the kinds doc holds, in the order they are written.
 func Inventory(doc *Document) []Section {
 	var out []Section
-	add := func(kind string, names []string) {
-		if len(names) > 0 {
-			out = append(out, Section{Kind: kind, Count: len(names), Names: names})
+	add := func(kind string, n int) {
+		if n > 0 {
+			out = append(out, Section{Kind: kind, Count: n})
 		}
 	}
-	routes := make([]string, 0, len(doc.Routes))
-	for _, r := range doc.Routes {
-		routes = append(routes, r.Name)
-	}
-	add("route", routes)
-
-	roles := make([]string, 0, len(doc.Roles))
-	for _, r := range doc.Roles {
-		roles = append(roles, r.Name)
-	}
-	add("role", roles)
-
-	providers := make([]string, 0, len(doc.AuthProviders))
-	for _, p := range doc.AuthProviders {
-		providers = append(providers, p.Name)
-	}
-	add("authProvider", providers)
-
-	themes := make([]string, 0, len(doc.Themes))
-	for _, t := range doc.Themes {
-		themes = append(themes, t.Name)
-	}
-	add("theme", themes)
-
+	add("route", len(doc.Routes))
+	add("role", len(doc.Roles))
+	add("authProvider", len(doc.AuthProviders))
+	add("theme", len(doc.Themes))
 	if doc.MailRelay != nil {
-		out = append(out, Section{Kind: "mailRelay", Count: 1, Names: []string{doc.MailRelay.Host}})
+		add("mailRelay", 1)
 	}
 	if n := len(doc.Settings); n > 0 {
-		out = append(out, Section{Kind: "setting", Count: n})
+		keys := make([]string, 0, n)
+		for key := range doc.Settings {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		out = append(out, Section{Kind: "setting", Count: n, Keys: keys})
+	}
+	// The application logo rides inside the branding setting as a data URI, so
+	// it is counted there too. Named separately because it is the only binary
+	// in the file and the only thing that can make it big.
+	if n := logoBytes(doc); n > 0 {
+		out = append(out, Section{Kind: "image", Count: 1, Bytes: n})
 	}
 	return out
+}
+
+// logoBytes measures the application logo carried by the branding setting.
+func logoBytes(doc *Document) int {
+	raw, ok := doc.Settings[store.SettingBranding]
+	if !ok {
+		return 0
+	}
+	var b struct {
+		Logo string `json:"logo"`
+	}
+	if err := json.Unmarshal(raw, &b); err != nil {
+		return 0
+	}
+	return len(b.Logo)
 }
 
 // Refs returns every vault entry the document points at, sorted, without

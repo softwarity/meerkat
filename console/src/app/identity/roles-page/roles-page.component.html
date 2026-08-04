@@ -10,18 +10,7 @@
     <div class="content">
       @if (loading()) {
         <loading-indicator withContainer />
-      } @else if (nodes().length === 0) {
-        <div class="empty" i18n="@@No_role_yet">No role yet, create the first one.</div>
       } @else {
-        @if (dragged(); as d) {
-          @if (d.parentId) {
-            <div class="root-zone" [class.drop-target]="target() === 'root'" (mouseover)="hoverRoot()">
-              <mat-icon>upload</mat-icon>
-              <ng-container i18n="@@Drop_here_for_top_level">Drop here to make it a top-level role</ng-container>
-            </div>
-          }
-        }
-
         <mat-table
           [dataSource]="nodes()"
           cdkDropList
@@ -32,47 +21,100 @@
           <ng-container matColumnDef="role">
             <mat-header-cell *matHeaderCellDef i18n="@@Roles">Roles</mat-header-cell>
             <mat-cell *matCellDef="let n">
-              <div class="role-cell">
-                <mat-icon
-                  cdkDragHandle
-                  class="handle"
-                  (click)="$event.stopPropagation()"
-                  i18n-matTooltip="@@Drag_to_re_parent"
-                  matTooltip="Drag to re-parent"
-                  >drag_indicator</mat-icon
-                >
-                <app-tree-prefix [guides]="n.guides" />
-                <span class="role-label">
-                  <span class="name mono">{{ n.role.name }}</span>
-                  @if (n.role.system) {
-                    <span class="sys" i18n="@@system">system</span>
-                  }
-                </span>
-              </div>
+              @if (n.role; as r) {
+                <div class="role-cell">
+                  <mat-icon
+                    cdkDragHandle
+                    class="handle"
+                    (click)="$event.stopPropagation()"
+                    i18n-matTooltip="@@Drag_to_re_parent"
+                    matTooltip="Drag to re-parent"
+                    >drag_indicator</mat-icon
+                  >
+                  <app-tree-prefix [guides]="n.guides" />
+                  <span class="role-label">
+                    <span class="name mono">{{ r.name }}</span>
+                    @if (r.system) {
+                      <span class="sys" i18n="@@system">system</span>
+                    }
+                  </span>
+                </div>
+              } @else {
+                <div class="role-cell">
+                  <mat-icon class="root-icon">account_tree</mat-icon>
+                  <span class="role-label">
+                    <span class="name" i18n="@@All_roles">All roles</span>
+                  </span>
+                </div>
+              }
             </mat-cell>
           </ng-container>
 
           <ng-container matColumnDef="description">
             <mat-header-cell *matHeaderCellDef i18n="@@Description">Description</mat-header-cell>
             <mat-cell *matCellDef="let n">
-              <span class="text-muted truncate">{{ n.role.description }}</span>
+              @if (n.role; as r) {
+                <span class="text-muted truncate">{{ r.description }}</span>
+              } @else {
+                <span class="text-muted truncate" i18n="@@Catalogue_root_hint">
+                  The catalogue itself: what hangs here is a top-level role.
+                </span>
+              }
             </mat-cell>
           </ng-container>
 
           <ng-container matColumnDef="tags">
             <mat-header-cell *matHeaderCellDef i18n="@@Tags">Tags</mat-header-cell>
             <mat-cell *matCellDef="let n">
-              @if (n.role.tags.length) {
-                <span class="flex flex-wrap gap-1">
-                  @for (t of n.role.tags; track t) {
-                    <span class="tag">{{ t }}</span>
-                  }
+              @if (n.role; as r) {
+                @if (r.tags.length) {
+                  <span class="flex flex-wrap gap-1">
+                    @for (t of r.tags; track t) {
+                      <span class="tag">{{ t }}</span>
+                    }
+                  </span>
+                }
+                <span rowActions="tonal">
+                  <button
+                    matIconButton
+                    (click)="$event.stopPropagation(); newChild(r)"
+                    i18n-matTooltip="@@New_child_role"
+                    matTooltip="New child role"
+                    i18n-aria-label="@@New_child_role"
+                    aria-label="New child role"
+                  >
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </span>
+              } @else {
+                <span rowActions="tonal">
+                  <button
+                    matIconButton
+                    (click)="$event.stopPropagation(); openNew()"
+                    i18n-matTooltip="@@New_top_level_role"
+                    matTooltip="New top-level role"
+                    i18n-aria-label="@@New_top_level_role"
+                    aria-label="New top-level role"
+                  >
+                    <mat-icon>add</mat-icon>
+                  </button>
                 </span>
               }
             </mat-cell>
           </ng-container>
 
           <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+
+          <!-- The catalogue root: nothing to open, nothing to drag, but a drop
+               target (dropping here makes a role top-level) and the + that
+               creates one. Declared FIRST so its `when` wins over the default. -->
+          <mat-row
+            *matRowDef="let n; columns: columns; when: isRoot"
+            class="root-row"
+            [class.drop-target]="target() === 'root'"
+            (mouseover)="hoverRoot()"
+          ></mat-row>
+
           <mat-row
             *matRowDef="let n; columns: columns"
             cdkDrag
@@ -90,26 +132,22 @@
             <div class="placeholder" *cdkDragPlaceholder></div>
           </mat-row>
         </mat-table>
+
+        @if (roles().length === 0) {
+          <div class="empty" i18n="@@No_role_yet_add_from_root">
+            No role yet: the + on the row above creates the first one.
+          </div>
+        }
       }
     </div>
-
-    <button
-      matFab
-      class="fab-new"
-      (click)="openNew()"
-      i18n-matTooltip="@@New_role"
-      matTooltip="New role"
-      i18n-aria-label="@@New_role"
-      aria-label="New role"
-    >
-      <mat-icon>add</mat-icon>
-    </button>
   </mat-drawer-content>
 
   <mat-drawer position="end" mode="over" [opened]="editing() !== null" (closedStart)="closeEditor()">
     @if (editing() !== null) {
       <app-role-editor
         [role]="editingRole()"
+        [parent]="newParent()"
+        [knownTags]="knownTags()"
         (saved)="onSaved($event)"
         (deleted)="onDeleted()"
         (closed)="closeEditor()"

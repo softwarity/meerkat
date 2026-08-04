@@ -10,6 +10,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { ApiService, Group, Role } from '../../api.service';
+import { RoleTreeRow, flattenRoles } from '../../shared/role-tree';
+import { TreePrefixComponent } from '../../shared/tree-prefix.component';
 import {
   GroupDialogComponent,
   GroupDialogData,
@@ -23,12 +25,9 @@ import { DialogsService } from '../../shared/dialogs.service';
 // implies its children). Rows filter by tag and search by name/description.
 // A group column's kebab menu renames or deletes it. mat-table with a sticky
 // role column and header; columns scroll horizontally when they overflow.
-// One line of the matrix: the role, how deep it sits in the catalogue, and
-// whether it matched the filter itself or was pulled in to keep the chain
-// readable.
-interface RoleRow {
-  role: Role;
-  depth: number;
+// One line of the matrix: a row of the flattened catalogue, plus whether it
+// matched the filter itself or was pulled in to keep the chain readable.
+interface RoleRow extends RoleTreeRow {
   context: boolean;
 }
 
@@ -42,6 +41,7 @@ interface RoleRow {
     MatTableModule,
     MatTooltipModule,
     LoadingIndicatorComponent,
+    TreePrefixComponent,
   ],
   templateUrl: './groups-matrix.component.html',
   styleUrl: './groups-matrix.component.scss',
@@ -80,69 +80,41 @@ export class GroupsMatrixComponent {
     [...new Set(this.roles().flatMap((r) => r.tags))].sort(),
   );
 
-  // The catalogue as a TREE, depth-first, parents before their children.
+  // The catalogue as the TREE it already behaves like, drawn with the same
+  // guides as the roles page (shared/role-tree.ts): two screens picturing one
+  // hierarchy differently is how a reader learns to distrust both.
   //
-  // The hierarchy is not decoration: a role implies its descendants (the same
-  // expansion a real session gets), which is why a box can be checked and
-  // locked because an ancestor grants it. Flat and sorted by name, that
-  // ancestor could be twenty rows away or filtered out entirely, and the lock
-  // had no visible cause. Indented, the rule reads itself.
+  // The hierarchy is not decoration here: a role implies its descendants, which
+  // is why a box can be checked and locked because an ancestor grants it. The
+  // branch is what makes that lock legible.
   protected readonly rows = computed<RoleRow[]>(() => {
     const roles = this.roles();
-    const byId = new Map(roles.map((r) => [r.id, r]));
-    const children = new Map<string, Role[]>();
-    const roots: Role[] = [];
-    for (const r of roles) {
-      // A parent that no longer exists makes the role a root rather than
-      // hiding it: an orphan must stay reachable.
-      const parent = r.parentId && byId.has(r.parentId) ? r.parentId : '';
-      if (!parent) {
-        roots.push(r);
-        continue;
-      }
-      children.set(parent, [...(children.get(parent) ?? []), r]);
-    }
-
     const q = this.filter().trim().toLowerCase();
     const tag = this.tagFilter();
-    const filtering = !!q || !!tag;
+    if (!q && !tag) {
+      return flattenRoles(roles).map((row) => ({ ...row, context: false }));
+    }
     const matches = new Set<string>();
-    if (filtering) {
-      for (const r of roles) {
-        const desc = (r.description ?? '').toLowerCase();
-        const matchQ = !q || r.name.toLowerCase().includes(q) || desc.includes(q);
-        const matchTag = !tag || (r.tags ?? []).includes(tag);
-        if (matchQ && matchTag) matches.add(r.id);
-      }
+    for (const r of roles) {
+      const desc = (r.description ?? '').toLowerCase();
+      const matchQ = !q || r.name.toLowerCase().includes(q) || desc.includes(q);
+      const matchTag = !tag || (r.tags ?? []).includes(tag);
+      if (matchQ && matchTag) matches.add(r.id);
     }
-    // Ancestors of a match come along, or the indentation would lie: a child
-    // shown under nothing reads as a root. They are dimmed, not hidden, since
-    // losing the chain is losing what one filtered to understand.
-    const visible = new Set<string>(matches);
-    if (filtering) {
-      for (const id of matches) for (const a of this.ancestorsOf(id)) visible.add(a);
-    }
-
-    const byName = (a: Role, b: Role) => a.name.localeCompare(b.name);
-    const out: RoleRow[] = [];
-    const walk = (list: Role[], depth: number) => {
-      for (const r of [...list].sort(byName)) {
-        if (filtering && !visible.has(r.id)) continue;
-        out.push({ role: r, depth, context: filtering && !matches.has(r.id) });
-        walk(children.get(r.id) ?? [], depth + 1);
-      }
-    };
-    walk(roots, 0);
-    return out;
+    // Ancestors of a match come along, or the branch would lie: a row drawn
+    // under nothing reads as a root, at the very moment someone filtered in
+    // order to understand. Dimmed, not hidden, and still clickable since they
+    // are real roles.
+    const visible = new Set(matches);
+    for (const id of matches) for (const a of this.ancestorsOf(id)) visible.add(a);
+    return flattenRoles(roles.filter((r) => visible.has(r.id))).map((row) => ({
+      ...row,
+      context: !matches.has(row.role.id),
+    }));
   });
 
   protected readonly displayedColumns = computed(() => ['role', 'spacer', ...this.groups().map((g) => g.id)]);
 
-  // Indentation in em rather than px: it follows the row's own type size, so a
-  // deep tree stays readable when the console's density changes.
-  protected indent(depth: number): string {
-    return `${depth * 1.4}em`;
-  }
 
   constructor() {
     effect(() => {

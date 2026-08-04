@@ -16,7 +16,8 @@
              hierarchy, which is what explains a checked-and-locked box without
              a word of extra chrome. -->
         <mat-cell *matCellDef="let row">
-          <div class="role-cell" [class.context]="row.context" [style.margin-left]="indent(row.depth)">
+          <app-tree-prefix [guides]="row.guides" />
+          <div class="role-cell" [class.context]="row.context">
             <span class="name mono">{{ row.role.name }}</span>
             @if (row.role.description) {
               <span class="desc">{{ row.role.description }}</span>

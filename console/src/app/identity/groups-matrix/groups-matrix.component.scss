@@ -59,11 +59,18 @@ mat-cell.mat-column-role {
   background: var(--mat-sys-surface);
 }
 
+/* The guides draw edge to edge, so the row must not pad them apart: the
+   branches of consecutive rows have to meet. The text keeps its own padding. */
+.mat-column-role {
+  padding-top: 0;
+  padding-bottom: 0;
+}
 .role-cell {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 6px 0;
+  padding: 6px 0 6px 4px;
+  align-self: center;
 }
 .role-cell .name {
   font-weight: 500;

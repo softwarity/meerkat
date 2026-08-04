@@ -35,41 +35,30 @@ mat-drawer {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  /* Clear the floating FAB so the last row is never hidden under it. */
-  padding: 0 24px 88px;
-}
-.fab-new {
-  position: absolute;
-  right: 24px;
-  bottom: 24px;
-  z-index: 2;
+  padding: 0 24px 24px;
 }
 .empty {
   padding: 48px;
   text-align: center;
   color: var(--mat-sys-on-surface-variant);
 }
-/* visible only while dragging a non-root role: drop here = top-level */
-.root-zone {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  padding: 10px 16px;
-  border: 1px dashed var(--mat-sys-outline);
-  border-radius: var(--mat-sys-corner-medium, 8px);
-  color: var(--mat-sys-on-surface-variant);
-  font-size: 0.88rem;
-}
-.root-zone.drop-target {
-  border-color: var(--mat-sys-secondary);
-  color: var(--mat-sys-secondary);
-  background: color-mix(in srgb, var(--mat-sys-secondary) 12%, transparent);
-}
 /* A click on the row opens its drawer, so the row reads as clickable. Only the
    handle offers to be grabbed: the rest of the line is not a drag surface. */
 mat-row {
   cursor: pointer;
+}
+/* The catalogue root: it opens nothing and moves nowhere, so it must not read
+   as clickable. It stays a drop target (top-level) and hosts the + creating a
+   top-level role. */
+.root-row {
+  cursor: default;
+}
+.root-icon {
+  color: var(--mat-sys-on-surface-variant);
+  flex-shrink: 0;
+}
+.root-row .name {
+  color: var(--mat-sys-on-surface-variant);
 }
 mat-row:hover {
   background: var(--mat-sys-surface-container-high);

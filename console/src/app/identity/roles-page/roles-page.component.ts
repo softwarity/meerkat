@@ -9,14 +9,17 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
+import { RowActionsDirective } from '@softwarity/row-actions';
 import { ApiService, Role } from '../../api.service';
 import { TreeGuide, TreePrefixComponent } from '../../shared/tree-prefix.component';
+import { flattenRoles } from '../../shared/role-tree';
 import { RoleEditorComponent } from '../role-editor/role-editor.component';
 
 // One row of the flattened tree: the role plus the guide glyphs materializing
-// its position in the hierarchy.
+// its position in the hierarchy. A NULL role is the catalogue root, the one row
+// that stands for no stored role — every top-level role hangs under it.
 interface RoleNode {
-  role: Role;
+  role: Role | null;
   guides: TreeGuide[];
 }
 
@@ -24,13 +27,18 @@ interface RoleNode {
 // flat mat-table ordered as a depth-first walk of the parentId hierarchy,
 // with SVG guide lines materializing the branches.
 //
+// The table opens on a ROOT row standing for the catalogue itself. It is not a
+// stored role: it cannot be opened, dragged or deleted, it only receives what
+// belongs at the top level. Every creation is therefore the same gesture — the
+// + of the row one wants to hang under, the root row included.
+//
 // TWO gestures, two meanings. Clicking a row opens it in the right drawer (the
 // URL drives it: roles/new, roles/:id) where the name, description, tags and
-// the deletion live — the table itself carries no action. Dragging a row BY
-// ITS HANDLE onto another one re-parents it, or onto the drop zone above the
-// table to make it top-level; dropping a role onto itself, its current parent
-// or one of its descendants is refused. Per-tenant GROUPS assemble subsets of
-// this catalogue. System roles are protected from renaming and deletion.
+// the deletion live. Dragging a row BY ITS HANDLE onto another one re-parents
+// it, onto the root row makes it top-level; dropping a role onto itself, its
+// current parent or one of its descendants is refused. Per-tenant GROUPS
+// assemble subsets of this catalogue. System roles are protected from renaming
+// and deletion.
 @Component({
   selector: 'app-roles-page',
   imports: [
@@ -41,6 +49,7 @@ interface RoleNode {
     MatTableModule,
     MatTooltipModule,
     LoadingIndicatorComponent,
+    RowActionsDirective,
     TreePrefixComponent,
     RoleEditorComponent,
   ],
@@ -57,13 +66,27 @@ export class RolesPageComponent {
   protected readonly roles = signal<Role[]>([]);
   protected readonly columns = ['role', 'description', 'tags'];
 
-  // Depth-first walk of the parentId hierarchy — the table shows the TREE.
-  protected readonly nodes = computed(() => flattenTree(this.roles()));
+  // Depth-first walk of the parentId hierarchy — the table shows the TREE,
+  // the catalogue root included as its first row.
+  // The catalogue root opens the list; the top-level roles branch off it like
+  // any other children.
+  protected readonly nodes = computed<RoleNode[]>(() => [
+    { role: null, guides: [] },
+    ...flattenRoles(this.roles()),
+  ]);
+  protected readonly isRoot = (_: number, n: RoleNode): boolean => n.role === null;
+
+  // The tags already in use, offered as suggestions by the editor: a tag only
+  // groups roles together if they all spell it the same way.
+  protected readonly knownTags = computed(() =>
+    [...new Set(this.roles().flatMap((r) => r.tags ?? []))].sort((a, b) => a.localeCompare(b)),
+  );
 
   // The URL drives the drawer (F5-proof): roles/new = creating, roles/:id =
   // editing that role.
   private readonly params = toSignal(this.ar.paramMap);
   private readonly urlSegs = toSignal(this.ar.url);
+  private readonly query = toSignal(this.ar.queryParamMap);
   protected readonly editing = computed<Role | 'new' | null>(() => {
     if (this.urlSegs()?.some((s) => s.path === 'new')) return 'new';
     const id = this.params()?.get('id');
@@ -73,6 +96,14 @@ export class RolesPageComponent {
   protected readonly editingRole = computed(() => {
     const e = this.editing();
     return e === null || e === 'new' ? null : e;
+  });
+  // roles/new?parent=<id> — the + on a row creates UNDER that role, and the
+  // query param survives an F5 like the rest of the drawer. An id that no
+  // longer exists degrades to a top-level creation.
+  protected readonly newParent = computed(() => {
+    if (this.editing() !== 'new') return null;
+    const id = this.query()?.get('parent');
+    return (id && this.roles().find((r) => r.id === id)) || null;
   });
 
   // Drag state: the role in flight, and the currently valid drop target
@@ -119,19 +150,30 @@ export class RolesPageComponent {
     void this.router.navigate(['/application/roles', 'new']);
   }
 
+  // The + on a row: same blank drawer, but the creation lands as a child of
+  // that role. Chaining several children keeps the parent (the form empties,
+  // the URL does not move).
+  protected newChild(parent: Role): void {
+    void this.router.navigate(['/application/roles', 'new'], { queryParams: { parent: parent.id } });
+  }
+
   protected closeEditor(): void {
     if (this.editing() !== null) void this.router.navigate(['/application/roles']);
   }
 
-  // Save keeps the drawer open: the URL gains the fresh id after a creation,
-  // and the reloaded list rebinds the fresh role into the editor.
+  // Save keeps the drawer open on the role it just wrote. A CREATION stays on
+  // roles/new with an emptied form, ready for the next role — the URL must NOT
+  // switch to the fresh id, or rebinding that role under the empty form would
+  // turn the next save into an edit. The snackbar is what says it landed.
   protected onSaved(saved: Role): void {
-    this.snack.open($localize`:@@Role_NAME_saved:Role "${saved.name}:NAME:" saved`, undefined, {
-      duration: 2500,
-    });
-    if (this.editing() === 'new') {
-      void this.router.navigate(['/application/roles', saved.id], { replaceUrl: true });
-    }
+    const created = this.editing() === 'new';
+    this.snack.open(
+      created
+        ? $localize`:@@Role_NAME_created:Role "${saved.name}:NAME:" created`
+        : $localize`:@@Role_NAME_saved:Role "${saved.name}:NAME:" saved`,
+      undefined,
+      { duration: 2500 },
+    );
     this.load();
   }
 
@@ -206,31 +248,6 @@ export class RolesPageComponent {
   }
 }
 
-// Depth-first flatten of the parentId hierarchy, siblings in name order, with
-// the guide glyphs for each row (see TreePrefixComponent). An orphaned
-// parentId (mid-delete) degrades to top-level.
-function flattenTree(roles: Role[]): RoleNode[] {
-  const ids = new Set(roles.map((r) => r.id));
-  const byParent = new Map<string, Role[]>();
-  for (const r of roles) {
-    const key = r.parentId && ids.has(r.parentId) ? r.parentId : '';
-    byParent.set(key, [...(byParent.get(key) ?? []), r]);
-  }
-  for (const children of byParent.values()) children.sort((a, b) => a.name.localeCompare(b.name));
-
-  const out: RoleNode[] = [];
-  const walk = (parentId: string, prefix: TreeGuide[]): void => {
-    const children = byParent.get(parentId) ?? [];
-    children.forEach((r, i) => {
-      const last = i === children.length - 1;
-      const guides: TreeGuide[] = parentId === '' ? [] : [...prefix, last ? 'attach-end' : 'attach-continue'];
-      out.push({ role: r, guides });
-      walk(r.id, parentId === '' ? [] : [...prefix, last ? 'empty' : 'continue']);
-    });
-  };
-  walk('', []);
-  return out;
-}
 
 function errMsg(err: unknown): string {
   const e = err as { error?: { error?: string } };

@@ -1,0 +1,25 @@
+// Row banding for the tables that draw a hierarchy (the role catalogue and the
+// groups matrix).
+//
+// A rule every 45px is the usual way to separate rows, and it is the wrong one
+// here: the tree guides are the structure, and a horizontal line crosses every
+// branch. Alternating backgrounds separate just as well without drawing
+// anything, and a full-width hover answers the question these tables exist for
+// (which role is this checkbox on, forty pixels to the right).
+//
+// Both are applied to the ROW and to its CELLS: a sticky column carries its own
+// background, and only a cell-level rule reaches it.
+@mixin banded-rows($band: 4%, $hover: 9%) {
+  mat-table {
+    --mat-table-row-item-outline-width: 0;
+  }
+  mat-row:nth-child(even),
+  mat-row:nth-child(even) mat-cell {
+    background: color-mix(in srgb, var(--mat-sys-on-surface) #{$band}, var(--mat-sys-surface));
+  }
+  // After the banding, which it ties on specificity and therefore wins by order.
+  mat-row:hover,
+  mat-row:hover mat-cell {
+    background: color-mix(in srgb, var(--mat-sys-on-surface) #{$hover}, var(--mat-sys-surface));
+  }
+}

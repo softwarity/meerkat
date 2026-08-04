@@ -1,3 +1,5 @@
+@use '../../../styles/table';
+
 /* Same shape as the other table screens: a fixed banner, a scrolling table
    whose header sticks, a FAB over the bottom-right corner, and the detail in a
    right drawer opened by clicking a row. */
@@ -60,14 +62,16 @@ mat-row {
 .root-row .name {
   color: var(--mat-sys-on-surface-variant);
 }
-mat-row:hover {
-  background: var(--mat-sys-surface-container-high);
+@include table.banded-rows;
+/* The row STATES sit above the banding, and must reach the cells for the same
+   reason it does: a rule on the row alone loses to a cell that paints itself. */
+mat-row.drop-target,
+mat-row.drop-target mat-cell {
+  background: color-mix(in srgb, var(--mat-sys-secondary) 14%, var(--mat-sys-surface));
 }
-mat-row.selected {
+mat-row.selected,
+mat-row.selected mat-cell {
   background: var(--mat-sys-secondary-container);
-}
-mat-row.drop-target {
-  background: color-mix(in srgb, var(--mat-sys-secondary) 14%, transparent);
 }
 mat-row.dragged {
   opacity: 0.35;

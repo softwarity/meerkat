@@ -1,3 +1,5 @@
+@use '../../../styles/table';
+
 :host {
   display: flex;
   flex-direction: column;
@@ -47,6 +49,7 @@ mat-cell {
 mat-row:last-of-type {
   margin-bottom: 64px;
 }
+@include table.banded-rows;
 
 /* sticky role column + header */
 mat-header-row {

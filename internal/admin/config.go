@@ -28,24 +28,40 @@ func (a *API) registerConfig(mux *http.ServeMux) {
 	mux.Handle("POST /api/config/import", a.rootOnly(a.importConfig))
 }
 
-// exportConfig serves the configuration as a YAML file. Plain bytes rather
-// than a JSON envelope, so `curl -o meerkat.yaml` is the whole story for
-// anyone versioning their exports.
+// exportConfig serves the configuration, as plain YAML or as a package.
+//
+// Plain bytes rather than a JSON envelope, so `curl -o meerkat.yaml` is the
+// whole story for anyone versioning their exports. Asking for ?format=zip gets
+// the YAML with its images beside it instead of inline — both forms are
+// self-contained, which is what stops either from ever naming a picture it does
+// not carry.
 func (a *API) exportConfig(w http.ResponseWriter, r *http.Request, actor store.User) {
 	doc, literals, err := config.Export(r.Context(), a.st)
 	if err != nil {
 		a.internal(w, err)
 		return
 	}
-	file, err := config.Marshal(doc)
-	if err != nil {
+	name, mime := "meerkat-config.yaml", "application/yaml; charset=utf-8"
+	var file []byte
+	if r.URL.Query().Get("format") == "zip" {
+		if !config.HasImage(doc) {
+			writeErr(w, http.StatusUnprocessableEntity,
+				"this configuration carries no image: download it as a plain file")
+			return
+		}
+		if file, err = config.MarshalBundle(doc); err != nil {
+			a.internal(w, err)
+			return
+		}
+		name, mime = "meerkat-config.zip", "application/zip"
+	} else if file, err = config.Marshal(doc); err != nil {
 		a.internal(w, err)
 		return
 	}
-	a.auditEvent(r.Context(), actor, "config.export", "config", "", "", "",
+	a.auditEvent(r.Context(), actor, "config.export", "config", "", name, "",
 		fmt.Sprintf("%d bytes, %d secrets left behind", len(file), len(literals)))
-	w.Header().Set("Content-Type", "application/yaml; charset=utf-8")
-	w.Header().Set("Content-Disposition", `attachment; filename="meerkat-config.yaml"`)
+	w.Header().Set("Content-Type", mime)
+	w.Header().Set("Content-Disposition", `attachment; filename="`+name+`"`)
 	_, _ = w.Write(file)
 }
 
@@ -132,7 +148,14 @@ func (a *API) readDocument(w http.ResponseWriter, r *http.Request) (*config.Docu
 			fmt.Sprintf("a configuration file is limited to %d MB", maxConfigBytes>>20))
 		return nil, false
 	}
-	doc, err := config.Unmarshal(body)
+	// The format is decided by the BYTES: what an admin uploads has been
+	// through a browser, a chat and a download folder, and the extension is the
+	// first thing to be lost.
+	read := config.Unmarshal
+	if config.IsBundle(body) {
+		read = config.UnmarshalBundle
+	}
+	doc, err := read(body)
 	if err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return nil, false

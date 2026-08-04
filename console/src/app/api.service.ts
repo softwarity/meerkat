@@ -929,23 +929,27 @@ export class ApiService {
     return this.http.get('/api/config/export', { responseType: 'text' });
   }
 
+  // The same configuration as a package: the YAML with its images beside it
+  // rather than inline. A Blob, because a zip read as text would be corrupted.
+  exportConfigBundle(): Observable<Blob> {
+    return this.http.get('/api/config/export?format=zip', { responseType: 'blob' });
+  }
+
   // What that file will NOT carry (literal secrets) and what it expects the
   // target vault to hold.
   configReport(): Observable<ConfigReport> {
     return this.http.get<ConfigReport>('/api/config/report');
   }
 
-  // What importing this file would do, writing nothing.
-  previewConfig(file: string, prune: boolean): Observable<ConfigPlan> {
-    return this.http.post<ConfigPlan>(`/api/config/preview?prune=${prune}`, file, {
-      headers: { 'Content-Type': 'application/yaml' },
-    });
+  // What importing this file would do, writing nothing. The file travels as a
+  // Blob whatever it is: a package read as text would be corrupted, and the
+  // server decides the format from the bytes anyway.
+  previewConfig(file: Blob, prune: boolean): Observable<ConfigPlan> {
+    return this.http.post<ConfigPlan>(`/api/config/preview?prune=${prune}`, file);
   }
 
-  importConfig(file: string, prune: boolean): Observable<ConfigPlan> {
-    return this.http.post<ConfigPlan>(`/api/config/import?prune=${prune}`, file, {
-      headers: { 'Content-Type': 'application/yaml' },
-    });
+  importConfig(file: Blob, prune: boolean): Observable<ConfigPlan> {
+    return this.http.post<ConfigPlan>(`/api/config/import?prune=${prune}`, file);
   }
 
   // ── snapshots (STORE-05) ───────────────────────────────────────────────────

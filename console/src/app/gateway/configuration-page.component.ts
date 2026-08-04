@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Observable } from 'rxjs';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
 import {
   ApiService,
@@ -262,9 +263,11 @@ const SETTING_LABELS: Record<string, () => string> = {
             <div class="note">
               <mat-icon>vpn_key</mat-icon>
               <div>
-                <p i18n="@@Export_refs_note">
-                  The file references these vault entries. The gateway that imports it needs them
-                  in its own vault, and will be told which ones are missing.
+                <p i18n="@@Export_refs_note2">
+                  The file references these vault entries. On the other side, one that already
+                  exists is used as it stands; one that is missing is created EMPTY and reported,
+                  and whatever references it stays inert until someone fills it. Nothing is
+                  overwritten and nothing blocks the import.
                 </p>
                 <mat-chip-set>
                   @for (name of r.refs; track name) {
@@ -281,6 +284,11 @@ const SETTING_LABELS: Record<string, () => string> = {
             <mat-icon>download</mat-icon>
             <ng-container i18n="@@Download_the_configuration">Download the configuration</ng-container>
           </button>
+          @if (hasImage()) {
+            <span class="hint" style="margin: 0" i18n="@@Downloads_as_a_package">
+              A zip: the configuration reads and diffs, the logo sits beside it as a file.
+            </span>
+          }
         </div>
       </mat-card>
 
@@ -299,7 +307,7 @@ const SETTING_LABELS: Record<string, () => string> = {
           <input
             #picker
             type="file"
-            accept=".yaml,.yml,.json,text/yaml,application/json"
+            accept=".yaml,.yml,.json,.zip,text/yaml,application/json,application/zip"
             hidden
             (change)="pick($event)"
           />
@@ -481,9 +489,10 @@ export class ConfigurationPageComponent {
   protected readonly importing = signal(false);
   protected readonly report = signal<ConfigReport | null>(null);
 
-  // The file the admin picked, kept as text: the same bytes are previewed and
-  // then imported, so what was shown is what applies.
-  protected readonly file = signal('');
+  // The file the admin picked, kept AS IT IS: the same bytes are previewed and
+  // then imported, so what was shown is what applies — and a package read as
+  // text on the way would be corrupted.
+  protected readonly file = signal<File | null>(null);
   protected readonly filename = signal('');
   protected readonly prune = signal(false);
   protected readonly plan = signal<ConfigPlan | null>(null);
@@ -596,18 +605,32 @@ export class ConfigurationPageComponent {
     }
   }
 
+  // A package ONLY when there is an image to take out of the YAML: a zip
+  // wrapping a single text file is a layer nobody asked for.
+  protected readonly hasImage = computed(
+    () => this.report()?.contents.some((c) => c.kind === 'image') ?? false,
+  );
+
   protected download(): void {
     this.downloading.set(true);
-    this.api.exportConfig().subscribe({
-      next: (text) => {
+    const packaged = this.hasImage();
+    // One subscription for two shapes: a package comes back as bytes, a plain
+    // configuration as text.
+    const request: Observable<Blob | string> = packaged
+      ? this.api.exportConfigBundle()
+      : this.api.exportConfig();
+    request.subscribe({
+      next: (body: Blob | string) => {
         this.downloading.set(false);
         // Built here rather than pointed at the URL: the console talks to the
         // admin port with a session cookie, and a plain link would leave the
         // application to fetch it.
-        const url = URL.createObjectURL(new Blob([text], { type: 'application/yaml' }));
+        const blob =
+          typeof body === 'string' ? new Blob([body], { type: 'application/yaml' }) : body;
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'meerkat-config.yaml';
+        a.download = packaged ? 'meerkat-config.zip' : 'meerkat-config.yaml';
         a.click();
         URL.revokeObjectURL(url);
       },
@@ -623,15 +646,10 @@ export class ConfigurationPageComponent {
     const file = input.files?.[0];
     input.value = ''; // so picking the same file twice fires again
     if (!file) return;
-    file
-      .text()
-      .then((text) => {
-        this.file.set(text);
-        this.filename.set(file.name);
-        this.toFill.set([]);
-        this.preview();
-      })
-      .catch(() => this.snack.open($localize`:@@Request_failed:Request failed`, undefined, { duration: 4000 }));
+    this.file.set(file);
+    this.filename.set(file.name);
+    this.toFill.set([]);
+    this.preview();
   }
 
   protected setPrune(on: boolean): void {
@@ -640,7 +658,9 @@ export class ConfigurationPageComponent {
   }
 
   private preview(): void {
-    this.api.previewConfig(this.file(), this.prune()).subscribe({
+    const file = this.file();
+    if (!file) return;
+    this.api.previewConfig(file, this.prune()).subscribe({
       next: (plan) => this.plan.set(plan),
       error: (err: unknown) => {
         this.plan.set(null);
@@ -650,12 +670,14 @@ export class ConfigurationPageComponent {
   }
 
   protected apply(): void {
+    const file = this.file();
+    if (!file) return;
     this.importing.set(true);
-    this.api.importConfig(this.file(), this.prune()).subscribe({
+    this.api.importConfig(file, this.prune()).subscribe({
       next: (plan) => {
         this.importing.set(false);
         this.plan.set(null);
-        this.file.set('');
+        this.file.set(null);
         this.filename.set('');
         this.expect(plan.missing ?? []);
         this.snack.open($localize`:@@Configuration_imported:Configuration imported`, undefined, {
@@ -671,7 +693,7 @@ export class ConfigurationPageComponent {
   }
 
   protected clear(): void {
-    this.file.set('');
+    this.file.set(null);
     this.filename.set('');
     this.plan.set(null);
   }

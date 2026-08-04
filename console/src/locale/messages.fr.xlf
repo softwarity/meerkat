@@ -4414,17 +4414,6 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">175,179</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Export_refs_note" datatype="html">
-        <source>
-                  The file references these vault entries. The gateway that imports it needs them
-                  in its own vault, and will be told which ones are missing.
-                </source>
-        <target>Le fichier référence ces entrées du coffre. La gateway qui l'importera doit les avoir dans le sien, et on lui dira lesquelles manquent.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">191,194</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Download_the_configuration" datatype="html">
         <source>Download the configuration</source>
         <target>Télécharger la configuration</target>
@@ -5056,6 +5045,29 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
           <context context-type="linenumber">235,236</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Export_refs_note2" datatype="html">
+        <source>
+                  The file references these vault entries. On the other side, one that already
+                  exists is used as it stands; one that is missing is created EMPTY and reported,
+                  and whatever references it stays inert until someone fills it. Nothing is
+                  overwritten and nothing blocks the import.
+                </source>
+        <target>Le fichier référence ces entrées du coffre. De l'autre côté, une entrée qui existe déjà est utilisée telle quelle ; une entrée absente est créée VIDE et signalée, et ce qui la référence reste inerte tant que personne ne la remplit. Rien n'est écrasé et rien ne bloque l'import.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">266,271</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Downloads_as_a_package" datatype="html">
+        <source>
+              A zip: the configuration reads and diffs, the logo sits beside it as a file.
+            </source>
+        <target>Un zip : la configuration se lit et se compare, le logo est posé à côté sous forme de fichier.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">289,293</context>
         </context-group>
       </trans-unit>
     </body>

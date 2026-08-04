@@ -37,11 +37,13 @@ mat-cell {
   justify-content: center;
   padding: 0 8px;
 }
-.mat-column-role {
+.mat-column-role,
+.mat-column-role-all {
   flex: 0 0 300px;
   justify-content: flex-start;
 }
-.mat-column-spacer {
+.mat-column-spacer,
+.mat-column-spacer-all {
   flex: 1 1 40px;
   padding: 0;
 }
@@ -55,7 +57,8 @@ mat-row:last-of-type {
 mat-header-row {
   background: var(--mat-sys-surface-container-high);
 }
-mat-header-cell.mat-column-role {
+mat-header-cell.mat-column-role,
+mat-header-cell.mat-column-role-all {
   background: var(--mat-sys-surface-container-high);
 }
 mat-cell.mat-column-role {
@@ -71,12 +74,18 @@ mat-cell.mat-column-role {
 .role-cell {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 6px 0 6px 4px;
+  gap: 0;
+  padding: 4px 0 4px 4px;
   align-self: center;
+  line-height: 1.25;
+}
+/* The description leads, the name is the identifier underneath it. */
+.role-cell .label {
+  font-weight: 500;
 }
 .role-cell .name {
-  font-weight: 500;
+  font-size: 0.78rem;
+  color: var(--mat-sys-on-surface-variant);
 }
 /* Pulled in only to keep the chain readable under a filter: present, legible,
    and visibly not what was searched for. */
@@ -84,10 +93,19 @@ mat-cell.mat-column-role {
 .role-cell.context .desc {
   opacity: 0.55;
 }
-/* the description is the human-facing label — put it forward, full contrast */
-.role-cell .desc {
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface);
+/* The second header row carries the whole-column boxes. It reads as part of
+   the header, not as a first data row. */
+.bulk-row {
+  background: var(--mat-sys-surface-container-high);
+  min-height: 34px;
+}
+.bulk-row mat-header-cell {
+  background: var(--mat-sys-surface-container-high);
+}
+.bulk-label {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--mat-sys-on-surface-variant);
 }
 .grp-head {
   gap: 2px;

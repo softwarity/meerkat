@@ -114,6 +114,9 @@ export class GroupsMatrixComponent {
   });
 
   protected readonly displayedColumns = computed(() => ['role', 'spacer', ...this.groups().map((g) => g.id)]);
+  // A second header row: one "the whole column" checkbox per group. Same
+  // columns, different definitions, which is how a mat-table stacks headers.
+  protected readonly bulkColumns = computed(() => this.displayedColumns().map((c) => `${c}-all`));
 
 
   constructor() {
@@ -172,11 +175,50 @@ export class GroupsMatrixComponent {
     return this.ancestorsOf(role.id).some((a) => ids.includes(a));
   }
 
+  // ── the whole column ───────────────────────────────────────────────────────
+  //
+  // It acts on the rows ON SCREEN, filter included: what one sees is what one
+  // ticks. Anything else would be a box that quietly reaches past the view.
+
+  // Checked when every visible role is granted, indeterminate when only some
+  // are: the third state is what tells "all of it" from "part of it" before
+  // the click rather than after.
+  protected columnState(groupId: string): { checked: boolean; some: boolean } {
+    const rows = this.rows();
+    if (rows.length === 0) return { checked: false, some: false };
+    const granted = rows.filter((r) => this.roleChecked(r.role, groupId)).length;
+    return { checked: granted === rows.length, some: granted > 0 && granted < rows.length };
+  }
+
+  // Ticking stores the MINIMUM set that grants the same thing: once a parent is
+  // in, its descendants are dropped, because a child listed next to the parent
+  // that already grants it is a line meaning nothing - and one that quietly
+  // survives the parent being taken away.
+  protected toggleColumn(groupId: string, checked: boolean): void {
+    const g = this.groupById(groupId);
+    if (!g) return;
+    const visible = this.rows().map((r) => r.role.id);
+    const current = g.roleIds ?? [];
+    if (!checked) {
+      this.save(g, current.filter((id) => !visible.includes(id)));
+      return;
+    }
+    // Reduced against the RESULT, not against what was there before: adding
+    // ops and ops-read in the same click must still leave only ops.
+    const target = new Set([...current, ...visible]);
+    this.save(g, [...target].filter((id) => !this.ancestorsOf(id).some((a) => target.has(a))));
+  }
+
   protected toggle(role: Role, groupId: string, checked: boolean): void {
     const g = this.groupById(groupId);
     if (!g) return;
     const current = g.roleIds ?? [];
-    const roleIds = checked ? [...current, role.id] : current.filter((r) => r !== role.id);
+    this.save(g, checked ? [...current, role.id] : current.filter((r) => r !== role.id));
+  }
+
+  // One write path for a cell and for a whole column: the optimistic update and
+  // the reload-on-failure have to behave the same either way.
+  private save(g: Group, roleIds: string[]): void {
     this.api.updateGroup({ ...g, roleIds }).subscribe({
       next: (saved) => this.groups.update((list) => list.map((x) => (x.id === saved.id ? saved : x))),
       error: (err) => {

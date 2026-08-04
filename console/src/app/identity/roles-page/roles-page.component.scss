@@ -55,6 +55,21 @@ mat-row {
 .root-row {
   cursor: default;
 }
+/* The catalogue root stays in view while the list scrolls: it is the drop
+   target that pulls a role back to top level, and a target one has to scroll
+   back to find is a target one stops using. Below the header, which is sticky
+   too, hence the offset and the lower z-index.
+   It needs an opaque background of its own, or the rows would show through as
+   they pass underneath. */
+.root-row {
+  position: sticky;
+  top: var(--mat-table-header-container-height, 56px);
+  z-index: 1;
+}
+.root-row,
+.root-row mat-cell {
+  background: var(--mat-sys-surface-container);
+}
 .root-icon {
   color: var(--mat-sys-on-surface-variant);
   flex-shrink: 0;

@@ -89,6 +89,9 @@ export class MembersMatrixComponent {
     ...this.groups().map((g) => g.id),
     'lastConn',
   ]);
+  // A second header row: one "the whole column" box per group. Same columns,
+  // different definitions, which is how a mat-table stacks headers.
+  protected readonly bulkColumns = computed(() => this.displayedColumns().map((c) => `${c}-all`));
 
   constructor() {
     effect(() => {
@@ -190,6 +193,27 @@ export class MembersMatrixComponent {
 
   protected memberInGroup(userId: string, groupId: string): boolean {
     return (this.memberGroups()[userId] ?? []).includes(groupId);
+  }
+
+  // ── the whole column ───────────────────────────────────────────────────────
+  //
+  // It acts on the members ON SCREEN, filter included: what one sees is what
+  // one ticks. And only on MEMBERS — a group cannot be given to somebody who
+  // does not belong to the organisation, so the box skips them rather than
+  // failing halfway through.
+  protected columnState(groupId: string): { checked: boolean; some: boolean } {
+    const members = this.filteredRows().filter((u) => this.isMember(u.id));
+    if (members.length === 0) return { checked: false, some: false };
+    const inGroup = members.filter((u) => this.memberInGroup(u.id, groupId)).length;
+    return { checked: inGroup === members.length, some: inGroup > 0 && inGroup < members.length };
+  }
+
+  protected toggleColumn(groupId: string, checked: boolean): void {
+    for (const u of this.filteredRows()) {
+      if (!this.isMember(u.id)) continue;
+      if (this.memberInGroup(u.id, groupId) === checked) continue;
+      this.toggleMemberGroup(u.id, groupId, checked);
+    }
   }
 
   protected toggleMemberGroup(userId: string, groupId: string, checked: boolean): void {

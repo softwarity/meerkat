@@ -1,3 +1,5 @@
+@use '../../styles/table';
+
 :host {
   display: flex;
   flex-direction: column;
@@ -112,3 +114,5 @@
   right: 24px;
   bottom: 24px;
 }
+
+@include table.banded-rows;

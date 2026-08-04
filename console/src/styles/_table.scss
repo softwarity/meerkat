@@ -9,9 +9,15 @@
 //
 // Both are applied to the ROW and to its CELLS: a sticky column carries its own
 // background, and only a cell-level rule reaches it.
-@mixin banded-rows($band: 4%, $hover: 9%) {
+@mixin banded-rows($band: 4%, $hover: 9%, $row-height: 36px) {
   mat-table {
     --mat-table-row-item-outline-width: 0;
+  }
+  // Denser than Material's default: these tables are read by scanning a
+  // column, and every pixel of row height is one less line in view.
+  mat-row,
+  mat-cell {
+    min-height: $row-height;
   }
   mat-row:nth-child(even),
   mat-row:nth-child(even) mat-cell {

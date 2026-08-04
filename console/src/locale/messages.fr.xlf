@@ -222,6 +222,18 @@
         <source>Role "<x id="NAME" equiv-text="saved.name"/>" saved</source>
         <target>Rôle « <x id="NAME" equiv-text="saved.name"/> » enregistré</target>
       </trans-unit>
+      <trans-unit id="Role_NAME_created" datatype="html">
+        <source>Role "<x id="NAME" equiv-text="saved.name"/>" created</source>
+        <target>Rôle « <x id="NAME" equiv-text="saved.name"/> » créé</target>
+      </trans-unit>
+      <trans-unit id="New_role_child_of_PARENT" datatype="html">
+        <source>New role, child of <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;mono&quot;&gt;"/><x id="INTERPOLATION" equiv-text="{{ p.name }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target>Nouveau rôle, enfant de <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;mono&quot;&gt;"/><x id="INTERPOLATION" equiv-text="{{ p.name }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="New_child_role" datatype="html">
+        <source>New child role</source>
+        <target>Nouveau rôle enfant</target>
+      </trans-unit>
       <trans-unit id="Delete_role_hint" datatype="html">
         <source>A role still granted by a group cannot be deleted: remove it from the groups first.</source>
         <target>Un rôle encore accordé par un groupe ne peut pas être supprimé : retirez-le d'abord des groupes.</target>
@@ -742,9 +754,25 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <source>Role name</source>
         <target>Nom du rôle</target>
       </trans-unit>
-      <trans-unit id="No_role_yet" datatype="html">
-        <source>No role yet — create the first one.</source>
-        <target>Aucun rôle : créez le premier.</target>
+      <trans-unit id="No_role_yet_add_from_root" datatype="html">
+        <source>
+            No role yet: the + on the row above creates the first one.
+          </source>
+        <target>Aucun rôle : le + de la ligne ci-dessus crée le premier.</target>
+      </trans-unit>
+      <trans-unit id="All_roles" datatype="html">
+        <source>All roles</source>
+        <target>Tous les rôles</target>
+      </trans-unit>
+      <trans-unit id="Catalogue_root_hint" datatype="html">
+        <source>
+                  The catalogue itself: what hangs here is a top-level role.
+                </source>
+        <target>Le catalogue lui-même : ce qui s'y rattache est un rôle de premier niveau.</target>
+      </trans-unit>
+      <trans-unit id="New_top_level_role" datatype="html">
+        <source>New top-level role</source>
+        <target>Nouveau rôle de premier niveau</target>
       </trans-unit>
       <trans-unit id="system" datatype="html">
         <source>system</source>
@@ -1804,14 +1832,6 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/role-dialog.component.ts</context>
           <context context-type="linenumber">69,70</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Drop_here_for_top_level" datatype="html">
-        <source>Drop here to make it a top-level role</source>
-        <target>Déposez ici pour en faire un rôle de premier niveau</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.ts</context>
-          <context context-type="linenumber">177,179</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Danger_zone" datatype="html">
@@ -5068,6 +5088,32 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
           <context context-type="linenumber">289,293</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Whole_column" datatype="html">
+        <source>
+          Whole column
+        </source>
+        <target>Toute la colonne</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
+          <context context-type="linenumber">37,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Grant_every_visible_role" datatype="html">
+        <source>Grant every visible role</source>
+        <target>Accorder tous les rôles visibles</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
+          <context context-type="linenumber">82,84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Assign_every_visible_member" datatype="html">
+        <source>Assign every visible member</source>
+        <target>Affecter tous les membres visibles</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.html</context>
+          <context context-type="linenumber">94,96</context>
         </context-group>
       </trans-unit>
     </body>

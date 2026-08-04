@@ -15,15 +15,30 @@
              their pills live on the Roles page. The indentation carries the
              hierarchy, which is what explains a checked-and-locked box without
              a word of extra chrome. -->
+        <!-- The description leads: it is the human-facing label, and the name
+             is the identifier one writes in a template. A role without a
+             description falls back to its name rather than showing a blank. -->
         <mat-cell *matCellDef="let row">
           <app-tree-prefix [guides]="row.guides" />
           <div class="role-cell" [class.context]="row.context">
-            <span class="name mono">{{ row.role.name }}</span>
             @if (row.role.description) {
-              <span class="desc">{{ row.role.description }}</span>
+              <span class="label">{{ row.role.description }}</span>
+              <span class="name mono">{{ row.role.name }}</span>
+            } @else {
+              <span class="label mono">{{ row.role.name }}</span>
             }
           </div>
         </mat-cell>
+      </ng-container>
+
+      <!-- Second header row: the columns of the first one, emptied. -->
+      <ng-container matColumnDef="role-all" sticky>
+        <mat-header-cell *matHeaderCellDef class="bulk-label" i18n="@@Whole_column">
+          Whole column
+        </mat-header-cell>
+      </ng-container>
+      <ng-container matColumnDef="spacer-all">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
       </ng-container>
 
       <!-- flex spacer so the table fills the width; groups sit right after it and
@@ -55,9 +70,23 @@
             />
           </mat-cell>
         </ng-container>
+        <!-- Ticks or clears the column, over the rows currently ON SCREEN:
+             what one sees is what one ticks. -->
+        <ng-container [matColumnDef]="g.id + '-all'">
+          <mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              [checked]="columnState(g.id).checked"
+              [indeterminate]="columnState(g.id).some"
+              (change)="toggleColumn(g.id, $event.checked)"
+              i18n-aria-label="@@Grant_every_visible_role"
+              aria-label="Grant every visible role"
+            />
+          </mat-header-cell>
+        </ng-container>
       }
 
       <mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></mat-header-row>
+      <mat-header-row class="bulk-row" *matHeaderRowDef="bulkColumns(); sticky: true"></mat-header-row>
       <mat-row *matRowDef="let row; columns: displayedColumns()"></mat-row>
     </mat-table>
   </div>

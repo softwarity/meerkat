@@ -1,3 +1,5 @@
+@use '../../../styles/table';
+
 :host {
   display: flex;
   flex-direction: column;
@@ -30,14 +32,17 @@ mat-cell {
   justify-content: center;
   padding: 0 8px;
 }
-.mat-column-user {
+.mat-column-user,
+.mat-column-user-all {
   flex: 0 0 260px;
   justify-content: flex-start;
 }
-.mat-column-member {
+.mat-column-member,
+.mat-column-member-all {
   flex: 0 0 100px;
 }
-.mat-column-spacer {
+.mat-column-spacer,
+.mat-column-spacer-all {
   flex: 1 1 40px;
   padding: 0;
 }
@@ -47,7 +52,8 @@ mat-row:last-of-type {
 mat-header-row {
   background: var(--mat-sys-surface-container-high);
 }
-mat-header-cell.mat-column-user {
+mat-header-cell.mat-column-user,
+mat-header-cell.mat-column-user-all {
   background: var(--mat-sys-surface-container-high);
 }
 mat-cell.mat-column-user {
@@ -118,17 +124,20 @@ mat-cell.mat-column-user {
 .type-badge.owner {
   cursor: default;
 }
-.mat-column-member {
+.mat-column-member,
+.mat-column-member-all {
   flex: 0 0 170px;
   justify-content: flex-start;
 }
 
 /* last connection — sticky at the right edge, above the horizontal scroll */
-.mat-column-lastConn {
+.mat-column-lastConn,
+.mat-column-lastConn-all {
   flex: 0 0 180px;
   justify-content: flex-start;
 }
-mat-header-cell.mat-column-lastConn {
+mat-header-cell.mat-column-lastConn,
+mat-header-cell.mat-column-lastConn-all {
   background: var(--mat-sys-surface-container-high);
 }
 mat-cell.mat-column-lastConn {
@@ -136,5 +145,21 @@ mat-cell.mat-column-lastConn {
 }
 .last-seen {
   font-size: 0.82rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+@include table.banded-rows;
+/* The second header row carries the whole-column boxes, and reads as header
+   rather than as a first data row. */
+.bulk-row {
+  background: var(--mat-sys-surface-container-high);
+  min-height: 34px;
+}
+.bulk-row mat-header-cell {
+  background: var(--mat-sys-surface-container-high);
+}
+.bulk-label {
+  font-size: 0.75rem;
+  font-weight: 400;
   color: var(--mat-sys-on-surface-variant);
 }

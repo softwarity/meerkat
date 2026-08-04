@@ -1,3 +1,5 @@
+@use '../../../styles/table';
+
 .muted {
   color: var(--mat-sys-on-surface-variant);
   font-size: 0.85em;
@@ -65,3 +67,5 @@ mat-row.clickable:hover {
 .cdk-drop-list-dragging .clickable:not(.cdk-drag-placeholder) {
   transition: transform 0.18s cubic-bezier(0, 0, 0.2, 1);
 }
+
+@include table.banded-rows;

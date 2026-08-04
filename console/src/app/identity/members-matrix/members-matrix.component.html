@@ -83,7 +83,35 @@
             />
           </mat-cell>
         </ng-container>
+        <!-- Adds or removes the group for every member currently ON SCREEN. -->
+        <ng-container [matColumnDef]="g.id + '-all'">
+          <mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              [checked]="columnState(g.id).checked"
+              [indeterminate]="columnState(g.id).some"
+              (change)="toggleColumn(g.id, $event.checked)"
+              i18n-aria-label="@@Assign_every_visible_member"
+              aria-label="Assign every visible member"
+            />
+          </mat-header-cell>
+        </ng-container>
       }
+
+      <!-- The other columns of the second header row, emptied. -->
+      <ng-container matColumnDef="user-all" sticky>
+        <mat-header-cell *matHeaderCellDef class="bulk-label" i18n="@@Whole_column">
+          Whole column
+        </mat-header-cell>
+      </ng-container>
+      <ng-container matColumnDef="member-all">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      </ng-container>
+      <ng-container matColumnDef="spacer-all">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      </ng-container>
+      <ng-container matColumnDef="lastConn-all" stickyEnd>
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      </ng-container>
 
       <!-- last connection closes the row; the tenant-scoped password reset
            rides on it (a tenant admin needs no root for that). -->
@@ -121,6 +149,7 @@
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></mat-header-row>
+      <mat-header-row class="bulk-row" *matHeaderRowDef="bulkColumns(); sticky: true"></mat-header-row>
       <mat-row *matRowDef="let row; columns: displayedColumns()"></mat-row>
     </mat-table>
   </div>

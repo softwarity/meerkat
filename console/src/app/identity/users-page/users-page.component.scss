@@ -1,3 +1,5 @@
+@use '../../../styles/table';
+
 :host {
   display: block;
   height: 100%;
@@ -90,3 +92,5 @@ mat-drawer {
   cursor: default;
   opacity: 0.45;
 }
+
+@include table.banded-rows;

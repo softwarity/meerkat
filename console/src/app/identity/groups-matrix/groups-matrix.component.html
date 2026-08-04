@@ -8,16 +8,18 @@
   </p>
 } @else {
   <div class="table-wrap">
-    <mat-table [dataSource]="filteredRoles()">
+    <mat-table [dataSource]="rows()">
       <ng-container matColumnDef="role" sticky>
         <mat-header-cell *matHeaderCellDef i18n="@@Roles">Roles</mat-header-cell>
-        <!-- name + description only — tags are a filter concern (header select),
-             their pills live on the Roles page. -->
-        <mat-cell *matCellDef="let r">
-          <div class="role-cell">
-            <span class="name mono">{{ r.name }}</span>
-            @if (r.description) {
-              <span class="desc">{{ r.description }}</span>
+        <!-- name + description only: tags are a filter concern (header select),
+             their pills live on the Roles page. The indentation carries the
+             hierarchy, which is what explains a checked-and-locked box without
+             a word of extra chrome. -->
+        <mat-cell *matCellDef="let row">
+          <div class="role-cell" [class.context]="row.context" [style.margin-left]="indent(row.depth)">
+            <span class="name mono">{{ row.role.name }}</span>
+            @if (row.role.description) {
+              <span class="desc">{{ row.role.description }}</span>
             }
           </div>
         </mat-cell>
@@ -44,11 +46,11 @@
               <mat-icon>more_vert</mat-icon>
             </button>
           </mat-header-cell>
-          <mat-cell *matCellDef="let r">
+          <mat-cell *matCellDef="let row">
             <mat-checkbox
-              [checked]="roleChecked(r, g.id)"
-              [disabled]="roleImplied(r, g.id)"
-              (change)="toggle(r, g.id, $event.checked)"
+              [checked]="roleChecked(row.role, g.id)"
+              [disabled]="roleImplied(row.role, g.id)"
+              (change)="toggle(row.role, g.id, $event.checked)"
             />
           </mat-cell>
         </ng-container>

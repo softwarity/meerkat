@@ -68,6 +68,12 @@ mat-cell.mat-column-role {
 .role-cell .name {
   font-weight: 500;
 }
+/* Pulled in only to keep the chain readable under a filter: present, legible,
+   and visibly not what was searched for. */
+.role-cell.context .name,
+.role-cell.context .desc {
+  opacity: 0.55;
+}
 /* the description is the human-facing label — put it forward, full contrast */
 .role-cell .desc {
   font-size: 0.85rem;

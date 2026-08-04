@@ -70,7 +70,12 @@ func (a *API) exportReport(w http.ResponseWriter, r *http.Request, _ store.User)
 	if refs == nil {
 		refs = []string{}
 	}
+	contents := config.Inventory(doc)
+	if contents == nil {
+		contents = []config.Section{}
+	}
 	writeJSON(w, http.StatusOK, map[string]any{
+		"contents": contents,
 		"literals": literals,
 		"refs":     refs,
 	})

@@ -109,11 +109,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">412</context>
+          <context context-type="linenumber">572</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">517</context>
+          <context context-type="linenumber">677</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
@@ -336,7 +336,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">300,301</context>
+          <context context-type="linenumber">343,344</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/group-dialog.component.ts</context>
@@ -1023,7 +1023,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">334,336</context>
+          <context context-type="linenumber">434,436</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
@@ -1284,7 +1284,7 @@
         <source>Configuration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">151,152</context>
+          <context context-type="linenumber">181,182</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
@@ -1299,14 +1299,14 @@
     </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">153,159</context>
+          <context context-type="linenumber">183,189</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Export" datatype="html">
         <source>Export</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">162,163</context>
+          <context context-type="linenumber">192,193</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/vault-page.component.html</context>
@@ -1321,7 +1321,7 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">164,169</context>
+          <context context-type="linenumber">194,199</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Export_literals_note" datatype="html">
@@ -1331,7 +1331,7 @@
                 </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">175,179</context>
+          <context context-type="linenumber">218,222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Export_refs_note" datatype="html">
@@ -1341,21 +1341,21 @@
                 </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">191,194</context>
+          <context context-type="linenumber">234,237</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Download_the_configuration" datatype="html">
         <source>Download the configuration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">207,209</context>
+          <context context-type="linenumber">250,252</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Import" datatype="html">
         <source>Import</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">213,214</context>
+          <context context-type="linenumber">256,257</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
@@ -1373,14 +1373,14 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">215,219</context>
+          <context context-type="linenumber">258,262</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Choose_a_file" datatype="html">
         <source>Choose a file</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">222,223</context>
+          <context context-type="linenumber">265,266</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/vault-file-dialog.component.ts</context>
@@ -1393,7 +1393,7 @@
             </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">239,242</context>
+          <context context-type="linenumber">282,285</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Prune_hint" datatype="html">
@@ -1403,7 +1403,7 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">245,250</context>
+          <context context-type="linenumber">288,293</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Nothing_would_change" datatype="html">
@@ -1413,7 +1413,7 @@
               </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">256,260</context>
+          <context context-type="linenumber">299,303</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Import_missing_note" datatype="html">
@@ -1424,21 +1424,98 @@
                 </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">279,283</context>
+          <context context-type="linenumber">322,326</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Import_this_file" datatype="html">
         <source>Import this file</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">298,299</context>
+          <context context-type="linenumber">341,342</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Full_snapshot" datatype="html">
+        <source>Full snapshot</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">349,350</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Snapshot_hint" datatype="html">
+        <source>
+          A coherent copy of the whole database, taken while the gateway runs: routes and vault,
+          but also users, organisations, sessions and the audit trail. This is what a backup
+          restores; a configuration export is what a second gateway reproduces.
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">351,355</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Snapshot_scope_note" datatype="html">
+        <source>
+            Meerkat takes the snapshot, because copying a live database with cp can catch it
+            mid-write and nothing says so until the day you restore it. Scheduling, retention and
+            shipping it off the host belong to your backup tool, not here.
+          </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">358,364</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Download_a_snapshot" datatype="html">
+        <source>Download a snapshot</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">368,369</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="How_to_restore" datatype="html">
+        <source>How to restore</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">372,373</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Restore_hint" datatype="html">
+        <source>
+              Restoring happens with the service stopped: a database cannot be replaced under the
+              process holding it open, and the sessions and users it brings back are the ones the
+              request doing it would depend on. Keep the old file until the new one has proven
+              itself.
+            </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">379,384</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Key_from_env_note" datatype="html">
+        <source>
+                The master key of this gateway comes from MEERKAT_VAULT_KEY, so it is not in that
+                directory: the snapshot holds the vault encrypted and is worth nothing without
+                that variable. Keep it that way.
+              </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">387,392</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Key_beside_db_note" datatype="html">
+        <source>
+                  The master key sits next to the database. Backing them up together undoes the
+                  encryption at rest, exactly as a vault file stored beside its passphrase would:
+                  keep the key in a secret manager, or supply it through MEERKAT_VAULT_KEY.
+                </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">395,400</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Vault_entries_to_fill" datatype="html">
         <source>Vault entries to fill</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">307,308</context>
+          <context context-type="linenumber">407,408</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Vault_entries_to_fill_hint" datatype="html">
@@ -1448,95 +1525,137 @@
           </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">309,312</context>
+          <context context-type="linenumber">409,412</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Used_by_WHAT" datatype="html">
         <source>Used by <x id="INTERPOLATION" equiv-text="{{ used.join(&apos;, &apos;) }}"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">326</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Configuration_imported" datatype="html">
-        <source>Configuration imported</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">439</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Saved" datatype="html">
-        <source>Saved</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">478</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Added" datatype="html">
-        <source>Added</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">487</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Updated" datatype="html">
-        <source>Updated</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">489</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Removed" datatype="html">
-        <source>Removed</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">491</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Unchanged" datatype="html">
-        <source>Unchanged</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">493</context>
+          <context context-type="linenumber">426</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Route" datatype="html">
         <source>Route</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">500</context>
+          <context context-type="linenumber">523</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">660</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Routes" datatype="html">
+        <source>Routes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">523</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Role" datatype="html">
         <source>Role</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">502</context>
+          <context context-type="linenumber">525</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">662</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Roles" datatype="html">
+        <source>Roles</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">525</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
+          <context context-type="linenumber">449,450</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">50</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Authority" datatype="html">
         <source>Authority</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">504</context>
+          <context context-type="linenumber">527</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">664</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/rule-dialog.component.html</context>
           <context context-type="linenumber">10,11</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Authorities" datatype="html">
+        <source>Authorities</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">527</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Theme" datatype="html">
         <source>Theme</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">506</context>
+          <context context-type="linenumber">529</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">666</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Themes" datatype="html">
+        <source>Themes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">529</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Mail_relay" datatype="html">
         <source>Mail relay</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">508</context>
+          <context context-type="linenumber">531</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">668</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
@@ -1551,7 +1670,60 @@
         <source>Setting</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
-          <context context-type="linenumber">510</context>
+          <context context-type="linenumber">533</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">670</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Settings" datatype="html">
+        <source>Settings</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">533</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Configuration_imported" datatype="html">
+        <source>Configuration imported</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">599</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Saved" datatype="html">
+        <source>Saved</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">638</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Added" datatype="html">
+        <source>Added</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">647</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Updated" datatype="html">
+        <source>Updated</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">649</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Removed" datatype="html">
+        <source>Removed</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">651</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Unchanged" datatype="html">
+        <source>Unchanged</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">653</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Mail_relay_hint" datatype="html">
@@ -2213,37 +2385,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
           <context context-type="linenumber">7,10</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Roles" datatype="html">
-        <source>Roles</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.html</context>
-          <context context-type="linenumber">13,14</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">4,5</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/roles-page/roles-page.component.html</context>
-          <context context-type="linenumber">33,34</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">82</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">82</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
-          <context context-type="linenumber">449,450</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">50</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Group_menu" datatype="html">
@@ -5064,17 +5205,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-probe-dialog.component.ts</context>
           <context context-type="linenumber">134</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Routes" datatype="html">
-        <source>Routes</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.html</context>
-          <context context-type="linenumber">4,5</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
       <trans-unit id="JWT_signing_keys" datatype="html">

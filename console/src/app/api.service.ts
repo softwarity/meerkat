@@ -216,11 +216,34 @@ export interface ConfigLiteral {
   field: string;
 }
 
-// What an export will not contain, and what it expects to find on the other
-// side. Read before downloading, while the admin can still act on it.
+// One family of objects an export carries, with what is in it. Shown BEFORE
+// the download: "what exactly am I handing over" is the first question anyone
+// asks of an export, and answering it with a file to open is answering badly.
+export interface ConfigSection {
+  kind: 'route' | 'role' | 'authProvider' | 'theme' | 'mailRelay' | 'setting';
+  count: number;
+  names?: string[];
+}
+
+// What an export will contain, what it will NOT contain, and what it expects to
+// find on the other side. Read before downloading, while the admin can still
+// act on it.
 export interface ConfigReport {
+  contents: ConfigSection[];
   literals: ConfigLiteral[];
   refs: string[];
+}
+
+// Where an installation keeps its state (STORE-05), for the restore procedure
+// the console prints with the REAL paths of this gateway.
+export interface BackupInfo {
+  dataDir: string;
+  dbFile: string;
+  keyFile?: string;
+  // The master key comes from the environment and never touches this
+  // directory: the safer setup, and one to know before copying a snapshot.
+  keyFromEnv: boolean;
+  size?: number;
 }
 
 // One object an import would touch.
@@ -919,6 +942,18 @@ export class ApiService {
     return this.http.post<ConfigPlan>(`/api/config/import?prune=${prune}`, file, {
       headers: { 'Content-Type': 'application/yaml' },
     });
+  }
+
+  // ── snapshots (STORE-05) ───────────────────────────────────────────────────
+
+  backupInfo(): Observable<BackupInfo> {
+    return this.http.get<BackupInfo>('/api/backup/info');
+  }
+
+  // A coherent copy of the whole database, taken while the gateway runs. Blob,
+  // not text: this is a binary file and reading it as a string would corrupt it.
+  snapshot(): Observable<Blob> {
+    return this.http.get('/api/backup', { responseType: 'blob' });
   }
 
   // ── vault ──────────────────────────────────────────────────────────────────

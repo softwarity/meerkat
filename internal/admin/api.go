@@ -69,6 +69,7 @@ func (a *API) Register(mux *http.ServeMux) {
 	a.registerAPIDocs(mux)
 	a.registerIssues(mux)
 	a.registerConfig(mux)
+	a.registerBackup(mux)
 	a.auditRegisterViewer(mux)
 }
 

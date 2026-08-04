@@ -4794,6 +4794,115 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">23,25</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Full_snapshot" datatype="html">
+        <source>Full snapshot</source>
+        <target>Instantané complet</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">349,350</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Snapshot_hint" datatype="html">
+        <source>
+          A coherent copy of the whole database, taken while the gateway runs: routes and vault,
+          but also users, organisations, sessions and the audit trail. This is what a backup
+          restores; a configuration export is what a second gateway reproduces.
+        </source>
+        <target>Une copie cohérente de toute la base, prise pendant que la gateway tourne : les routes et le coffre, mais aussi les utilisateurs, les organisations, les sessions et le journal d'audit. C'est ce qu'une sauvegarde restaure ; un export de configuration, lui, est ce qu'une seconde gateway reproduit.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">351,355</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Snapshot_scope_note" datatype="html">
+        <source>
+            Meerkat takes the snapshot, because copying a live database with cp can catch it
+            mid-write and nothing says so until the day you restore it. Scheduling, retention and
+            shipping it off the host belong to your backup tool, not here.
+          </source>
+        <target>C'est Meerkat qui prend l'instantané, parce que copier une base vivante avec cp peut l'attraper en pleine écriture sans que rien ne le signale, jusqu'au jour où vous la restaurez. La planification, la rétention et l'envoi hors de la machine relèvent de votre outil de sauvegarde, pas d'ici.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">358,364</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Download_a_snapshot" datatype="html">
+        <source>Download a snapshot</source>
+        <target>Télécharger un instantané</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">368,369</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="How_to_restore" datatype="html">
+        <source>How to restore</source>
+        <target>Comment restaurer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">372,373</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Restore_hint" datatype="html">
+        <source>
+              Restoring happens with the service stopped: a database cannot be replaced under the
+              process holding it open, and the sessions and users it brings back are the ones the
+              request doing it would depend on. Keep the old file until the new one has proven
+              itself.
+            </source>
+        <target>La restauration se fait service arrêté : une base ne se remplace pas sous le processus qui la tient ouverte, et les sessions et utilisateurs qu'elle ramène sont ceux dont dépendrait la requête qui la lance. Gardez l'ancien fichier tant que le nouveau n'a pas fait ses preuves.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">379,384</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Key_from_env_note" datatype="html">
+        <source>
+                The master key of this gateway comes from MEERKAT_VAULT_KEY, so it is not in that
+                directory: the snapshot holds the vault encrypted and is worth nothing without
+                that variable. Keep it that way.
+              </source>
+        <target>La clé maîtresse de cette gateway vient de MEERKAT_VAULT_KEY, elle n'est donc pas dans ce répertoire : l'instantané contient le coffre chiffré et ne vaut rien sans cette variable. Gardez cette organisation.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">387,392</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Key_beside_db_note" datatype="html">
+        <source>
+                  The master key sits next to the database. Backing them up together undoes the
+                  encryption at rest, exactly as a vault file stored beside its passphrase would:
+                  keep the key in a secret manager, or supply it through MEERKAT_VAULT_KEY.
+                </source>
+        <target>La clé maîtresse est posée à côté de la base. Les sauvegarder ensemble annule le chiffrement au repos, exactement comme un fichier de coffre rangé à côté de sa phrase secrète : gardez la clé dans un gestionnaire de secrets, ou fournissez-la par MEERKAT_VAULT_KEY.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">395,400</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Authorities" datatype="html">
+        <source>Authorities</source>
+        <target>Autorités</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">527</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Themes" datatype="html">
+        <source>Themes</source>
+        <target>Thèmes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">529</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Settings" datatype="html">
+        <source>Settings</source>
+        <target>Paramètres</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
+          <context context-type="linenumber">533</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

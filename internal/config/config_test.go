@@ -397,3 +397,35 @@ func TestPortStaysAnInteger(t *testing.T) {
 		t.Fatalf("the port should read as an integer:\n%s", file)
 	}
 }
+
+// TestInventorySaysWhatTravels: the console shows this before the download, so
+// nobody has to open a file to learn what is in it.
+func TestInventorySaysWhatTravels(t *testing.T) {
+	ctx := context.Background()
+	s := openTemp(t)
+	seed(t, s)
+	doc, _, err := Export(ctx, s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	byKind := map[string]Section{}
+	for _, sec := range Inventory(doc) {
+		byKind[sec.Kind] = sec
+	}
+	if got := byKind["route"]; got.Count != 1 || got.Names[0] != "API" {
+		t.Fatalf("routes = %+v", got)
+	}
+	if got := byKind["role"]; got.Count != 2 {
+		t.Fatalf("roles = %+v", got)
+	}
+	if got := byKind["authProvider"]; got.Count != 1 || got.Names[0] != "Corp" {
+		t.Fatalf("authorities = %+v", got)
+	}
+	if got := byKind["mailRelay"]; got.Count != 1 || got.Names[0] != "smtp.example.com" {
+		t.Fatalf("relay = %+v", got)
+	}
+	// Settings are counted, not named: their keys say nothing to a reader.
+	if got := byKind["setting"]; got.Count == 0 || len(got.Names) != 0 {
+		t.Fatalf("settings = %+v", got)
+	}
+}

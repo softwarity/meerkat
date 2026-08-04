@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
-import { ApiService, ConfigMissingRef, ConfigPlan, ConfigReport } from '../api.service';
+import { ApiService, BackupInfo, ConfigMissingRef, ConfigPlan, ConfigReport } from '../api.service';
 
 // Import and export of the whole configuration (CFG-03/05) — INFRA plane,
 // root only.
@@ -136,10 +136,40 @@ import { ApiService, ConfigMissingRef, ConfigPlan, ConfigReport } from '../api.s
         font-size: 0.78rem;
         color: var(--mat-sys-on-surface-variant);
       }
+      .contents {
+        margin-bottom: 16px;
+      }
+      .contents td {
+        border: none;
+        padding: 3px 8px 3px 0;
+        vertical-align: baseline;
+      }
+      .contents .count {
+        text-align: right;
+        width: 3ch;
+        font-variant-numeric: tabular-nums;
+      }
+      .contents .kind {
+        width: auto;
+        white-space: nowrap;
+        color: var(--mat-sys-on-surface);
+      }
+      .contents .names {
+        color: var(--mat-sys-on-surface-variant);
+      }
       .file {
         display: flex;
         align-items: center;
         gap: 12px;
+      }
+      pre {
+        margin: 8px 0 0;
+        padding: 12px 16px;
+        border-radius: 8px;
+        background: var(--mat-sys-surface-container);
+        font-size: 0.82rem;
+        overflow-x: auto;
+        white-space: pre;
       }
       .filename {
         font-size: 0.85rem;
@@ -167,6 +197,19 @@ import { ApiService, ConfigMissingRef, ConfigPlan, ConfigReport } from '../api.s
         </p>
 
         @if (report(); as r) {
+          <!-- What is actually in the file, before the download: nobody should
+               have to open an export to learn what it carries. -->
+          @if (r.contents.length) {
+            <table class="contents">
+              @for (c of r.contents; track c.kind) {
+                <tr>
+                  <td class="count">{{ c.count }}</td>
+                  <td class="kind">{{ family(c.kind, c.count) }}</td>
+                  <td class="names">{{ c.names?.join(', ') }}</td>
+                </tr>
+              }
+            </table>
+          }
           @if (r.literals.length) {
             <div class="note warn">
               <mat-icon>key_off</mat-icon>
@@ -302,6 +345,63 @@ import { ApiService, ConfigMissingRef, ConfigPlan, ConfigReport } from '../api.s
         }
       </mat-card>
 
+      <mat-card appearance="outlined">
+        <h2 i18n="@@Full_snapshot">Full snapshot</h2>
+        <p class="hint" i18n="@@Snapshot_hint">
+          A coherent copy of the whole database, taken while the gateway runs: routes and vault,
+          but also users, organisations, sessions and the audit trail. This is what a backup
+          restores; a configuration export is what a second gateway reproduces.
+        </p>
+        <div class="note">
+          <mat-icon>schedule</mat-icon>
+          <p i18n="@@Snapshot_scope_note">
+            Meerkat takes the snapshot, because copying a live database with cp can catch it
+            mid-write and nothing says so until the day you restore it. Scheduling, retention and
+            shipping it off the host belong to your backup tool, not here.
+          </p>
+        </div>
+
+        <div class="actions">
+          <button matButton="filled" (click)="takeSnapshot()" [disabled]="snapshotting()">
+            <!-- No whitespace inside the branches (NG8011). -->
+            @if (snapshotting()) {<mat-icon spin>autorenew</mat-icon>} @else {<mat-icon>database</mat-icon>}
+            <ng-container i18n="@@Download_a_snapshot">Download a snapshot</ng-container>
+          </button>
+          <button matButton (click)="showRestore.set(!showRestore())">
+            <mat-icon>{{ showRestore() ? 'expand_less' : 'expand_more' }}</mat-icon>
+            <ng-container i18n="@@How_to_restore">How to restore</ng-container>
+          </button>
+        </div>
+
+        @if (showRestore()) {
+          @if (backup(); as b) {
+            <p class="hint" style="margin-top: 16px" i18n="@@Restore_hint">
+              Restoring happens with the service stopped: a database cannot be replaced under the
+              process holding it open, and the sessions and users it brings back are the ones the
+              request doing it would depend on. Keep the old file until the new one has proven
+              itself.
+            </p>
+            <pre>{{ restoreProcedure(b) }}</pre>
+            @if (b.keyFromEnv) {
+              <p class="hint" i18n="@@Key_from_env_note">
+                The master key of this gateway comes from MEERKAT_VAULT_KEY, so it is not in that
+                directory: the snapshot holds the vault encrypted and is worth nothing without
+                that variable. Keep it that way.
+              </p>
+            } @else {
+              <div class="note warn">
+                <mat-icon>key</mat-icon>
+                <p i18n="@@Key_beside_db_note">
+                  The master key sits next to the database. Backing them up together undoes the
+                  encryption at rest, exactly as a vault file stored beside its passphrase would:
+                  keep the key in a secret manager, or supply it through MEERKAT_VAULT_KEY.
+                </p>
+              </div>
+            }
+          }
+        }
+      </mat-card>
+
       @if (toFill().length) {
         <mat-card appearance="outlined">
           <h2 i18n="@@Vault_entries_to_fill">Vault entries to fill</h2>
@@ -360,6 +460,11 @@ export class ConfigurationPageComponent {
   protected readonly toFill = signal<ConfigMissingRef[]>([]);
   protected readonly values = signal<Record<string, string>>({});
 
+  // The snapshot half (STORE-05).
+  protected readonly snapshotting = signal(false);
+  protected readonly showRestore = signal(false);
+  protected readonly backup = signal<BackupInfo | null>(null);
+
   protected readonly touched = computed(
     () => this.plan()?.changes.some((c) => c.action !== 'same') ?? false,
   );
@@ -372,6 +477,61 @@ export class ConfigurationPageComponent {
       },
       error: () => this.loading.set(false),
     });
+    this.api.backupInfo().subscribe({ next: (b) => this.backup.set(b) });
+  }
+
+  // A snapshot is a binary file: fetched as a Blob and handed straight to the
+  // browser. Reading it as text would corrupt it silently.
+  protected takeSnapshot(): void {
+    this.snapshotting.set(true);
+    this.api.snapshot().subscribe({
+      next: (blob) => {
+        this.snapshotting.set(false);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `meerkat-${new Date().toISOString().slice(0, 10)}.db`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: (err: unknown) => {
+        this.snapshotting.set(false);
+        this.fail(err);
+      },
+    });
+  }
+
+  // The real paths of THIS installation, so the procedure is a copy-paste and
+  // not a puzzle. The old file is kept aside: a restore one regrets must have a
+  // way back.
+  protected restoreProcedure(b: BackupInfo): string {
+    return [
+      '# 1. stop meerkat',
+      '# 2. keep the current database aside',
+      `mv ${b.dbFile} ${b.dbFile}.before-restore`,
+      '# 3. put the snapshot in its place',
+      `cp meerkat-YYYY-MM-DD.db ${b.dbFile}`,
+      '# 4. start meerkat, then check a route and a sign-in',
+    ].join('\n');
+  }
+
+  // "3 routes", "1 role" — the plural is the count's business, not the label's.
+  protected family(kind: string, count: number): string {
+    const one = count === 1;
+    switch (kind) {
+      case 'route':
+        return one ? $localize`:@@Route:Route` : $localize`:@@Routes:Routes`;
+      case 'role':
+        return one ? $localize`:@@Role:Role` : $localize`:@@Roles:Roles`;
+      case 'authProvider':
+        return one ? $localize`:@@Authority:Authority` : $localize`:@@Authorities:Authorities`;
+      case 'theme':
+        return one ? $localize`:@@Theme:Theme` : $localize`:@@Themes:Themes`;
+      case 'mailRelay':
+        return $localize`:@@Mail_relay:Mail relay`;
+      default:
+        return one ? $localize`:@@Setting:Setting` : $localize`:@@Settings:Settings`;
+    }
   }
 
   protected download(): void {

@@ -29,6 +29,9 @@ type Store struct {
 	// vaultCipher seals the vault's secret entries at rest (VAULT-01). The
 	// master key comes from MEERKAT_VAULT_KEY, or a 0600 key file in dataDir.
 	vaultCipher *vault.Cipher
+	// dataDir is kept so a snapshot can be written next to the database and
+	// the console can name the real paths in its restore procedure (STORE-05).
+	dataDir string
 }
 
 // Open opens (creating if needed) the embedded database inside dataDir and
@@ -43,7 +46,7 @@ func Open(dataDir string) (*Store, error) {
 	// SQLite serializes writers; a single connection avoids SQLITE_BUSY storms
 	// while the skeleton has no connection-pool needs.
 	db.SetMaxOpenConns(1)
-	s := &Store{db: db}
+	s := &Store{db: db, dataDir: dataDir}
 	if err := s.migrate(); err != nil {
 		_ = db.Close()
 		return nil, err

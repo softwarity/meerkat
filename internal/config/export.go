@@ -129,6 +129,59 @@ func stripSecrets(doc *Document) []Literal {
 	return found
 }
 
+// Section is one family of objects a document carries, with what is in it. The
+// console shows this BEFORE the download: "what exactly am I about to hand
+// over" is the first question anyone asks of an export, and answering it with a
+// file they have to open first is answering it badly.
+type Section struct {
+	Kind  string `json:"kind"`
+	Count int    `json:"count"`
+	// Names is the objects themselves, in the document's own order. Absent for
+	// settings, whose keys say nothing to a reader.
+	Names []string `json:"names,omitempty"`
+}
+
+// Inventory lists what doc holds, in the order it is written.
+func Inventory(doc *Document) []Section {
+	var out []Section
+	add := func(kind string, names []string) {
+		if len(names) > 0 {
+			out = append(out, Section{Kind: kind, Count: len(names), Names: names})
+		}
+	}
+	routes := make([]string, 0, len(doc.Routes))
+	for _, r := range doc.Routes {
+		routes = append(routes, r.Name)
+	}
+	add("route", routes)
+
+	roles := make([]string, 0, len(doc.Roles))
+	for _, r := range doc.Roles {
+		roles = append(roles, r.Name)
+	}
+	add("role", roles)
+
+	providers := make([]string, 0, len(doc.AuthProviders))
+	for _, p := range doc.AuthProviders {
+		providers = append(providers, p.Name)
+	}
+	add("authProvider", providers)
+
+	themes := make([]string, 0, len(doc.Themes))
+	for _, t := range doc.Themes {
+		themes = append(themes, t.Name)
+	}
+	add("theme", themes)
+
+	if doc.MailRelay != nil {
+		out = append(out, Section{Kind: "mailRelay", Count: 1, Names: []string{doc.MailRelay.Host}})
+	}
+	if n := len(doc.Settings); n > 0 {
+		out = append(out, Section{Kind: "setting", Count: n})
+	}
+	return out
+}
+
 // Refs returns every vault entry the document points at, sorted, without
 // duplicates. Whole values and fragments alike ("http://${host}:8080" counts),
 // because both have to resolve for the configuration to work.

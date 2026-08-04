@@ -60,10 +60,7 @@ mat-cell.mat-column-user {
   background: var(--mat-sys-surface);
 }
 .user-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 6px 0;
+  @extend .two-line;
 }
 .user-cell .name {
   font-weight: 500;

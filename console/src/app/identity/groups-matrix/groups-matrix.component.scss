@@ -72,12 +72,8 @@ mat-cell.mat-column-role {
   padding-bottom: 0;
 }
 .role-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 4px 0 4px 4px;
-  align-self: center;
-  line-height: 1.25;
+  @extend .two-line;
+  padding-left: 4px;
 }
 /* The description leads, the name is the identifier underneath it. */
 .role-cell .label {

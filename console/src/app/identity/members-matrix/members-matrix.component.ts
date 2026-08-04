@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
 import { RowActionsDirective } from '@softwarity/row-actions';
 import { DateTime } from 'luxon';
-import { catchError, firstValueFrom, forkJoin, Observable, of } from 'rxjs';
+import { catchError, concatMap, firstValueFrom, forkJoin, from, Observable, of, tap } from 'rxjs';
 import { ApiService, Group, Member, User } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
 import {
@@ -208,12 +208,32 @@ export class MembersMatrixComponent {
     return { checked: inGroup === members.length, some: inGroup > 0 && inGroup < members.length };
   }
 
+  // ONE write at a time. Firing these in parallel let each call read a
+  // memberGroups the others were still changing, so the state one ended up with
+  // depended on which answer came back last. concatMap makes the sequence the
+  // one the user clicked, and a failure stops it instead of leaving half of a
+  // column applied without saying which half.
   protected toggleColumn(groupId: string, checked: boolean): void {
-    for (const u of this.filteredRows()) {
-      if (!this.isMember(u.id)) continue;
-      if (this.memberInGroup(u.id, groupId) === checked) continue;
-      this.toggleMemberGroup(u.id, groupId, checked);
-    }
+    const todo = this.filteredRows().filter(
+      (u) => this.isMember(u.id) && this.memberInGroup(u.id, groupId) !== checked,
+    );
+    if (todo.length === 0) return;
+    from(todo)
+      .pipe(
+        concatMap((u) => {
+          const current = this.memberGroups()[u.id] ?? [];
+          const ids = checked ? [...current, groupId] : current.filter((g) => g !== groupId);
+          return this.api
+            .setMemberGroups(this.tenantId(), u.id, ids)
+            .pipe(tap((saved) => this.memberGroups.update((m) => ({ ...m, [u.id]: saved }))));
+        }),
+      )
+      .subscribe({
+        error: (err) => {
+          this.snack.open(errMsg(err), undefined, { duration: 5000 });
+          this.load();
+        },
+      });
   }
 
   protected toggleMemberGroup(userId: string, groupId: string, checked: boolean): void {

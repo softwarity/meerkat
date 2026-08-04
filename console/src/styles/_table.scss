@@ -19,6 +19,18 @@
   mat-cell {
     min-height: $row-height;
   }
+  // A cell holding a label and its identifier underneath: tightened so two
+  // lines fit the same row height as one. Without this, the tables with a
+  // subtitle drift taller than the others and the console looks assembled
+  // from parts.
+  .two-line {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 4px 0;
+    align-self: center;
+    line-height: 1.25;
+  }
   mat-row:nth-child(even),
   mat-row:nth-child(even) mat-cell {
     background: color-mix(in srgb, var(--mat-sys-on-surface) #{$band}, var(--mat-sys-surface));

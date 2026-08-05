@@ -30,6 +30,14 @@
     --mat-table-row-item-outline-width: 0;
     background: transparent;
   }
+  // A sticky header is a header that rows pass UNDER, so it has to stop the
+  // light: transparent, it reads the rows through itself and the labels sit on
+  // top of moving text. On the ROW and on its CELLS, because a sticky COLUMN's
+  // header cell is positioned separately and a row-level rule never reaches it.
+  mat-header-row,
+  mat-header-row mat-header-cell {
+    background: var(--mat-sys-surface-container-high);
+  }
   // The seam between a sticky column and the rest. Sticky cells slide UNDER
   // nothing - the columns pass beneath them - so without a rule the numbers
   // simply appear next to a name that never moved, and one cannot tell which

@@ -38,10 +38,15 @@
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
-  padding: 0 24px 88px;
+  padding: 0 24px 24px;
 }
 .table-wrap {
   @include table.frame;
+}
+// The floating FAB sits over the frame's bottom-right corner: the last row
+// clears it from INSIDE, so the page keeps no empty band under the table.
+mat-row:last-of-type {
+  margin-bottom: 56px;
 }
 
 .empty {

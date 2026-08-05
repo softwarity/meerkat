@@ -22,6 +22,31 @@ jobs:
           go-version: stable
       - uses: golangci/golangci-lint-action@v9
 
+  # The console, built ONCE and handed to whoever needs it. It was built twice,
+  # in two configurations, for two jobs that both just need the files; and with
+  # twenty locales the build is no longer the cheap step it used to be.
+  console:
+    name: Console
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: console/package-lock.json
+      - working-directory: console
+        run: npm ci
+      # Production, not development: it is what ships, and the integration
+      # suite is worth running against the real thing rather than a debug build.
+      - working-directory: console
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: console
+          path: console/dist/console/browser
+          retention-days: 1
+
   # The unit tests, split by the area they cover so a red check names it:
   # "Routing" rather than "Test (ubuntu-latest)". Ubuntu only - this is about
   # reading the result, and the same split across three OSes would be fifteen
@@ -165,6 +190,7 @@ jobs:
   e2e:
     name: Integration (Playwright)
     runs-on: ubuntu-latest
+    needs: console
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
@@ -173,11 +199,11 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - name: Build console
-        working-directory: console
-        run: |
-          npm ci
-          npx ng build --configuration development
+      - name: Take the console that was already built
+        uses: actions/download-artifact@v4
+        with:
+          name: console
+          path: console/dist/console/browser
       - name: Install Playwright
         working-directory: e2e
         run: |
@@ -194,27 +220,20 @@ jobs:
 
   build:
     name: Cross-compile
-    needs: test
+    needs: [test, console]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with:
           go-version: stable
-      - uses: actions/setup-node@v7
+      # The console is arch-independent, so it is built once by its own job and
+      # embedded in every binary below (what `make ui` does locally).
+      - name: Take the console that was already built
+        uses: actions/download-artifact@v4
         with:
-          node-version-file: .node-version
-          cache: npm
-          cache-dependency-path: console/package-lock.json
-      # The console build is arch-independent: built once, embedded in every
-      # binary below (same as `make ui`).
-      - name: Build console
-        working-directory: console
-        run: |
-          npm ci
-          npm run build
-          rm -rf ../internal/admin/ui/dist
-          cp -R dist/console/browser ../internal/admin/ui/dist
+          name: console
+          path: internal/admin/ui/dist
       - name: Cross-compile
         env:
           CGO_ENABLED: "0"
@@ -238,7 +257,7 @@ jobs:
   # to test that branch on a real cluster, never latest. Off PRs.
   image:
     name: Build & publish image
-    needs: [lint, unit, coverage-of-the-split, test, directories, e2e, build]
+    needs: [lint, unit, coverage-of-the-split, test, directories, e2e, build, console]
     if: success() && github.event_name != 'pull_request'
     permissions:
       contents: read

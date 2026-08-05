@@ -7,3 +7,4 @@
 /src/assets/version.json
 *.log
 .DS_Store
+/test-results

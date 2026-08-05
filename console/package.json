@@ -37,8 +37,8 @@
     "@angular/build": "^22.0.0",
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^22.0.0",
-    "@softwarity/polyglot": "^1.0.0",
-    "@types/luxon": "^3.7.2",
+    "@softwarity/polyglot": "^1.0.1",
+    "@types/luxon": "^3.7.3",
     "typescript": "~6.0.0"
   },
   "overrides": {

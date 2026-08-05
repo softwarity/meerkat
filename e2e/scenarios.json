@@ -321,12 +321,12 @@
       }
     },
     {
-      "id": "ui-rail-gateway",
+      "id": "ui-rail-infra",
       "domain": "console",
       "kind": "ui",
-      "check": { "railItem": "Gateway" },
+      "check": { "railItem": "Infra" },
       "allowed": ["root", "infra-admin"],
-      "title": { "en": "The Gateway rail entry shows only for its admins", "fr": "L'entrée Gateway du rail n'apparaît que pour ses admins" },
+      "title": { "en": "The Infra rail entry shows only for its admins", "fr": "L'entrée Infra du rail n'apparaît que pour ses admins" },
       "description": {
         "en": "The console rail hides the Gateway scope from profiles that cannot use it (and the API refuses them anyway).",
         "fr": "Le rail de la console cache le périmètre Gateway aux profils qui ne peuvent pas l'utiliser (et l'API les refuse de toute façon)."

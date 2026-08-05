@@ -140,14 +140,16 @@ test('flow-privilege-escalation: an app admin cannot mint or promote a root', as
 // then turns the captcha off for its scripted loop.
 test('flow-register-captcha: a wrong copy is refused', async ({ page }) => {
   const root = await request.newContext({ baseURL: ADMIN_URL, storageState: authFile('root') });
+  // The relay is INFRA and has its own endpoint (it is a third-party service
+  // reached by host and port); /api/settings keeps only what the application
+  // owns, the sender display name.
+  const relay = await root.put('/api/settings/mail-relay', {
+    data: { host: '127.0.0.1', port: 12525, security: 'none', username: '', password: '', from: 'no-reply@e2e.test' },
+  });
+  expect(relay.ok(), await relay.text()).toBeTruthy();
   const settings = await (await root.get('/api/settings')).json();
   const put = await root.put('/api/settings', {
-    data: {
-      ...settings,
-      smtp: { host: '127.0.0.1', port: 12525, security: 'none', username: '', from: 'Meerkat <no-reply@e2e.test>', password: '', passwordSet: false },
-      selfRegistration: true,
-      selfRegisterCaptcha: true,
-    },
+    data: { ...settings, selfRegistration: true, selfRegisterCaptcha: true },
   });
   expect(put.ok(), await put.text()).toBeTruthy();
   await root.dispose();
@@ -179,11 +181,14 @@ test('flow-self-register: end to end through the mailed confirmation', async ({ 
   });
   expect(rootPut.ok(), await rootPut.text()).toBeTruthy();
   // Point the gateway at the sink and open self-registration.
+  const relay = await root.put('/api/settings/mail-relay', {
+    data: { host: '127.0.0.1', port: 12525, security: 'none', username: '', password: '', from: 'no-reply@e2e.test' },
+  });
+  expect(relay.ok(), await relay.text()).toBeTruthy();
   const settings = await (await root.get('/api/settings')).json();
   const put = await root.put('/api/settings', {
     data: {
       ...settings,
-      smtp: { host: '127.0.0.1', port: 12525, security: 'none', username: '', from: 'Meerkat <no-reply@e2e.test>', password: '', passwordSet: false },
       selfRegistration: true,
       selfRegisterCaptcha: false, // the scripted loop skips the visual check
     },

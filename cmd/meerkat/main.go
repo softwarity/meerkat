@@ -242,7 +242,12 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 		Filters: []routing.Spec{
 			{Type: "strip-prefix", Args: map[string]any{"parts": 1}},
 		},
-		UI: &store.RouteUI{CustomJS: `console.log("injected by meerkat, the sentinel is watching")`},
+		// Link names it in the user's applications menu (UIF-03): a UI route
+		// without one is reachable but unlisted, which is not what a demo is for.
+		UI: &store.RouteUI{
+			Link:     "Demo",
+			CustomJS: `console.log("injected by meerkat, the sentinel is watching")`,
+		},
 	}); err != nil {
 		return err
 	}
@@ -260,7 +265,10 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 		Filters: []routing.Spec{
 			{Type: "strip-prefix", Args: map[string]any{"parts": 1}},
 		},
-		UI: &store.RouteUI{CustomJS: `console.log("authenticated, meerkat let you in")`},
+		UI: &store.RouteUI{
+			Link:     "Demo (secure)",
+			CustomJS: `console.log("authenticated, meerkat let you in")`,
+		},
 	}); err != nil {
 		return err
 	}

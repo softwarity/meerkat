@@ -2,11 +2,16 @@
 // and writes each message as JSON into .tmp/mail/ — the self-registration
 // test reads the confirmation link back from there. No dependency, no TLS.
 import { createServer } from 'node:net';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const PORT = 12525;
 const DIR = fileURLToPath(new URL('../.tmp/mail', import.meta.url));
+// Emptied at every start: a test looks up a message by recipient and needle,
+// so a leftover from a previous run can be found INSTEAD of the fresh one -
+// and its one-shot token is already spent. That fails as "the confirmation
+// page did not confirm", which sends the reader looking at the wrong thing.
+rmSync(DIR, { recursive: true, force: true });
 mkdirSync(DIR, { recursive: true });
 
 let counter = 0;

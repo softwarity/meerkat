@@ -2,9 +2,8 @@
   <mat-drawer-content>
     <div class="banner">
       <h1 i18n="@@Users">Users</h1>
-      <button matButton="filled" (click)="create()">
-        <mat-icon>person_add</mat-icon>
-        <ng-container i18n="@@New_user">New user</ng-container>
+      <button matIconButton (click)="load()" i18n-matTooltip="@@Refresh" matTooltip="Refresh" i18n-aria-label="@@Refresh" aria-label="Refresh">
+        @if (loading()) {<mat-icon spin>autorenew</mat-icon>} @else {<mat-icon>refresh</mat-icon>}
       </button>
     </div>
 
@@ -20,7 +19,7 @@
                 <span class="dot" [title]="u.enabled ? 'enabled' : 'disabled'"></span>
                 <span class="id">
                   <span class="mono">{{ u.username }}</span>
-                  <span class="muted">{{ u.fullname }} {{ u.email ? '· ' + u.email : '' }}</span>
+                  <span class="muted">{{ u.fullname }}{{ u.fullname && u.email ? ' · ' : '' }}{{ u.email }}</span>
                 </span>
               </mat-cell>
             </ng-container>
@@ -80,6 +79,18 @@
         </div>
       }
     </div>
+
+    <button
+      matFab
+      class="fab-new"
+      (click)="create()"
+      i18n-matTooltip="@@New_user"
+      matTooltip="New user"
+      i18n-aria-label="@@New_user"
+      aria-label="New user"
+    >
+      <mat-icon>person_add</mat-icon>
+    </button>
   </mat-drawer-content>
 
   <mat-drawer position="end" mode="over" [opened]="editing() !== null" (closedStart)="onClose()">

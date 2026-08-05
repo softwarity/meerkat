@@ -37,6 +37,18 @@ mat-drawer-content {
 .table-wrap {
   @include table.frame;
 }
+// The last row clears the floating FAB from inside the frame.
+mat-row:last-of-type {
+  margin-bottom: 56px;
+}
+// Floats OVER the frame's bottom-right corner, set in by the page's own 24px
+// plus 16 of air: flush against the hairline it reads as stuck to it.
+.fab-new {
+  position: absolute;
+  right: 40px;
+  bottom: 40px;
+  z-index: 2;
+}
 .clickable {
   cursor: pointer;
 }

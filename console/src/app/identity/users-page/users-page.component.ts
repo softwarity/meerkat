@@ -75,7 +75,7 @@ export class UsersPageComponent {
     this.load();
   }
 
-  private load(): void {
+  protected load(): void {
     this.loading.set(true);
     forkJoin({ users: this.api.listUsers(), settings: this.api.settings() }).subscribe({
       next: ({ users, settings }) => {

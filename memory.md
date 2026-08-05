@@ -1035,6 +1035,15 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   `@@Route_NAME_saved_and_applied`), `npm run extract`, `messages.fr.xlf` complet,
   URLs `/en/routes` `/fr/routes`, contrôle de langue dans le rail (`app-lang-select`).
   Dev multi-locales : `npm run start:i18n` (**@softwarity/polyglot**, proxy `:4200`).
+  **20 locales livrées** (en fr es de it pt nl pl ru uk tr ar he hi zh-Hans ja ko
+  vi th id), non traduites : `scripts/i18n-sync.mjs` ajoute les unités manquantes
+  avec la source en cible (jamais d'écrasement d'une traduction) **et** génère
+  dans `angular.json` les configurations `build`/`serve` par locale. Piège vécu
+  (2026-08-05) : déclarer une locale sous `i18n.locales` suffit à la BUILDER
+  (`localize: true` les prend toutes) mais pas à la LANCER — `ng serve
+  --configuration=<code>` exige une config serve, et polyglot lit exactement
+  cette liste (18 locales « (no serve config) »). Ajouter une langue = une
+  entrée sous `i18n.locales`, `npm run extract` fait le reste.
   **Éditeur de route = un seul Signal Form** : `draft` (linkedSignal) couvre scalaires
   + predicates + filters ; `PredicatesComponent`/`FiltersComponent` implémentent
   **`FormValueControl<Spec[]>`** (`value = model()`, `errors = input()`) et se bindent
@@ -1065,6 +1074,20 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   Dependabot est **groupé par écosystème** (une PR par semaine et par
   écosystème, Angular en lockstep) : trois PR pour trois actions relançaient
   trois fois le pipeline pour déplacer un numéro de version.
+- **Ce que le premier tour de Dependabot a appris (2026-08-05)** — un groupe
+  fait voyager les paquets ensemble, il ne rend pas leurs versions cohérentes
+  avec ce qui les entoure. Deux dépendances suivent autre chose que npm, et
+  c'est écrit dans `.github/dependabot.yml` : **TypeScript suit Angular**
+  (`@angular/build` épingle un peer `>=6.0 <6.1` ; le 7.0.2 proposé faisait
+  échouer `npm ci`) et **`@types/node` suit `.node-version`** (des types un
+  major devant le runtime décrivent une API absente). Surtout, **là où rien ne
+  vérifiait, la montée cassante passait au vert** : le site de doc n'était
+  construit qu'APRÈS le merge (job `Doc site` ajouté) et Playwright transpile
+  les specs sans les vérifier — 158 tests verts sur un tsconfig que
+  `tsc --noEmit` refusait (étape `Type-check the specs` ajoutée). Enfin les
+  branches `dependabot/**` ne déclenchent plus le pipeline sur push : elles
+  arrivent AVEC une PR, donc tout tournait deux fois et la moitié `push`
+  publiait une image `:dependabot-npm_and_yarn-...` dans GHCR.
 - **Éditions** : FSL-1.1-Apache-2.0 racine, `ee/` licence commerciale, gating par
   licence **ed25519 hors-ligne** (`internal/license`, `internal/features`).
 - **Drawer tenant (session 2026-07-24)** : layout **left/right** — nav des sections à

@@ -5,7 +5,12 @@
 > quand l'état change. Le contrat produit reste `requirements.md` ; les conventions,
 > `CLAUDE.md` ; ici : l'état courant, les chantiers, les pièges.
 
-_Derniere mise a jour : 2026-08-04 : **configuration portable** (CFG-01/03/05) et
+_Derniere mise a jour : 2026-08-06 : CI **docker-only** (plus de binaires natifs
+ni de matrice macOS/Windows), **schema declare une seule fois** dans les
+`CREATE TABLE` (fin de `addMissingColumns`), **unification du style des tables**
+(cadre sur ce qui defile, couture sticky, en-tetes opaques). **Question ouverte
+a reprendre** : un compte en salle d'attente franchit les routes `authenticated`
+du plan data - voir la section dediee. Avant : 2026-08-04 : **configuration portable** (CFG-01/03/05) et
 **coffre chiffre** (VAULT-03) - deux fichiers de natures opposees : l'un public et
 versionnable, l'autre chiffre et jamais versionne ; ensemble ils amorcent une gateway
 vierge sans humain. Le meme jour : **sous-menu Developer du user-button** (entree
@@ -1828,6 +1833,62 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   `@angular/animations` est mort (v20.2+).
 - Sandbox distant : pas d'accès entrant, egress filtré (angular.dev/httpbin bloqués) —
   tester avec des upstreams locaux (`httptest`) ; GitHub/npm registry passent.
+
+## Session 2026-08-05/06 - CI docker-only, schema unique, unification des tables
+
+- **Distribution : image Docker et rien d'autre** (voir l'entree CI/CD plus bas).
+  Dependabot groupe par ecosysteme ; TypeScript suit Angular et `@types/node`
+  suit `.node-version` (ecrit dans `.github/dependabot.yml`, pas redecouvert
+  chaque semaine). Deux trous de CI combles : le **site de doc** n'etait construit
+  qu'APRES le merge, et Playwright transpile les specs **sans les verifier**
+  (158 tests verts sur un tsconfig que `tsc --noEmit` refusait).
+- **Le schema est declare UNE fois, dans les `CREATE TABLE`** (2026-08-05).
+  Avant : `users` etait creee avec 4 colonnes et en recevait 22 par
+  `addMissingColumns` a chaque ouverture ; idem sessions/tenants/routes/groups.
+  Deux sources, rien pour les tenir d'accord -> c'est exactement pourquoi
+  `source` (v32) etait dans le CREATE et `groups` (v31) dans une liste de
+  migration, et pourquoi ajouter un user a un tenant repondait "no such column:
+  source" sur une base plus ancienne que la fonctionnalite. **Supprime** :
+  `addMissingColumns`, les 9 listes `columnDef`, `recreateVaultIfSingleKeyed`,
+  `renameGatewayAdminColumn`. Verifie : schema d'une base vierge **identique**
+  avant/apres (195 colonnes) + 158 tests e2e. Regle rappelee par Francois :
+  **pas de script de migration en phase de design**, la base se jette.
+- **Toutes les tables ont le meme style** : mixin `frame` (liseré + rayon) sur
+  **ce qui defile**, jamais sur `mat-table` (sinon le cadre part avec le scroll
+  et la barre reste dehors) ; `banded-rows` unifie hauteur 48px, bandes, hover,
+  en-tetes opaques (un en-tete sticky doit arreter la lumiere) et **couture
+  entre colonne sticky et reste**. 8 tables alignees. FAB en retrait de 16px du
+  liseré. Plus de divider entre filtres et table.
+- **Piege du thème** : le theme remplacait `--mat-sys-background` sans
+  `--mat-sys-on-background` ; Material n'ecrit avec ce token qu'a UN endroit,
+  `.mat-drawer-content`, donc tous les ecrans a tiroir rendaient dans une teinte
+  etrangere. Invisible sur une page seule.
+
+## QUESTION OUVERTE (reprise 2026-08-06) : compte en attente et plan data
+
+Constat de Francois : il se connecte, recoit "Your account is awaiting access"
+(salle d'attente `/account-pending`), **et franchit quand meme une route qui
+n'exige que `authenticated`** - l'amont recoit un utilisateur **sans tenant et
+sans role**.
+
+Mecanisme : `sessionIdentity` (`internal/gateway/router.go:659`) repond
+"authentifie" des qu'il y a session valide + compte actif ; le tenant est
+facultatif. `waitingRoom()` (`internal/auth/register.go:496`) ne vit que dans le
+flux de login de la CONSOLE. Donc refuse cote console, accepte cote applications.
+
+Trois options posees (avis donne : **a**) :
+- **a) la salle d'attente vaut pour les deux plans** - une session dont le
+  porteur est en salle d'attente ne satisfait pas `authenticated` ; redirection
+  `/account-pending` sur une route UI, 403 sur une route API. Reutilise une
+  regle deja ecrite, aucun reglage nouveau ;
+- b) `authenticated` exige un tenant actif - casse root/infra/app-admin/dev/
+  tenant-creator (aucune membership) et le multi-tenant pas encore choisi ;
+- c) laisser passer + en-tete `X-Meerkat-Pending` - reporte une decision de
+  securite sur chaque application.
+
+**Second trou du meme genre** : quelqu'un membre de PLUSIEURS tenants qui n'a pas
+choisi traverse une route `authenticated` avec **zero role** alors qu'il en a -
+son appel est evalue comme s'il n'avait aucun droit, silencieusement.
 
 ## En attente de validation François
 

@@ -53,12 +53,13 @@
   display: flex;
   flex-direction: column;
 }
+// No rule under the search and filters: the table below draws its own frame,
+// and a second line right above it reads as a box that failed to close.
 .right > header {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 24px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
 }
 .search {
   flex: 1 1 240px;

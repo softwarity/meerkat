@@ -1,4 +1,5 @@
-// Keeps every locale catalogue in step with the extracted source.
+// Keeps every locale in step: its catalogue AND the build/serve configurations
+// it needs to run.
 //
 //   npm run extract && npm run i18n:sync
 //
@@ -10,6 +11,14 @@
 //
 // Existing targets are never touched. A translator's work survives every run,
 // which is the only way this can be part of the routine.
+//
+// The configurations are the other half, and the half that was forgotten:
+// declaring a locale under i18n.locales is enough for a production build
+// (`localize: true` takes them all) but NOT to run one. `ng serve
+// --configuration=<code>` needs a serve configuration, which needs a build
+// configuration, and polyglot reads exactly that list - eighteen locales came
+// up "(no serve config)" and none of them could be opened in dev. Adding a
+// language is one entry under i18n.locales; the rest belongs here.
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -17,9 +26,44 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
-const angular = JSON.parse(readFileSync(join(root, 'angular.json'), 'utf8'));
-const i18n = angular.projects.console.i18n;
+const angularPath = join(root, 'angular.json');
+const angular = JSON.parse(readFileSync(angularPath, 'utf8'));
+const project = angular.projects.console;
+const i18n = project.i18n;
 const sourceLocale = typeof i18n.sourceLocale === 'string' ? i18n.sourceLocale : i18n.sourceLocale.code;
+
+// The subPath of a locale is what it is served under, so it is also its
+// baseHref. It defaults to the code (zh-Hans is served from /zh-Hans/).
+function subPathOf(code, value) {
+  if (code === sourceLocale) {
+    const src = i18n.sourceLocale;
+    return (typeof src === 'object' && src.subPath) || code;
+  }
+  return (value && typeof value === 'object' && value.subPath) || code;
+}
+
+{
+  const build = project.architect.build.configurations;
+  const serve = project.architect.serve.configurations;
+  const added = [];
+  for (const [code, value] of [[sourceLocale, null], ...Object.entries(i18n.locales || {})]) {
+    const subPath = subPathOf(code, value);
+    if (!build[code]) {
+      build[code] = { localize: [code], baseHref: `/${subPath}/` };
+      added.push(`build:${code}`);
+    }
+    if (!serve[code]) {
+      serve[code] = { buildTarget: `console:build:development,${code}` };
+      added.push(`serve:${code}`);
+    }
+  }
+  if (added.length) {
+    writeFileSync(angularPath, JSON.stringify(angular, null, 2) + '\n');
+    console.log(`angular.json: +${added.length} configurations (${added.join(', ')})`);
+  } else {
+    console.log('angular.json: every locale can be built and served');
+  }
+}
 
 const sourcePath = join(root, 'src/locale/messages.xlf');
 const source = readFileSync(sourcePath, 'utf8');

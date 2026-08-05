@@ -143,6 +143,114 @@
                 "fr"
               ],
               "baseHref": "/fr/"
+            },
+            "es": {
+              "localize": [
+                "es"
+              ],
+              "baseHref": "/es/"
+            },
+            "de": {
+              "localize": [
+                "de"
+              ],
+              "baseHref": "/de/"
+            },
+            "it": {
+              "localize": [
+                "it"
+              ],
+              "baseHref": "/it/"
+            },
+            "pt": {
+              "localize": [
+                "pt"
+              ],
+              "baseHref": "/pt/"
+            },
+            "nl": {
+              "localize": [
+                "nl"
+              ],
+              "baseHref": "/nl/"
+            },
+            "pl": {
+              "localize": [
+                "pl"
+              ],
+              "baseHref": "/pl/"
+            },
+            "ru": {
+              "localize": [
+                "ru"
+              ],
+              "baseHref": "/ru/"
+            },
+            "uk": {
+              "localize": [
+                "uk"
+              ],
+              "baseHref": "/uk/"
+            },
+            "tr": {
+              "localize": [
+                "tr"
+              ],
+              "baseHref": "/tr/"
+            },
+            "ar": {
+              "localize": [
+                "ar"
+              ],
+              "baseHref": "/ar/"
+            },
+            "he": {
+              "localize": [
+                "he"
+              ],
+              "baseHref": "/he/"
+            },
+            "hi": {
+              "localize": [
+                "hi"
+              ],
+              "baseHref": "/hi/"
+            },
+            "zh-Hans": {
+              "localize": [
+                "zh-Hans"
+              ],
+              "baseHref": "/zh-Hans/"
+            },
+            "ja": {
+              "localize": [
+                "ja"
+              ],
+              "baseHref": "/ja/"
+            },
+            "ko": {
+              "localize": [
+                "ko"
+              ],
+              "baseHref": "/ko/"
+            },
+            "vi": {
+              "localize": [
+                "vi"
+              ],
+              "baseHref": "/vi/"
+            },
+            "th": {
+              "localize": [
+                "th"
+              ],
+              "baseHref": "/th/"
+            },
+            "id": {
+              "localize": [
+                "id"
+              ],
+              "baseHref": "/id/"
             }
           },
           "defaultConfiguration": "production"
@@ -161,6 +269,60 @@
             },
             "fr": {
               "buildTarget": "console:build:development,fr"
+            },
+            "es": {
+              "buildTarget": "console:build:development,es"
+            },
+            "de": {
+              "buildTarget": "console:build:development,de"
+            },
+            "it": {
+              "buildTarget": "console:build:development,it"
+            },
+            "pt": {
+              "buildTarget": "console:build:development,pt"
+            },
+            "nl": {
+              "buildTarget": "console:build:development,nl"
+            },
+            "pl": {
+              "buildTarget": "console:build:development,pl"
+            },
+            "ru": {
+              "buildTarget": "console:build:development,ru"
+            },
+            "uk": {
+              "buildTarget": "console:build:development,uk"
+            },
+            "tr": {
+              "buildTarget": "console:build:development,tr"
+            },
+            "ar": {
+              "buildTarget": "console:build:development,ar"
+            },
+            "he": {
+              "buildTarget": "console:build:development,he"
+            },
+            "hi": {
+              "buildTarget": "console:build:development,hi"
+            },
+            "zh-Hans": {
+              "buildTarget": "console:build:development,zh-Hans"
+            },
+            "ja": {
+              "buildTarget": "console:build:development,ja"
+            },
+            "ko": {
+              "buildTarget": "console:build:development,ko"
+            },
+            "vi": {
+              "buildTarget": "console:build:development,vi"
+            },
+            "th": {
+              "buildTarget": "console:build:development,th"
+            },
+            "id": {
+              "buildTarget": "console:build:development,id"
             }
           },
           "defaultConfiguration": "development"

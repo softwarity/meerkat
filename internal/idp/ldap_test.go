@@ -2,12 +2,14 @@ package idp
 
 import (
 	"context"
-	"net"
+	"crypto/tls"
+	"errors"
 	"os"
 	"slices"
 	"strings"
 	"testing"
-	"time"
+
+	"github.com/go-ldap/ldap/v3"
 
 	"github.com/softwarity/meerkat/internal/store"
 )
@@ -29,18 +31,36 @@ const (
 	adPassword = "Passw0rd!2026"
 )
 
+// serverOrSkip returns the directory URL, skipping the test when no directory
+// answers there.
+//
+// It speaks LDAP rather than merely opening a socket, and that is not zeal:
+// port 3389 is REMOTE DESKTOP on Windows, which listens on every Windows
+// runner. A TCP connect succeeded there, the test did not skip, and it then
+// tried to bind against RDP - failing with "an existing connection was
+// forcibly closed" on a machine that has no directory at all. "Something is
+// listening" was never the question.
 func serverOrSkip(t *testing.T, env, def string) string {
 	t.Helper()
 	url := os.Getenv(env)
 	if url == "" {
 		url = def
 	}
-	host := strings.TrimPrefix(strings.TrimPrefix(url, "ldap://"), "ldaps://")
-	conn, err := net.DialTimeout("tcp", host, 800*time.Millisecond)
+	conn, err := ldap.DialURL(url, ldap.DialWithTLSConfig(&tls.Config{
+		InsecureSkipVerify: true, //nolint:gosec // a test directory with a self-signed certificate
+	}))
 	if err != nil {
 		t.Skipf("no directory at %s (run `make ldap-up`): %v", url, err)
 	}
-	_ = conn.Close()
+	defer func() { _ = conn.Close() }()
+	// An anonymous bind: any LDAP answer proves a directory, including a
+	// refusal. Anything else means whatever is on that port is not one.
+	if err := conn.UnauthenticatedBind(""); err != nil {
+		var lerr *ldap.Error
+		if !errors.As(err, &lerr) {
+			t.Skipf("what answers at %s is not a directory: %v", url, err)
+		}
+	}
 	return url
 }
 

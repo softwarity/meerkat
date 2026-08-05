@@ -267,11 +267,25 @@ Plus la **matrice d'accès** de `e2e/scenarios.json` : chaque endpoint d'API y e
 avec les cinq profils (root, infra-admin, app-admin, tenant-admin, user), en vérifiant
 autant les refus que les succès.
 
-### Vérifié à la main, jamais en automatique
+### Testé contre de vrais serveurs, mais pas en CI
 
-- Les autorités externes **contre de vrais serveurs** : OIDC, LDAP/AD et GitHub ont été
-  testés une fois manuellement (voir `memory.md`, session du 2026-07-30). Rien ne
-  rejoue ça.
+`test/ldap/docker-compose.yml` lance **trois autorités réelles** : OpenLDAP, un Active
+Directory (Samba) et **Dex** pour OIDC, avec leurs annuaires peuplés.
+
+```bash
+make ldap-up      # les trois, amorcés
+make ldap-test    # les tests d'intégration contre eux
+make ldap-down
+```
+
+Les tests correspondants (`TestLDAPDirectorySignIn`, `TestLDAPActiveDirectorySignIn`,
+`TestLDAPRefusesBadCredentials`, `TestLDAPNestedGroupsCanBeTurnedOff`) **se sautent**
+quand rien ne répond, pour que `make test` reste vert sans Docker. Ils passent contre
+les trois serveurs, vérifié le 2026-08-05.
+
+Ce qui manque n'est donc pas l'infrastructure : c'est de **la lancer dans la CI**.
+
+### Vérifié à la main, jamais en automatique
 - Les cérémonies WebAuthn complètes : l'enregistrement et la connexion par passkey
   demandent un authentificateur, donc seuls les endpoints et les politiques sont
   couverts, pas la cérémonie.
@@ -285,35 +299,23 @@ La CI actuelle (`.github/workflows/ci.yml`) fait : lint, `go test -race` sur tro
 Playwright avec une vraie gateway, cross-compilation, image Docker. Ce qui manque tient
 en quatre briques, par ordre de valeur.
 
-### a. Un annuaire réel (le plus rentable)
+### a. Lancer `test/ldap/` dans la CI (le plus rentable, et le moins cher)
 
-Un service container OpenLDAP dans le job d'intégration, peuplé par un LDIF de
-`e2e/fixtures/`. Cela couvrirait d'un coup : le bind du compte de service, la
-recherche par filtre, la lecture des groupes, le mapping vers les organisations
-(RBAC-10), et surtout **la revalidation d'un compte désactivé**, qui est aujourd'hui le
-trou le plus visible.
+Tout est déjà écrit : la compose, les annuaires peuplés, les tests qui savent se
+sauter. Il manque une étape dans le job d'intégration, qui démarre la compose avant
+`go test`. Aujourd'hui ces quatre tests ne s'exécutent **jamais** en CI, et personne ne
+le voit puisqu'ils se sautent en silence.
 
-```yaml
-services:
-  ldap:
-    image: bitnami/openldap:latest
-    ports: ["1389:1389"]
-    env:
-      LDAP_ADMIN_USERNAME: admin
-      LDAP_ADMIN_PASSWORD: adminpassword
-      LDAP_CUSTOM_LDIF_DIR: /ldifs
-```
+Le scénario qui manque ensuite, et qu'aucun test ne couvre : connexion, pose d'une
+passkey, désactivation du compte **côté annuaire**, nouvelle tentative par passkey,
+refus attendu (§4.3).
 
-Le scénario qui compte : connexion, pose d'une passkey, désactivation du compte côté
-annuaire, nouvelle tentative par passkey, refus attendu.
+### b. Le cycle OIDC complet
 
-### b. Un fournisseur OIDC jetable
-
-**Dex** plutôt que Keycloak : il démarre en une seconde, se configure par un seul
-fichier YAML et sait servir des utilisateurs statiques. Cela couvrirait le cycle
-complet de redirection, la vérification du jeton, la création de compte en attente et
-la collision de noms d'utilisateur, aujourd'hui testés avec un faux fournisseur en
-mémoire.
+Dex est déjà dans la compose, mais aucun test Go ne s'en sert : la redirection, la
+vérification du jeton, la création de compte en attente et la collision de noms sont
+couvertes par un faux fournisseur en mémoire. Le brancher sur Dex validerait le
+protocole plutôt que notre idée du protocole.
 
 ### c. Un authentificateur virtuel pour les passkeys
 

@@ -120,10 +120,12 @@ mat-row:last-of-type {
 .c-kind {
   flex: 0 0 130px;
 }
+// Floats OVER the frame's bottom-right corner, set in by the page's own 24px
+// plus 16 of air: flush against the hairline it reads as stuck to it.
 .fab-new {
   position: absolute;
-  right: 24px;
-  bottom: 24px;
+  right: 40px;
+  bottom: 40px;
 }
 
 @include table.banded-rows;

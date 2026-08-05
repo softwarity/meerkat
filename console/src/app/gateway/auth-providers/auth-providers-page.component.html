@@ -19,59 +19,61 @@
       } @else if (providers().length === 0) {
         <div class="empty" i18n="@@No_authority_yet">No authority yet: everyone signs in with a local password.</div>
       } @else {
-        <mat-table [dataSource]="providers()">
-          <ng-container matColumnDef="name">
-            <mat-header-cell *matHeaderCellDef i18n="@@Name">Name</mat-header-cell>
-            <mat-cell *matCellDef="let p" [class.off]="!p.enabled">
-              <span class="id">
-                <span>{{ p.name }}</span>
-                <span class="mono text-muted">{{ p.id }}</span>
-              </span>
-            </mat-cell>
-          </ng-container>
+        <div class="table-wrap">
+          <mat-table [dataSource]="providers()">
+            <ng-container matColumnDef="name">
+              <mat-header-cell *matHeaderCellDef i18n="@@Name">Name</mat-header-cell>
+              <mat-cell *matCellDef="let p" [class.off]="!p.enabled">
+                <span class="id">
+                  <span>{{ p.name }}</span>
+                  <span class="mono text-muted">{{ p.id }}</span>
+                </span>
+              </mat-cell>
+            </ng-container>
 
-          <ng-container matColumnDef="kind">
-            <mat-header-cell *matHeaderCellDef i18n="@@Kind">Kind</mat-header-cell>
-            <mat-cell *matCellDef="let p" [class.off]="!p.enabled">{{ kindLabel(p) }}</mat-cell>
-          </ng-container>
+            <ng-container matColumnDef="kind">
+              <mat-header-cell *matHeaderCellDef i18n="@@Kind">Kind</mat-header-cell>
+              <mat-cell *matCellDef="let p" [class.off]="!p.enabled">{{ kindLabel(p) }}</mat-cell>
+            </ng-container>
 
-          <ng-container matColumnDef="target">
-            <mat-header-cell *matHeaderCellDef i18n="@@Server">Server</mat-header-cell>
-            <mat-cell *matCellDef="let p" [class.off]="!p.enabled">
-              <span class="mono truncate">{{ target(p) }}</span>
-            </mat-cell>
-          </ng-container>
+            <ng-container matColumnDef="target">
+              <mat-header-cell *matHeaderCellDef i18n="@@Server">Server</mat-header-cell>
+              <mat-cell *matCellDef="let p" [class.off]="!p.enabled">
+                <span class="mono truncate">{{ target(p) }}</span>
+              </mat-cell>
+            </ng-container>
 
-          <ng-container matColumnDef="state">
-            <mat-header-cell *matHeaderCellDef></mat-header-cell>
-            <mat-cell *matCellDef="let p">
-              @if (!p.autoCreate) {
-                <span class="pill" i18n="@@No_auto_create" matTooltip="Only already-linked people may sign in">Invite only</span>
-              }
-              <!-- Turning an authority on and off is a one-click decision, not
-                   an edit: it belongs on the row. The click must not also open
-                   the drawer underneath. -->
-              <mat-slide-toggle
-                [checked]="p.enabled"
-                [disabled]="toggling() === p.id"
-                (click)="$event.stopPropagation()"
-                (change)="toggle(p, $event.checked)"
-                i18n-matTooltip="@@Enabled"
-                matTooltip="Enabled"
-                i18n-aria-label="@@Enabled"
-                aria-label="Enabled"
-              />
-            </mat-cell>
-          </ng-container>
+            <ng-container matColumnDef="state">
+              <mat-header-cell *matHeaderCellDef></mat-header-cell>
+              <mat-cell *matCellDef="let p">
+                @if (!p.autoCreate) {
+                  <span class="pill" i18n="@@No_auto_create" matTooltip="Only already-linked people may sign in">Invite only</span>
+                }
+                <!-- Turning an authority on and off is a one-click decision, not
+                     an edit: it belongs on the row. The click must not also open
+                     the drawer underneath. -->
+                <mat-slide-toggle
+                  [checked]="p.enabled"
+                  [disabled]="toggling() === p.id"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggle(p, $event.checked)"
+                  i18n-matTooltip="@@Enabled"
+                  matTooltip="Enabled"
+                  i18n-aria-label="@@Enabled"
+                  aria-label="Enabled"
+                />
+              </mat-cell>
+            </ng-container>
 
-          <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
-          <mat-row
-            *matRowDef="let p; columns: columns"
-            class="clickable"
-            [class.selected]="editingProvider()?.id === p.id"
-            (click)="open(p)"
-          ></mat-row>
-        </mat-table>
+            <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+            <mat-row
+              *matRowDef="let p; columns: columns"
+              class="clickable"
+              [class.selected]="editingProvider()?.id === p.id"
+              (click)="open(p)"
+            ></mat-row>
+          </mat-table>
+        </div>
       }
     </div>
 

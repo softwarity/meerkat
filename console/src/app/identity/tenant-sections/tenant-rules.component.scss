@@ -1,10 +1,19 @@
+@use '../../../styles/table';
+
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   position: relative;
   height: 100%;
   min-height: 0;
-  overflow: auto;
-  padding-bottom: 96px; // room under the last row for the fab
+  overflow: hidden;
+}
+.table-wrap {
+  @include table.frame;
+}
+// The last row clears the floating FAB from inside the frame.
+mat-row:last-of-type {
+  margin-bottom: 56px;
 }
 
 .intro,
@@ -45,9 +54,13 @@
   cursor: pointer;
 }
 
+// Floats OVER the frame's bottom-right corner, set in by the page's own 24px
+// plus 16 of air: flush against the hairline it reads as stuck to it.
 .fab-new {
   position: absolute;
-  right: 24px;
-  bottom: 24px;
+  right: 16px;
+  bottom: 16px;
   z-index: 2;
 }
+
+@include table.banded-rows;

@@ -267,25 +267,48 @@ Plus la **matrice d'accès** de `e2e/scenarios.json` : chaque endpoint d'API y e
 avec les cinq profils (root, infra-admin, app-admin, tenant-admin, user), en vérifiant
 autant les refus que les succès.
 
-### Testé contre de vrais serveurs, mais pas en CI
+### Trois niveaux de test, et ils ne répondent pas à la même question
 
-`test/ldap/docker-compose.yml` lance **trois autorités réelles** : OpenLDAP, un Active
-Directory (Samba) et **Dex** pour OIDC, avec leurs annuaires peuplés.
+**1. De vrais serveurs, en conteneurs.** `test/ldap/docker-compose.yml` lance
+**OpenLDAP**, un **Active Directory** (Samba) et **Dex** pour OIDC, annuaires peuplés.
 
 ```bash
 make ldap-up      # les trois, amorcés
-make ldap-test    # les tests d'intégration contre eux
+make ldap-test    # les cinq tests d'interopérabilité
 make ldap-down
 ```
 
-Les tests correspondants (`TestLDAPDirectorySignIn`, `TestLDAPActiveDirectorySignIn`,
-`TestLDAPRefusesBadCredentials`, `TestLDAPNestedGroupsCanBeTurnedOff`) **se sautent**
-quand rien ne répond, pour que `make test` reste vert sans Docker. Ils passent contre
-les trois serveurs, vérifié le 2026-08-05.
+`TestLDAPDirectorySignIn`, `TestLDAPRefusesBadCredentials`,
+`TestLDAPNestedGroupsCanBeTurnedOff`, `TestLDAPActiveDirectorySignIn`,
+`TestOIDCAgainstDex`. Deux annuaires plutôt qu'un parce que LDAP et Active Directory
+ne font que **se ressembler** : AD se lie par UPN ou `DOMAIN\user`, indexe sur
+`sAMAccountName`, expose `memberOf` et résout les groupes imbriqués avec sa propre
+règle. Un client qui n'a rencontré qu'OpenLDAP casse sur les quatre.
 
-Ce qui manque n'est donc pas l'infrastructure : c'est de **la lancer dans la CI**.
+Ces tests **se sautent** quand rien ne répond, pour que `make test` n'exige pas Docker.
+La sonde parle LDAP et pas seulement TCP : sur Windows, le port 3389 est celui du
+Bureau à distance, et un simple `connect` y réussissait.
 
-### Vérifié à la main, jamais en automatique
+**2. De faux serveurs, en mémoire.** Pour OIDC et GitHub, le test monte son propre
+fournisseur (`httptest.NewServer`) : il génère une clé, sert un
+`/.well-known/openid-configuration` et un JWKS, et **signe ses propres jetons**.
+
+Ce n'est pas un pis-aller. C'est ce qui permet de tester ce qu'un vrai fournisseur ne
+produira jamais sur commande : un jeton falsifié, un nonce rejoué, une mauvaise
+audience, un domaine hors liste. `TestOIDCRefusesTamperedOrReplayedTokens` n'a pas
+d'équivalent contre Dex, et Dex n'a pas d'équivalent en mémoire pour prouver
+l'interopérabilité RS256.
+
+**3. Aucun serveur.** `internal/auth/external_test.go` enregistre une autorité dont
+l'issuer n'est jamais appelé. Ce qui y est vérifié, c'est ce que Meerkat **fait** de
+l'identité une fois établie : compte en attente, refus sans `autoCreate`, collision de
+nom, adresse vérifiée, groupes rapportés.
+
+Les trois répondent à trois questions distinctes : parle-t-on le protocole, refuse-t-on
+ce qu'il faut, décide-t-on correctement ensuite.
+
+### Ce qui reste hors de portée des tests
+
 - Les cérémonies WebAuthn complètes : l'enregistrement et la connexion par passkey
   demandent un authentificateur, donc seuls les endpoints et les politiques sont
   couverts, pas la cérémonie.
@@ -295,27 +318,30 @@ Ce qui manque n'est donc pas l'infrastructure : c'est de **la lancer dans la CI*
 
 ## 9. Ce qu'il faudrait pour la CI
 
-La CI actuelle (`.github/workflows/ci.yml`) fait : lint, `go test -race` sur trois OS,
-Playwright avec une vraie gateway, cross-compilation, image Docker. Ce qui manque tient
-en quatre briques, par ordre de valeur.
+La CI (`.github/workflows/ci.yml`) fait : lint, `go test -race` sur trois OS, un job
+**Directories** qui lance `test/ldap` et exécute les cinq tests d'interopérabilité,
+Playwright avec une vraie gateway, cross-compilation, image Docker.
 
-### a. Lancer `test/ldap/` dans la CI (le plus rentable, et le moins cher)
+Ce job compte ses `--- PASS` et échoue s'il y en a moins de cinq, parce qu'**un test
+sauté passe**. Sans ce garde-fou, `ok internal/idp` s'affichait pour cinq tests qui ne
+s'exécutaient jamais : le pire cas, un vert qui ne prouve rien.
 
-Tout est déjà écrit : la compose, les annuaires peuplés, les tests qui savent se
-sauter. Il manque une étape dans le job d'intégration, qui démarre la compose avant
-`go test`. Aujourd'hui ces quatre tests ne s'exécutent **jamais** en CI, et personne ne
-le voit puisqu'ils se sautent en silence.
+Ce qui manque encore, par ordre de valeur.
 
-Le scénario qui manque ensuite, et qu'aucun test ne couvre : connexion, pose d'une
-passkey, désactivation du compte **côté annuaire**, nouvelle tentative par passkey,
-refus attendu (§4.3).
+### a. La revalidation contre un annuaire réel
 
-### b. Le cycle OIDC complet
+C'est le trou le plus visible, maintenant que le job `Directories` fait tourner les
+cinq tests d'interopérabilité (voir §8). Le scénario qu'aucun test ne couvre :
+connexion, pose d'une passkey, **désactivation du compte dans l'annuaire**, nouvelle
+tentative par passkey, refus attendu (§4.3). C'est le seul endroit où le comportement
+dépend de ce que l'annuaire répond vraiment, et il ne s'invente pas en mémoire.
 
-Dex est déjà dans la compose, mais aucun test Go ne s'en sert : la redirection, la
-vérification du jeton, la création de compte en attente et la collision de noms sont
-couvertes par un faux fournisseur en mémoire. Le brancher sur Dex validerait le
-protocole plutôt que notre idée du protocole.
+### b. La matrice, exécutée plutôt que décrite
+
+Les combinaisons de la §4 (politique de mot de passe, MFA par autorité, passkeys par
+autorité, `autoCreate`) sont écrites ici et vérifiées nulle part de bout en bout. Elles
+devraient piloter des tests comme `e2e/scenarios.json` pilote la matrice d'accès : une
+table de cas en données, un test qui la parcourt.
 
 ### c. Un authentificateur virtuel pour les passkeys
 

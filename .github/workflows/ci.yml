@@ -42,6 +42,33 @@ jobs:
       - name: Test
         run: go test -race ./...
 
+  # The authorities, against the real thing. test/ldap brings up OpenLDAP, an
+  # Active Directory and Dex; without them these tests SKIP, and a skip is
+  # silent - `ok internal/idp` was being reported for five tests that never
+  # ran. Ubuntu only: Docker is not dependable on the macOS and Windows
+  # runners, and interoperability does not vary by client OS.
+  directories:
+    name: Directories (LDAP, AD, OIDC)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache: false
+      - name: Start the directories
+        run: make ldap-up
+      - name: Run against them
+        run: make ldap-test
+      - name: Prove they were not skipped
+        # A skip passes, so the count is the only thing that says they ran.
+        run: |
+          ran=$(go test ./internal/idp/ -run 'LDAP|OIDCAgainstDex' -count=1 -v 2>&1 | grep -c -- '--- PASS')
+          echo "$ran tests ran against the real servers"
+          [ "$ran" -ge 5 ] || { echo "expected at least 5, the directories were not reached"; exit 1; }
+      - if: always()
+        run: make ldap-down
+
   # Integration: a real gateway + the built console, driven by Playwright over
   # the seeded profiles of e2e/scenarios.json (positive AND negative access).
   e2e:

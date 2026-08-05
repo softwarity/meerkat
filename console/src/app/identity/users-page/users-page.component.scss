@@ -8,6 +8,12 @@ mat-drawer-container {
   height: 100%;
   background: transparent;
 }
+mat-drawer-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
 .banner {
   display: flex;
   align-items: center;
@@ -20,8 +26,16 @@ mat-drawer-container {
   margin: 0;
   flex: 1;
 }
+// The page column: banner fixed, table area takes the rest and scrolls INSIDE
+// its frame.
 .content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
   padding: 0 24px 24px;
+}
+.table-wrap {
+  @include table.frame;
 }
 .clickable {
   cursor: pointer;

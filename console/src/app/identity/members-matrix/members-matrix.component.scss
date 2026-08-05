@@ -15,12 +15,7 @@
   color: var(--mat-sys-on-surface-variant);
 }
 .table-wrap {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: var(--mat-sys-corner-medium, 8px);
+  @include table.frame;
 }
 mat-table {
   min-width: 100%;
@@ -145,8 +140,7 @@ mat-cell.mat-column-lastConn {
   color: var(--mat-sys-on-surface-variant);
 }
 
-// Unframed: the frame is on .table-wrap, which is what scrolls here.
-@include table.banded-rows($framed: false);
+@include table.banded-rows;
 /* The second header row carries the whole-column boxes, and reads as header
    rather than as a first data row. */
 .bulk-row {

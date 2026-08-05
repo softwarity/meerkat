@@ -9,23 +9,26 @@
 //
 // Both are applied to the ROW and to its CELLS: a sticky column carries its own
 // background, and only a cell-level rule reaches it.
-// $framed draws the hairline and radius AROUND the table. It is on by default,
-// which is what makes every screen look like the same product: a table sits in
-// a frame, not loose on the page.
+// The frame every table sits in. It goes on the element that SCROLLS, never on
+// the table: a border on the table itself scrolls away with it, and leaves the
+// scrollbar outside the frame - the table appears to slide behind its own
+// outline. Here the outline is the pane, and the bar belongs to it.
 //
-// The two matrices pass false: their frame belongs to the wrapper that
-// SCROLLS, because a border on a table wider than its pane walks off-screen
-// with it. Everywhere else the table is the scroll box and wears it itself.
-@mixin banded-rows($band: 4%, $hover: 9%, $row-height: 48px, $framed: true) {
+//   <div class="table-wrap"><mat-table>…</mat-table></div>
+//   .table-wrap { @include table.frame; }
+@mixin frame {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-medium, 8px);
+}
+
+@mixin banded-rows($band: 4%, $hover: 9%, $row-height: 48px) {
   mat-table {
     --mat-table-row-item-outline-width: 0;
-    @if $framed {
-      border: 1px solid var(--mat-sys-outline-variant);
-      border-radius: var(--mat-sys-corner-medium, 8px);
-      // The header carries its own background: without this it squares off the
-      // top corners the border just rounded.
-      overflow: hidden;
-    }
+    background: transparent;
   }
   // The seam between a sticky column and the rest. Sticky cells slide UNDER
   // nothing - the columns pass beneath them - so without a rule the numbers

@@ -18,12 +18,7 @@
 /* the table fills the remaining height and scrolls (sticky header) vertically,
    and horizontally when the group columns overflow. */
 .table-wrap {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: var(--mat-sys-corner-medium, 8px);
+  @include table.frame;
 }
 mat-table {
   min-width: 100%;
@@ -51,8 +46,7 @@ mat-cell {
 mat-row:last-of-type {
   margin-bottom: 64px;
 }
-// Unframed: the frame is on .table-wrap, which is what scrolls here.
-@include table.banded-rows($framed: false);
+@include table.banded-rows;
 
 /* sticky role column + header */
 mat-header-row {

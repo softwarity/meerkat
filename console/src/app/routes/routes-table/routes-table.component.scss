@@ -1,5 +1,13 @@
 @use '../../../styles/table';
 
+:host {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.table-wrap {
+  @include table.frame;
+}
 .muted {
   color: var(--mat-sys-on-surface-variant);
   font-size: 0.85em;

@@ -34,74 +34,76 @@
   } @else if (entries().length === 0) {
     <div class="empty" i18n="@@No_vault_entry">No entry yet. Add the first one.</div>
   } @else {
-    <mat-table [dataSource]="entries()">
-      <ng-container matColumnDef="name">
-        <mat-header-cell *matHeaderCellDef i18n="@@Name">Name</mat-header-cell>
-        <mat-cell *matCellDef="let e">
-          <span>
-            <span class="name">{{ e.name }}</span>
-            @if (e.description) {
-              <div class="desc">{{ e.description }}</div>
-            }
-          </span>
-        </mat-cell>
-      </ng-container>
-
-      <ng-container matColumnDef="kind">
-        <mat-header-cell *matHeaderCellDef class="c-kind" i18n="@@Kind">Kind</mat-header-cell>
-        <mat-cell *matCellDef="let e" class="c-kind">
-          <span class="kind" [class.secret]="e.kind === 'secret'">
-            <mat-icon>{{ e.kind === 'secret' ? 'lock' : 'label' }}</mat-icon>
-            @if (e.kind === 'secret') {
-              <ng-container i18n="@@Kind_secret">Secret</ng-container>
-            } @else {
-              <ng-container i18n="@@Kind_value">Value</ng-container>
-            }
-          </span>
-        </mat-cell>
-      </ng-container>
-
-      <ng-container matColumnDef="value">
-        <mat-header-cell *matHeaderCellDef i18n="@@Value">Value</mat-header-cell>
-        <mat-cell *matCellDef="let e">
-          @if (e.kind === 'secret') {
-            <span class="hidden-val" i18n="@@secret_hidden">encrypted, never shown</span>
-          } @else {
-            <span class="val">{{ e.value }}</span>
-          }
-        </mat-cell>
-      </ng-container>
-
-      <ng-container matColumnDef="usedBy">
-        <mat-header-cell *matHeaderCellDef i18n="@@Used_by">Used by</mat-header-cell>
-        <mat-cell *matCellDef="let e">
-          @if (e.usedBy?.length) {
-            <span class="used">
-              @for (u of e.usedBy; track u) {
-                <span class="use">{{ u }}</span>
+    <div class="table-wrap">
+      <mat-table [dataSource]="entries()">
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef i18n="@@Name">Name</mat-header-cell>
+          <mat-cell *matCellDef="let e">
+            <span>
+              <span class="name">{{ e.name }}</span>
+              @if (e.description) {
+                <div class="desc">{{ e.description }}</div>
               }
             </span>
-          } @else {
-            <span class="unused" i18n="@@not_used">not used</span>
-          }
-          <span rowActions="tonal">
-            <button
-              matIconButton
-              (click)="$event.stopPropagation(); remove(e)"
-              i18n-matTooltip="@@Delete"
-              matTooltip="Delete"
-              i18n-aria-label="@@Delete"
-              aria-label="Delete"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          </span>
-        </mat-cell>
-      </ng-container>
+          </mat-cell>
+        </ng-container>
 
-      <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: columns" class="clickable" (click)="edit(row)"></mat-row>
-    </mat-table>
+        <ng-container matColumnDef="kind">
+          <mat-header-cell *matHeaderCellDef class="c-kind" i18n="@@Kind">Kind</mat-header-cell>
+          <mat-cell *matCellDef="let e" class="c-kind">
+            <span class="kind" [class.secret]="e.kind === 'secret'">
+              <mat-icon>{{ e.kind === 'secret' ? 'lock' : 'label' }}</mat-icon>
+              @if (e.kind === 'secret') {
+                <ng-container i18n="@@Kind_secret">Secret</ng-container>
+              } @else {
+                <ng-container i18n="@@Kind_value">Value</ng-container>
+              }
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="value">
+          <mat-header-cell *matHeaderCellDef i18n="@@Value">Value</mat-header-cell>
+          <mat-cell *matCellDef="let e">
+            @if (e.kind === 'secret') {
+              <span class="hidden-val" i18n="@@secret_hidden">encrypted, never shown</span>
+            } @else {
+              <span class="val">{{ e.value }}</span>
+            }
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="usedBy">
+          <mat-header-cell *matHeaderCellDef i18n="@@Used_by">Used by</mat-header-cell>
+          <mat-cell *matCellDef="let e">
+            @if (e.usedBy?.length) {
+              <span class="used">
+                @for (u of e.usedBy; track u) {
+                  <span class="use">{{ u }}</span>
+                }
+              </span>
+            } @else {
+              <span class="unused" i18n="@@not_used">not used</span>
+            }
+            <span rowActions="tonal">
+              <button
+                matIconButton
+                (click)="$event.stopPropagation(); remove(e)"
+                i18n-matTooltip="@@Delete"
+                matTooltip="Delete"
+                i18n-aria-label="@@Delete"
+                aria-label="Delete"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: columns" class="clickable" (click)="edit(row)"></mat-row>
+      </mat-table>
+    </div>
   }
 </div>
 

@@ -33,12 +33,18 @@ mat-drawer {
   font-size: 1.15rem;
   font-weight: 500;
 }
+// The page column: banner fixed, table area takes the rest. The SCROLL is on
+// the frame below, so the bar belongs to the table rather than to the page.
 .content {
   flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;
+  display: flex;
   padding: 0 24px 24px;
 }
+.table-wrap {
+  @include table.frame;
+}
+
 .empty {
   padding: 48px;
   text-align: center;

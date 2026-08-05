@@ -48,11 +48,23 @@ func TestDeveloperHub(t *testing.T) {
 	if strings.Contains(bodyString(hub), `href="/meerkat/apidocs/"`) {
 		t.Fatal("API entry shown while the docs are off")
 	}
+	if body := bodyString(do(t, mux, "GET", "/meerkat/user-button.json", nil, devC)); strings.Contains(body, `"devDocs"`) {
+		t.Fatalf("user-button payload advertises devDocs while the docs are off: %s", body)
+	}
 	if err := st.SetSetting(ctx, store.SettingDevDocsExposed, true); err != nil {
 		t.Fatal(err)
 	}
 	if hub := do(t, mux, "GET", "/profile/dev", nil, devC); !strings.Contains(bodyString(hub), `href="/meerkat/apidocs/"`) {
 		t.Fatal("API entry missing once the docs are exposed")
+	}
+
+	// The user-button payload mirrors the same gate (the Developer submenu):
+	// a dev with the docs exposed gets the flag, a non-dev never does.
+	if body := bodyString(do(t, mux, "GET", "/meerkat/user-button.json", nil, devC)); !strings.Contains(body, `"devDocs":true`) {
+		t.Fatalf("user-button payload misses the devDocs flag for a dev: %s", body)
+	}
+	if body := bodyString(do(t, mux, "GET", "/meerkat/user-button.json", nil, bobC)); strings.Contains(body, `"devDocs"`) {
+		t.Fatalf("user-button payload advertises devDocs to a non-dev: %s", body)
 	}
 
 	// The cert sub-page renders its form, and a bad PEM is refused there.

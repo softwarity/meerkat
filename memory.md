@@ -8,7 +8,10 @@
 _Derniere mise a jour : 2026-08-04 : **configuration portable** (CFG-01/03/05) et
 **coffre chiffre** (VAULT-03) - deux fichiers de natures opposees : l'un public et
 versionnable, l'autre chiffre et jamais versionne ; ensemble ils amorcent une gateway
-vierge sans humain. Avant cela le meme jour : testeur de routage (ROUTE-15). Rappel 2026-07-30 : auth externe (AUTH-19) livree ; tout est sur
+vierge sans humain. Le meme jour : **sous-menu Developer du user-button** (entree
+"Documentation API" vers /meerkat/apidocs/) puis **mode test UI** (DEV-10) : barre
+developpeur escamotable + lisere, identite simulee session+route pour VOIR ce qu'un
+role voit. Avant cela : testeur de routage (ROUTE-15). Rappel 2026-07-30 : auth externe (AUTH-19) livree ; tout est sur
 `main`, la branche `feat/endpoint-security-openapi` avait ete repliee et supprimee
 (Francois : "je t'ai jamais demande de creer des branches")._
 
@@ -112,6 +115,123 @@ git (un fichier par route, diffs lisibles, pas de conflits de merge) ; CFG-02/04
 (plusieurs configurations qui coexistent, diff, activation) - c'est la que
 l'activation a chaud coute cher, et elle exige que la validation a l'import soit
 solide d'abord.
+
+## Session 2026-08-04 - mode test UI (DEV-10) : barre developpeur dans le user-button
+
+Cadrage AVEC Francois (iteratif) : d'abord "Test UIs en iframe, comme le
+swagger" ; j'ai pointe que l'iframe ne porte pas les headers de simulation ->
+il a REPENSE le design en mieux : PAS d'iframe, on navigue vers l'app par
+Applications, et un TOGGLE "Mode test UI" dans le sous-menu Developpeur ouvre
+une barre en overlay. Decisions actees : la simulation ne doit pas fuir sans
+indication visuelle (lisere ambre + barre) ; user = LISTE (datalist) et roles
+= CHECKLIST pre-cochee avec le dev lui-meme et SES roles courants ; note
+rassurante "pas hackable" sur LES DEUX ecrans dev (swagger + barre).
+
+- **Serveur** (`internal/gateway/uisim.go`, exigence **DEV-10** ajoutee -
+  ATTENTION DEV-09 etait deja pris par l'outillage V1) : simulation rattachee
+  session+route, EN MEMOIRE par process (comme les tokens swagger ephemeres :
+  un restart/TTL 1h termine le test), endpoints GET/POST/DELETE
+  `/meerkat/dev-sim` (switch SettingDevDocsExposed + capability dev),
+  application au dispatch (`applyUISim` apres le match de route, la sim
+  header/token swagger GAGNE sur elle), reutilise simKey -> gates, endpoint
+  security, page stamp, identity forwarding, marqueurs X-Meerkat-Test
+  ("ui-test" + -By reel) SANS aucun code en plus. `withSimulatedIdentity`
+  ajoute a simulate.go, champ `Route` sur simMeta.
+- **Anti-lockout** : une identite simulee refusee par une access gate recoit
+  une page interstitielle (uiSimRefusalPage) expliquant + bouton "Exit UI
+  test mode" - sinon le 403 nu emportait la barre et la sortie du test.
+- **JS** (`userButtonJS`) : attribut `route` ajoute au tag par le fragment
+  (router.go), fetch de l'etat sim au chargement (dev+route seulement),
+  entree "Mode test UI" dans le sous-menu Developpeur, barre `.db` top-center
+  escamotable en onglet "DEV" (sessionStorage mk-devbar-min), lisere
+  `.db-frame` ambre NON theme (doit trancher sur toute app), user datalist +
+  roles checklist alimentees par `/meerkat/apidocs/catalog.json` (la MEME
+  source que la forge swagger), Apply -> POST + reload, Quitter -> DELETE +
+  reload. PIEGE CSS vecu : `.db input { width:120px }` etirait aussi les
+  CHECKBOXES de la popup -> scoper `.db .db-user`.
+- Labels devTools/devUser/devRoles/devApply/devExit/devNote/devFailed en/fr ;
+  piege lint : misspell prend "journalisé" pour de l'anglais -> "consigné".
+- Note rassurante aussi dans le popup d'etat de la forge swagger
+  (devpage.html, .mk-note dans renderState).
+- **Tests** : `TestUISim` (gateway) - OFF=404, non-dev=401, route inconnue=422,
+  roles filtres (schemeTokenOK), page stampee avec les roles SIMULES, bob non
+  touche, marqueurs upstream, interstitiel de refus, exit + expiry. Valide EN
+  NAVIGATEUR : menu -> barre -> checklist -> Apply -> lisere + barre repliee
+  -> depli (davide, Roles (2)) -> Quitter -> {"active":false}.
+- Note env : un role "GET" est apparu dans le catalogue en cours de test -
+  cree par la session console parallele (audit role.create), pas un bug.
+- **Polish UI (retours Francois en rafale, tous livres)** : (1) popup roles
+  "transparente" en haut = la NOTE (flex item SUIVANT de la barre) se
+  peignait PAR-DESSUS le haut de la popup (z-index auto) -> `.db-pop {
+  z-index: 1 }` ; (2) l'onglet DEV devient une POIGNEE DE TIROIR : absolute,
+  top 100%, centree (`left 50% translateX(-50%)`), bord ambre arrondi bas -
+  au repli la barre disparait entierement (`.db.min { padding:0; border:0 }`)
+  et la poignee remonte au bord du viewport SANS bouger horizontalement ;
+  (3) menu user-button compacte : le bouton color-scheme 3 etats monte SUR
+  la ligne du profil (`.head-row` flex, `<a.head>` + bouton hors du lien),
+  la ligne "Apparence" (.schemes/.sc-label) SUPPRIMEE, Developpeur au-dessus
+  de "Signaler un probleme" ; (4) Appliquer/Annuler pousses a droite de la
+  barre (`.db-apply { margin-left: auto }`). Tout verifie en navigateur.
+- **Menu du user-button "trop loin du bouton" (retour Francois, screenshot
+  alice)** : la geometrie etait EXACTE (bord droit menu == bord droit bouton,
+  ecart 8px pile, mesure au pixel) - l'illusion vient d'un THEME CLAIR : le
+  fond du bouton se fond dans la page blanche, seul l'avatar est visible, et
+  l'ecart percu avale le padding du bouton. Fix : ecart reel 8px -> 3px
+  (menuPlace, les deux aretes top/bottom, l'adaptation aux 4 coins
+  inchangee). Verifie : gap=3, rightAligned=true. Au passage la route demo
+  a maintenant name=before (pose pour reproduire, reste en base dev).
+- **Hierarchie des roles dans les simulations (retour Francois)** : les
+  identites simulees (barre dev ET swagger) envoyaient les noms BRUTS alors
+  qu'une vraie session passe par EffectiveRoleNames (un role implique ses
+  descendants). Corrige au bon niveau : `store.ExpandRoleNames` (noms hors
+  catalogue conserves - un role qui n'existe que dans l'app reste testable)
+  + `rt.expandSimRoles` applique dans uiSimSet (AU SET : la checklist montre
+  l'implication apres reload) et dans les DEUX branches de applySimulation
+  (headers + token swagger). Teste (TestUISim "a posed role implies its
+  descendants") et prouve en live : POST roles=["ops"] -> etat
+  ["ops","ops-read","ops-write"]. ATTENTION : le catalogue de demo etait
+  PLAT (aucun parentId) - j'ai fait ops-read/ops-write enfants de ops dans
+  la base dev pour la demo, c'est reste en base.
+
+## Session 2026-08-04 - sous-menu Developer dans le user-button
+
+Demande Francois : l'acces swagger (page dev apidocs) etait cache dans le hub
+Developer du profil ; quand il est disponible pour l'utilisateur, l'exposer
+DIRECTEMENT dans le menu du user-button, sous un **sous-menu "Developer"**
+(une deuxieme entree est prevue, ne pas mettre l'entree a plat).
+
+- **Payload** (`userbtn.go`) : `devDocs:true` quand user.Dev ET
+  `SettingDevDocsExposed` ON - meme raison que `issues` : le JS est cache
+  5 min, le flag voyage dans user-button.json (no-store).
+- **JS** : reutilise le helper `subMenu()` existant (flyout comme
+  Applications/Tenant/Langues) ; entree `<a href="/meerkat/apidocs/">`.
+  Place entre Apparence et "Signaler un probleme".
+- **Labels** : cle `apiDocs` ajoutee au catalogue en/fr ("API docs" /
+  "Documentation API") ; PIEGE : la cle `developer` existait DEJA (hub du
+  profil) - la reutiliser, un doublon dans le map literal Go ne compile pas.
+- **Test** : assertions payload ajoutees a `TestDeveloperHub`
+  (devpage_test.go) : flag absent switch OFF, present pour un dev switch ON,
+  jamais pour un non-dev.
+- **Valide en navigateur** : menu davide sur une page proxifiee httpbin
+  (:8082/html), sous-menu Developpeur -> Documentation API -> atterrit sur
+  /meerkat/apidocs/. Astuce env : session davide creee par curl puis cookies
+  MEERKAT_SESSION/BROWSER poses via JS dans l'onglet (pas de saisie de mdp).
+- go build, auth tests (2s), lint 0, node --check du JS extrait : verts.
+
+**BACKLOG DIFFERE (Francois, 2026-08-04 : "beaucoup de questions, on verra ca
+apres") - connecteurs issues -> GitHub/Jira (ISSUE-05, prio C).** Cadrage
+propose, a reprendre tel quel le jour venu : interface Go `connector`
+(TestConnection, CreateIssue -> url+remoteId, AttachScreenshot OPTIONNEL),
+tokens dans le Vault (kind secret, ref $nom), push MANUEL d'abord depuis le
+detail d'une issue (tri des doublons avant de polluer le tracker d'equipe),
+one-way sans sync de statuts (on stocke provider+remoteUrl+remoteId, chip
+lien). Asperites identifiees : GitHub n'a PAS d'API d'attachement d'images
+sur les issues (lien vers le screenshot servi par la console) ; Jira Cloud
+impose l'ADF (pas de markdown) ; la console JS attachee peut contenir des
+secrets -> confirmation avec apercu avant push (exfiltration) ; audit
+issue.push. Decisions restees OUVERTES : curseur OSS/EE (GitHub core,
+Jira/auto-push EE ?), config globale vs par tenant, choix du connecteur au
+moment du push. NE PAS coder avant que Francois tranche.
 
 ## Session 2026-08-03 - testeur de routage : l'ecran console (ROUTE-15)
 

@@ -365,6 +365,8 @@ var messages = map[string]map[string]string{
 		"colorScheme":  "Color scheme",
 		"tenant":       "Tenant",
 		"applications": "Applications",
+		// "developer" (the submenu title) already exists for the profile hub.
+		"apiDocs": "API docs",
 
 		// issue panel (ISSUE-01)
 		"openIssue":                "Report an issue",
@@ -385,6 +387,15 @@ var messages = map[string]map[string]string{
 		"issueCaptureFailed":       "Screen capture failed.",
 		"issueDescriptionRequired": "A description is required.",
 		"issueContextNote":         "The page address and browser details are attached to your report.",
+
+		// developer bar (DEV-10)
+		"devTools":  "UI test mode",
+		"devUser":   "User",
+		"devRoles":  "Roles",
+		"devApply":  "Apply",
+		"devExit":   "Exit test",
+		"devFailed": "Could not update the test mode.",
+		"devNote":   "A developer lens, not a privilege: it needs the dev capability, applies only to your own session on this application, and every call is flagged as a test to the backend and logged under your real name.",
 
 		// profile photo
 		"changePhoto":   "Change photo",
@@ -597,6 +608,8 @@ var messages = map[string]map[string]string{
 		"colorScheme":  "Apparence",
 		"tenant":       "Tenant",
 		"applications": "Applications",
+		// "developer" (le titre du sous-menu) existe déjà pour le hub du profil.
+		"apiDocs": "Documentation API",
 
 		// issue panel (ISSUE-01)
 		"openIssue":                "Signaler un problème",
@@ -617,6 +630,15 @@ var messages = map[string]map[string]string{
 		"issueCaptureFailed":       "La capture d'écran a échoué.",
 		"issueDescriptionRequired": "Une description est requise.",
 		"issueContextNote":         "L'adresse de la page et les détails du navigateur sont joints au signalement.",
+
+		// developer bar (DEV-10)
+		"devTools":  "Mode test UI",
+		"devUser":   "Utilisateur",
+		"devRoles":  "Rôles",
+		"devApply":  "Appliquer",
+		"devExit":   "Quitter le test",
+		"devFailed": "Impossible de mettre à jour le mode test.",
+		"devNote":   "Une loupe de développeur, pas un privilège : il requiert la capacité dev, ne s'applique qu'à votre propre session sur cette application, et chaque appel est marqué comme test auprès du backend et consigné sous votre vrai nom.",
 
 		// profile photo
 		"changePhoto":   "Changer la photo",

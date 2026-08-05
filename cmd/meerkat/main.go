@@ -115,6 +115,7 @@ func run(addr, adminAddr, consoleURL, dataDir, configFile, vaultFile string) err
 	authHandler.Mailer = mailer
 	authHandler.Register(mux)
 	router.RegisterDevDocs(mux) // /meerkat/apidocs — developer docs (dev capability)
+	router.RegisterUISim(mux)   // /meerkat/dev-sim — UI test mode (dev capability)
 	mux.Handle("/", router)
 
 	// Control plane (:9090): admin API and the console. Keep this port off

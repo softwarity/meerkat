@@ -54,6 +54,11 @@ type Router struct {
 	mu       sync.RWMutex
 	routes   []compiledRoute
 	needDraw bool // at least one route uses weight predicates
+
+	// uiSims holds the running UI tests (uisim.go): a developer session
+	// browsing ONE route as a simulated identity. Per process, TTL-bounded.
+	uiSimMu sync.RWMutex
+	uiSims  map[uiSimKey]uiSimEntry
 	// signing holds the gateway's identity signing keys (signed-jwt). Loaded
 	// at Reload; nil until a route uses signed-jwt or the admin generates them.
 	signing *signing.Set
@@ -308,6 +313,9 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	for i := range routes {
 		if routes[i].preds.Match(req) {
+			// A running UI test (uisim.go) poses its identity on every
+			// request the dev session sends through the tested route.
+			req = rt.applyUISim(req, routes[i].id)
 			routes[i].handler.ServeHTTP(w, req)
 			return
 		}
@@ -955,6 +963,13 @@ func (rt *Router) accessGate(a store.Access, next http.Handler) http.Handler {
 			next.ServeHTTP(w, req)
 			return
 		}
+		// A refused SIMULATED identity during a UI test must not lock the
+		// developer out (a bare 403 has no developer bar): explain and offer
+		// the exit instead.
+		if m, simOn := simulationMeta(req.Context()); simOn && m.Via == "ui-test" {
+			uiSimRefusalPage(w, req)
+			return
+		}
 		http.Error(w, "forbidden: you may not call this endpoint", http.StatusForbidden)
 	}))
 }
@@ -1233,7 +1248,9 @@ func userButtonFragment(r store.Route, localeCodes []string) string {
 	if position == "" {
 		position = "top-right"
 	}
-	attrs := fmt.Sprintf(` height="%d" position="%s"`, height, position)
+	// The route id feeds the developer bar (uisim.go): the UI test is scoped
+	// to THIS route. Server-generated id, HTML-safe.
+	attrs := fmt.Sprintf(` height="%d" position="%s" route="%s"`, height, position, htmlEscape(r.ID))
 	if btn.PadX != 0 {
 		attrs += fmt.Sprintf(` pad-x="%d"`, btn.PadX)
 	}

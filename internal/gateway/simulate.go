@@ -57,13 +57,22 @@ func (rt *Router) simulationActor(req *http.Request) (actor store.User, via stri
 
 type simKey struct{}
 
+// withSimulatedIdentity poses d as the request's effective identity - what
+// sessionIdentity answers from here on.
+func withSimulatedIdentity(ctx context.Context, d identityData) context.Context {
+	return context.WithValue(ctx, simKey{}, d)
+}
+
 // simMeta records that THIS request is a simulated (test) call, not a genuine
 // user action: who is really behind it and through which tool. It becomes a
 // log line on the gateway and marker headers on the upstream request, so the
 // backend's own action log can tell a swagger test from real traffic.
 type simMeta struct {
 	By  string // the real signed-in user driving the test ("" for a bare token)
-	Via string // dev-swagger | console-swagger | test-token
+	Via string // dev-swagger | console-swagger | test-token | ui-test
+	// Route scopes a UI test (uisim.go): the refusal page needs it to offer
+	// the exit. Empty for the swagger flows.
+	Route string
 }
 
 type simMetaKey struct{}
@@ -99,6 +108,24 @@ func simulatedIdentity(ctx context.Context) (identityData, bool) {
 	return d, ok
 }
 
+// expandSimRoles applies the role hierarchy (RBAC-01) to a simulated
+// identity: posing a role implies its descendants, exactly as a real session
+// resolves them. Names outside the catalogue pass through (an app-only role
+// stays testable); everything is class-token filtered like session roles.
+func (rt *Router) expandSimRoles(ctx context.Context, roles []string) []string {
+	expanded, err := rt.st.ExpandRoleNames(ctx, roles)
+	if err != nil {
+		return roles
+	}
+	out := make([]string, 0, len(expanded))
+	for _, r := range expanded {
+		if schemeTokenOK.MatchString(r) {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
 // applySimulation validates the simulate headers and stashes the simulated
 // identity in the request context. Requests without the headers pass through
 // untouched; requests with them and no privileged admin session are refused.
@@ -110,6 +137,7 @@ func (rt *Router) applySimulation(req *http.Request) (*http.Request, error) {
 		if !ok {
 			return nil, errSimTokenInvalid
 		}
+		d.Roles = rt.expandSimRoles(req.Context(), d.Roles)
 		slog.Info("simulated request (swagger test)", "via", "test-token", "as", d.Username,
 			"roles", d.Roles, "method", req.Method, "path", req.URL.Path)
 		ctx := context.WithValue(req.Context(), simKey{}, d)
@@ -131,6 +159,7 @@ func (rt *Router) applySimulation(req *http.Request) (*http.Request, error) {
 			d.Roles = append(d.Roles, role)
 		}
 	}
+	d.Roles = rt.expandSimRoles(req.Context(), d.Roles)
 	slog.Info("simulated request (swagger test)", "via", via, "by", actor.Username, "as", user,
 		"roles", d.Roles, "method", req.Method, "path", req.URL.Path)
 	ctx := context.WithValue(req.Context(), simKey{}, d)

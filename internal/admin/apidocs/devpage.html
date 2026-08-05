@@ -80,6 +80,7 @@
     }
     .mk-pop hr { border: 0; border-top: 1px solid var(--mk-line); margin: 6px 0; }
     .mk-detail { display: flex; align-items: baseline; font-size: 0.82rem; color: var(--mk-ink); padding: 2px 0; }
+    .mk-note { margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--mk-line); font-size: 0.72rem; line-height: 1.4; color: var(--mk-dim); max-width: 30em; }
     .mk-detail b { color: var(--mk-muted); font-weight: 600; flex: none; min-width: 62px; }
     .mk-rlist { display: grid; gap: 2px; min-width: 0; }
     .mk-rlist .none { color: var(--mk-muted); }
@@ -326,6 +327,12 @@
         const it = document.createElement('div'); it.className = 'none'; it.textContent = 'none'; list.append(it);
       }
       rd.append(rb, list); box.append(rd);
+      // Reassurance: forging looks scary, so say why it is not a hole.
+      const note = document.createElement('p'); note.className = 'mk-note';
+      note.textContent = 'A developer lens, not a privilege: forging needs the dev capability, ' +
+        'and every simulated call is flagged as a test to the backend (X-Meerkat-Test) ' +
+        'and logged under your real name.';
+      box.append(note);
     }
 
     function mount(url) {

@@ -1,6 +1,10 @@
 <header>
   @if (creating()) {
-    <h2 i18n="@@New_role">New role</h2>
+    @if (parent(); as p) {
+      <h2 i18n="@@New_role_child_of_PARENT">New role, child of <span class="mono">{{ p.name }}</span></h2>
+    } @else {
+      <h2 i18n="@@New_role">New role</h2>
+    }
   } @else {
     <h2 class="mono">{{ role()?.name }}</h2>
   }
@@ -50,11 +54,19 @@
         </mat-chip-row>
       }
       <input
+        #tagInput
         [matChipInputFor]="chipGrid"
         [matChipInputSeparatorKeyCodes]="separators"
+        [matAutocomplete]="tagAuto"
         (matChipInputTokenEnd)="addTag($event)"
+        (input)="tagQuery.set($any($event.target).value)"
       />
     </mat-chip-grid>
+    <mat-autocomplete #tagAuto (optionSelected)="pickTag($event, tagInput)">
+      @for (t of tagOptions(); track t) {
+        <mat-option [value]="t">{{ t }}</mat-option>
+      }
+    </mat-autocomplete>
   </mat-form-field>
 
   @if (!creating()) {

@@ -72,8 +72,13 @@ type userButtonPayload struct {
 	// Issues turns the "Report an issue" panel on (ISSUE-01): the tracker
 	// setting is enabled AND the caller is signed in. It travels here (this
 	// payload is no-store) because the component JS is cached for 5 minutes.
-	Issues bool              `json:"issues,omitempty"`
-	Labels map[string]string `json:"labels"`
+	Issues bool `json:"issues,omitempty"`
+	// DevDocs turns the Developer submenu on (DOCS-01): the data-plane API
+	// docs are exposed (SettingDevDocsExposed) AND the caller holds the dev
+	// capability. Same reason as Issues for riding here: the JS is cached,
+	// this payload is not.
+	DevDocs bool              `json:"devDocs,omitempty"`
+	Labels  map[string]string `json:"labels"`
 	// ThemeCSS carries the ACTIVE theme's tokens rescoped to :host — the
 	// button wears the selected theme inside its shadow root, falling back to
 	// system colors when a token is missing.
@@ -96,6 +101,8 @@ func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 		"tenant":       t["tenant"],
 		"group":        t["group"],
 		"applications": t["applications"],
+		"developer":    t["developer"],
+		"apiDocs":      t["apiDocs"],
 		"schemeAuto":   t["schemeAuto"],
 		"schemeLight":  t["schemeLight"],
 		"schemeDark":   t["schemeDark"],
@@ -105,7 +112,8 @@ func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 		"issueCaptureScreen", "issueCaptureHint", "issueIncludeConsole", "issueRecapture",
 		"issueCrop", "issueApply", "issueReset", "issueRemove", "issueSend", "issueSending",
 		"issueSent", "issueFailed", "issueTooLarge", "issueCaptureFailed",
-		"issueDescriptionRequired", "issueContextNote"} {
+		"issueDescriptionRequired", "issueContextNote",
+		"devTools", "devUser", "devRoles", "devApply", "devExit", "devNote", "devFailed"} {
 		labels[k] = t[k]
 	}
 	css, _ := h.chrome()
@@ -136,6 +144,7 @@ func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 	payload.Email = u.Email
 	payload.Initials = initials(u)
 	payload.Issues = h.issuesEnabled(r)
+	payload.DevDocs = u.Dev && h.devDocsExposed(r)
 	if avatar, err := h.st.GetUserAvatar(r.Context(), sess.UserID); err == nil {
 		payload.Avatar = avatar
 	}
@@ -219,7 +228,18 @@ const userButtonJS = `(() => {
       });
       fetch('/meerkat/user-button.json', { credentials: 'same-origin' })
         .then(r => r.json())
-        .then(data => this.render(data))
+        .then(data => {
+          // A dev on a UI route also asks whether a UI test runs here
+          // (uisim.go) - the developer bar and the frame render from it.
+          const route = this.getAttribute('route');
+          if (data.authenticated && data.devDocs && route) {
+            return fetch('/meerkat/dev-sim?route=' + encodeURIComponent(route), { credentials: 'same-origin' })
+              .then(r => (r.ok ? r.json() : null))
+              .catch(() => null)
+              .then(sim => this.render(data, sim));
+          }
+          this.render(data, null);
+        })
         .catch(() => {});
     }
 
@@ -253,7 +273,7 @@ const userButtonJS = `(() => {
       }
     }
 
-    render(data) {
+    render(data, sim) {
       const h = parseInt(this.getAttribute('height'), 10) || 24;
       const position = this.getAttribute('position') || 'top-right';
       const shape = this.getAttribute('shape') === 'square' ? 'square' : 'round';
@@ -266,7 +286,9 @@ const userButtonJS = `(() => {
       // Four corners; the menu opens away from the anchored edge.
       const host = { [edge]: (isNaN(padY) ? 12 : padY) + 'px', [align]: (isNaN(padX) ? 12 : padX) + 'px' };
       const menuPlace =
-        (edge === 'top' ? 'top: calc(100% + 8px);' : 'bottom: calc(100% + 8px);') +
+        // A tight 3px: on a light page the button's surface blends into the
+        // background and any real gap READS twice as large.
+        (edge === 'top' ? 'top: calc(100% + 3px);' : 'bottom: calc(100% + 3px);') +
         (align === 'left' ? 'left: 0;' : 'right: 0;');
       const btnRadius = shape === 'round' ? '999px' : Math.max(4, Math.round(h * 0.18)) + 'px';
       const avatarRadius = shape === 'round' ? '50%' : Math.max(3, Math.round(h * 0.14)) + 'px';
@@ -319,9 +341,15 @@ const userButtonJS = `(() => {
 
       const items = [];
       if (auth) {
-        // The head IS the profile link (one entry saved).
-        items.push('<a class="head" href="/profile" title="' + esc(L.profile) + '"><strong>' + esc(data.username) + '</strong>' +
-          (data.tenantName ? '<span class="sub-line">' + esc(data.tenantName) + '</span>' : '') + '</a>');
+        // The head IS the profile link (one entry saved), and the 3-state
+        // scheme button rides ITS line (another entry saved): auto -> light
+        // -> dark, same glyphs as the flow pages' switcher.
+        const schemeBtn = this.getAttribute('scheme') === 'select'
+          ? '<button class="sw on" data-scheme-cycle="' + (SCHEME_NEXT[data.scheme] || 'light') +
+            '" title="' + esc(L.colorScheme) + '">' + (SCHEME_ICONS[data.scheme] || '◐') + '</button>'
+          : '';
+        items.push('<div class="head-row"><a class="head" href="/profile" title="' + esc(L.profile) + '"><strong>' + esc(data.username) + '</strong>' +
+          (data.tenantName ? '<span class="sub-line">' + esc(data.tenantName) + '</span>' : '') + '</a>' + schemeBtn + '</div>');
         // The fronted applications this session may open; the current one is
         // ticked (matched on its entry path).
         if ((data.apps || []).length) {
@@ -367,12 +395,18 @@ const userButtonJS = `(() => {
             (code === activeLang ? 'disabled' : '') + '><span>' + esc(langName(code)) + '</span>' +
             (code === activeLang ? mark() : '') + '</button>').join('')));
         }
-        if (this.getAttribute('scheme') === 'select') {
-          // ONE 3-state button (auto -> light -> dark), same glyphs as the
-          // flow pages' switcher.
-          items.push('<div class="schemes"><span class="sc-label">' + esc(L.colorScheme) + '</span>' +
-            '<button class="sw on" data-scheme-cycle="' + (SCHEME_NEXT[data.scheme] || 'light') +
-            '" title="' + esc(L.colorScheme) + '">' + (SCHEME_ICONS[data.scheme] || '◐') + '</button></div>');
+        // Developer submenu (DOCS-01): the API docs entry, when the docs are
+        // exposed AND the caller holds the dev capability - more entries will
+        // join it. The flag rides the payload, never this cached JS.
+        if (data.devDocs) {
+          // Second entry: the UI test mode (DEV-10), only on a proxied UI
+          // route (the route attribute names it).
+          items.push(subMenu(L.developer || 'Developer',
+            '<a class="item" href="/meerkat/apidocs/"><span>' + esc(L.apiDocs || 'API docs') + '</span></a>' +
+            (this.getAttribute('route')
+              ? '<button class="item" id="devtools"><span>' + esc(L.devTools || 'UI test mode') + '</span>' +
+                (sim && sim.active ? mark() : '') + '</button>'
+              : '')));
         }
         // The issue tracker's entry point (ISSUE-01), only when the payload
         // says the feature is on - the flag never lives in this cached JS.
@@ -404,6 +438,8 @@ const userButtonJS = `(() => {
         ' font-family: var(--mk-font, system-ui); border-radius: var(--mk-radius, 10px);' +
         ' box-shadow: 0 8px 30px rgba(0,0,0,.25); display: none; z-index: 3; }' +
         '.menu.open { display: block; }' +
+        '.head-row { display: flex; align-items: center; gap: 4px; padding-right: 6px; }' +
+        '.head-row .head { flex: 1; min-width: 0; }' +
         '.head { padding: 8px 10px; display: grid; color: inherit; text-decoration: none; border-radius: 7px; cursor: pointer; }' +
         '.head:hover { background: var(--mk-surface-container-high, color-mix(in srgb, CanvasText 10%, transparent)); }' +
         '.head .sub-line { font-size: .78em; opacity: .65; }' +
@@ -427,8 +463,6 @@ const userButtonJS = `(() => {
         ' border-radius: var(--mk-radius, 10px); box-shadow: 0 8px 30px rgba(0,0,0,.25); z-index: 1; }' +
         '.has-sub:hover > .sub, .has-sub.open > .sub { display: block; }' +
         '.has-sub:hover > .parent, .has-sub.open > .parent { background: var(--mk-surface-container-high, color-mix(in srgb, CanvasText 10%, transparent)); }' +
-        '.schemes { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; }' +
-        '.sc-label { font-size: .9em; }' +
         '.sw { padding: 3px 10px; border: 1px solid transparent; border-radius: 999px; background: none;' +
         ' color: var(--mk-on-surface-variant, color-mix(in srgb, CanvasText 65%, transparent)); cursor: pointer; font-size: .85em; line-height: 1.4; }' +
         '.sw:hover { border-color: var(--mk-outline, color-mix(in srgb, CanvasText 25%, transparent)); }' +
@@ -474,6 +508,59 @@ const userButtonJS = `(() => {
         ' background: var(--mk-primary, CanvasText); color: var(--mk-on-primary, Canvas); font: inherit; font-size: .9em; }' +
         '.ip-send:hover { filter: brightness(1.1); }' +
         '.ip-send:disabled { opacity: .6; cursor: default; }' +
+        // Developer bar (DEV-10): a top-center strip driving the UI test
+        // mode, collapsible to a small DEV tab; the frame marks every page
+        // served under a simulated identity. Amber on purpose: NOT themed,
+        // it must stand out on any application.
+        '.db-frame { position: fixed; inset: 0; pointer-events: none; border: 3px solid #f59e0b; z-index: 1; }' +
+        '.db { position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 2;' +
+        ' display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 6px 10px;' +
+        ' max-width: min(720px, calc(100vw - 20px));' +
+        ' background: var(--mk-surface-container, Canvas); color: var(--mk-on-surface, CanvasText);' +
+        ' border: 1px solid #f59e0b; border-top: 0; border-radius: 0 0 10px 10px;' +
+        ' box-shadow: 0 8px 30px rgba(0,0,0,.25); font-family: var(--mk-font, system-ui); font-size: 12px; }' +
+        '.db.min > *:not(.db-tab) { display: none; }' +
+        // Collapsed, the bar body vanishes entirely: only the handle stays,
+        // sliding up to the viewport edge.
+        '.db.min { padding: 0; border: 0; box-shadow: none; }' +
+        // The handle: a drawer pull hanging under the bar, CENTERED, so the
+        // bar retracts around it without the handle jumping sideways.
+        '.db-tab { position: absolute; top: 100%; left: 50%; transform: translateX(-50%);' +
+        ' display: flex; align-items: center; gap: 5px; padding: 2px 10px; cursor: pointer; font: inherit;' +
+        ' background: var(--mk-surface-container, Canvas); color: inherit;' +
+        ' border: 1px solid #f59e0b; border-top: 0; border-radius: 0 0 8px 8px; }' +
+        '.db-badge { background: #f59e0b; color: #1c1c22; font-weight: 700; border-radius: 4px; padding: 1px 6px; font-size: 11px; }' +
+        '.db label { display: flex; align-items: center; gap: 5px; }' +
+        // Scoped to the text input: a bare ".db input" would also stretch the
+        // popup's checkboxes to this width.
+        '.db .db-user { padding: 4px 6px; border-radius: 6px; font: inherit; color: inherit; width: 120px;' +
+        ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent));' +
+        ' background: var(--mk-surface, Canvas); }' +
+        '.db-dd { position: relative; }' +
+        '.db-roles-btn { padding: 4px 10px; border-radius: 6px; font: inherit; color: inherit; cursor: pointer;' +
+        ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent));' +
+        ' background: var(--mk-surface, Canvas); }' +
+        // z-index: with auto, the bar's LATER flex items (the note) paint
+        // over the popup's top - seen as a "transparent" panel start.
+        '.db-pop { position: absolute; top: calc(100% + 6px); left: 0; min-width: 190px; max-height: 50vh;' +
+        ' overflow-y: auto; padding: 6px; display: none; z-index: 1;' +
+        ' background: var(--mk-surface-container, Canvas); color: var(--mk-on-surface, CanvasText);' +
+        ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent));' +
+        ' border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.25); }' +
+        '.db-pop.open { display: block; }' +
+        '.db-opt { display: flex; align-items: center; gap: 7px; padding: 3px 6px; border-radius: 6px;' +
+        ' cursor: pointer; font-size: 12px; }' +
+        '.db-opt:hover { background: var(--mk-surface-container-high, color-mix(in srgb, CanvasText 10%, transparent)); }' +
+        '.db-opt input { margin: 0; accent-color: var(--mk-primary, CanvasText); }' +
+        // margin-left auto: the actions sit apart, at the bar's right edge.
+        '.db-apply { margin-left: auto; padding: 4px 12px; border-radius: 6px; border: 1px solid transparent; cursor: pointer;' +
+        ' background: var(--mk-primary, CanvasText); color: var(--mk-on-primary, Canvas); font: inherit; }' +
+        '.db-apply:disabled { opacity: .6; cursor: default; }' +
+        '.db-exit { padding: 4px 10px; border-radius: 6px; background: none; cursor: pointer; font: inherit;' +
+        ' color: var(--mk-error, color-mix(in srgb, red 70%, CanvasText));' +
+        ' border: 1px solid var(--mk-outline, color-mix(in srgb, CanvasText 22%, transparent)); }' +
+        '.db-note { flex-basis: 100%; margin: 0; font-size: .75rem; opacity: .65; line-height: 1.35; }' +
+        '.db-err { flex-basis: 100%; margin: 0; font-size: .8rem; color: var(--mk-error, color-mix(in srgb, red 70%, CanvasText)); }' +
         '</style>' +
         '<div class="wrap">' +
         '<button class="btn" id="toggle" aria-haspopup="menu">' +
@@ -554,6 +641,15 @@ const userButtonJS = `(() => {
         menu.classList.remove('open');
         openIssuePanel(this.shadowRoot, L);
       });
+      // The developer bar (DEV-10): the menu entry opens it for editing; an
+      // ALREADY running test shows it on every page load, frame included.
+      const dt = this.shadowRoot.getElementById('devtools');
+      if (dt) dt.addEventListener('click', () => {
+        closeSubs();
+        menu.classList.remove('open');
+        openDevBar(this.shadowRoot, data, this.getAttribute('route'), sim, false);
+      });
+      if (sim && sim.active) openDevBar(this.shadowRoot, data, this.getAttribute('route'), sim, true);
 
       function parent(id, text) {
         return '<button class="item parent" data-sub="' + id + '"><span>' + esc(text) + '</span><span class="chev">›</span></button>';
@@ -564,6 +660,144 @@ const userButtonJS = `(() => {
 
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // ---- Developer bar (DEV-10) ------------------------------------------
+
+  // The UI test bar: browse THIS route as a simulated identity to SEE what a
+  // role sees. A singleton in the shadow root; while a test runs it returns
+  // on every page load - collapsed to a small DEV tab when the developer
+  // tucked it away (remembered per tab) - with the amber frame around the
+  // page. Apply pushes the simulation server-side then reloads: the very
+  // page on screen is served as that identity.
+  let devBar = null;
+  function openDevBar(root, data, route, sim, fromLoad) {
+    const L = data.labels || {};
+    const active = !!(sim && sim.active);
+    const lb = (k, d) => L[k] || d;
+    let collapsed = false;
+    try { collapsed = fromLoad && sessionStorage.getItem('mk-devbar-min') === '1'; } catch (e) { /* opaque storage */ }
+    if (devBar && root.contains(devBar)) {
+      devBar.classList.remove('min');
+      try { sessionStorage.removeItem('mk-devbar-min'); } catch (e) { /* ditto */ }
+      return;
+    }
+    if (active && !root.querySelector('.db-frame')) {
+      const frame = document.createElement('div');
+      frame.className = 'db-frame';
+      root.appendChild(frame);
+    }
+    // Defaults: the developer THEMSELVES with their CURRENT roles checked -
+    // the natural start is taking roles away one by one.
+    const checked = new Set(active ? (sim.roles || []) : (data.roles || []));
+    let catalogRoles = [];
+    const bar = document.createElement('div');
+    bar.className = 'db' + (collapsed ? ' min' : '');
+    bar.innerHTML =
+      '<button class="db-tab" title="' + esc(lb('devTools', 'UI test mode')) + '">' +
+      '<span class="db-badge">DEV</span><span class="db-chev">' + (collapsed ? '▾' : '▴') + '</span></button>' +
+      '<label><span>' + esc(lb('devUser', 'User')) + '</span>' +
+      '<input class="db-user" list="db-users" value="' + esc(active ? sim.user : (data.username || '')) + '"></label>' +
+      '<datalist id="db-users"></datalist>' +
+      '<div class="db-dd"><button class="db-roles-btn"></button><div class="db-pop"></div></div>' +
+      '<button class="db-apply">' + esc(lb('devApply', 'Apply')) + '</button>' +
+      '<button class="db-exit">' + esc(active ? lb('devExit', 'Exit test') : lb('cancel', 'Cancel')) + '</button>' +
+      '<p class="db-note">' + esc(lb('devNote',
+        'A developer lens, not a privilege: it needs the dev capability, applies only to your own session on this application, and every call is flagged as a test to the backend and logged under your real name.')) +
+      '</p><p class="db-err" hidden></p>';
+    root.appendChild(bar);
+    devBar = bar;
+
+    const q = (s) => bar.querySelector(s);
+    const err = (text) => { const e = q('.db-err'); e.textContent = text; e.hidden = !text; };
+    const rolesLabel = () => {
+      q('.db-roles-btn').textContent = lb('devRoles', 'Roles') + ' (' + checked.size + ') ▾';
+    };
+    // The role checklist: the catalog first, plus any checked stragglers
+    // (a role of the running test that left the catalog stays visible).
+    const renderRoles = () => {
+      const pop = q('.db-pop');
+      pop.innerHTML = '';
+      const all = catalogRoles.slice();
+      for (const r of checked) if (!all.includes(r)) all.push(r);
+      for (const r of all) {
+        const opt = document.createElement('label');
+        opt.className = 'db-opt';
+        const c = document.createElement('input');
+        c.type = 'checkbox';
+        c.checked = checked.has(r);
+        c.addEventListener('change', () => {
+          if (c.checked) checked.add(r); else checked.delete(r);
+          rolesLabel();
+        });
+        const name = document.createElement('span');
+        name.textContent = r;
+        opt.append(c, name);
+        pop.append(opt);
+      }
+      rolesLabel();
+    };
+    renderRoles();
+    // Candidates come from the SAME catalog the dev swagger forges from
+    // (dev-gated, same exposure switch). Failing quietly keeps the bar
+    // usable: the checked set is still editable.
+    fetch('/meerkat/apidocs/catalog.json', { credentials: 'same-origin' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(cat => {
+        if (!cat) return;
+        catalogRoles = cat.roles || [];
+        const dl = q('#db-users');
+        for (const u of (cat.users || [])) {
+          const o = document.createElement('option');
+          o.value = u.name;
+          dl.append(o);
+        }
+        renderRoles();
+      })
+      .catch(() => {});
+    q('.db-roles-btn').addEventListener('click', () => q('.db-pop').classList.toggle('open'));
+    // Same shadow-retargeting dance as the menu: inner clicks stop here (a
+    // click on the checklist must not close it), outside clicks close.
+    bar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!e.target.closest('.db-dd')) q('.db-pop').classList.remove('open');
+    });
+    document.addEventListener('click', () => q('.db-pop').classList.remove('open'));
+    q('.db-tab').addEventListener('click', () => {
+      const min = bar.classList.toggle('min');
+      q('.db-chev').textContent = min ? '▾' : '▴';
+      try { sessionStorage.setItem('mk-devbar-min', min ? '1' : '0'); } catch (e) { /* opaque storage */ }
+    });
+    const apply = () => {
+      const user = q('.db-user').value.trim();
+      const btn = q('.db-apply');
+      btn.disabled = true;
+      err('');
+      fetch('/meerkat/dev-sim', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ route: route, user: user, roles: Array.from(checked) })
+      }).then(r => {
+        if (!r.ok) return r.json().then(b => { throw new Error(b && b.error || ''); });
+        location.reload();
+      }).catch(e => {
+        btn.disabled = false;
+        err((e && e.message) || lb('devFailed', 'Could not update the test mode.'));
+      });
+    };
+    q('.db-apply').addEventListener('click', apply);
+    q('.db-user').addEventListener('keydown', e => { if (e.key === 'Enter') apply(); });
+    q('.db-exit').addEventListener('click', () => {
+      if (!active) {
+        bar.remove();
+        devBar = null;
+        return;
+      }
+      fetch('/meerkat/dev-sim?route=' + encodeURIComponent(route), { method: 'DELETE', credentials: 'same-origin' })
+        .then(() => location.reload());
+    });
+    // No autofocus: focusing a datalist input pops its suggestion list open
+    // uninvited - the field is one click away when the dev wants it.
   }
 
   // ---- Issue reports (ISSUE-01) ----------------------------------------

@@ -451,6 +451,55 @@ func (s *Store) SetGroupMode(ctx context.Context, tenantID, mode string) error {
 
 // ── Effective roles ──────────────────────────────────────────────────────────
 
+// ExpandRoleNames expands role NAMES down the hierarchy, the same implication
+// a real session gets (a role implies its descendants). Names outside the
+// catalogue pass through untouched: a simulated identity may pose roles that
+// only exist in the target application. Sorted and unique.
+func (s *Store) ExpandRoleNames(ctx context.Context, names []string) ([]string, error) {
+	if len(names) == 0 {
+		return nil, nil
+	}
+	roles, err := s.ListRoles(ctx)
+	if err != nil {
+		return nil, err
+	}
+	children := map[string][]string{}
+	idOf := map[string]string{}
+	nameOf := map[string]string{}
+	for _, r := range roles {
+		idOf[r.Name] = r.ID
+		nameOf[r.ID] = r.Name
+		if r.ParentID != "" {
+			children[r.ParentID] = append(children[r.ParentID], r.ID)
+		}
+	}
+	out := map[string]bool{}
+	var stack []string
+	for _, n := range names {
+		out[n] = true
+		if id, ok := idOf[n]; ok {
+			stack = append(stack, id)
+		}
+	}
+	seen := map[string]bool{}
+	for len(stack) > 0 {
+		id := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		if seen[id] {
+			continue
+		}
+		seen[id] = true
+		out[nameOf[id]] = true
+		stack = append(stack, children[id]...)
+	}
+	expanded := make([]string, 0, len(out))
+	for n := range out {
+		expanded = append(expanded, n)
+	}
+	sort.Strings(expanded)
+	return expanded, nil
+}
+
 // EffectiveRoleNames resolves the role NAMES a set of groups grants: the union
 // of the groups' roles, expanded DOWN the hierarchy (a role implies its
 // descendants). Sorted and unique — ready for the JWT (RBAC-09) and the session.

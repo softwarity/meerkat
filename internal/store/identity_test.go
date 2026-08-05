@@ -11,7 +11,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"math/big"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -189,51 +188,6 @@ func TestGlobalSettingsSeededAndOverridable(t *testing.T) {
 	var back BusinessAccess
 	if err := s.GetSetting(ctx, SettingBusinessAccess, &back); err != nil || len(back.Days) != 5 || back.Days[0].From != "07:30" {
 		t.Fatalf("override round trip: %+v, %v", back, err)
-	}
-}
-
-// TestMigratesV2Users opens a database shaped like schema v2 (4-column users)
-// and checks the v3 identity columns appear with sane defaults while existing
-// rows survive (DEPLOY-06).
-func TestMigratesV2Users(t *testing.T) {
-	dir := t.TempDir()
-	db, err := sql.Open("sqlite", "file:"+filepath.Join(dir, "meerkat.db"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := db.Exec(`
-CREATE TABLE routes (
-  id TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE, ord INTEGER NOT NULL DEFAULT 0,
-  enabled INTEGER NOT NULL DEFAULT 1, authenticated INTEGER NOT NULL DEFAULT 0,
-  upstream TEXT NOT NULL, predicates TEXT NOT NULL DEFAULT '[]', filters TEXT NOT NULL DEFAULT '[]'
-);
-CREATE TABLE users (
-  id TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL, root INTEGER NOT NULL DEFAULT 0
-);
-INSERT INTO users VALUES ('u1', 'admin', 'hash', 1);
-PRAGMA user_version = 2;`); err != nil {
-		t.Fatal(err)
-	}
-	if err := db.Close(); err != nil {
-		t.Fatal(err)
-	}
-
-	s, err := Open(dir)
-	if err != nil {
-		t.Fatalf("Open (migrating v2): %v", err)
-	}
-	t.Cleanup(func() { _ = s.Close() })
-
-	u, err := s.GetUserByUsername(context.Background(), "admin")
-	if err != nil {
-		t.Fatalf("GetUserByUsername after migration: %v", err)
-	}
-	if !u.Root || !u.Enabled || u.Timezone != "UTC" || u.Dev || u.Tester {
-		t.Fatalf("migrated user defaults: %+v", u)
-	}
-	if _, err := s.ListTenants(context.Background()); err != nil {
-		t.Fatalf("tenants table missing after migration: %v", err)
 	}
 }
 

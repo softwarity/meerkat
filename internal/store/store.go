@@ -127,14 +127,57 @@ CREATE TABLE IF NOT EXISTS routes (
   predicates    TEXT NOT NULL DEFAULT '[]',
   filters       TEXT NOT NULL DEFAULT '[]',
   api           TEXT NOT NULL DEFAULT '{}',
-  ui            TEXT NOT NULL DEFAULT '{}'
+  ui            TEXT NOT NULL DEFAULT '{}',
+  identity      TEXT NOT NULL DEFAULT '{}',
+  locales       TEXT NOT NULL DEFAULT '{}',
+  -- The route's unified base security (RBAC-06): who may call it at all,
+  -- which per-endpoint rules then override (RBAC-07).
+  access        TEXT NOT NULL DEFAULT '{}'
 );
 
 CREATE TABLE IF NOT EXISTS users (
-  id            TEXT PRIMARY KEY,
-  username      TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  root          INTEGER NOT NULL DEFAULT 0
+  id                   TEXT PRIMARY KEY,
+  username             TEXT NOT NULL UNIQUE,
+  password_hash        TEXT NOT NULL,
+  root                 INTEGER NOT NULL DEFAULT 0,
+  fullname             TEXT NOT NULL DEFAULT '',
+  email                TEXT NOT NULL DEFAULT '',
+  enabled              INTEGER NOT NULL DEFAULT 1,
+  dev                  INTEGER NOT NULL DEFAULT 0,
+  tester               INTEGER NOT NULL DEFAULT 0,
+  tenant_creator       INTEGER NOT NULL DEFAULT 0,
+  -- Split administration (RBAC-05): the routing plane and the application's
+  -- identity are separate concerns with separate admins. Tenant
+  -- administration is NOT a flag here — it lives in memberships (TENANT-02).
+  infra_admin          INTEGER NOT NULL DEFAULT 0,
+  app_admin            INTEGER NOT NULL DEFAULT 0,
+  locale               TEXT NOT NULL DEFAULT '',
+  timezone             TEXT NOT NULL DEFAULT 'UTC',
+  created_at           INTEGER NOT NULL DEFAULT 0,
+  updated_at           INTEGER NOT NULL DEFAULT 0,
+  last_connection_at   INTEGER NOT NULL DEFAULT 0,
+  must_change_password INTEGER NOT NULL DEFAULT 0,
+  -- The second factor (MFA-01). totp_secret is the confirmed base32 TOTP
+  -- secret ('' = not enrolled); totp_pending holds a secret mid-enrolment,
+  -- before the first code confirms it; totp_scratch is a JSON array of the
+  -- SHA-256 hashes of single-use backup codes. These never travel on the User
+  -- struct — they are read and written only through the mfa.go methods.
+  totp_secret          TEXT NOT NULL DEFAULT '',
+  totp_pending         TEXT NOT NULL DEFAULT '',
+  totp_scratch         TEXT NOT NULL DEFAULT '[]',
+  -- The per-user MFA policy (MFA-04): '' inherits the global setting,
+  -- 'true'/'false' force the second factor for this user. Resolvable before
+  -- tenant selection (unlike a per-tenant override).
+  mfa_required         TEXT NOT NULL DEFAULT '',
+  avatar               TEXT NOT NULL DEFAULT '',
+  -- A DEVELOPER's public certificate (PEM): the credential their plugged
+  -- service authenticates with (dev plug matching). Self-service, /profile.
+  dev_cert             TEXT NOT NULL DEFAULT '',
+  -- Self-registration (AUTH-20). email_verified defaults to 1: admin-created
+  -- accounts answer for their address; only the /register flow creates
+  -- unverified ones (and confirms them by e-mail).
+  email_verified       INTEGER NOT NULL DEFAULT 1,
+  self_registered      INTEGER NOT NULL DEFAULT 0
 );
 
 -- v27 the vault (VAULT-01): named entries the configuration references by
@@ -155,7 +198,18 @@ CREATE TABLE IF NOT EXISTS vault_entries (
 CREATE TABLE IF NOT EXISTS sessions (
   token_hash TEXT PRIMARY KEY,
   user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  expires_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL,
+  -- The active tenant chosen at login or on the select-tenant page
+  -- (TENANT-03); '' = none chosen (no membership, or selection pending).
+  tenant_id  TEXT NOT NULL DEFAULT '',
+  -- The active group in SINGLE mode (RBAC-03); '' = none/cumulative.
+  group_id   TEXT NOT NULL DEFAULT '',
+  -- The login-flow step this session must complete before anything else
+  -- (AUTH-05): 'update-password', 'totp'…; '' = flow complete.
+  pending    TEXT NOT NULL DEFAULT '',
+  -- The post-login destination, carried on the session instead of the URL.
+  next       TEXT NOT NULL DEFAULT '',
+  plane      TEXT NOT NULL DEFAULT 'data'
 );
 CREATE INDEX IF NOT EXISTS sessions_expires ON sessions(expires_at);
 
@@ -166,7 +220,14 @@ CREATE TABLE IF NOT EXISTS tenants (
   enabled         INTEGER NOT NULL DEFAULT 1,
   business_access TEXT NOT NULL DEFAULT '{"inherited":true}',
   session_ttl     TEXT NOT NULL DEFAULT '',
+  -- '' = inherit the gateway-wide group mode; MULTIPLE/SINGLE = forced here.
   group_mode      TEXT NOT NULL DEFAULT '',
+  -- Who created the tenant (audit) — set once, never changed.
+  created_by      TEXT NOT NULL DEFAULT '',
+  -- The tenant's owner (TENANT-02): always set (the creator by default),
+  -- transferable, and INDEPENDENT of membership — an owner need not be a
+  -- member. This is why there is no OWNER membership type.
+  owner_id        TEXT NOT NULL DEFAULT '',
   created_at      INTEGER NOT NULL DEFAULT 0,
   updated_at      INTEGER NOT NULL DEFAULT 0
 );
@@ -217,9 +278,12 @@ CREATE TABLE IF NOT EXISTS roles (
 );
 
 CREATE TABLE IF NOT EXISTS groups (
-  id         TEXT PRIMARY KEY,
-  tenant_id  TEXT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  name       TEXT NOT NULL,
+  id          TEXT PRIMARY KEY,
+  tenant_id   TEXT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  name        TEXT NOT NULL,
+  -- A human description (RBAC-02), editable from the matrix's group menu and
+  -- shown as the label the roles hang under.
+  description TEXT NOT NULL DEFAULT '',
   created_at INTEGER NOT NULL DEFAULT 0,
   updated_at INTEGER NOT NULL DEFAULT 0,
   UNIQUE (tenant_id, name)
@@ -438,42 +502,6 @@ CREATE INDEX IF NOT EXISTS issues_status ON issues(status, created_at);`)
 	if err != nil {
 		return fmt.Errorf("store: migrate: %w", err)
 	}
-	// v3 widened users (identity + capability flags), v4 widened sessions
-	// (active tenant). Shape-driven and idempotent: add whichever column is
-	// missing, whatever version we open.
-	if err := s.addMissingColumns("users", userColumns); err != nil {
-		return err
-	}
-	if err := s.addMissingColumns("sessions", sessionColumns); err != nil {
-		return err
-	}
-	if err := s.addMissingColumns("themes", themeColumns); err != nil {
-		return err
-	}
-	if err := s.addMissingColumns("tenants", tenantColumns); err != nil {
-		return err
-	}
-	if err := s.addMissingColumns("roles", roleColumns); err != nil {
-		return err
-	}
-	if err := s.addMissingColumns("routes", routeColumns); err != nil {
-		return err
-	}
-	if err := s.recreateVaultIfSingleKeyed(); err != nil {
-		return err
-	}
-	if err := s.renameGatewayAdminColumn(); err != nil {
-		return err
-	}
-	if err := s.addMissingColumns("groups", groupColumns); err != nil {
-		return err
-	}
-	if err := s.addMissingColumns("user_identities", identityColumns); err != nil {
-		return err
-	}
-	if err := s.addMissingColumns("api_tokens", apiTokenColumns); err != nil {
-		return err
-	}
 	if err := s.seedDefaultSettings(); err != nil {
 		return err
 	}
@@ -486,170 +514,19 @@ CREATE INDEX IF NOT EXISTS issues_status ON issues(status, created_at);`)
 	return nil
 }
 
-type columnDef struct{ name, definition string }
-
-// userColumns are the v3 additions to the users table: identity fields plus
-// the cross-cutting capability flags (root/dev/tester/tenant_creator —
-// RBAC-05). Tenant-scoped administration is NOT a flag here: it lives in the
-// memberships table (TENANT-02, OWNER/ADMIN/USER).
-var userColumns = []columnDef{
-	{"fullname", `TEXT NOT NULL DEFAULT ''`},
-	{"email", `TEXT NOT NULL DEFAULT ''`},
-	{"enabled", `INTEGER NOT NULL DEFAULT 1`},
-	{"dev", `INTEGER NOT NULL DEFAULT 0`},
-	{"tester", `INTEGER NOT NULL DEFAULT 0`},
-	{"tenant_creator", `INTEGER NOT NULL DEFAULT 0`},
-	// Split administration (v18, RBAC-05): the routing plane and the
-	// application's identity are separate concerns with separate admins.
-	{"infra_admin", `INTEGER NOT NULL DEFAULT 0`},
-	{"app_admin", `INTEGER NOT NULL DEFAULT 0`},
-	{"locale", `TEXT NOT NULL DEFAULT ''`},
-	{"timezone", `TEXT NOT NULL DEFAULT 'UTC'`},
-	{"created_at", `INTEGER NOT NULL DEFAULT 0`},
-	{"updated_at", `INTEGER NOT NULL DEFAULT 0`},
-	{"last_connection_at", `INTEGER NOT NULL DEFAULT 0`},
-	{"must_change_password", `INTEGER NOT NULL DEFAULT 0`},
-	// The second factor (v10, MFA-01). totp_secret is the confirmed base32 TOTP
-	// secret ("" = not enrolled); totp_pending holds a secret mid-enrolment,
-	// before the first code confirms it; totp_scratch is a JSON array of the
-	// SHA-256 hashes of single-use backup codes. These never travel on the User
-	// struct — they are read and written only through the mfa.go methods.
-	{"totp_secret", `TEXT NOT NULL DEFAULT ''`},
-	{"totp_pending", `TEXT NOT NULL DEFAULT ''`},
-	{"totp_scratch", `TEXT NOT NULL DEFAULT '[]'`},
-	// The per-user MFA policy (v11, MFA-04): "" inherits the global setting,
-	// "true"/"false" force the second factor for this user. Resolvable before
-	// tenant selection (unlike a per-tenant override).
-	{"mfa_required", `TEXT NOT NULL DEFAULT ''`},
-	{"avatar", `TEXT NOT NULL DEFAULT ''`},
-	// A DEVELOPER's public certificate (PEM): the credential their plugged
-	// service authenticates with (dev plug matching). Self-service, /profile.
-	{"dev_cert", `TEXT NOT NULL DEFAULT ''`},
-	// Self-registration (v19, AUTH-20). email_verified defaults to 1: existing
-	// and admin-created accounts answer for their address; only the /register
-	// flow creates unverified accounts (and confirms them by e-mail).
-	{"email_verified", `INTEGER NOT NULL DEFAULT 1`},
-	{"self_registered", `INTEGER NOT NULL DEFAULT 0`},
-}
-
-// sessionColumns are the v4 additions to the sessions table: the active
-// tenant chosen at login or on the select-tenant page (TENANT-03); "" = none
-// chosen (no membership, or selection pending).
-var sessionColumns = []columnDef{
-	{"tenant_id", `TEXT NOT NULL DEFAULT ''`},
-	// The active group in SINGLE mode (v21, RBAC-03); "" = none/cumulative.
-	{"group_id", `TEXT NOT NULL DEFAULT ''`},
-	// The login-flow step this session must complete before anything else
-	// (AUTH-05): "update-password", later "totp"; "" = flow complete.
-	{"pending", `TEXT NOT NULL DEFAULT ''`},
-	// The post-login destination (v9) carried on the session instead of the URL.
-	{"next", `TEXT NOT NULL DEFAULT ''`},
-	{"plane", `TEXT NOT NULL DEFAULT 'data'`},
-}
-
-// themeColumns is the v7 addition to the themes table: the flat-design flag
-// (THEME-04) — off = the Sentinel's Watch glows, on = a flat look. Shape-driven
-// and idempotent, added whatever version we open.
-var themeColumns = []columnDef{
-	{"flat", `INTEGER NOT NULL DEFAULT 0`},
-}
-
-// routeColumns is the v16 addition to the routes table: the route type
-// (API/UI — ROUTE-02) and each type's option object.
-var routeColumns = []columnDef{
-	{"is_ui", `INTEGER NOT NULL DEFAULT 0`},
-	{"api", `TEXT NOT NULL DEFAULT '{}'`},
-	{"ui", `TEXT NOT NULL DEFAULT '{}'`},
-	{"identity", `TEXT NOT NULL DEFAULT '{}'`},
-	{"locales", `TEXT NOT NULL DEFAULT '{}'`},
-	// access holds the route's unified base security (RBAC-06). Replaces the
-	// former authenticated/required_role columns.
-	{"access", `TEXT NOT NULL DEFAULT '{}'`},
-}
-
-// tenantColumns: v8 added the per-org group mode (RBAC-03) — MULTIPLE
-// (cumulate) or SINGLE (one group, chosen at login); v14 the human description.
-var tenantColumns = []columnDef{
-	// '' = inherit the gateway-wide setting; MULTIPLE/SINGLE = forced here.
-	{"group_mode", `TEXT NOT NULL DEFAULT ''`},
-	{"description", `TEXT NOT NULL DEFAULT ''`},
-	// v23: who created the tenant (audit) — set once, never changed.
-	{"created_by", `TEXT NOT NULL DEFAULT ''`},
-	// v24: the tenant's owner (TENANT-02 revised) — always set (the creator by
-	// default), transferable, and INDEPENDENT of membership: an owner need not
-	// be a member. This retires the OWNER membership type.
-	{"owner_id", `TEXT NOT NULL DEFAULT ''`},
-}
-
-// groupColumns: v23 added a human description (RBAC-02), editable in the
-// members matrix's group menu.
-var groupColumns = []columnDef{
-	{"description", `TEXT NOT NULL DEFAULT ''`},
-}
-
-// identityColumns: v31 recorded what an authority SAYS about someone, its own
-// group names verbatim, so a rule can be written against something an admin has
-// actually seen rather than retyped from memory. A link table created before
-// that has no such column, and every read of it failed with "no such column:
-// groups" — which reads like a broken query and is in fact a missing migration.
-var identityColumns = []columnDef{
-	{"groups", `TEXT NOT NULL DEFAULT ''`},
-}
-
-// apiTokenColumns: v26 added the token PLANE (data|admin) — a data token
-// authenticates on the data plane, an admin (control-plane) token on the admin
-// port; the resolver only ever accepts a token on its own plane.
-var apiTokenColumns = []columnDef{
-	{"plane", `TEXT NOT NULL DEFAULT 'data'`},
-}
-
-// The token planes (must match session.DataPlane/AdminPlane, same string values).
+// The token planes (must match session.DataPlane/AdminPlane, same string
+// values): a data token authenticates on the data plane, an admin
+// (control-plane) token on the admin port, and the resolver only ever accepts
+// a token on its own plane.
 const (
 	PlaneData  = "data"
 	PlaneAdmin = "admin"
 )
 
-// roleColumns is the v13 addition to the roles table: a human description
-// (RBAC-01), searchable in the groups matrix.
-var roleColumns = []columnDef{
-	{"description", `TEXT NOT NULL DEFAULT ''`},
-}
-
-func (s *Store) addMissingColumns(table string, cols []columnDef) error {
-	existing := map[string]bool{}
-	rows, err := s.db.Query(`SELECT name FROM pragma_table_info(?)`, table)
-	if err != nil {
-		return fmt.Errorf("store: inspect %s table: %w", table, err)
-	}
-	defer func() { _ = rows.Close() }()
-	for rows.Next() {
-		var name string
-		if err := rows.Scan(&name); err != nil {
-			return fmt.Errorf("store: inspect %s table: %w", table, err)
-		}
-		existing[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("store: inspect %s table: %w", table, err)
-	}
-	for _, c := range cols {
-		if existing[c.name] {
-			continue
-		}
-		if _, err := s.db.Exec(fmt.Sprintf(`ALTER TABLE %s ADD COLUMN %s %s`, table, c.name, c.definition)); err != nil {
-			return fmt.Errorf("store: add %s.%s: %w", table, c.name, err)
-		}
-	}
-	return nil
-}
-
 // Route is a routing rule: declarative predicates decide the match,
 // declarative filters transform request and response, the upstream receives
 // the traffic (routing.Spec is the single shape shared with exports, the
 // admin API and the console).
-// Route types (ROUTE-02): an API route serves machines, a UI route serves a
-// web application — each unlocks its own option section.
-const ()
 
 // RouteAPI holds the API-route options: the OpenAPI spec this route exposes,
 // and the endpoint-level security (RBAC-07) posed on that spec's operations,

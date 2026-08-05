@@ -12,40 +12,6 @@ import (
 	"github.com/softwarity/meerkat/internal/vault"
 )
 
-// recreateVaultIfSingleKeyed upgrades a vault created before names were scoped
-// (v27/v28: name alone was the primary key). Design phase, so it recreates the
-// table rather than carrying a migration: entries are re-declared, and a secret
-// would be unreadable anyway if the master key had moved.
-func (s *Store) recreateVaultIfSingleKeyed() error {
-	var pkCols int
-	if err := s.db.QueryRow(
-		`SELECT COUNT(*) FROM pragma_table_info('vault_entries') WHERE pk > 0`).Scan(&pkCols); err != nil {
-		return fmt.Errorf("store: inspect vault schema: %w", err)
-	}
-	if pkCols >= 2 {
-		return nil // already keyed by (scope, name)
-	}
-	if _, err := s.db.Exec(`DROP TABLE IF EXISTS vault_entries`); err != nil {
-		return fmt.Errorf("store: drop legacy vault: %w", err)
-	}
-	_, err := s.db.Exec(`
-CREATE TABLE vault_entries (
-  name        TEXT NOT NULL,
-  kind        TEXT NOT NULL DEFAULT 'value',
-  scope       TEXT NOT NULL DEFAULT 'infra',
-  value       TEXT NOT NULL DEFAULT '',
-  description TEXT NOT NULL DEFAULT '',
-  tags        TEXT NOT NULL DEFAULT '[]',
-  created_at  INTEGER NOT NULL DEFAULT 0,
-  updated_at  INTEGER NOT NULL DEFAULT 0,
-  PRIMARY KEY (scope, name)
-);`)
-	if err != nil {
-		return fmt.Errorf("store: recreate vault: %w", err)
-	}
-	return nil
-}
-
 // ListVaultEntries returns every entry, secrets INCLUDED but with their value
 // blanked: a secret is never handed back in plain, not even to root (VAULT-01).
 // Values (the plain kind) carry their text — reading them is the point.

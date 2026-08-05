@@ -51,7 +51,8 @@ mat-cell {
 mat-row:last-of-type {
   margin-bottom: 64px;
 }
-@include table.banded-rows;
+// Unframed: the frame is on .table-wrap, which is what scrolls here.
+@include table.banded-rows($framed: false);
 
 /* sticky role column + header */
 mat-header-row {

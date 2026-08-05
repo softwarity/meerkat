@@ -145,7 +145,8 @@ mat-cell.mat-column-lastConn {
   color: var(--mat-sys-on-surface-variant);
 }
 
-@include table.banded-rows;
+// Unframed: the frame is on .table-wrap, which is what scrolls here.
+@include table.banded-rows($framed: false);
 /* The second header row carries the whole-column boxes, and reads as header
    rather than as a first data row. */
 .bulk-row {

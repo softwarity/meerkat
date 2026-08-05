@@ -9,9 +9,35 @@
 //
 // Both are applied to the ROW and to its CELLS: a sticky column carries its own
 // background, and only a cell-level rule reaches it.
-@mixin banded-rows($band: 4%, $hover: 9%, $row-height: 48px) {
+// $framed draws the hairline and radius AROUND the table. It is on by default,
+// which is what makes every screen look like the same product: a table sits in
+// a frame, not loose on the page.
+//
+// The two matrices pass false: their frame belongs to the wrapper that
+// SCROLLS, because a border on a table wider than its pane walks off-screen
+// with it. Everywhere else the table is the scroll box and wears it itself.
+@mixin banded-rows($band: 4%, $hover: 9%, $row-height: 48px, $framed: true) {
   mat-table {
     --mat-table-row-item-outline-width: 0;
+    @if $framed {
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: var(--mat-sys-corner-medium, 8px);
+      // The header carries its own background: without this it squares off the
+      // top corners the border just rounded.
+      overflow: hidden;
+    }
+  }
+  // The seam between a sticky column and the rest. Sticky cells slide UNDER
+  // nothing - the columns pass beneath them - so without a rule the numbers
+  // simply appear next to a name that never moved, and one cannot tell which
+  // side is anchored. The last sticky cell of the left block is the one
+  // followed by a non-sticky one; the first of the right block is the one that
+  // follows one.
+  .mat-mdc-table-sticky:has(+ :not(.mat-mdc-table-sticky)) {
+    border-right: 1px solid var(--mat-sys-outline-variant);
+  }
+  :not(.mat-mdc-table-sticky) + .mat-mdc-table-sticky {
+    border-left: 1px solid var(--mat-sys-outline-variant);
   }
   // One height for every table of the console. Denser than Material's default
   // (56px) because these are read by scanning a column, and every pixel is one

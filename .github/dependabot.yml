@@ -69,9 +69,11 @@ updates:
       image:
         patterns: ["*"]
 
-  # The directories the authentication tests run against. Pinned versions only:
+  # The directories the authentication tests run against. `docker-compose` and
+  # not `docker`: the latter reads Dockerfiles and Kubernetes manifests, and
+  # aborts on a directory holding only a compose file. Pinned versions only -
   # the two that say `latest` are already followed by Docker itself.
-  - package-ecosystem: docker
+  - package-ecosystem: docker-compose
     directory: /test/ldap
     schedule:
       interval: weekly

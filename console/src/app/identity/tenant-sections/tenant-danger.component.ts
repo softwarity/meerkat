@@ -9,6 +9,7 @@ import { catchError, of } from 'rxjs';
 import { ApiService, Member } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
 import { TenantScope } from '../tenant-scope';
+import { TenantsService } from '../../shared/tenants.service';
 
 // The tenant's Danger zone (a child route of the tenant layout), GitHub-style:
 // outlined error cards for the destructive acts: ownership transfer (reassigns
@@ -107,6 +108,7 @@ import { TenantScope } from '../tenant-scope';
 })
 export class TenantDangerComponent {
   private readonly api = inject(ApiService);
+  private readonly tenants = inject(TenantsService);
   private readonly snack = inject(MatSnackBar);
   private readonly dialogs = inject(DialogsService);
   private readonly router = inject(Router);
@@ -178,7 +180,12 @@ export class TenantDangerComponent {
     });
     if (typed !== t.name) return;
     this.api.deleteTenant(t.id).subscribe({
-      next: () => void this.router.navigate(['/']),
+      next: () => {
+        // The rail's drawer holds its own list: without this it keeps offering
+        // a link to an organisation that no longer exists.
+        this.tenants.remove(t.id);
+        void this.router.navigate(['/']);
+      },
       error: (err) => this.snack.open(errMsg(err), undefined, { duration: 4000 }),
     });
   }

@@ -16,6 +16,7 @@ import {
 import { catchError, filter, firstValueFrom, map, of } from 'rxjs';
 import { ApiService, Tenant } from './api.service';
 import { TenantDialogComponent, TenantDialogResult } from './identity/tenant-dialog.component';
+import { TenantsService } from './shared/tenants.service';
 import { MeService } from './me.service';
 import { UserMenuComponent } from './shared/user-menu.component';
 
@@ -49,15 +50,15 @@ export class AppComponent {
   private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
 
-  // Tenants for the Tenants drawer — scoped by the API (root: all; admin:
-  // theirs). Reloaded after a creation from the drawer.
-  protected readonly tenants = signal<Tenant[]>([]);
+  // Tenants for the Tenants drawer, from the shared signal: they are created
+  // here but renamed and deleted on screens this component knows nothing
+  // about, and a drawer that keeps a deleted organisation offers a link to
+  // something that is gone.
+  private readonly tenantsService = inject(TenantsService);
+  protected readonly tenants = this.tenantsService.tenants;
 
   private loadTenants(): void {
-    this.api
-      .listTenants()
-      .pipe(catchError(() => of<Tenant[]>([])))
-      .subscribe((tenants) => this.tenants.set(tenants));
+    this.tenantsService.reload();
   }
 
   protected async createTenant(): Promise<void> {

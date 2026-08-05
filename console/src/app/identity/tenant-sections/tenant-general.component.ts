@@ -10,6 +10,7 @@ import { ApiService, BusinessAccess, Settings } from '../../api.service';
 import { FormFieldComponent } from '../../shared/form-field.component';
 import { BusinessAccessFormComponent } from '../business-access-form.component';
 import { TenantScope } from '../tenant-scope';
+import { TenantsService } from '../../shared/tenants.service';
 
 // The tenant's General section (a child route of the tenant layout): identity
 // and working hours, committed together with Save. The layout owns the tenant
@@ -31,6 +32,7 @@ import { TenantScope } from '../tenant-scope';
 })
 export class TenantGeneralComponent {
   private readonly api = inject(ApiService);
+  private readonly tenants = inject(TenantsService);
   private readonly snack = inject(MatSnackBar);
   protected readonly scope = inject(TenantScope);
 
@@ -91,6 +93,9 @@ export class TenantGeneralComponent {
         next: (saved) => {
           this.saving.set(false);
           this.scope.tenant.set(saved);
+          // And the rail's drawer, which shows the NAME: a stale one there is
+          // worse than a stale entry, because nothing looks broken.
+          this.tenants.replace(saved);
           this.snack.open($localize`:@@Tenant_NAME_saved:Tenant "${saved.name}:NAME:" saved`, undefined, { duration: 2500 });
         },
         error: (err) => {

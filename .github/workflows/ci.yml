@@ -22,9 +22,66 @@ jobs:
           go-version: stable
       - uses: golangci/golangci-lint-action@v9
 
-  # Build and unit-test natively on the three OSes the binary ships for.
+  # The unit tests, split by the area they cover so a red check names it:
+  # "Routing" rather than "Test (ubuntu-latest)". Ubuntu only - this is about
+  # reading the result, and the same split across three OSes would be fifteen
+  # checks saying one thing.
+  #
+  # The build cache is shared between them (setup-go keys it on go.sum), so the
+  # compilation is paid once across the matrix rather than once per job.
+  unit:
+    name: ${{ matrix.area }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - area: Routing
+            packages: ./internal/routing/... ./internal/filters/... ./internal/gateway/...
+          - area: Authentication
+            packages: ./internal/auth/... ./internal/idp/... ./internal/mfa/... ./internal/session/... ./internal/captcha/...
+          - area: Admin API
+            packages: ./internal/admin/... ./internal/openapi/... ./internal/config/...
+          - area: Storage
+            packages: ./internal/store/... ./internal/features/... ./internal/license/...
+          - area: Secrets and signing
+            packages: ./internal/vault/... ./internal/signing/... ./internal/mail/...
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - run: go vet ${{ matrix.packages }}
+      - run: go test -race ${{ matrix.packages }}
+
+  # Nothing must fall between the areas above: a package nobody listed would
+  # stop being tested on ubuntu and nobody would see it, because the check that
+  # used to cover it is green about something else.
+  coverage-of-the-split:
+    name: Every package is in an area
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - shell: bash
+        run: |
+          listed=$(grep -oE './internal/[a-z]+/\.\.\.' .github/workflows/ci.yml | sort -u | sed 's|/\.\.\.||')
+          # Only packages that HAVE tests: one without any is compiled by the
+          # portability job and has nothing to run here. The day someone adds a
+          # test to it, it appears in this list and the check asks for a home.
+          tested=$(go list -f '{{if or .TestGoFiles .XTestGoFiles}}{{.ImportPath}}{{end}}' ./internal/... \
+            | sed 's|github.com/softwarity/meerkat/||' | cut -d/ -f1-2 | sort -u | sed 's|^|./|')
+          missing=$(comm -23 <(echo "$tested") <(echo "$listed"))
+          [ -z "$missing" ] || { echo "these have tests and belong to no area:"; echo "$missing"; exit 1; }
+          echo "every tested package belongs to an area"
+
+  # Portability: the whole suite on the OSes the binary ships for. One check
+  # per OS, because what fails here fails BECAUSE of the OS - the areas above
+  # already say what the code broke.
   test:
-    name: Test (${{ matrix.os }})
+    name: Portability (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -181,7 +238,7 @@ jobs:
   # to test that branch on a real cluster, never latest. Off PRs.
   image:
     name: Build & publish image
-    needs: [lint, test, build]
+    needs: [lint, unit, coverage-of-the-split, test, directories, e2e, build]
     if: success() && github.event_name != 'pull_request'
     permissions:
       contents: read

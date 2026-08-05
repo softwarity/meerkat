@@ -20,7 +20,6 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: stable
-          cache: false
       - uses: golangci/golangci-lint-action@v9
 
   # Build and unit-test natively on the three OSes the binary ships for.
@@ -36,7 +35,6 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: stable
-          cache: false
       - name: Vet
         run: go vet ./...
       - name: Test
@@ -45,29 +43,65 @@ jobs:
   # The authorities, against the real thing. test/ldap brings up OpenLDAP, an
   # Active Directory and Dex; without them these tests SKIP, and a skip is
   # silent - `ok internal/idp` was being reported for five tests that never
-  # ran. Ubuntu only: Docker is not dependable on the macOS and Windows
-  # runners, and interoperability does not vary by client OS.
+  # ran.
+  #
+  # One job per directory rather than one for all three. Not for speed - this
+  # is nowhere near the critical path - but because "the directories failed"
+  # sends someone reading logs, while "Active Directory failed" names the
+  # thing. It also stops the slowest server from gating the others: the domain
+  # controller takes about a minute to provision, and OpenLDAP was waiting for
+  # it to test something unrelated.
+  #
+  # Ubuntu only: Docker is not dependable on the macOS and Windows runners, and
+  # interoperability with a directory does not vary by client OS.
   directories:
-    name: Directories (LDAP, AD, OIDC)
+    name: ${{ matrix.directory }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - directory: OpenLDAP
+            service: openldap
+            tests: 'TestLDAPDirectorySignIn|TestLDAPRefusesBadCredentials|TestLDAPNestedGroupsCanBeTurnedOff'
+            expect: 3
+          - directory: Active Directory
+            service: samba
+            tests: 'TestLDAPActiveDirectorySignIn'
+            expect: 1
+          - directory: OIDC (Dex)
+            service: dex
+            tests: 'TestOIDCAgainstDex'
+            expect: 1
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with:
           go-version: stable
-          cache: false
-      - name: Start the directories
-        run: make ldap-up
-      - name: Run against them
-        run: make ldap-test
-      - name: Prove they were not skipped
-        # A skip passes, so the count is the only thing that says they ran.
+      - name: Start ${{ matrix.directory }}
+        working-directory: test/ldap
+        run: docker compose up -d ${{ matrix.service }}
+      # The domain controller provisions itself before it answers, and it is
+      # the only one that needs seeding afterwards.
+      - name: Wait for the domain controller
+        if: matrix.service == 'samba'
         run: |
-          ran=$(go test ./internal/idp/ -run 'LDAP|OIDCAgainstDex' -count=1 -v 2>&1 | grep -c -- '--- PASS')
-          echo "$ran tests ran against the real servers"
-          [ "$ran" -ge 5 ] || { echo "expected at least 5, the directories were not reached"; exit 1; }
+          for _ in $(seq 1 60); do
+            [ "$(docker inspect meerkat-samba-ad --format '{{.State.Health.Status}}' 2>/dev/null)" = healthy ] && break
+            sleep 5
+          done
+          docker exec meerkat-samba-ad sh /seed.sh
+      # A skipped test PASSES, so counting is the only thing that tells "they
+      # ran" from "nothing answered and nobody noticed".
+      - name: Run against it, and prove they ran
+        run: |
+          go test ./internal/idp/ -run '${{ matrix.tests }}' -count=1 -v 2>&1 | tee out.txt
+          ran=$(grep -c -- '--- PASS' out.txt)
+          echo "$ran of ${{ matrix.expect }} expected tests ran against ${{ matrix.directory }}"
+          [ "$ran" -eq ${{ matrix.expect }} ] || { echo "the server was not reached"; exit 1; }
       - if: always()
-        run: make ldap-down
+        working-directory: test/ldap
+        run: docker compose down -v
 
   # Integration: a real gateway + the built console, driven by Playwright over
   # the seeded profiles of e2e/scenarios.json (positive AND negative access).
@@ -79,7 +113,6 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: stable
-          cache: false
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -111,7 +144,6 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: stable
-          cache: false
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version

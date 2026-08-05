@@ -97,8 +97,10 @@
 }
 
 <!-- One menu at the template root (in scope of every trigger, correctly
-     positioned), receiving its group via context. -->
-<mat-menu #groupMenu>
+     positioned), receiving its group via context. It opens to the LEFT of its
+     trigger: opening right covered the next group's column, which is the one
+     someone compares against. -->
+<mat-menu #groupMenu xPosition="before">
   <ng-template matMenuContent let-group="group">
     <button mat-menu-item (click)="editGroup(group)">
       <mat-icon>edit</mat-icon>

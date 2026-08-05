@@ -159,7 +159,9 @@
   </button>
 }
 
-<mat-menu #groupMenu>
+<!-- Opens to the LEFT: the same menu on the same kind of column header, and
+     opening right covered the next group. -->
+<mat-menu #groupMenu xPosition="before">
   <ng-template matMenuContent let-group="group">
     <button mat-menu-item (click)="editGroup(group)">
       <mat-icon>edit</mat-icon>

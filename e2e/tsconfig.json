@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    // Playwright transpiles the specs itself, so this file exists for the type
+    // check. `moduleResolution: node` (node10) was removed in TypeScript 7;
+    // `preserve` leaves the imports as written and resolves them the way the
+    // bundler does, which is what actually runs them.
+    "module": "preserve",
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,

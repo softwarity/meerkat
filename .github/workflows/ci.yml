@@ -239,6 +239,12 @@ jobs:
         run: |
           npm ci
           npx playwright install --with-deps chromium
+      # Playwright transpiles the specs without checking them, so a suite can
+      # be green with a tsconfig that no longer compiles - which is exactly
+      # what a TypeScript major did here, and nothing said a word.
+      - name: Type-check the specs
+        working-directory: e2e
+        run: npx tsc --noEmit
       - name: Run integration suite
         working-directory: e2e
         run: npx playwright test

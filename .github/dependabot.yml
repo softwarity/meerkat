@@ -59,6 +59,12 @@ updates:
     groups:
       e2e:
         patterns: ["*"]
+    # @types/node describes the runtime, so it follows `.node-version` (24) and
+    # not npm: types a major ahead of the Node that executes them describe an
+    # API the suite does not have. The major arrives when the runtime does.
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm
     directory: /docs

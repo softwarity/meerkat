@@ -256,8 +256,8 @@
       "allowed": ["root", "infra-admin"],
       "title": { "en": "Read the issue tracker switch", "fr": "Lire l'interrupteur du suivi d'anomalies" },
       "description": {
-        "en": "Turning user-filed issue reports on is an infrastructure decision (ISSUE-04, Others screen): the switch ships OFF and only infra admins read or flip it.",
-        "fr": "Activer les signalements d'anomalies est une décision d'infrastructure (ISSUE-04, écran Autres) : l'interrupteur est livré ÉTEINT et seuls les admins infra le lisent ou le basculent."
+        "en": "Turning user-filed issue reports on is an infrastructure decision (ISSUE-04): the switch sits on the Issues screen, ships OFF, and only infra admins read or flip it.",
+        "fr": "Activer les signalements d'anomalies est une décision d'infrastructure (ISSUE-04) : l'interrupteur est posé sur l'écran Anomalies, livré ÉTEINT, et seuls les admins infra le lisent ou le basculent."
       }
     },
     {

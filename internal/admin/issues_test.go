@@ -14,7 +14,7 @@ import (
 // The issue tracker's management side: visibility is scoped (root/infra/app
 // admins see everything, a tenant admin their tenants only, anyone else is
 // refused), the lifecycle works, the screenshot streams as a real image, and
-// the Others toggle behaves like every other setting pair.
+// the toggle behaves like every other setting pair.
 func TestIssuesAPI(t *testing.T) {
 	f := setup(t)
 	ctx := context.Background()
@@ -110,7 +110,7 @@ func TestIssuesAPI(t *testing.T) {
 		}
 	})
 
-	t.Run("the Others toggle: off by default, infra-gated, audited", func(t *testing.T) {
+	t.Run("the tracker switch: off by default, infra-gated, audited", func(t *testing.T) {
 		if code, body := f.call(t, "GET", "/api/settings/issues", "", f.rootC); code != http.StatusOK || !strings.Contains(body, `"enabled":false`) {
 			t.Fatalf("default: %d %s", code, body)
 		}

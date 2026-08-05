@@ -21,7 +21,7 @@ import (
 // embedded swagger-ui over the specs the ROUTES declare - every one of them,
 // enabled or not: a developer legitimately sees what exists and what is being
 // built. Gated by a data session with the `dev` capability (the same family
-// as /profile/dev-cert) AND by the Others-screen switch (ships OFF). The
+// as /profile/dev-cert), and by nothing else. The
 // profile bar simulates identities (all roles by default) through the
 // standard simulation headers - applySimulation authorizes devs on this
 // plane.
@@ -38,13 +38,6 @@ func (rt *Router) RegisterDevDocs(mux *http.ServeMux) {
 	mux.HandleFunc("GET /meerkat/apidocs/assets/{file}", rt.devDocsAsset)
 	mux.HandleFunc("GET /meerkat/apidocs/catalog.json", rt.devDocsCatalog)
 	mux.HandleFunc("GET /meerkat/apidocs/spec/{id}", rt.devDocsSpec)
-}
-
-// devDocsOn reads the Others-screen switch: off, the surface plays dead.
-func (rt *Router) devDocsOn(ctx context.Context) bool {
-	var exposed bool
-	_ = rt.st.GetSetting(ctx, store.SettingDevDocsExposed, &exposed)
-	return exposed
 }
 
 // devDocsUser resolves the caller and requires the dev capability. The bool
@@ -69,10 +62,6 @@ func (rt *Router) devDocsSession(r *http.Request) (store.User, string, bool) {
 }
 
 func (rt *Router) devDocsPage(w http.ResponseWriter, r *http.Request) {
-	if !rt.devDocsOn(r.Context()) {
-		http.NotFound(w, r)
-		return
-	}
 	if sess, err := rt.sm.Resolve(r.Context(), r); err != nil || sess.Pending != "" {
 		http.Redirect(w, r, "/login?next="+url.QueryEscape("/meerkat/apidocs/"), http.StatusSeeOther)
 		return
@@ -119,10 +108,6 @@ func (rt *Router) devDocsTheme(ctx context.Context) string {
 }
 
 func (rt *Router) devDocsAsset(w http.ResponseWriter, r *http.Request) {
-	if !rt.devDocsOn(r.Context()) {
-		http.NotFound(w, r)
-		return
-	}
 	var body []byte
 	var contentType string
 	switch r.PathValue("file") {
@@ -146,10 +131,6 @@ func (rt *Router) devDocsAsset(w http.ResponseWriter, r *http.Request) {
 // names (hierarchy applied server-side), the users one may impersonate, and
 // the routes exposing a spec.
 func (rt *Router) devDocsCatalog(w http.ResponseWriter, r *http.Request) {
-	if !rt.devDocsOn(r.Context()) {
-		http.NotFound(w, r)
-		return
-	}
 	u, tenantID, ok := rt.devDocsSession(r)
 	if !ok {
 		http.Error(w, "developer capability required", http.StatusForbidden)
@@ -235,10 +216,6 @@ func (rt *Router) devDocsCatalog(w http.ResponseWriter, r *http.Request) {
 // devDocsSpec serves one route's spec, servers rewritten RELATIVE to this
 // very origin (the routes live here): Try it out is plain same-origin.
 func (rt *Router) devDocsSpec(w http.ResponseWriter, r *http.Request) {
-	if !rt.devDocsOn(r.Context()) {
-		http.NotFound(w, r)
-		return
-	}
 	if _, ok := rt.devDocsUser(r); !ok {
 		http.Error(w, "developer capability required", http.StatusForbidden)
 		return

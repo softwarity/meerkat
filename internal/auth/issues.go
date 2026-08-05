@@ -11,7 +11,7 @@ import (
 )
 
 // Issue reports on the DATA plane (ISSUE-01): the injected user-button panel
-// posts here. The whole surface plays dead while the Others-screen switch is
+// posts here. The whole surface plays dead while the Issues-screen switch is
 // off (ISSUE-04), and only a signed-in user may file - the report is stamped
 // with their identity and CURRENT tenant, never trusted from the body.
 
@@ -24,7 +24,7 @@ func (h *Handler) registerIssues(mux *http.ServeMux) {
 	mux.HandleFunc("POST /meerkat/issues", h.postIssue)
 }
 
-// issuesEnabled reads the Others-screen switch (missing = off).
+// issuesEnabled reads the Issues-screen switch (missing = off).
 func (h *Handler) issuesEnabled(r *http.Request) bool {
 	var enabled bool
 	_ = h.st.GetSetting(r.Context(), store.SettingIssuesEnabled, &enabled)

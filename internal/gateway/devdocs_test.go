@@ -16,7 +16,7 @@ import (
 	"github.com/softwarity/meerkat/internal/store"
 )
 
-// The developer docs: dev capability + the Others switch; every route
+// The developer docs: the dev capability is the gate; every route
 // exposing a spec is listed (even disabled — a dev sees what is being
 // built), and specs come out rewritten to this very origin.
 func TestDevDocs(t *testing.T) {
@@ -119,19 +119,6 @@ func TestDevDocs(t *testing.T) {
 		}
 		t.Cleanup(func() { _ = res.Body.Close() })
 		return res
-	}
-
-	t.Run("ships OFF: the whole surface plays dead", func(t *testing.T) {
-		for _, p := range []string{"/meerkat/apidocs/", "/meerkat/apidocs/catalog.json",
-			"/meerkat/apidocs/spec/pets", "/meerkat/apidocs/assets/skin.css"} {
-			if res := get(t, p, devC); res.StatusCode != http.StatusNotFound {
-				t.Fatalf("%s while off: %d, want 404", p, res.StatusCode)
-			}
-		}
-	})
-
-	if err := st.SetSetting(ctx, store.SettingDevDocsExposed, true); err != nil {
-		t.Fatal(err)
 	}
 
 	t.Run("gating: anonymous is sent to login, a non-dev is refused", func(t *testing.T) {

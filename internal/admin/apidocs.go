@@ -15,49 +15,17 @@ import (
 
 // registerAPIDocs mounts the CONSOLE swagger-ui (DOCS-01): assets vendored in
 // the binary (offline-first — nothing comes from a CDN) and Meerkat's OWN
-// admin API, served and tried on this very origin. The routes' specs are a
-// DEVELOPER matter and live on the data plane (gateway.RegisterDevDocs),
-// behind the Others-screen switch this endpoint pair configures.
+// admin API, served and tried on this very origin. It stays here, on the
+// control plane: the data plane never exposes Meerkat's contract. The routes'
+// specs are a DEVELOPER matter and live there instead
+// (gateway.RegisterDevDocs), where the dev capability is the whole gate.
 func (a *API) registerAPIDocs(mux *http.ServeMux) {
-	mux.Handle("GET /api/settings/api-docs", a.infraAdmin(a.getAPIDocsSetting))
-	mux.Handle("PUT /api/settings/api-docs", a.infraAdmin(a.putAPIDocsSetting))
 	mux.Handle("GET /apidocs", http.RedirectHandler("/apidocs/", http.StatusMovedPermanently))
 	mux.HandleFunc("GET /apidocs/{$}", a.apidocsPage)
 	mux.HandleFunc("GET /apidocs/assets/{file}", apidocsAsset)
 	mux.Handle("GET /apidocs/specs.json", a.authed(a.apidocsSpecs))
 	mux.Handle("GET /apidocs/specs/meerkat-admin.json", a.authed(a.apidocsAdminSpec))
 	mux.Handle("POST /api/apidocs/token", a.authed(a.mintTestToken))
-}
-
-// apiDocsSetting is the Others screen's payload: whether the DATA-plane
-// developer docs are exposed.
-type apiDocsSetting struct {
-	Exposed bool `json:"exposed"`
-}
-
-func (a *API) devDocsExposedOn(r *http.Request) bool {
-	var exposed bool
-	_ = a.st.GetSetting(r.Context(), store.SettingDevDocsExposed, &exposed)
-	return exposed
-}
-
-func (a *API) getAPIDocsSetting(w http.ResponseWriter, r *http.Request, _ store.User) {
-	writeJSON(w, http.StatusOK, apiDocsSetting{Exposed: a.devDocsExposedOn(r)})
-}
-
-func (a *API) putAPIDocsSetting(w http.ResponseWriter, r *http.Request, actor store.User) {
-	var body apiDocsSetting
-	if err := decodeStrict(r, &body); err != nil {
-		writeErr(w, http.StatusBadRequest, "malformed setting: "+err.Error())
-		return
-	}
-	before := apiDocsSetting{Exposed: a.devDocsExposedOn(r)}
-	if err := a.st.SetSetting(r.Context(), store.SettingDevDocsExposed, body.Exposed); err != nil {
-		a.internal(w, err)
-		return
-	}
-	a.auditUpdate(r.Context(), actor, "apidocs.expose", "settings", "", "", "", before, body)
-	writeJSON(w, http.StatusOK, body)
 }
 
 // apidocsPage serves the shell. A browser without a live session is sent to

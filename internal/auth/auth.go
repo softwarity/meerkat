@@ -813,7 +813,6 @@ const profileDevBody = `    <style>
       </span>
       <p class="dl-desc">{{.T.devCertDesc}}</p>
     </a>
-    {{if .APIDocsExposed}}
     <a class="dev-link" href="/meerkat/apidocs/">
       <span class="dl-row">
         <span class="dl-label">{{.T.devApi}}</span>
@@ -821,7 +820,6 @@ const profileDevBody = `    <style>
       </span>
       <p class="dl-desc">{{.T.devApiDesc}}</p>
     </a>
-    {{end}}
     <p class="back"><a href="/profile">{{.T.backToProfile}}</a></p>
 `
 
@@ -1534,12 +1532,10 @@ type profileSecurityData struct {
 }
 
 // profileDevData drives the Developer hub AND its certificate sub-page (dev
-// users only). APIDocsExposed hides the API entry when the data-plane docs are
-// switched off (SettingDevDocsExposed).
+// users only).
 type profileDevData struct {
 	flowChrome
 	Error              string
-	APIDocsExposed     bool
 	DevCertSubject     string
 	DevCertFingerprint string
 	DevCertExpires     string
@@ -1827,8 +1823,7 @@ func (h *Handler) showProfileDev(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "developer capability required", http.StatusForbidden)
 		return
 	}
-	// The hub: the API entry appears only when the data-plane docs are exposed.
-	data := profileDevData{flowChrome: h.flowData(r, "titleDeveloper"), APIDocsExposed: h.devDocsExposed(r)}
+	data := profileDevData{flowChrome: h.flowData(r, "titleDeveloper")}
 	if cert, err := h.st.GetUserDevCert(r.Context(), sess.UserID); err == nil && cert != "" {
 		data.DevCertSubject, data.DevCertFingerprint, data.DevCertExpires = devCertView(cert)
 	}
@@ -1860,14 +1855,6 @@ func (h *Handler) renderProfileDevCert(w http.ResponseWriter, r *http.Request, s
 		data.DevCertSubject, data.DevCertFingerprint, data.DevCertExpires = devCertView(cert)
 	}
 	writeFlow(w, profileDevCertPage, data, status)
-}
-
-// devDocsExposed reads the Others-screen switch (SettingDevDocsExposed): the
-// developer API docs default off.
-func (h *Handler) devDocsExposed(r *http.Request) bool {
-	var exposed bool
-	_ = h.st.GetSetting(r.Context(), store.SettingDevDocsExposed, &exposed)
-	return exposed
 }
 
 // initials builds a 1–2 letter avatar seed from the user's name (offline — no

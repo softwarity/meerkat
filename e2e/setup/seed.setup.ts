@@ -38,11 +38,8 @@ setup('seed profiles and tenant', async () => {
   await login(root, 'admin', ROOT_PASSWORD);
   expect((await root.get('/api/me')).ok()).toBeTruthy();
 
-  // The data-plane developer docs ship OFF; the seed flips the Others-screen
-  // switch the way an infra admin would, so future data-plane checks can rely
-  // on it. The console docs (Meerkat's own spec) need no switch.
-  expect((await root.put('/api/settings/api-docs', { data: { exposed: true } })).ok()).toBeTruthy();
-  // Same for the issue tracker (ISSUE-04): on, so the matrix exercises /api/issues.
+  // The issue tracker (ISSUE-04) ships OFF; the seed flips it the way an infra
+  // admin would on the Issues screen, so the matrix exercises /api/issues.
   expect((await root.put('/api/settings/issues', { data: { enabled: true } })).ok()).toBeTruthy();
 
   const create = async (user: Record<string, unknown>) => {

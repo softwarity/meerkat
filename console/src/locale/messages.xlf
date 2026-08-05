@@ -21,7 +21,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">46</context>
+          <context context-type="linenumber">45</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tenants" datatype="html">
@@ -153,7 +153,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
-          <context context-type="linenumber">175</context>
+          <context context-type="linenumber">216</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/endpoint-security.component.ts</context>
@@ -524,7 +524,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">69</context>
+          <context context-type="linenumber">84</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.html</context>
@@ -985,7 +985,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
-          <context context-type="linenumber">153</context>
+          <context context-type="linenumber">194</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/routes-page/routes-page.component.ts</context>
@@ -1233,20 +1233,16 @@
           <context context-type="linenumber">117</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">121</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">142</context>
-        </context-group>
-        <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-rules.component.ts</context>
           <context context-type="linenumber">136</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-dialog.component.ts</context>
           <context context-type="linenumber">117</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
+          <context context-type="linenumber">145</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.ts</context>
@@ -1747,7 +1743,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">50</context>
+          <context context-type="linenumber">49</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Authority" datatype="html">
@@ -2067,81 +2063,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.ts</context>
           <context context-type="linenumber">192</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Others" datatype="html">
-        <source>Others</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">46,47</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">42</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Expose_API_docs" datatype="html">
-        <source>Developer API docs on the data plane</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">54,55</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Expose_API_docs_hint" datatype="html">
-        <source>
-              Opens /meerkat/apidocs on the application port: every route&apos;s OpenAPI spec, for
-              signed-in users with the developer capability. Off, the page answers 404. The
-              console&apos;s own API screen (Meerkat&apos;s contract) is not concerned.
-            </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">56,61</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Enable_issue_reports" datatype="html">
-        <source>Issue reports from the applications</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">68,69</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Enable_issue_reports_hint" datatype="html">
-        <source>
-              Adds a &quot;Report an issue&quot; entry to the user button of proxied applications: signed-in
-              users file a description, a screenshot and the page context. Reports land in the
-              console&apos;s Issues section. Off, the entry disappears and the endpoint answers 404.
-            </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">70,75</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="API_docs_exposed" datatype="html">
-        <source>API documentation exposed</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">113</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="API_docs_hidden" datatype="html">
-        <source>API documentation hidden</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">114</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Issue_reports_enabled" datatype="html">
-        <source>Issue reports enabled</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">134</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Issue_reports_disabled" datatype="html">
-        <source>Issue reports disabled</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/gateway/others-page.component.ts</context>
-          <context context-type="linenumber">135</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Export_the_vault" datatype="html">
@@ -3024,7 +2945,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">48</context>
+          <context context-type="linenumber">47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Groups" datatype="html">
@@ -3056,7 +2977,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">18,19</context>
+          <context context-type="linenumber">33,34</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.html</context>
@@ -3071,7 +2992,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">25,26</context>
+          <context context-type="linenumber">40,41</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.html</context>
@@ -3499,7 +3420,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">51</context>
+          <context context-type="linenumber">50</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Capabilities" datatype="html">
@@ -3621,144 +3542,176 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">12,14</context>
+          <context context-type="linenumber">12,15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Collect_issue_reports" datatype="html">
+        <source>Collect issue reports</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Collect_issue_reports_hint" datatype="html">
+        <source>
+              Adds a &quot;Report an issue&quot; entry to the user button of proxied applications. It only appears where that
+              button is injected: an application whose pages do not carry the Meerkat user button collects nothing,
+              switch on or off. Off, the entry disappears everywhere and the endpoint answers 404.
+            </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
+          <context context-type="linenumber">21,26</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Status" datatype="html">
         <source>Status</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">16,17</context>
+          <context context-type="linenumber">31,32</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">75,76</context>
+          <context context-type="linenumber">90,91</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Screenshot" datatype="html">
         <source>Screenshot</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">42,43</context>
+          <context context-type="linenumber">57,58</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_issue_reported" datatype="html">
         <source>No issue reported.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">54,56</context>
+          <context context-type="linenumber">69,71</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Reported_by" datatype="html">
         <source>Reported by</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">83</context>
+          <context context-type="linenumber">98</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tenant" datatype="html">
         <source>Tenant</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">85</context>
+          <context context-type="linenumber">100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="When" datatype="html">
         <source>When</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">87</context>
+          <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Browser" datatype="html">
         <source>Browser</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">93,94</context>
+          <context context-type="linenumber">108,109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Console_output" datatype="html">
         <source>Console output</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">112,113</context>
+          <context context-type="linenumber">127,128</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Comments" datatype="html">
         <source>Comments</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">117,118</context>
+          <context context-type="linenumber">132,133</context>
         </context-group>
       </trans-unit>
       <trans-unit id="No_comment_yet" datatype="html">
         <source>No comment yet.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">128,130</context>
+          <context context-type="linenumber">143,145</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Add_a_comment" datatype="html">
         <source>Add a comment</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">133,134</context>
+          <context context-type="linenumber">148,149</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Send" datatype="html">
         <source>Send</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">137,138</context>
+          <context context-type="linenumber">152,153</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_report" datatype="html">
         <source>Delete report</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">144,145</context>
+          <context context-type="linenumber">159,160</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Issue_reports_enabled" datatype="html">
+        <source>Issue reports enabled</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
+          <context context-type="linenumber">137</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Issue_reports_disabled" datatype="html">
+        <source>Issue reports disabled</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
+          <context context-type="linenumber">138</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_this_report" datatype="html">
         <source>Delete this report?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
-          <context context-type="linenumber">151</context>
+          <context context-type="linenumber">192</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_report_message" datatype="html">
         <source>The report, its screenshot and its comments will be permanently removed.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
-          <context context-type="linenumber">152</context>
+          <context context-type="linenumber">193</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Report_deleted" datatype="html">
         <source>Report deleted</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
-          <context context-type="linenumber">161</context>
+          <context context-type="linenumber">202</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Issue_open" datatype="html">
         <source>Open</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
-          <context context-type="linenumber">184</context>
+          <context context-type="linenumber">225</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Issue_in_progress" datatype="html">
         <source>In progress</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
-          <context context-type="linenumber">186</context>
+          <context context-type="linenumber">227</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Issue_closed" datatype="html">
         <source>Closed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.ts</context>
-          <context context-type="linenumber">188</context>
+          <context context-type="linenumber">229</context>
         </context-group>
       </trans-unit>
       <trans-unit id="doc_Match_the_request_path" datatype="html">
@@ -5025,7 +4978,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">49</context>
+          <context context-type="linenumber">48</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Locales_section_hint" datatype="html">
@@ -5722,7 +5675,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">53</context>
+          <context context-type="linenumber">52</context>
         </context-group>
       </trans-unit>
       <trans-unit id="MFA_global_hint" datatype="html">
@@ -6156,7 +6109,7 @@
         <source>Built-in pages</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">52</context>
+          <context context-type="linenumber">51</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.html</context>

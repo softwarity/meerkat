@@ -5116,6 +5116,31 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
           <context context-type="linenumber">94,96</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Collect_issue_reports" datatype="html">
+        <source>Collect issue reports</source>
+        <target>Collecter les signalements</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Collect_issue_reports_hint" datatype="html">
+        <source>
+              Adds a &quot;Report an issue&quot; entry to the user button of proxied applications. It only appears where that
+              button is injected: an application whose pages do not carry the Meerkat user button collects nothing,
+              switch on or off. Off, the entry disappears everywhere and the endpoint answers 404.
+            </source>
+        <target>
+              Ajoute une entree &quot;Signaler une anomalie&quot; au bouton utilisateur des applications proxifiees. Elle
+              n&apos;apparait que la ou ce bouton est injecte : une application dont les pages ne portent pas le bouton
+              utilisateur de Meerkat ne collecte rien, interrupteur allume ou non. Eteint, l&apos;entree disparait
+              partout et le point d&apos;entree repond 404.
+            </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
+          <context context-type="linenumber">21,26</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

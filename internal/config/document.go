@@ -83,7 +83,6 @@ var ExportedSettings = []string{
 	store.SettingAPITokens,
 	store.SettingPasskeys,
 	store.SettingPasswordLogin,
-	store.SettingDevDocsExposed,
 	store.SettingIssuesEnabled,
 }
 

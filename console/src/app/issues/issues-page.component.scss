@@ -41,6 +41,31 @@ mat-drawer-content {
   font-size: 0.85rem;
   color: var(--mat-sys-on-surface-variant);
 }
+// The collection switch. Off, the block is tinted: an empty list below it then
+// has an explanation rather than looking like a quiet week.
+.collect {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-medium);
+  > mat-icon {
+    flex-shrink: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+  .grow {
+    flex: 1;
+    min-width: 0;
+  }
+  .hint {
+    margin: 4px 0 0;
+  }
+  &.off {
+    background: color-mix(in srgb, var(--mat-sys-error-container) 45%, transparent);
+    border-color: var(--mat-sys-error-container);
+  }
+}
 .filters {
   display: flex;
   gap: 12px;

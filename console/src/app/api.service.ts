@@ -862,17 +862,9 @@ export class ApiService {
     );
   }
 
-  // The Others screen's switch: while off, the whole /apidocs surface is 404.
-  apiDocsSetting(): Observable<{ exposed: boolean }> {
-    return this.http.get<{ exposed: boolean }>('/api/settings/api-docs');
-  }
-
-  saveApiDocsSetting(exposed: boolean): Observable<{ exposed: boolean }> {
-    return this.http.put<{ exposed: boolean }>('/api/settings/api-docs', { exposed });
-  }
-
-  // The issue tracker's switch (ISSUE-04): while off, the user-button hides
-  // the entry and the data plane refuses reports.
+  // The issue tracker's switch (ISSUE-04), read and written from the Issues
+  // screen: while off, the user-button hides the entry and the data plane
+  // refuses reports.
   issuesSetting(): Observable<{ enabled: boolean }> {
     return this.http.get<{ enabled: boolean }>('/api/settings/issues');
   }

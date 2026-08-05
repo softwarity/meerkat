@@ -366,15 +366,10 @@ const (
 	// SettingSMTP is the gateway-wide outbound e-mail config (mail.Config):
 	// confirmations, admin notifications, later password resets.
 	SettingSMTP = "smtp"
-	// SettingDevDocsExposed opens the DATA-plane developer docs
-	// (/meerkat/apidocs — the routes' specs, dev capability required). Ships
-	// OFF until an infra admin flips it on the Others screen. Meerkat's own
-	// admin spec is a console matter and needs no switch.
-	SettingDevDocsExposed = "dev_docs_exposed"
 	// SettingIssuesEnabled turns on the embedded issue tracker (ISSUE-04):
 	// the user-button of proxied apps gains a "Report an issue" panel and the
-	// data plane accepts reports. Ships OFF until an infra admin flips it on
-	// the Others screen.
+	// data plane accepts reports. Ships OFF; the switch lives on the Issues
+	// screen, next to what it fills.
 	SettingIssuesEnabled = "issues_enabled"
 	// SettingRegistration is the self-registration policy (AUTH-20): who may
 	// create their own account. Ships closed.

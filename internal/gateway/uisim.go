@@ -34,21 +34,17 @@ type uiSimEntry struct {
 }
 
 // RegisterUISim mounts the developer-bar endpoints on the data-plane mux,
-// next to the developer docs. Same double gate as those: the Others-screen
-// switch exposes the surface, the dev capability authorizes the caller.
+// next to the developer docs. Same gate as those: the dev capability, and
+// nothing else.
 func (rt *Router) RegisterUISim(mux *http.ServeMux) {
 	mux.HandleFunc("GET /meerkat/dev-sim", rt.uiSimState)
 	mux.HandleFunc("POST /meerkat/dev-sim", rt.uiSimSet)
 	mux.HandleFunc("DELETE /meerkat/dev-sim", rt.uiSimClear)
 }
 
-// uiSimGate resolves the calling developer, or answers the refusal. The
-// switch off plays dead (404), a non-dev session gets an explicit 401.
+// uiSimGate resolves the calling developer, or answers the refusal: a non-dev
+// session gets an explicit 401.
 func (rt *Router) uiSimGate(w http.ResponseWriter, r *http.Request) (sessionKey, username string, ok bool) {
-	if !rt.devDocsOn(r.Context()) {
-		http.NotFound(w, r)
-		return "", "", false
-	}
 	sess, err := rt.sm.Resolve(r.Context(), r)
 	if err != nil || sess.Pending != "" {
 		uiSimErr(w, http.StatusUnauthorized, "sign in with a developer account to use the UI test mode")

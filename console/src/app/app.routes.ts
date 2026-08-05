@@ -122,12 +122,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./gateway/configuration-page.component').then((m) => m.ConfigurationPageComponent),
       },
-      {
-        path: 'others',
-        canActivate: [infraOnly],
-        loadComponent: () =>
-          import('./gateway/others-page.component').then((m) => m.OthersPageComponent),
-      },
     ],
   },
 

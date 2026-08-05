@@ -39,27 +39,23 @@ func TestDeveloperHub(t *testing.T) {
 	if prof := do(t, mux, "GET", "/profile", nil, devC); !strings.Contains(bodyString(prof), `href="/profile/dev"`) {
 		t.Fatal("profile missing the Developer link for a dev")
 	}
+	// Read the body ONCE: bodyString drains the recorder, so a second call
+	// answers "" and every Contains on it passes for the wrong reason - which
+	// is how the assertion that used to guard the API entry was green while
+	// testing nothing at all.
 	hub := do(t, mux, "GET", "/profile/dev", nil, devC)
-	if hub.Code != http.StatusOK || !strings.Contains(bodyString(hub), `href="/profile/dev/cert"`) {
+	hubBody := bodyString(hub)
+	if hub.Code != http.StatusOK || !strings.Contains(hubBody, `href="/profile/dev/cert"`) {
 		t.Fatalf("hub: code=%d, cert link missing", hub.Code)
 	}
 
-	// The API entry is hidden until the switch exposes the data-plane docs.
-	if strings.Contains(bodyString(hub), `href="/meerkat/apidocs/"`) {
-		t.Fatal("API entry shown while the docs are off")
-	}
-	if body := bodyString(do(t, mux, "GET", "/meerkat/user-button.json", nil, devC)); strings.Contains(body, `"devDocs"`) {
-		t.Fatalf("user-button payload advertises devDocs while the docs are off: %s", body)
-	}
-	if err := st.SetSetting(ctx, store.SettingDevDocsExposed, true); err != nil {
-		t.Fatal(err)
-	}
-	if hub := do(t, mux, "GET", "/profile/dev", nil, devC); !strings.Contains(bodyString(hub), `href="/meerkat/apidocs/"`) {
-		t.Fatal("API entry missing once the docs are exposed")
+	// The API entry: the dev capability is the whole gate, so a dev sees it.
+	if !strings.Contains(hubBody, `href="/meerkat/apidocs/"`) {
+		t.Fatal("API entry missing from the hub of a dev")
 	}
 
 	// The user-button payload mirrors the same gate (the Developer submenu):
-	// a dev with the docs exposed gets the flag, a non-dev never does.
+	// a dev gets the flag, a non-dev never does.
 	if body := bodyString(do(t, mux, "GET", "/meerkat/user-button.json", nil, devC)); !strings.Contains(body, `"devDocs":true`) {
 		t.Fatalf("user-button payload misses the devDocs flag for a dev: %s", body)
 	}

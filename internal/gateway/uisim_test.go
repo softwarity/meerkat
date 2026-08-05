@@ -100,16 +100,6 @@ func TestUISim(t *testing.T) {
 		return res.StatusCode, string(b)
 	}
 
-	t.Run("ships OFF: the whole surface plays dead", func(t *testing.T) {
-		if code, _ := call("GET", "/meerkat/dev-sim?route=r-open", "", devC); code != http.StatusNotFound {
-			t.Fatalf("state while off: %d, want 404", code)
-		}
-	})
-
-	if err := st.SetSetting(ctx, store.SettingDevDocsExposed, true); err != nil {
-		t.Fatal(err)
-	}
-
 	t.Run("dev-only, live routes only, roles filtered", func(t *testing.T) {
 		if code, _ := call("POST", "/meerkat/dev-sim", `{"route":"r-open","user":"jane"}`, bobC); code != http.StatusUnauthorized {
 			t.Fatalf("non-dev: %d, want 401", code)

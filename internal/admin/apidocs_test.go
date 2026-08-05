@@ -131,24 +131,6 @@ func TestAPIDocsAdminSpec(t *testing.T) {
 	}
 }
 
-// The Others switch governs the DATA-plane developer docs; here only its
-// admin endpoint contract: infra scope, audited, readable back.
-func TestAPIDocsSetting(t *testing.T) {
-	f := setup(t)
-	if code, body := f.call(t, "GET", "/api/settings/api-docs", "", f.rootC); code != http.StatusOK || !strings.Contains(body, `"exposed":false`) {
-		t.Fatalf("default: %d %s, want exposed:false", code, body)
-	}
-	if code, _ := f.call(t, "PUT", "/api/settings/api-docs", `{"exposed":true}`, f.plainC); code != http.StatusForbidden {
-		t.Fatalf("plain user flips the switch: %d, want 403", code)
-	}
-	if code, _ := f.call(t, "PUT", "/api/settings/api-docs", `{"exposed":true}`, f.rootC); code != http.StatusOK {
-		t.Fatal("enable failed")
-	}
-	if code, body := f.call(t, "GET", "/api/settings/api-docs", "", f.rootC); code != http.StatusOK || !strings.Contains(body, `"exposed":true`) {
-		t.Fatalf("after enable: %d %s", code, body)
-	}
-}
-
 // Minting a test token: privileged capabilities only, bounded lifetime, and
 // the token authenticates a data-plane call on its own (simulate_test.go
 // proves the gate side; here the admin endpoint contract).

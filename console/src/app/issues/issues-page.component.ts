@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,6 +14,7 @@ import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
 import { sessionStored } from '@softwarity/store';
 import { DateTime } from 'luxon';
 import { ApiService, Issue, IssueStatus } from '../api.service';
+import { MeService } from '../me.service';
 import { DialogsService } from '../shared/dialogs.service';
 
 // The embedded issue tracker (ISSUE-03): the reports users file from the
@@ -21,6 +23,12 @@ import { DialogsService } from '../shared/dialogs.service';
 // infra/app admins see everything, a tenant admin their tenants' reports).
 // The list stays light; opening a report fetches its detail into the drawer,
 // driven by the URL (/issues/:id) so a refresh lands back on it.
+//
+// The collection switch (ISSUE-04) lives HERE rather than on a screen of
+// miscellaneous toggles: an empty list means nothing until one knows whether
+// anything is being collected, and this is where someone asks the question.
+// Only infra admins see it - the endpoint is theirs, and a tenant admin
+// reading the reports has no say over the gateway-wide feature.
 @Component({
   selector: 'app-issues-page',
   imports: [
@@ -30,6 +38,7 @@ import { DialogsService } from '../shared/dialogs.service';
     MatInputModule,
     MatSelectModule,
     MatSidenavModule,
+    MatSlideToggleModule,
     MatTooltipModule,
     LoadingIndicatorComponent,
   ],
@@ -49,6 +58,11 @@ export class IssuesPageComponent {
   protected readonly loading = signal(true);
   protected readonly issues = signal<Issue[]>([]);
   protected readonly search = signal('');
+  // The collection switch: only an infra admin may read or flip it, so only
+  // one sees it at all.
+  protected readonly canSwitch = inject(MeService).isInfraAdmin;
+  protected readonly collecting = signal(false);
+  protected readonly savingCollect = signal(false);
   // The status filter survives a refresh (not the browser session).
   protected readonly view = sessionStored({ status: '' as IssueStatus | '' }, { storageKey: 'issues-view.v1' });
 
@@ -70,6 +84,9 @@ export class IssuesPageComponent {
 
   constructor() {
     this.reload();
+    if (this.canSwitch()) {
+      this.api.issuesSetting().subscribe({ next: (s) => this.collecting.set(s.enabled), error: () => {} });
+    }
     effect(() => {
       const id = this.openedId();
       if (!id) {
@@ -102,6 +119,30 @@ export class IssuesPageComponent {
       error: () => {
         this.issues.set([]);
         this.loading.set(false);
+      },
+    });
+  }
+
+  // Flipping collection on or off. The list is not reloaded: what was already
+  // filed stays readable either way - switching off stops the intake, it does
+  // not hide the history.
+  protected setCollecting(enabled: boolean): void {
+    this.savingCollect.set(true);
+    this.api.saveIssuesSetting(enabled).subscribe({
+      next: (s) => {
+        this.collecting.set(s.enabled);
+        this.savingCollect.set(false);
+        this.snack.open(
+          s.enabled
+            ? $localize`:@@Issue_reports_enabled:Issue reports enabled`
+            : $localize`:@@Issue_reports_disabled:Issue reports disabled`,
+          undefined,
+          { duration: 2500 },
+        );
+      },
+      error: () => {
+        this.savingCollect.set(false);
+        this.snack.open($localize`:@@Save_failed:Save failed`, undefined, { duration: 3000 });
       },
     });
   }

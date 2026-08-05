@@ -11,7 +11,8 @@ import (
 // registerIssues mounts the embedded issue tracker's management side
 // (ISSUE-03): the console lists, reads, moves and comments the reports filed
 // from the injected user-button panel on the data plane. The GET/PUT settings
-// pair is the Others-screen switch that turns the whole feature on (ISSUE-04).
+// pair is the switch that turns the whole feature on (ISSUE-04); it lives on
+// the Issues screen, next to the reports it fills.
 func (a *API) registerIssues(mux *http.ServeMux) {
 	mux.Handle("GET /api/settings/issues", a.infraAdmin(a.getIssuesSetting))
 	mux.Handle("PUT /api/settings/issues", a.infraAdmin(a.putIssuesSetting))
@@ -23,7 +24,7 @@ func (a *API) registerIssues(mux *http.ServeMux) {
 	mux.Handle("DELETE /api/issues/{id}", a.authed(a.deleteIssue))
 }
 
-// issuesSetting is the Others screen's payload: whether the issue tracker is
+// issuesSetting is the Issues screen's payload: whether the issue tracker is
 // enabled on the data plane.
 type issuesSetting struct {
 	Enabled bool `json:"enabled"`

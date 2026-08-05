@@ -73,10 +73,9 @@ type userButtonPayload struct {
 	// setting is enabled AND the caller is signed in. It travels here (this
 	// payload is no-store) because the component JS is cached for 5 minutes.
 	Issues bool `json:"issues,omitempty"`
-	// DevDocs turns the Developer submenu on (DOCS-01): the data-plane API
-	// docs are exposed (SettingDevDocsExposed) AND the caller holds the dev
-	// capability. Same reason as Issues for riding here: the JS is cached,
-	// this payload is not.
+	// DevDocs turns the Developer submenu on (DOCS-01): the caller holds the
+	// dev capability, which is the whole gate. Same reason as Issues for
+	// riding here: the JS is cached, this payload is not.
 	DevDocs bool              `json:"devDocs,omitempty"`
 	Labels  map[string]string `json:"labels"`
 	// ThemeCSS carries the ACTIVE theme's tokens rescoped to :host — the
@@ -144,7 +143,7 @@ func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 	payload.Email = u.Email
 	payload.Initials = initials(u)
 	payload.Issues = h.issuesEnabled(r)
-	payload.DevDocs = u.Dev && h.devDocsExposed(r)
+	payload.DevDocs = u.Dev
 	if avatar, err := h.st.GetUserAvatar(r.Context(), sess.UserID); err == nil {
 		payload.Avatar = avatar
 	}

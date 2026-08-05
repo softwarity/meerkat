@@ -45,14 +45,14 @@
     <div class="events">
       @for (e of filtered(); track e.id) {
         <div class="event">
-          <div class="when" [title]="fullWhen(e.at)">{{ relWhen(e.at) }}</div>
-          <div>
-            <div class="head">
-              <span class="action">{{ e.action }}</span>
-              <span class="who">
-                <ng-container i18n="@@by">by</ng-container> {{ e.actorName || e.actorId || '?' }}
-              </span>
+          <div class="meta">
+            <div class="when" [title]="fullWhen(e.at)">{{ relWhen(e.at) }}</div>
+            <div class="action">{{ e.action }}</div>
+            <div class="who">
+              <ng-container i18n="@@by">by</ng-container> {{ e.actorName || e.actorId || '?' }}
             </div>
+          </div>
+          <div>
             @if (e.targetName || e.targetId) {
               <div class="target">
                 <span class="kind">{{ e.target }}</span> {{ e.targetName || e.targetId }}

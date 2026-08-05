@@ -44,6 +44,13 @@ html {
   // near-black dark neutrals for Catppuccin Macchiato's blue-tinted darks — a
   // warmer, less black field. (Accent tokens stay from the generated palette.)
   --mat-sys-background: #24273a;
+  // The ink that goes with it. Swapping the field without swapping this left
+  // M3's generated on-background in place, and Material writes with it in one
+  // spot: `.mat-drawer-content`. Every screen built around a drawer (Issues,
+  // Routes, Roles, Users, Authentication) was therefore a shade off from the
+  // rest of the console - a difference nobody could name while looking at one
+  // page alone.
+  --mat-sys-on-background: #cad3f5;
   --mat-sys-surface: #24273a;
   --mat-sys-surface-dim: #1e2030;
   --mat-sys-surface-bright: #3a3e54;

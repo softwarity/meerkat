@@ -639,8 +639,9 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   seul sur le port admin (`/` → 302 vers la locale Accept-Language en gardant le
   chemin ; fallback SPA par locale ; assets hashés cache immutable, index no-cache).
   Priorité : `--console-url` (dev) > embarqué > page statut JSON. Dockerfile
-  multi-stage Node→Go ; le job CI cross-compile embarque la console dans chaque
-  binaire ; `go build` sans `make ui` compile toujours (grâce à `dist/.gitkeep`).
+  multi-stage Node→Go (c'est lui qui embarque la console dans l'image) ;
+  `go build` sans `make ui` compile toujours (grâce à `dist/.gitkeep`), ce dont
+  le job CI de compilation se sert pour prouver que le Go tient seul.
 - **API docs embarquées (swagger-ui, 2026-07-28)** : page servie par le port admin
   sur **`/apidocs/`** — assets `swagger-ui-dist` vendorés dans
   `internal/admin/apidocs/dist/` par `tools/fetch-swagger-ui.py` (offline, zéro
@@ -1044,10 +1045,26 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 - **La chaîne complète testée** : gateway `--console-url http://localhost:4200` →
   polyglot → ng serve par locale ; login 303, `/api/routes` 200, `/en/` `/fr/` 200 via
   le port admin.
-- **CI/CD verte** : lint (golangci v9) + tests 3 OS + cross-compile ; image multi-arch
-  **`ghcr.io/softwarity/meerkat`** (distroless, runners arm natifs) ; release par tag
-  gated sur CI verte (`softwarity/release-flow`, secret `PAT_TOKEN` requis) ; doc
+- **CI/CD verte** : lint (golangci v9) ; console buildée **une fois** (20 locales,
+  artefact partagé) ; tests unitaires **découpés par domaine** (Routing,
+  Authentication, Admin API, Storage, Secrets and signing) + un garde-fou qui
+  refuse un package testé n'appartenant à aucun domaine ; suite complète
+  (`./...`) sur ubuntu ; **un job par annuaire réel** (OpenLDAP, Active
+  Directory, Dex) qui **compte les PASS** parce qu'un skip est vert ;
+  Playwright ; compilation linux **amd64 + arm64** ; image multi-arch
+  **`ghcr.io/softwarity/meerkat`** (distroless, runners arm natifs) publiée
+  seulement si tout est vert ; release par tag gated sur CI verte
+  (`softwarity/release-flow`, secret `PAT_TOKEN` requis) ; doc
   **https://softwarity.github.io/meerkat/** (Angular, déployée par push sur `docs/`).
+- **Distribution : image Docker et rien d'autre (décidé 2026-08-05)** — plus de
+  binaires natifs publiés, donc plus de matrice macOS/Windows en CI ni de
+  cross-compile à cinq cibles. « Qui ferait une archi microservice sans docker
+  aujourd'hui ? » La seule portabilité qui compte est amd64 vs arm64, et l'image
+  la construit nativement. Conséquence : l'exemption Windows du test de
+  permission de `vault.key` (0600) a disparu, la CI teste la cible réelle.
+  Dependabot est **groupé par écosystème** (une PR par semaine et par
+  écosystème, Angular en lockstep) : trois PR pour trois actions relançaient
+  trois fois le pipeline pour déplacer un numéro de version.
 - **Éditions** : FSL-1.1-Apache-2.0 racine, `ee/` licence commerciale, gating par
   licence **ed25519 hors-ligne** (`internal/license`, `internal/features`).
 - **Drawer tenant (session 2026-07-24)** : layout **left/right** — nav des sections à

@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: npm
@@ -41,7 +41,7 @@ jobs:
       # suite is worth running against the real thing rather than a debug build.
       - working-directory: console
         run: npm run build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: console
           path: console/dist/console/browser
@@ -102,16 +102,18 @@ jobs:
           [ -z "$missing" ] || { echo "these have tests and belong to no area:"; echo "$missing"; exit 1; }
           echo "every tested package belongs to an area"
 
-  # Portability: the whole suite on the OSes the binary ships for. One check
-  # per OS, because what fails here fails BECAUSE of the OS - the areas above
-  # already say what the code broke.
+  # Everything, in one go: the areas above only cover ./internal, so cmd/,
+  # ee/ and tools/ would otherwise be tested by nobody.
+  #
+  # Linux only, and that is the whole target: Meerkat ships as a Docker image
+  # and nothing else. It used to run here on macOS and Windows too, which cost
+  # two checks and a Windows-specific exemption in the vault tests to answer a
+  # question nobody asks - a gateway is deployed in a cluster, not double-
+  # clicked on a laptop. The portability that does matter is amd64 vs arm64,
+  # and the image job builds both, natively.
   test:
-    name: Portability (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: Whole tree
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
@@ -196,11 +198,11 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: stable
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       - name: Take the console that was already built
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: console
           path: console/dist/console/browser
@@ -212,45 +214,38 @@ jobs:
       - name: Run integration suite
         working-directory: e2e
         run: npx playwright test
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
           path: e2e/playwright-report
 
+  # Both architectures of the image must compile, statically, before anything
+  # is published - and on a pull request the image job does not run at all, so
+  # this is the only place that ever asks the arm64 question.
+  #
+  # It used to cross-compile five targets and upload the binaries as an
+  # artifact. Nothing downloaded them: releases publish an image and only an
+  # image. So the binaries are gone and what remains is the check itself: does
+  # it build, with no CGO, for what we ship. The console is not embedded here -
+  # a build without it is exactly what proves the Go side stands alone.
   build:
-    name: Cross-compile
-    needs: [test, console]
+    name: Builds for both architectures
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with:
           go-version: stable
-      # The console is arch-independent, so it is built once by its own job and
-      # embedded in every binary below (what `make ui` does locally).
-      - name: Take the console that was already built
-        uses: actions/download-artifact@v4
-        with:
-          name: console
-          path: internal/admin/ui/dist
-      - name: Cross-compile
+      - name: Build
         env:
           CGO_ENABLED: "0"
+          GOOS: linux
         run: |
-          mkdir -p dist
-          for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64; do
-            goos=${target%/*} goarch=${target#*/}
-            ext=""; [ "$goos" = windows ] && ext=".exe"
-            echo "building $goos/$goarch"
-            GOOS=$goos GOARCH=$goarch go build -trimpath -ldflags '-s -w' \
-              -o "dist/meerkat-$goos-$goarch$ext" ./cmd/meerkat
+          for goarch in amd64 arm64; do
+            echo "building linux/$goarch"
+            GOARCH=$goarch go build -trimpath -ldflags '-s -w' -o /dev/null ./cmd/meerkat
           done
-      - uses: actions/upload-artifact@v7
-        with:
-          name: meerkat-binaries
-          path: dist/*
-          if-no-files-found: error
 
   # Publish only once everything is green. main publishes `latest` (+ `main`);
   # any other branch publishes only its own `:<branch>` tag — a throwaway image

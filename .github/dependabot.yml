@@ -1,14 +1,80 @@
 version: 2
+
+# Grouped on purpose. Ungrouped, Dependabot opens one pull request per
+# dependency: three were open at once for three actions, each rerunning the
+# whole pipeline to move a version number. What matters is that the update
+# lands and CI stays green, not that each bump gets its own thread - so each
+# ecosystem gets one weekly pull request, and a red one names the ecosystem
+# that broke.
+#
+# Majors are grouped with the rest deliberately: this project follows the
+# latest major of Angular and of the actions it uses (see CLAUDE.md), so a
+# major is the update, not an exception to it.
 updates:
   - package-ecosystem: gomod
     directory: /
     schedule:
       interval: weekly
+    groups:
+      go:
+        patterns: ["*"]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # The console. Angular ships its packages in lockstep - @angular/core moved
+  # without @angular/build does not build - so they travel together, or the
+  # pull request is red for a reason that has nothing to do with the code.
+  - package-ecosystem: npm
+    directory: /console
+    schedule:
+      interval: weekly
+    groups:
+      angular:
+        patterns: ["@angular/*", "@angular-devkit/*", "@schematics/*", "typescript", "zone.js"]
+      console:
+        patterns: ["*"]
+        exclude-patterns: ["@angular/*", "@angular-devkit/*", "@schematics/*", "typescript", "zone.js"]
+
+  # The integration suite and the doc site: neither one ships, both must keep
+  # working, and a browser engine drifting a major behind is how a suite ends
+  # up testing something nobody runs.
+  - package-ecosystem: npm
+    directory: /e2e
+    schedule:
+      interval: weekly
+    groups:
+      e2e:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /docs
+    schedule:
+      interval: weekly
+    groups:
+      docs:
+        patterns: ["*"]
+
+  # The image that ships.
   - package-ecosystem: docker
     directory: /docker
     schedule:
       interval: weekly
+    groups:
+      image:
+        patterns: ["*"]
+
+  # The directories the authentication tests run against. Pinned versions only:
+  # the two that say `latest` are already followed by Docker itself.
+  - package-ecosystem: docker
+    directory: /test/ldap
+    schedule:
+      interval: weekly
+    groups:
+      test-servers:
+        patterns: ["*"]

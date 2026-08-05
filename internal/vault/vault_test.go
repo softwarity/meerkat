@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"runtime"
 	"strings"
 	"testing"
 )
@@ -55,11 +54,7 @@ func TestMasterKeyFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("key file: %v", err)
 	}
-	// Windows has no POSIX permission bits: the file lands 0666 whatever is
-	// asked, and checking it there would only assert the platform. Worth
-	// knowing rather than hiding: on Windows the key is NOT protected by its
-	// mode, so supplying it through MEERKAT_VAULT_KEY matters more there.
-	if perm := info.Mode().Perm(); perm != 0o600 && runtime.GOOS != "windows" {
+	if perm := info.Mode().Perm(); perm != 0o600 {
 		t.Fatalf("key file mode = %v, want 0600", perm)
 	}
 	second, err := LoadOrCreateKey(dir, "")

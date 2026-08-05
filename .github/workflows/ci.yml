@@ -41,7 +41,7 @@ jobs:
       # suite is worth running against the real thing rather than a debug build.
       - working-directory: console
         run: npm run build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: console
           path: console/dist/console/browser
@@ -212,7 +212,7 @@ jobs:
       - name: Run integration suite
         working-directory: e2e
         run: npx playwright test
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report

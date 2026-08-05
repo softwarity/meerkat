@@ -8,19 +8,13 @@
     </div>
 
     <div class="toolbar">
-      <p class="hint" i18n="@@Issues_hint">
-        The reports your users file from the applications, with their screenshot and the context captured with them.
-      </p>
-
       @if (canSwitch()) {
-        <div class="collect" [class.off]="!collecting()">
+        <div class="collect">
           <mat-icon>bug_report</mat-icon>
           <div class="grow">
             <div i18n="@@Collect_issue_reports">Collect issue reports</div>
             <p class="hint" i18n="@@Collect_issue_reports_hint">
-              Adds a "Report an issue" entry to the user button of proxied applications. It only appears where that
-              button is injected: an application whose pages do not carry the Meerkat user button collects nothing,
-              switch on or off. Off, the entry disappears everywhere and the endpoint answers 404.
+              Users get a "Report an issue" entry in their user button, where that button is on the page.
             </p>
           </div>
           <mat-slide-toggle [checked]="collecting()" [disabled]="savingCollect()" (change)="setCollecting($event.checked)" />

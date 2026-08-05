@@ -41,8 +41,7 @@ mat-drawer-content {
   font-size: 0.85rem;
   color: var(--mat-sys-on-surface-variant);
 }
-// The collection switch. Off, the block is tinted: an empty list below it then
-// has an explanation rather than looking like a quiet week.
+// The collection switch: checked or not, and what the user gets.
 .collect {
   display: flex;
   align-items: center;
@@ -60,10 +59,6 @@ mat-drawer-content {
   }
   .hint {
     margin: 4px 0 0;
-  }
-  &.off {
-    background: color-mix(in srgb, var(--mat-sys-error-container) 45%, transparent);
-    border-color: var(--mat-sys-error-container);
   }
 }
 .filters {

@@ -2,7 +2,12 @@ name: CI
 
 on:
   push:
-    branches: ["**"]
+    # Every branch except Dependabot's. Its branches arrive WITH a pull
+    # request, so `push` and `pull_request` both fire and the whole pipeline
+    # runs twice on the same commit - and the push half publishes an image
+    # tagged `dependabot-npm_and_yarn-e2e-e2e-3f52c051c4`, which nobody will
+    # ever deploy. Ignored here, they are still fully tested as pull requests.
+    branches-ignore: ["dependabot/**"]
   pull_request:
   workflow_dispatch:
 
@@ -46,6 +51,29 @@ jobs:
           name: console
           path: console/dist/console/browser
           retention-days: 1
+
+  # The doc site, built and thrown away. It ships nowhere near the image, so
+  # nothing here needed it - and that was the hole: deploy-doc.yml only runs
+  # AFTER a merge to main, so a change that breaks the site is green all the
+  # way through review and red once it is too late. A Dependabot pull request
+  # raising TypeScript past what Angular accepts passed every check for
+  # exactly that reason.
+  docs:
+    name: Doc site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # gen-version.mjs resolves the latest tag
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+      - working-directory: docs
+        run: npm ci
+      - working-directory: docs
+        run: npm run build -- --base-href /meerkat/
 
   # The unit tests, split by the area they cover so a red check names it:
   # "Routing" rather than "Test (ubuntu-latest)". Ubuntu only - this is about

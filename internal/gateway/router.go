@@ -944,9 +944,11 @@ func resolveLocale(r *http.Request, codes []string) string {
 }
 
 // accessGate wraps next with a unified access rule (RBAC-06/07): an empty rule
-// passes through (delegated to the backend), a public one passes through
-// outright; otherwise a valid session is required (401/redirect via
-// requireSession) and the caller must satisfy the rule.
+// passes through, everything else requires a valid session (401/redirect via
+// requireSession) and a caller satisfying the rule.
+//
+// Whatever the level, the upstream still applies its own rules afterwards -
+// Meerkat gates IN ADDITION to the service, never instead of it.
 //
 // isUI decides what a REFUSAL looks like, and that is most of the point of the
 // tenant levels: on an application, being refused for lack of an organisation
@@ -957,9 +959,6 @@ func resolveLocale(r *http.Request, codes []string) string {
 // read a page.
 func (rt *Router) accessGate(a store.Access, isUI bool, next http.Handler) http.Handler {
 	if a.Empty() {
-		return next
-	}
-	if a.Level == store.AccessPublic && len(a.Roles) == 0 {
 		return next
 	}
 	return requireSession(rt.sm, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {

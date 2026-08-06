@@ -5272,7 +5272,7 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
       </trans-unit>
       <trans-unit id="Access_delegated_hint" datatype="html">
         <source>Meerkat adds no gate: the upstream keeps its own security. Not the same as public.</source>
-        <target>Meerkat ne pose aucune barrière : l'amont garde sa propre sécurité. Ce n'est pas la même chose que public.</target>
+        <target>Meerkat laisse passer tout le monde, connecté ou non, et laisse la décision au service.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
           <context context-type="linenumber">32</context>

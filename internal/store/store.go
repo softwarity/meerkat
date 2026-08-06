@@ -553,9 +553,13 @@ type RouteAPI struct {
 // Access levels (RBAC-06), the BELONGING axis of an access rule. They are
 // ordered, and each one is the previous plus one requirement:
 //
-//	""          delegated — no gateway gate at all, the upstream keeps its own
-//	            security. NOT the same as public: the gateway does not decide.
-//	public      the gateway opens, session or not.
+//	""          delegated — the gateway poses no condition and lets the request
+//	            through, session or not. There was a "public" level beside this
+//	            one for a while; it did exactly the same thing, so it is gone.
+//	            "Delegated" is the honest name: the upstream is ALWAYS free to
+//	            apply its own rules on top, at every level below as well. What
+//	            Meerkat gates, it gates in ADDITION to the service, never
+//	            instead of it.
 //	auth        a valid session. Says who it is, nothing more — a person whose
 //	            account is confirmed but who belongs to no organisation yet
 //	            (AUTH-20's waiting room) passes here, and that is deliberate:
@@ -571,7 +575,6 @@ type RouteAPI struct {
 // that decides anything.
 const (
 	AccessDelegated = ""
-	AccessPublic    = "public"
 	AccessAuth      = "auth"
 	AccessTenant    = "tenant"
 	AccessTenants   = "tenants"
@@ -621,7 +624,7 @@ func (a Access) Empty() bool {
 
 // Grants reports whether the gateway lets a caller through.
 func (a Access) Grants(c Caller) bool {
-	if a.Empty() || a.Level == AccessPublic {
+	if a.Empty() {
 		return true
 	}
 	// A named user passes whatever the level asks for.

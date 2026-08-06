@@ -1794,11 +1794,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">102</context>
+          <context context-type="linenumber">97</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">102</context>
+          <context context-type="linenumber">97</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/route-editor/route-editor.component.html</context>
@@ -3496,11 +3496,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">98</context>
+          <context context-type="linenumber">93</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">98</context>
+          <context context-type="linenumber">93</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
@@ -4093,126 +4093,112 @@
         <source>Organisations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">91</context>
+          <context context-type="linenumber">86</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delegated_to_backend" datatype="html">
         <source>No gateway rule — delegated to the API backend</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
-          <context context-type="linenumber">95</context>
+          <context context-type="linenumber">90</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Access_delegated" datatype="html">
         <source>Delegated</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">31</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Access_delegated_hint" datatype="html">
-        <source>Meerkat adds no gate: the upstream keeps its own security. Not the same as public.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
           <context context-type="linenumber">32</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Access_public" datatype="html">
-        <source>Public</source>
+      <trans-unit id="Access_delegated_hint" datatype="html">
+        <source>Meerkat lets everyone through, signed in or not, and leaves the decision to the service.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">36</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Access_public_hint" datatype="html">
-        <source>Open to everyone, signed in or not.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">37</context>
+          <context context-type="linenumber">33</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Access_authenticated" datatype="html">
         <source>Signed in</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">41</context>
+          <context context-type="linenumber">37</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Access_authenticated_hint" datatype="html">
         <source>Anyone with an account, including one that belongs to no organisation yet.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">42</context>
+          <context context-type="linenumber">38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Access_in_an_organisation" datatype="html">
         <source>In an organisation</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">46</context>
+          <context context-type="linenumber">42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Access_in_an_organisation_hint" datatype="html">
         <source>An organisation must be active on the session. Turns away an account still awaiting access.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">47</context>
+          <context context-type="linenumber">43</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Access_in_one_of_these" datatype="html">
         <source>In one of these organisations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">51</context>
+          <context context-type="linenumber">47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Access_in_one_of_these_hint" datatype="html">
         <source>The active organisation must be one of those named below.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">52</context>
+          <context context-type="linenumber">48</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Who_may_call_it" datatype="html">
         <source>Who may call it</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">72,73</context>
+          <context context-type="linenumber">71,72</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Organisations_any_of" datatype="html">
         <source>Organisations (any one grants access)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">85,86</context>
+          <context context-type="linenumber">84,85</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Roles_any_of" datatype="html">
         <source>Roles (any one grants access)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">102,103</context>
+          <context context-type="linenumber">101,102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Roles_in_active_org_hint" datatype="html">
         <source>Held in the active organisation. Left empty, any role passes.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">114,116</context>
+          <context context-type="linenumber">113,115</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Users_always_allowed" datatype="html">
         <source>Users always allowed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">119,120</context>
+          <context context-type="linenumber">118,119</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Users_exception_hint" datatype="html">
         <source>An exception, not a level: they pass whatever is required above.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
-          <context context-type="linenumber">131,133</context>
+          <context context-type="linenumber">130,132</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Endpoint_security" datatype="html">

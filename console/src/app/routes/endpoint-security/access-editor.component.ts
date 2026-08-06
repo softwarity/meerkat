@@ -15,26 +15,22 @@ export function emptyAccess(): AccessState {
   return { level: '', tenants: [], roles: [], users: [] };
 }
 
-// Empty means no gateway rule: the request is delegated to the upstream's own
-// security, NOT made public.
+// Empty means Meerkat poses no condition of its own; the upstream still
+// applies whatever it applies.
 export function isEmpty(a: AccessState): boolean {
   return a.level === '' && a.roles.length === 0 && a.users.length === 0;
 }
 
-// The belonging axis, in order. Each entry says what it REQUIRES, because the
-// difference that catches people out is not between the labels but between
-// what they let through: "delegated" and "public" both answer everyone, yet
-// only one of them is a decision.
+// The belonging axis, in order. Each entry says what it REQUIRES - and none of
+// them says what the SERVICE does, because whatever is chosen here the upstream
+// still applies its own rules afterwards. Meerkat gates in addition to it,
+// never instead of it, which is why the open end is "delegated" and not
+// "public": a level named public would promise something Meerkat cannot grant.
 export const ACCESS_LEVELS: { value: AccessLevel; label: string; hint: string }[] = [
   {
     value: '',
     label: $localize`:@@Access_delegated:Delegated`,
-    hint: $localize`:@@Access_delegated_hint:Meerkat adds no gate: the upstream keeps its own security. Not the same as public.`,
-  },
-  {
-    value: 'public',
-    label: $localize`:@@Access_public:Public`,
-    hint: $localize`:@@Access_public_hint:Open to everyone, signed in or not.`,
+    hint: $localize`:@@Access_delegated_hint:Meerkat lets everyone through, signed in or not, and leaves the decision to the service.`,
   },
   {
     value: 'auth',
@@ -58,8 +54,11 @@ export const ACCESS_LEVELS: { value: AccessLevel; label: string; hint: string }[
 // organisations when it asks for them), and a role filter evaluated in the
 // ACTIVE organisation.
 //
-// They cross on purpose: the role catalogue is global while groups belong to
-// an organisation, so a bare role gate means "an admin of ANY organisation" -
+// Whatever the level, the service still applies its own rules on top: this
+// screen adds conditions, it never removes any.
+//
+// The axes cross on purpose: the role catalogue is global while groups belong
+// to an organisation, so a bare role gate means "an admin of ANY organisation" -
 // a cross-org console - while naming organisations too means "an admin OF
 // Acme". Named users are the exception, not a level: whoever is listed passes
 // whatever the level requires (a service account, a support login, an
@@ -97,7 +96,7 @@ export const ACCESS_LEVELS: { value: AccessLevel; label: string; hint: string }[
       </mat-form-field>
     }
 
-    @if (value().level !== '' && value().level !== 'public') {
+    @if (value().level !== '') {
       <mat-form-field class="field" subscriptSizing="dynamic">
         <mat-label i18n="@@Roles_any_of">Roles (any one grants access)</mat-label>
         <mat-select multiple [value]="value().roles" (selectionChange)="patch({ roles: $event.value })">
@@ -175,7 +174,7 @@ export class AccessEditorComponent {
   protected patch(p: Partial<AccessState>): void {
     const next = { ...this.value(), ...p };
     if (next.level !== 'tenants') next.tenants = [];
-    if (next.level === '' || next.level === 'public') next.roles = [];
+    if (next.level === '') next.roles = [];
     this.valueChange.emit(next);
   }
 }

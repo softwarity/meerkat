@@ -22,16 +22,12 @@ func TestAccessLevels(t *testing.T) {
 		grant map[string]bool // caller name -> expected
 	}{
 		{
-			// No rule at all: the gateway does not decide, the upstream keeps
-			// its own security. Anonymous included - this is NOT "public",
-			// it is "not my call".
+			// No rule at all: the gateway poses no condition, anonymous
+			// included. The upstream still applies its own - which is true at
+			// every level, and is why this one is called delegated rather than
+			// public.
 			name:  "delegated lets everything through",
 			rule:  Access{},
-			grant: map[string]bool{"anon": true, "pending": true, "member": true},
-		},
-		{
-			name:  "public opens without a session",
-			rule:  Access{Level: AccessPublic},
 			grant: map[string]bool{"anon": true, "pending": true, "member": true},
 		},
 		{

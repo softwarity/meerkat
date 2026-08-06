@@ -21,10 +21,12 @@ export interface RouteAPIOptions {
 // required, and when users or roles are named the caller must be one of the
 // users OR hold one of the roles. Naming a user or role implies authentication.
 // An access rule on two crossed axes (RBAC-06). level says what BELONGING is
-// required - '' delegates to the upstream, which is not the same as 'public' -
-// and roles filters on what the caller holds in the ACTIVE organisation. Named
-// users are the exception: they pass whatever the level asks.
-export type AccessLevel = '' | 'public' | 'auth' | 'tenant' | 'tenants';
+// required and roles filters on what the caller holds in the ACTIVE
+// organisation; named users are the exception, passing whatever the level
+// asks. Whatever is set here, the upstream still applies its own rules
+// afterwards - Meerkat gates IN ADDITION to the service, never instead of it,
+// which is why the open end of the scale is called delegated.
+export type AccessLevel = '' | 'auth' | 'tenant' | 'tenants';
 
 export interface Access {
   level?: AccessLevel;

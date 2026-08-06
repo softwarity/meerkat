@@ -523,6 +523,21 @@
         "en": "When the global passkey policy is off, the login page hides the passkey button and the WebAuthn endpoints answer 403.",
         "fr": "Quand la politique globale passkey est coupée, la page de login cache le bouton passkey et les endpoints WebAuthn répondent 403."
       }
+    },
+    {
+      "id": "flow-access-levels",
+      "domain": "auth",
+      "kind": "flow",
+      "spec": "access-levels",
+      "allowed": [],
+      "title": {
+        "en": "An account awaiting access passes \"signed in\" and stops at \"in an organisation\"",
+        "fr": "Un compte en attente d'accès passe « connecté » et s'arrête à « dans une organisation »"
+      },
+      "description": {
+        "en": "The belonging axis (RBAC-06) over a real gateway: a confirmed account that belongs to no organisation still passes a route gated on authentication — that level says who it is and nothing more — but a route asking for an organisation sends it to /account-pending rather than answering a bare 403.",
+        "fr": "L'axe d'appartenance (RBAC-06) sur une vraie gateway : un compte confirmé qui n'appartient à aucune organisation passe encore une route protégée par l'authentification — ce niveau dit qui c'est, rien de plus — mais une route qui exige une organisation le renvoie vers /account-pending au lieu de répondre un 403 sec."
+      }
     }
   ]
 }

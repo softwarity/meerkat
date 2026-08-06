@@ -12,7 +12,10 @@ import (
 )
 
 func uiRoute(id string, order int, authenticated bool, requiredRole string) store.Route {
-	access := store.Access{Authenticated: authenticated}
+	access := store.Access{}
+	if authenticated {
+		access.Level = store.AccessAuth
+	}
 	if requiredRole != "" {
 		access.Roles = []string{requiredRole}
 	}

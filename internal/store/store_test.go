@@ -23,7 +23,7 @@ func TestSaveListRoundTrip(t *testing.T) {
 	ctx := context.Background()
 
 	want := Route{
-		ID: "r1", Name: "demo", Order: 2, Enabled: true, Access: Access{Authenticated: true},
+		ID: "r1", Name: "demo", Order: 2, Enabled: true, Access: Access{Level: AccessAuth},
 		Upstream: "https://example.com",
 		Predicates: []routing.Spec{
 			{Type: "path", Args: map[string]any{"patterns": []any{"/demo/**"}}},

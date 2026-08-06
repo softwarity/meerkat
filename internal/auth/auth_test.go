@@ -486,7 +486,7 @@ func TestLoginPageOffersPublicUIRoutes(t *testing.T) {
 	save(store.Route{ID: "api", Name: "openapi", Order: 2, Enabled: true,
 		Upstream: "http://up", Predicates: pathPred("/api/**")})
 	save(store.Route{ID: "sec", Name: "vault", Order: 3, Enabled: true,
-		Access: store.Access{Authenticated: true},
+		Access: store.Access{Level: store.AccessAuth},
 		IsUI:   true, Upstream: "http://up", Predicates: pathPred("/secure/**")})
 
 	mux := http.NewServeMux()

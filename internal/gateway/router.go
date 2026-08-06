@@ -413,7 +413,7 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 		if rt.sm == nil {
 			return compiledRoute{}, fmt.Errorf("route poses endpoint security but no session manager is configured")
 		}
-		guard, err := rt.endpointGuard(*r.API.Security, r.Access, r.Filters, handler)
+		guard, err := rt.endpointGuard(*r.API.Security, r.Access, r.IsUI, r.Filters, handler)
 		if err != nil {
 			return compiledRoute{}, err
 		}
@@ -422,7 +422,7 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 		if rt.sm == nil {
 			return compiledRoute{}, fmt.Errorf("route poses security but no session manager is configured")
 		}
-		handler = rt.accessGate(r.Access, handler)
+		handler = rt.accessGate(r.Access, r.IsUI, handler)
 	}
 	return compiledRoute{id: r.ID, name: r.Name, preds: preds, handler: handler}, nil
 }
@@ -944,11 +944,22 @@ func resolveLocale(r *http.Request, codes []string) string {
 }
 
 // accessGate wraps next with a unified access rule (RBAC-06/07): an empty rule
-// passes through (delegated to the backend); otherwise a valid session is
-// required and the caller must satisfy the rule's users/roles (401/redirect
-// first, via requireSession).
-func (rt *Router) accessGate(a store.Access, next http.Handler) http.Handler {
+// passes through (delegated to the backend), a public one passes through
+// outright; otherwise a valid session is required (401/redirect via
+// requireSession) and the caller must satisfy the rule.
+//
+// isUI decides what a REFUSAL looks like, and that is most of the point of the
+// tenant levels: on an application, being refused for lack of an organisation
+// is not an error, it is a step missing. A person whose account is confirmed
+// but not yet granted anything is sent to the waiting room that explains it; a
+// member of several organisations who is active in the wrong one is sent to
+// choose. An API answers 403 and names what is missing - there is nobody to
+// read a page.
+func (rt *Router) accessGate(a store.Access, isUI bool, next http.Handler) http.Handler {
 	if a.Empty() {
+		return next
+	}
+	if a.Level == store.AccessPublic && len(a.Roles) == 0 {
 		return next
 	}
 	return requireSession(rt.sm, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -959,7 +970,8 @@ func (rt *Router) accessGate(a store.Access, next http.Handler) http.Handler {
 			return
 		}
 		d, ok := rt.sessionIdentity(req)
-		if ok && a.Grants(true, d.Username, d.Roles) {
+		caller := rt.caller(req, d, ok)
+		if ok && a.Grants(caller) {
 			next.ServeHTTP(w, req)
 			return
 		}
@@ -970,8 +982,59 @@ func (rt *Router) accessGate(a store.Access, next http.Handler) http.Handler {
 			uiSimRefusalPage(w, req)
 			return
 		}
-		http.Error(w, "forbidden: you may not call this endpoint", http.StatusForbidden)
+		if isUI && ok {
+			if offer := a.Switchable(caller); len(offer) > 0 {
+				http.Redirect(w, req, "/select-tenant?next="+url.QueryEscape(req.URL.RequestURI()), http.StatusSeeOther)
+				return
+			}
+			// No organisation at all and none to switch to: the waiting room
+			// says who to ask, which a 403 does not.
+			if len(caller.Memberships) == 0 && needsTenant(a) {
+				http.Redirect(w, req, "/account-pending", http.StatusSeeOther)
+				return
+			}
+		}
+		http.Error(w, refusalReason(a, caller), http.StatusForbidden)
 	}))
+}
+
+// needsTenant reports whether the rule asks for an organisation at all.
+func needsTenant(a store.Access) bool {
+	return a.Level == store.AccessTenant || a.Level == store.AccessTenants || len(a.Roles) > 0
+}
+
+// refusalReason names what is missing rather than saying "forbidden": the
+// caller can act on "you have no organisation selected", not on a bare 403.
+func refusalReason(a store.Access, c store.Caller) string {
+	switch {
+	case needsTenant(a) && c.TenantID == "" && len(c.Memberships) == 0:
+		return "forbidden: your account belongs to no organisation yet"
+	case needsTenant(a) && c.TenantID == "":
+		return "forbidden: no organisation is active on this session - choose one first"
+	case a.Level == store.AccessTenants && !slices.Contains(a.Tenants, c.TenantID):
+		return "forbidden: this endpoint is reserved to another organisation"
+	case len(a.Roles) > 0:
+		return "forbidden: this endpoint requires one of the roles " + strings.Join(a.Roles, ", ")
+	}
+	return "forbidden: you may not call this endpoint"
+}
+
+// caller assembles what a rule is evaluated against. Memberships are read only
+// when the rule could care (a switch offer), never on the hot path of a public
+// or plain-authenticated route.
+func (rt *Router) caller(req *http.Request, d identityData, ok bool) store.Caller {
+	if !ok {
+		return store.Caller{}
+	}
+	c := store.Caller{Authenticated: true, Username: d.Username, TenantID: d.TenantID, Roles: d.Roles}
+	if ms, err := rt.st.ListUserTenants(req.Context(), d.UserID); err == nil {
+		for _, m := range ms {
+			if m.Enabled {
+				c.Memberships = append(c.Memberships, m.TenantID)
+			}
+		}
+	}
+	return c
 }
 
 // endpointGuard enforces per-operation security (RBAC-07) inside an API route.
@@ -979,7 +1042,7 @@ func (rt *Router) accessGate(a store.Access, next http.Handler) http.Handler {
 // undoes the route's strip-prefix to recover the OpenAPI coordinate, then
 // applies the first matching override, or the route-wide default when none
 // matches. Operations with neither fall through to the route's own auth.
-func (rt *Router) endpointGuard(sec store.EndpointSecurity, routeAccess store.Access, filters []routing.Spec, next http.Handler) (http.Handler, error) {
+func (rt *Router) endpointGuard(sec store.EndpointSecurity, routeAccess store.Access, isUI bool, filters []routing.Spec, next http.Handler) (http.Handler, error) {
 	type compiledEP struct {
 		method string
 		path   routing.CompiledPath
@@ -991,12 +1054,12 @@ func (rt *Router) endpointGuard(sec store.EndpointSecurity, routeAccess store.Ac
 		if err != nil {
 			return nil, fmt.Errorf("endpoint %d (%s %s): %w", i, e.Method, e.Path, err)
 		}
-		eps = append(eps, compiledEP{method: strings.ToUpper(e.Method), path: cp, gate: rt.accessGate(e.Access, next)})
+		eps = append(eps, compiledEP{method: strings.ToUpper(e.Method), path: cp, gate: rt.accessGate(e.Access, isUI, next)})
 	}
 	strip := stripPrefixCount(filters)
 	// The route's base Access is the default for any operation with no override
 	// (an empty Access passes through, delegating to the upstream).
-	routeGate := rt.accessGate(routeAccess, next)
+	routeGate := rt.accessGate(routeAccess, isUI, next)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		specPath := routing.StripSegments(req.URL.Path, strip)

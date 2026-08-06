@@ -256,7 +256,7 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 		Name:     "demo-secure",
 		Order:    101,
 		Enabled:  true,
-		Access:   store.Access{Authenticated: true},
+		Access:   store.Access{Level: store.AccessAuth},
 		IsUI:     true,
 		Upstream: "https://httpbin.org",
 		Predicates: []routing.Spec{

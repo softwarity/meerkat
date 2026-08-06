@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -108,15 +109,10 @@ func (s *Store) Close() error { return s.db.Close() }
 // v33 issue reports (ISSUE-01/02): user-filed reports from the injected
 // user-button panel - description, captured context (url, console, browser),
 // an optional screenshot, statuses and team comments.
-const schemaVersion = 33
-
-func (s *Store) migrate() error {
-	var v int
-	if err := s.db.QueryRow(`PRAGMA user_version`).Scan(&v); err != nil {
-		return fmt.Errorf("store: read schema version: %w", err)
-	}
-	_ = v // design phase: no data migrations, DBs are disposable.
-	_, err := s.db.Exec(`
+// schemaSQL is the WHOLE schema, always current: every column a build knows
+// about is declared here, and an existing database catches up through
+// addMissingColumns below.
+const schemaSQL = `
 CREATE TABLE IF NOT EXISTS routes (
   id            TEXT PRIMARY KEY,
   name          TEXT NOT NULL UNIQUE,
@@ -498,14 +494,32 @@ CREATE TABLE IF NOT EXISTS issues (
 );
 CREATE INDEX IF NOT EXISTS issues_at ON issues(created_at);
 CREATE INDEX IF NOT EXISTS issues_tenant ON issues(tenant_id, created_at);
-CREATE INDEX IF NOT EXISTS issues_status ON issues(status, created_at);`)
+CREATE INDEX IF NOT EXISTS issues_status ON issues(status, created_at);`
+
+const schemaVersion = 33
+
+func (s *Store) migrate() error {
+	var v int
+	if err := s.db.QueryRow(`PRAGMA user_version`).Scan(&v); err != nil {
+		return fmt.Errorf("store: read schema version: %w", err)
+	}
+	_ = v // design phase: no data migrations, the columns catch up on their own.
+	_, err := s.db.Exec(schemaSQL)
 	if err != nil {
 		return fmt.Errorf("store: migrate: %w", err)
+	}
+	// The columns a build added since this database was created: CREATE TABLE
+	// IF NOT EXISTS is silent on an existing table, so they are added here.
+	if err := s.addMissingColumns(); err != nil {
+		return err
 	}
 	if err := s.seedDefaultSettings(); err != nil {
 		return err
 	}
 	if err := s.seedThemes(); err != nil {
+		return err
+	}
+	if err := s.seedLocalProvider(); err != nil {
 		return err
 	}
 	if _, err := s.db.Exec(fmt.Sprintf(`PRAGMA user_version = %d`, schemaVersion)); err != nil {
@@ -536,48 +550,133 @@ type RouteAPI struct {
 	Security   *EndpointSecurity `json:"security,omitempty"`
 }
 
+// Access levels (RBAC-06), the BELONGING axis of an access rule. They are
+// ordered, and each one is the previous plus one requirement:
+//
+//	""          delegated — no gateway gate at all, the upstream keeps its own
+//	            security. NOT the same as public: the gateway does not decide.
+//	public      the gateway opens, session or not.
+//	auth        a valid session. Says who it is, nothing more — a person whose
+//	            account is confirmed but who belongs to no organisation yet
+//	            (AUTH-20's waiting room) passes here, and that is deliberate:
+//	            it is how one serves the page explaining how to ask for access.
+//	tenant      a session with an ACTIVE organisation. This is what the waiting
+//	            room does not pass, and what someone who belongs to several
+//	            organisations must choose before passing.
+//	tenants     the active organisation is one of AccessLevelTenants' names.
+//
+// The reason "tenant" exists at all: roles are granted by groups, groups belong
+// to an organisation, so without one a caller has NO role — they used to reach
+// a route gated on "authenticated" carrying an identity stripped of everything
+// that decides anything.
+const (
+	AccessDelegated = ""
+	AccessPublic    = "public"
+	AccessAuth      = "auth"
+	AccessTenant    = "tenant"
+	AccessTenants   = "tenants"
+)
+
 // Access is a unified access rule (RBAC-06/07), used both as a route-wide
-// default and as a per-endpoint override. When it is EMPTY the gateway adds no
-// gate and the request is DELEGATED to the API backend's own security (this is
-// the point of the feature: gate at the edge only what you choose to). When it
-// is set, a valid session is required, and when Users or Roles are named the
-// caller must be ONE of the Users OR hold ONE of the Roles (the two lists are
-// independent, combined with OR). Naming a user or role implies authentication.
+// default and as a per-endpoint override.
+//
+// TWO INDEPENDENT AXES, and they are ANDed:
+//
+//   - Level (+ Tenants when it is "tenants") says what belonging is required;
+//   - Roles filters on what the caller HOLDS in the active organisation.
+//
+// They cross on purpose. The role catalogue is global while groups are
+// per-organisation, so `roles: [admin]` alone means "an admin of ANY
+// organisation" — a cross-org administration UI — while `tenants: [acme] +
+// roles: [admin]` means "an admin OF ACME". Neither could be expressed before.
+//
+// Users is the exception, not a level: whoever is named passes whatever the
+// level requires (a service account, a support login, a UI dedicated to one
+// person). It is ORed with the rest.
 type Access struct {
-	Authenticated bool     `json:"authenticated,omitempty"`
-	Users         []string `json:"users,omitempty"` // allowed usernames
-	Roles         []string `json:"roles,omitempty"` // allowed effective role names
+	Level   string   `json:"level,omitempty"`
+	Tenants []string `json:"tenants,omitempty"` // tenant ids, when Level is "tenants"
+	Roles   []string `json:"roles,omitempty"`   // allowed effective role names
+	Users   []string `json:"users,omitempty"`   // always allowed, whatever the level
+}
+
+// Caller is what a rule is evaluated against: the resolved session, or the
+// zero value for an anonymous request.
+type Caller struct {
+	Authenticated bool
+	Username      string
+	TenantID      string   // the ACTIVE organisation, "" when none is chosen
+	Roles         []string // effective role names IN that organisation
+	// Memberships are the organisations this caller could switch to. They do
+	// not grant anything by themselves; they are what tells a refusal that is
+	// final ("you are not in Acme") from one a tenant switch would fix.
+	Memberships []string
 }
 
 // Empty reports whether NO gateway rule is set (the request is then delegated
-// to the API backend, not made public).
+// to the upstream, not made public).
 func (a Access) Empty() bool {
-	return !a.Authenticated && len(a.Users) == 0 && len(a.Roles) == 0
+	return a.Level == AccessDelegated && len(a.Roles) == 0 && len(a.Users) == 0
 }
 
-// Grants reports whether the gateway lets a caller through. An empty rule
-// always passes (delegated to the backend); otherwise a valid session plus the
-// users/roles test is required. authenticated says a valid session was
-// resolved; username and roles are that caller's identity.
-func (a Access) Grants(authenticated bool, username string, roles []string) bool {
-	if a.Empty() {
+// Grants reports whether the gateway lets a caller through.
+func (a Access) Grants(c Caller) bool {
+	if a.Empty() || a.Level == AccessPublic {
 		return true
 	}
-	if !authenticated {
+	// A named user passes whatever the level asks for.
+	if c.Authenticated && slices.Contains(a.Users, c.Username) {
+		return true
+	}
+	if !c.Authenticated {
 		return false
 	}
-	if len(a.Users) == 0 && len(a.Roles) == 0 {
-		return true // any authenticated user
-	}
-	if slices.Contains(a.Users, username) {
-		return true
-	}
-	for _, r := range a.Roles {
-		if slices.Contains(roles, r) {
-			return true
+	switch a.Level {
+	case AccessTenant:
+		if c.TenantID == "" {
+			return false
+		}
+	case AccessTenants:
+		if c.TenantID == "" || !slices.Contains(a.Tenants, c.TenantID) {
+			return false
 		}
 	}
-	return false
+	// Roles are the second axis: named, the caller must hold one of them IN the
+	// active organisation (which is why an empty TenantID holds no role).
+	if len(a.Roles) > 0 {
+		for _, r := range a.Roles {
+			if slices.Contains(c.Roles, r) {
+				return true
+			}
+		}
+		return false
+	}
+	return true
+}
+
+// Switchable reports whether a refusal would be lifted by choosing another
+// organisation: the caller belongs to one the rule accepts but is active
+// somewhere else. A UI route then offers the choice instead of a dead end.
+// The tenants worth offering are returned; empty means the refusal is final.
+func (a Access) Switchable(c Caller) []string {
+	if !c.Authenticated || len(c.Memberships) == 0 {
+		return nil
+	}
+	switch a.Level {
+	case AccessTenant:
+		if c.TenantID == "" {
+			return c.Memberships
+		}
+	case AccessTenants:
+		var offer []string
+		for _, id := range c.Memberships {
+			if id != c.TenantID && slices.Contains(a.Tenants, id) {
+				offer = append(offer, id)
+			}
+		}
+		return offer
+	}
+	return nil
 }
 
 // EndpointSecurity secures the operations of a route's OpenAPI spec (RBAC-07),
@@ -1022,6 +1121,10 @@ type User struct {
 	EmailVerified bool `json:"emailVerified"`
 	// SelfRegistered marks accounts born on /register (purge + admin display).
 	SelfRegistered bool `json:"selfRegistered"`
+	// HasPassword is derived, never stored: an account born at an authority
+	// holds no local password, and the console must say so rather than offer
+	// to "reset" one that does not exist. The hash itself never travels.
+	HasPassword bool `json:"hasPassword"`
 }
 
 const userCols = `id, username, password_hash, fullname, email, enabled,
@@ -1035,6 +1138,9 @@ func scanUser(row interface{ Scan(...any) error }) (User, error) {
 		&u.Root, &u.Dev, &u.Tester, &u.TenantCreator, &u.InfraAdmin, &u.AppAdmin, &u.Locale, &u.Timezone,
 		&u.CreatedAt, &u.UpdatedAt, &u.LastConnectionAt, &u.MustChangePassword, &u.MFARequired,
 		&u.EmailVerified, &u.SelfRegistered)
+	// Derived here so every read carries it and no caller has to remember: the
+	// hash is json:"-", this boolean is what the console is allowed to know.
+	u.HasPassword = u.PasswordHash != ""
 	return u, err
 }
 
@@ -1386,4 +1492,114 @@ func (s *Store) PurgeExpiredSessions(ctx context.Context, now int64) (int64, err
 	}
 	n, _ := res.RowsAffected()
 	return n, nil
+}
+
+// addMissingColumns brings an existing database up to the schema above.
+//
+// Design phase: columns come and go, and nobody writes a migration for each
+// one. But CREATE TABLE IF NOT EXISTS does nothing to a table that already
+// exists, so a database created two weeks ago keeps the columns it was born
+// with and fails at the worst moment — an INSERT naming a column that is not
+// there, surfacing as an SQL error three layers up.
+//
+// So the schema itself is the reference: it is applied to an in-memory
+// database, the two are compared table by table, and whatever is missing is
+// added. Nothing is ever dropped or rewritten — a column that disappears from
+// the schema simply stays behind, unused, which costs nothing and loses no
+// data.
+func (s *Store) addMissingColumns() error {
+	ref, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		return fmt.Errorf("store: reference schema: %w", err)
+	}
+	defer func() { _ = ref.Close() }()
+	if _, err := ref.Exec(schemaSQL); err != nil {
+		return fmt.Errorf("store: reference schema: %w", err)
+	}
+	tables, err := tableNames(ref)
+	if err != nil {
+		return err
+	}
+	for _, table := range tables {
+		want, err := columnsOf(ref, table)
+		if err != nil {
+			return err
+		}
+		got, err := columnsOf(s.db, table)
+		if err != nil {
+			return err
+		}
+		have := make(map[string]bool, len(got))
+		for _, c := range got {
+			have[c.name] = true
+		}
+		for _, c := range want {
+			if have[c.name] {
+				continue
+			}
+			// SQLite refuses ADD COLUMN for NOT NULL without a default, and for
+			// anything unique or primary. Those need a fresh database, and
+			// saying so beats a raw SQLite error.
+			if _, err := s.db.Exec(`ALTER TABLE ` + table + ` ADD COLUMN ` + c.definition()); err != nil {
+				return fmt.Errorf("store: %s.%s could not be added to this database "+
+					"(delete the data directory to start from the current schema): %w", table, c.name, err)
+			}
+			slog.Info("schema caught up", "table", table, "column", c.name)
+		}
+	}
+	return nil
+}
+
+type column struct {
+	name     string
+	dataType string
+	notNull  bool
+	dflt     sql.NullString
+}
+
+// definition rebuilds what ALTER TABLE ADD COLUMN needs from what PRAGMA
+// table_info reports.
+func (c column) definition() string {
+	def := c.name + " " + c.dataType
+	if c.notNull {
+		def += " NOT NULL"
+	}
+	if c.dflt.Valid {
+		def += " DEFAULT " + c.dflt.String
+	}
+	return def
+}
+
+func tableNames(db *sql.DB) ([]string, error) {
+	rows, err := db.Query(`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'`)
+	if err != nil {
+		return nil, fmt.Errorf("store: list tables: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+	var out []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		out = append(out, name)
+	}
+	return out, rows.Err()
+}
+
+func columnsOf(db *sql.DB, table string) ([]column, error) {
+	rows, err := db.Query(`SELECT name, type, "notnull", dflt_value FROM pragma_table_info(?)`, table)
+	if err != nil {
+		return nil, fmt.Errorf("store: columns of %s: %w", table, err)
+	}
+	defer func() { _ = rows.Close() }()
+	var out []column
+	for rows.Next() {
+		var c column
+		if err := rows.Scan(&c.name, &c.dataType, &c.notNull, &c.dflt); err != nil {
+			return nil, err
+		}
+		out = append(out, c)
+	}
+	return out, rows.Err()
 }

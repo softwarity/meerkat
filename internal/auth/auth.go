@@ -450,7 +450,10 @@ const flowBottom = `    {{if .Brand.Meerkat}}<p class="foot">on watch</p>{{end}}
 </body>
 </html>`
 
-const loginBody = `    {{if .Credentials}}<form method="post" action="login">
+const loginBody = `    {{if .Shut}}<p class="lead">{{.T.noWayIn}}</p>
+    {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+    {{end}}
+    {{if .Credentials}}<form method="post" action="login">
       {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
       <label class="field">
         <span>{{.T.username}}</span>
@@ -463,7 +466,7 @@ const loginBody = `    {{if .Credentials}}<form method="post" action="login">
       <input type="hidden" name="next" value="{{.Next}}">
       <button type="submit">{{.T.signIn}}</button>
     </form>
-    {{else if .Error}}<p class="error">{{.Error}}</p>{{end}}
+    {{else if and .Error (not .Shut)}}<p class="error">{{.Error}}</p>{{end}}
     {{if .Providers}}
     <p class="sep">{{.T.orSignInWith}}</p>
     {{range .Providers}}<a class="choice" href="/login/{{.ID}}?next={{$.Next}}">{{.Name}}</a>{{end}}
@@ -1093,37 +1096,32 @@ func (h *Handler) showLogin(w http.ResponseWriter, r *http.Request) {
 	h.render(w, r, r.URL.Query().Get("next"), "", http.StatusOK)
 }
 
-// localPasswordAllowed says whether this person may still come in with a LOCAL
-// password (AUTH-24). Closing it is what makes an external authority
-// exclusive: while the form answers, every local password bypasses it.
+// localPasswordAllowed says whether one may still come in with a LOCAL
+// password (AUTH-24). The accounts held here are an authority in the list, and
+// disabling it is what makes the remaining authorities exclusive: while it
+// answers, every local password is a door that bypasses them.
 //
 // The ADMIN PLANE always says yes, and that is deliberate. The console is what
 // one repairs a broken authority with; putting it behind that same authority
 // is how an installation becomes unrecoverable at the worst possible moment.
-func (h *Handler) localPasswordAllowed(ctx context.Context, u store.User) bool {
-	if h.adminPlane {
-		return true
-	}
-	switch h.st.GetPasswordLoginPolicy(ctx).Mode {
-	case store.PasswordLoginNobody:
-		return false
-	case store.PasswordLoginAdmins:
-		// The people who operate the place keep a door while the users go
-		// through their authority.
-		return u.Root || u.AppAdmin || u.InfraAdmin
-	}
-	return true
+func (h *Handler) localPasswordAllowed(ctx context.Context) bool {
+	return h.adminPlane || h.st.LocalSignInEnabled(ctx)
 }
 
 // credentialFormOpen says whether the username/password form is still of any
-// use. It closes only when NOTHING can answer it: no local password accepted
-// and no directory to ask. With "admins only" it stays — the admins use it —
-// and with a directory it stays whatever the local policy says.
+// use. It closes only when NOTHING can answer it: local accounts disabled and
+// no directory to ask — the form is not only the local password's, it is also
+// how a directory is queried.
 func (h *Handler) credentialFormOpen(ctx context.Context) bool {
-	if h.adminPlane || h.st.GetPasswordLoginPolicy(ctx).Mode != store.PasswordLoginNobody {
-		return true
-	}
-	return h.hasDirectory(ctx)
+	return h.localPasswordAllowed(ctx) || h.hasDirectory(ctx)
+}
+
+// anyWayIn: is there a single mechanism left that could sign someone in here?
+// Every authority off closes the form, the buttons AND the passkeys, and the
+// page then has nothing to offer but a sentence.
+func (h *Handler) anyWayIn(ctx context.Context) bool {
+	return h.credentialFormOpen(ctx) || len(h.redirectProviders(ctx)) > 0 ||
+		(h.st.PasskeysAllowed(ctx) && h.anyAuthorityEnabled(ctx))
 }
 
 func (h *Handler) doLogin(w http.ResponseWriter, r *http.Request) {
@@ -1174,7 +1172,7 @@ func (h *Handler) doLogin(w http.ResponseWriter, r *http.Request) {
 	// the refusal is worded identically, so nothing is enumerated.
 	if user.PasswordHash == "" ||
 		bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil ||
-		!h.localPasswordAllowed(r.Context(), user) {
+		!h.localPasswordAllowed(r.Context()) {
 		if h.tryCredentialProviders(w, r, username, password, next) {
 			h.regLimit.reset(loginKey)
 			return
@@ -2043,11 +2041,19 @@ func (h *Handler) render(w http.ResponseWriter, r *http.Request, next, errMsg st
 		// mechanisms, which is why closing the local password does not always
 		// close the form: a directory is asked through this very field.
 		Credentials bool
+		// Shut: nothing on this page can let anyone in. Said plainly and
+		// WITHOUT saying why — which door is closed is nobody's business but
+		// the administrator's.
+		Shut bool
 	}{flowChrome: h.flowData(r, "titleSignIn"), Next: next, Error: errMsg,
-		Public: h.publicLinks(r.Context()), Passkeys: h.st.PasskeysAllowed(r.Context()),
+		Public: h.publicLinks(r.Context()),
+		// A passkey is a shortcut to an authority: with every one of them off,
+		// it opens nothing, so it is not offered.
+		Passkeys: h.st.PasskeysAllowed(r.Context()) && h.anyAuthorityEnabled(r.Context()),
 		Register: h.selfRegisterOpen(r.Context()), Forgot: h.forgotOpen(r),
 		Providers:   h.redirectProviders(r.Context()),
-		Credentials: h.credentialFormOpen(r.Context())}, status)
+		Credentials: h.credentialFormOpen(r.Context()),
+		Shut:        !h.anyWayIn(r.Context())}, status)
 }
 
 // publicLink is one UI route reachable without signing in, offered on the
@@ -2096,15 +2102,16 @@ func (h *Handler) reachableLinks(ctx context.Context, sess store.Session) []publ
 	if err != nil {
 		return nil
 	}
-	// The caller's identity, to test each route's Access (username for named
-	// users, effective role names for role gates).
-	username := ""
+	// The caller, to test each route's Access. Memberships are NOT filled in:
+	// this list is what one can open right now, in the organisation currently
+	// active — offering a link that would land on the tenant chooser would be
+	// offering a detour, not an application.
+	caller := store.Caller{Authenticated: true, TenantID: sess.TenantID}
 	if u, err := h.st.GetUserByID(ctx, sess.UserID); err == nil {
-		username = u.Username
+		caller.Username = u.Username
 	}
-	var roleNames []string
 	if names, err := h.st.SessionRoleNames(ctx, sess.UserID, sess.TenantID, sess.GroupID); err == nil {
-		roleNames = names
+		caller.Roles = names
 	}
 	var links []publicLink
 	for _, rt := range routes {
@@ -2114,7 +2121,7 @@ func (h *Handler) reachableLinks(ctx context.Context, sess store.Session) []publ
 		if !rt.Enabled || !rt.IsUI || rt.UI == nil || rt.UI.Link == "" {
 			continue
 		}
-		if !rt.Access.Grants(true, username, roleNames) {
+		if !rt.Access.Grants(caller) {
 			continue
 		}
 		if href := routeEntryPath(rt); href != "" {

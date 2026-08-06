@@ -92,7 +92,7 @@ func TestPutRouteSecurityEnforced(t *testing.T) {
 	}
 
 	// The route-wide default locks the API; GET /orders is reopened to anonymous.
-	sec := `{"access":{"authenticated":true},"endpoints":[{"method":"GET","path":"/orders"}]}`
+	sec := `{"access":{"level":"auth"},"endpoints":[{"method":"GET","path":"/orders"}]}`
 	// Non-root cannot pose security.
 	if code, _ := f.call(t, "PUT", "/api/routes/r1/security", sec, f.plainC); code != http.StatusForbidden {
 		t.Fatalf("security authz: %d, want 403", code)

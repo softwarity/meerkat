@@ -278,7 +278,7 @@ func TestAuthenticatedRouteGating(t *testing.T) {
 		t.Fatalf("CreateUser: %v", err)
 	}
 	secure := pathRoute("r1", "secure", 1, "/secure/**", upstream.URL)
-	secure.Access = store.Access{Authenticated: true}
+	secure.Access = store.Access{Level: store.AccessAuth}
 	if err := st.SaveRoute(ctx, secure); err != nil {
 		t.Fatalf("SaveRoute: %v", err)
 	}

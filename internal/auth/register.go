@@ -37,11 +37,10 @@ const confirmPurpose = "confirm"
 // That last condition is what stops a dead end: signing up mints a LOCAL
 // account with a local password, and where such a password is refused the
 // person would confirm their address, choose a password, and land on a form
-// that will never accept it. A newcomer is not an administrator either, so
-// "admins only" closes this just as "nobody" does.
+// that will never accept it.
 func (h *Handler) selfRegisterOpen(ctx context.Context) bool {
 	return !h.adminPlane &&
-		h.st.GetPasswordLoginPolicy(ctx).Mode == store.PasswordLoginEveryone &&
+		h.st.LocalSignInEnabled(ctx) &&
 		h.st.GetRegistrationPolicy(ctx).LocalEnabled &&
 		h.st.GetSMTP(ctx).Configured()
 }

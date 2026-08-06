@@ -23,6 +23,9 @@ import { ApiService, ExternalIdentity } from '../api.service';
 })
 export class ExternalIdentitiesComponent {
   readonly userId = input.required<string>();
+  // Whether the account holds a LOCAL password, so an empty list can tell an
+  // ordinary local account from one that cannot sign in at all.
+  readonly hasPassword = input<boolean | undefined>(undefined);
 
   private readonly api = inject(ApiService);
   protected readonly identities = signal<ExternalIdentity[] | null>(null);

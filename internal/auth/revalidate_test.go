@@ -123,3 +123,73 @@ func TestADisabledAuthorityVouchesForNobody(t *testing.T) {
 		t.Fatalf("a disabled authority must not refuse anyone: %s", why)
 	}
 }
+
+// TestAPasskeyClosesWithItsAuthority: the shortcut cannot outlive what it is a
+// shortcut to (AUTH-24). A key tied to a purely local account is that account
+// signing in with another factor, so it closes with the local accounts; a key
+// tied to an authority closes when that authority is switched off. Otherwise
+// "every door closed" would still leave one open, and the login page would say
+// something untrue.
+func TestAPasskeyClosesWithItsAuthority(t *testing.T) {
+	h, st := revalHandler(t)
+	ctx := context.Background()
+	local := store.User{ID: "root", Username: "admin", Enabled: true, Root: true}
+	linked := store.User{ID: "u1", Username: "bob", Enabled: true}
+	for _, u := range []store.User{local, linked} {
+		if err := st.CreateUser(ctx, u); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// bob comes from a directory; the directory answers "yes" when asked.
+	if err := st.SaveAuthProvider(ctx, store.AuthProvider{
+		ID: "corp", Kind: store.ProviderLDAP, Name: "Corp", Enabled: true,
+		Config: map[string]any{"url": "ldaps://ldap.corp.io", "baseDn": "dc=corp,dc=io"},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.LinkIdentity(ctx, "corp", "bob", "u1", nil); err != nil {
+		t.Fatal(err)
+	}
+
+	off := func(id string) {
+		t.Helper()
+		p, err := st.GetAuthProvider(ctx, id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		p.Enabled = false
+		if err := st.SaveAuthProvider(ctx, p); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Local accounts off: the purely local key stops opening the data plane.
+	off(store.LocalProviderID)
+	if ok, _ := h.stillRecognised(ctx, local); ok {
+		t.Fatal("a passkey must not survive the authority it belongs to")
+	}
+	if ok, _ := h.passkeyRegistrationAllowed(ctx, local); ok {
+		t.Fatal("registering a key that could never be used helps nobody")
+	}
+	// bob still belongs to an ENABLED directory: his key is untouched (an
+	// unreachable directory is not a refusal, see the test above).
+	if ok, why := h.stillRecognised(ctx, linked); !ok {
+		t.Fatalf("an account backed by a live authority keeps its passkey: %s", why)
+	}
+
+	// And the console is never governed by any of this: it is what one repairs
+	// a broken authority with.
+	admin := NewAdmin(st, session.NewManager(st, session.ForAdminPlane()))
+	if ok, why := admin.stillRecognised(ctx, local); !ok {
+		t.Fatalf("the admin plane must keep its passkeys: %s", why)
+	}
+
+	// Corp off too: nothing stands behind bob any more either.
+	off("corp")
+	if ok, _ := h.stillRecognised(ctx, linked); ok {
+		t.Fatal("with every authority off, no passkey opens the data plane")
+	}
+	if h.anyWayIn(ctx) {
+		t.Fatal("the login page must report itself shut")
+	}
+}

@@ -413,8 +413,11 @@ func TestInventorySaysWhatTravels(t *testing.T) {
 	for _, sec := range Inventory(doc) {
 		byKind[sec.Kind] = sec
 	}
+	// TWO authorities: the seeded local accounts travel with the document like
+	// any other (AUTH-24), or importing a configuration would silently reopen
+	// a password sign-in someone had closed.
 	for kind, want := range map[string]int{
-		"route": 1, "role": 2, "authProvider": 1, "mailRelay": 1,
+		"route": 1, "role": 2, "authProvider": 2, "mailRelay": 1,
 	} {
 		if got := byKind[kind].Count; got != want {
 			t.Fatalf("%s = %d, want %d", kind, got, want)

@@ -309,8 +309,14 @@ func importProviders(ctx context.Context, st *store.Store, doc *Document, plan *
 		// A secret the file does not carry is the secret already in place: an
 		// export drops literals, so importing one back must not blank them.
 		if had {
+			// Both sides, or an authority with NO configuration at all (the
+			// local accounts) would compare {} against nil and report an
+			// update on every re-import of an unchanged file.
 			if p.Config == nil {
 				p.Config = map[string]any{}
+			}
+			if before.Config == nil {
+				before.Config = map[string]any{}
 			}
 			for _, field := range idp.SecretFields(p.Kind) {
 				if value, _ := p.Config[field].(string); value == "" {

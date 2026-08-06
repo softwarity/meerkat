@@ -7,7 +7,7 @@
 
 <div class="body">
   @if (user().fullname || user().email) {
-    <p class="identity">{{ user().fullname }} {{ user().email ? '· ' + user().email : '' }}</p>
+    <p class="identity">{{ user().fullname }}{{ user().fullname && user().email ? ' · ' : '' }}{{ user().email }}</p>
   }
 
   <section>
@@ -24,9 +24,16 @@
   <section>
     <h3 i18n="@@Account">Account</h3>
     <div class="actions">
+      <!-- An account born at an authority holds no local password: offering to
+           RESET one would promise something that does not exist. Setting one is
+           a different, deliberate act — it opens a second way in. -->
       <button matButton (click)="resetPassword()">
         <mat-icon>lock_reset</mat-icon>
-        <ng-container i18n="@@Reset_password">Reset password</ng-container>
+        @if (user().hasPassword === false) {
+          <ng-container i18n="@@Set_a_password">Set a password</ng-container>
+        } @else {
+          <ng-container i18n="@@Reset_password">Reset password</ng-container>
+        }
       </button>
       <button matButton class="danger" [disabled]="isMe()" (click)="remove()">
         <mat-icon>delete</mat-icon>
@@ -39,7 +46,7 @@
 
   <section>
     <h3 i18n="@@External_authorities">External authorities</h3>
-    <app-external-identities [userId]="user().id" />
+    <app-external-identities [userId]="user().id" [hasPassword]="user().hasPassword" />
   </section>
 
   <mat-divider />

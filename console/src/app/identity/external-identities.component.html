@@ -27,9 +27,20 @@
       }
     </div>
   } @empty {
-    <p class="empty" i18n="@@No_external_authority_for_this_account">
-      This account signs in with its local password only.
-    </p>
+    <!-- Two very different situations behind one empty list: an ordinary local
+         account, and one born at an authority whose link was never written —
+         the second cannot sign in at all, and saying "local password only"
+         would send the admin looking in the wrong place. -->
+    @if (hasPassword() === false) {
+      <p class="empty error" i18n="@@No_authority_and_no_password">
+        No authority is linked and this account has no local password: it cannot sign in. Link it
+        to an authority, or set a password.
+      </p>
+    } @else {
+      <p class="empty" i18n="@@No_external_authority_for_this_account">
+        This account signs in with its local password only.
+      </p>
+    }
   }
 } @else {
   <loading-indicator />

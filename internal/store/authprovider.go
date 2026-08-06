@@ -19,9 +19,18 @@ import (
 // discovery document and the ID token are what make the identity verifiable);
 // plain OAuth2 without OIDC is a per-vendor affair and is not a kind of its own.
 const (
-	ProviderOIDC = "oidc"
-	ProviderLDAP = "ldap"
-	ProviderSAML = "saml"
+	// ProviderLocal is the accounts held HERE, answering the sign-in form with
+	// the password Meerkat itself stores (AUTH-24). It is an authority like the
+	// others so that one list answers "by which door does one come in", and
+	// closing that door is the same gesture as closing any other. It has no
+	// configuration: there is no third party to reach.
+	//
+	// It never applies to the ADMIN plane. The console is what one repairs a
+	// broken authority with, so it always keeps its password sign-in.
+	ProviderLocal = "local"
+	ProviderOIDC  = "oidc"
+	ProviderLDAP  = "ldap"
+	ProviderSAML  = "saml"
 	// GitHub is its OWN kind, not a generic "oauth2" one. OAuth2 alone says how
 	// to get a token, never who the person is, so every vendor invents its own
 	// identity endpoint and its own field names. A generic form would ask an
@@ -59,13 +68,47 @@ type AuthProvider struct {
 	UpdatedAt  int64 `json:"updatedAt"`
 }
 
+// LocalProviderID is the fixed id of the local-accounts authority: exactly one
+// exists, it is seeded at startup and it is never deleted — only turned off.
+const LocalProviderID = "local"
+
 // ValidProviderKind reports whether kind is one we know how to drive.
 func ValidProviderKind(kind string) bool {
 	switch kind {
-	case ProviderOIDC, ProviderLDAP, ProviderSAML, ProviderGitHub:
+	case ProviderLocal, ProviderOIDC, ProviderLDAP, ProviderSAML, ProviderGitHub:
 		return true
 	}
 	return false
+}
+
+// LocalSignInEnabled reports whether the accounts held here may still answer
+// the sign-in form on the DATA plane. A missing row (a database that predates
+// the seed) reads as enabled: an installation that never touched the setting
+// signs in exactly as before.
+func (s *Store) LocalSignInEnabled(ctx context.Context) bool {
+	p, err := s.GetAuthProvider(ctx, LocalProviderID)
+	if err != nil {
+		return true
+	}
+	return p.Enabled
+}
+
+// seedLocalProvider puts the local-accounts authority in the list, once. Only
+// the ROW is seeded: an existing one keeps whatever state an admin gave it,
+// including disabled.
+func (s *Store) seedLocalProvider() error {
+	ctx := context.Background()
+	if _, err := s.GetAuthProvider(ctx, LocalProviderID); err == nil {
+		return nil
+	}
+	return s.SaveAuthProvider(ctx, AuthProvider{
+		ID:      LocalProviderID,
+		Kind:    ProviderLocal,
+		Name:    "Local accounts",
+		Enabled: true,
+		// First in the list: it is the door every installation starts with.
+		Order: -1,
+	})
 }
 
 // ValidPolicy reports whether p is one of the tri-state values.

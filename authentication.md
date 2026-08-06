@@ -5,7 +5,7 @@
 > reste `requirements.md` (AUTH-xx, MFA-xx, RBAC-xx) ; ici on décrit **ce qui est
 > implémenté** et **comment on le vérifie**.
 >
-> Dernière revue : 2026-08-04.
+> Dernière revue : 2026-08-05.
 
 ## 1. Deux plans, deux règles
 
@@ -16,7 +16,7 @@ vient de là.
 |---|---|---|
 | Sert | les applications proxifiées et les pages de flux | la console et l'API d'administration |
 | Cookie de session | `MEERKAT_SESSION` | `MEERKAT_ADMIN_SESSION` (distinct, marqué en base) |
-| Mot de passe local | gouverné par AUTH-24 (voir §4) | **toujours accepté**, sans condition |
+| Mot de passe local | l'autorité « comptes locaux » AUTH-24 (voir §4) | **toujours accepté**, sans condition |
 | Sélection d'organisation | oui | non (la console n'a pas de tenant courant) |
 | Jetons d'API | plan `data` | plan `admin`, root uniquement |
 
@@ -29,7 +29,7 @@ Voir `localPasswordAllowed` dans `internal/auth/auth.go`.
 
 | Porte | Plans | Ce qui la gouverne | Code |
 |---|---|---|---|
-| Mot de passe local | données, admin | politique AUTH-24, compte activé, heures ouvrées | `auth.go:doLogin` |
+| Mot de passe local | données, admin | autorité `local` activée (AUTH-24), compte activé, heures ouvrées | `auth.go:doLogin` |
 | Annuaire (LDAP/AD) | données, admin | autorité activée, filtre utilisateur | `idp/ldap.go` |
 | OIDC | données, admin | autorité activée, `autoCreate` ou lien existant | `idp/oidc.go` |
 | GitHub | données, admin | idem OIDC | `idp/oauth2.go` |
@@ -45,7 +45,7 @@ peut y répondre (`credentialFormOpen`).
 
 | Levier | Valeurs | Portée | Appliqué |
 |---|---|---|---|
-| `password_login` (AUTH-24) | `""` tout le monde / `admins` / `nobody` | plan données seulement | oui |
+| Autorité `local` (AUTH-24) | activée / désactivée | plan données seulement | oui |
 | `mfa_required` | booléen | global | oui |
 | `User.MFARequired` | `""` / `"true"` / `"false"` | par utilisateur, prime sur le global | oui |
 | `AuthProvider.MFARequired` | hérite / oui / non | par autorité | oui (`external.go`) |
@@ -64,41 +64,63 @@ port peut avoir son annuaire, affiché sur la page de connexion.
 
 ## 4. La matrice : qui entre, par où
 
-Lecture : ligne = état du compte, colonne = politique `password_login`.
+Les comptes tenus ici sont **une autorité comme les autres** (`kind: local`, écran
+Infra → Authentification). Fermer la connexion par mot de passe sur le plan données,
+c'est désactiver cette entrée. Il n'y a plus de troisième état « administrateurs
+seulement » : il ne protégeait de rien, puisque la console garde de toute façon son
+mot de passe, et il coûtait une règle particulière à chaque parcours.
 
 ### 4.1 Mot de passe local, plan données
 
-| Compte | `""` (tout le monde) | `admins` | `nobody` |
-|---|---|---|---|
-| root | entre | entre | refusé |
-| infra-admin / app-admin | entre | entre | refusé |
-| admin d'organisation | entre | refusé | refusé |
-| utilisateur simple | entre | refusé | refusé |
-| compte désactivé | refusé | refusé | refusé |
-| hors heures ouvrées | refusé | refusé | refusé |
+| Compte | autorité `local` activée | désactivée |
+|---|---|---|
+| root | entre | refusé |
+| infra-admin / app-admin | entre | refusé |
+| admin d'organisation | entre | refusé |
+| utilisateur simple | entre | refusé |
+| compte désactivé | refusé | refusé |
+| hors heures ouvrées | refusé | refusé |
 
-Sur le **plan admin**, toute cette colonne vaut « entre » : la politique ne s'y
-applique pas.
+Sur le **plan admin**, toute cette colonne vaut « entre » : l'autorité `local` ne
+gouverne que le plan données (`localPasswordAllowed` répond `true` d'entrée quand
+`h.adminPlane`).
 
-### 4.2 Ce que la politique ferme aussi
+Désactiver **toutes** les autorités est permis, et ne demande aucune confirmation
+croisée : cela veut dire que personne ne se connecte au plan données, ce qui est un
+état légitime pour une passerelle qui ne sert que des routes publiques. La console,
+elle, reste joignable.
 
-| Parcours | `""` | `admins` | `nobody` |
-|---|---|---|---|
-| `/register` (auto-inscription) | ouvert | **fermé** | **fermé** |
-| `/forgot-password` (page) | ouvert | ouvert | **fermé** |
-| `/forgot-password` (mail envoyé) | à tous | **aux admins seulement** | à personne |
-| Formulaire sur `/login` | affiché | affiché | affiché **seulement si un annuaire existe** |
+### 4.2 Ce que la désactivation ferme aussi
 
-Un nouvel inscrit n'est jamais administrateur : en mode `admins`, s'inscrire créerait
-un compte inutilisable. La page de réinitialisation, elle, reste utile en mode
-`admins` puisqu'un administrateur garde un mot de passe. Et elle répond **la même
-chose** que le mail parte ou non : distinguer serait un meilleur oracle d'énumération
-que l'adresse elle-même.
+| Parcours | `local` activée | désactivée |
+|---|---|---|
+| `/register` (auto-inscription) | ouvert | **fermé** |
+| `/forgot-password` (page et mail) | ouvert | **fermé** |
+| Formulaire sur `/login` | affiché | affiché **seulement si un annuaire existe** |
+| Passkey d'un compte purement local | acceptée | **refusée** (voir §4.3) |
+| Bouton passkey sur `/login` | affiché | affiché **seulement si une autorité reste active** |
+
+Quand plus rien ne peut répondre — aucune autorité active, donc ni formulaire, ni
+bouton, ni passkey — la page affiche une phrase et rien d'autre : « la connexion n'est
+pas disponible, contactez votre administrateur ». Elle ne dit **pas** ce qui est
+fermé : un visiteur n'a pas à lire la configuration de la passerelle.
+
+S'inscrire crée un compte **local** avec un mot de passe local : là où ce mot de passe
+est refusé, le nouvel arrivant confirmerait son adresse, choisirait un mot de passe et
+atterrirait sur un formulaire qui ne le prendra jamais. Réinitialiser, c'est la même
+histoire une étape plus loin.
 
 ### 4.3 Passkey
 
 Une passkey prouve la possession d'une clé liée à un compte **local**. Elle ne dit
 rien de l'annuaire qui possède la personne. D'où la revalidation.
+
+Et d'abord, d'où une condition plus simple : **le raccourci ne survit pas à ce dont il
+est le raccourci** (AUTH-24). Avant toute revalidation, `aDoorIsOpenFor` demande s'il
+reste une autorité active derrière ce compte — une autorité liée encore activée, ou
+l'entrée `local` pour un compte purement local. Sinon la passkey est refusée, et son
+enregistrement aussi. Sans cela, fermer toutes les portes en laisserait une ouverte,
+et la page de connexion mentirait.
 
 | Compte | Autorité liée | Résultat |
 |---|---|---|
@@ -204,14 +226,10 @@ curl -s -c /tmp/j.txt -X POST localhost:19090/login \
   --data-urlencode 'username=admin' --data-urlencode 'password=test1234'
 # 303 = connecté, 401 = refusé
 
-# 3. changer la politique de mot de passe (le corps est le reglage COMPLET :
-#    relire GET /api/settings, modifier passwordLogin, renvoyer le tout)
-curl -s -b /tmp/j.txt localhost:19090/api/settings > /tmp/s.json
-python3 -c "
-import json; s=json.load(open('/tmp/s.json')); s['passwordLogin']='nobody'
-json.dump(s, open('/tmp/s.json','w'))"
-curl -s -b /tmp/j.txt -X PUT localhost:19090/api/settings \
-  -H 'Content-Type: application/json' --data-binary @/tmp/s.json
+# 3. fermer le mot de passe local : desactiver l'autorite `local`
+curl -s -b /tmp/j.txt -X PUT localhost:19090/api/auth-providers/local \
+  -H 'Content-Type: application/json' \
+  -d '{"kind":"local","name":"Local accounts","enabled":false}'
 
 # 4. vérifier l'effet sur le PLAN DONNÉES (port 18080), pas sur l'admin
 curl -s -o /dev/null -w '%{http_code}\n' -X POST localhost:18080/login \
@@ -244,7 +262,7 @@ puis, dans la console, une autorité LDAP sur `ldap://localhost:1389`, base
 | Connexion nominale | `TestLoginSuccessSetsSessionAndRedirects`, `TestLogoutClearsSession` |
 | Anti-énumération | `TestLoginFailureSameMessageForUserAndPassword` |
 | Redirection ouverte | `TestOpenRedirectIsNeutralized`, `TestSafeNextRejectsOpenRedirect` |
-| AUTH-24 | `TestPasswordLoginModes`, `TestClosedPasswordKeepsTheDirectoryForm`, `TestClosingThePasswordClosesTheDeadEnds`, `TestResetMailFollowsTheAccount` |
+| AUTH-24 | `TestLocalAccountsAuthority`, `TestClosedPasswordKeepsTheDirectoryForm`, `TestClosingThePasswordClosesTheDeadEnds`, `TestAPasskeyClosesWithItsAuthority`, `TestLocalAuthorityIsPartOfTheProduct` et `TestTheConsoleCanFlipTheSwitch` (admin) |
 | MFA | `TestLoginChallengesEnrolledUser`, `TestLoginForcesEnrolmentWhenMandatory`, `TestTrustedBrowserSkipsChallenge`, `TestChallengeAcceptsScratchCode` |
 | Organisations | `TestLoginSingleTenantSetsTenantAndResolvedTTL`, `TestLoginMultiTenantGoesThroughSelection`, `TestExclusiveGroupFlow` |
 | Autorités externes | `TestFirstExternalSignInCreatesAPendingAccount`, `TestExternalWithoutAutoCreateRefuses`, `TestExternalUsernameCollision`, `TestExternalLinksAVerifiedAddressOnly` |

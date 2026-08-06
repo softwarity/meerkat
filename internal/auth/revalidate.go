@@ -22,6 +22,29 @@ import (
 // Hence: whoever came in through an authority is checked against that authority
 // before the passkey opens anything.
 
+// aDoorIsOpenFor reports whether ANY authority still stands behind u on the
+// data plane (AUTH-24). The shortcut cannot outlive what it is a shortcut to:
+// a key tied to a purely local account is that account signing in with another
+// factor, so it closes with the local accounts, and a key tied to an authority
+// closes when that authority is switched off.
+//
+// The admin plane is out of scope, like the password: it is what one repairs a
+// broken authority with.
+func (h *Handler) aDoorIsOpenFor(ctx context.Context, u store.User) bool {
+	if h.adminPlane {
+		return true
+	}
+	identities, err := h.st.IdentitiesOfUser(ctx, u.ID)
+	if err == nil {
+		for _, id := range identities {
+			if p, perr := h.st.GetAuthProvider(ctx, id.ProviderID); perr == nil && p.Enabled {
+				return true
+			}
+		}
+	}
+	return h.st.LocalSignInEnabled(ctx)
+}
+
 // stillRecognised reports whether u may come in on a passkey alone.
 //
 // A purely local account (root, an operator, a service account) has no
@@ -33,7 +56,12 @@ import (
 // An authority that CANNOT be asked (a redirect one, or a directory that is
 // down) does not count as a refusal. Signing everyone out because a server is
 // unreachable would be its own outage, and a worse one.
+//
+// Before any of that: something has to still be open for this person at all.
 func (h *Handler) stillRecognised(ctx context.Context, u store.User) (bool, string) {
+	if !h.aDoorIsOpenFor(ctx, u) {
+		return false, "no authority is enabled for this account"
+	}
 	identities, err := h.st.IdentitiesOfUser(ctx, u.ID)
 	if err != nil || len(identities) == 0 {
 		return true, ""
@@ -91,6 +119,9 @@ func passkeysAllowedBy(p store.AuthProvider) bool {
 // discovered later: a key someone registers and cannot use is worse than one
 // they were never offered.
 func (h *Handler) passkeyRegistrationAllowed(ctx context.Context, u store.User) (bool, string) {
+	if !h.aDoorIsOpenFor(ctx, u) {
+		return false, "no authority is enabled for this account"
+	}
 	identities, err := h.st.IdentitiesOfUser(ctx, u.ID)
 	if err != nil || len(identities) == 0 {
 		return true, ""

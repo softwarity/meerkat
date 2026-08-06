@@ -320,6 +320,20 @@ type identityView struct {
 	store.Identity
 	ProviderName string `json:"providerName"`
 	ProviderKind string `json:"providerKind"`
+	// Enabled: a revoked authority still shows — the link is a fact of this
+	// account's history — but it no longer opens anything.
+	ProviderEnabled bool `json:"providerEnabled"`
+}
+
+// identitiesView answers the whole question an admin asks in front of an
+// account that cannot sign in: which authorities does it have, are any of them
+// still standing, and would giving it a password change anything.
+type identitiesView struct {
+	Identities []identityView `json:"identities"`
+	// LocalSignIn: the local-accounts authority is enabled (AUTH-24), so a
+	// password would actually open the data plane. Setting one where it is
+	// disabled would be a promise nobody can keep.
+	LocalSignIn bool `json:"localSignIn"`
 }
 
 // userIdentities answers "how can this person get in, and what does the
@@ -350,9 +364,13 @@ func (a *API) userIdentities(w http.ResponseWriter, r *http.Request, _ store.Use
 	out := make([]identityView, 0, len(links))
 	for _, l := range links {
 		p := byID[l.ProviderID]
-		out = append(out, identityView{Identity: l, ProviderName: p.Name, ProviderKind: p.Kind})
+		out = append(out, identityView{
+			Identity: l, ProviderName: p.Name, ProviderKind: p.Kind, ProviderEnabled: p.Enabled,
+		})
 	}
-	writeJSON(w, http.StatusOK, out)
+	writeJSON(w, http.StatusOK, identitiesView{
+		Identities: out, LocalSignIn: a.st.LocalSignInEnabled(r.Context()),
+	})
 }
 
 // memberLogins is the tenant-scoped view of the same history: an OWNER/ADMIN
@@ -792,14 +810,11 @@ type settingsPayload struct {
 	// SelfRegisterCaptcha: the home-grown anti-robot check on /register
 	// (default on whenever registration opens).
 	SelfRegisterCaptcha bool `json:"selfRegisterCaptcha"`
-	// PasswordLogin: who may still sign in with a LOCAL password on the data
-	// plane (AUTH-24) — "" everyone, "admins", "nobody". The console is never
-	// affected: it is what one repairs a broken authority with.
-	PasswordLogin string `json:"passwordLogin"`
 	// AuthoritiesEnabled is read-only, and travels because this screen needs
-	// it: restricting the password with no authority in place would leave
-	// nobody able to sign in. The authorities themselves are an INFRA matter,
-	// which an app admin may not list, so the count comes from here.
+	// it: self-registration mints a LOCAL account, so it says nothing useful
+	// when no authority can answer at all. The authorities themselves are an
+	// INFRA matter, which an app admin may not list, so the count comes from
+	// here.
 	AuthoritiesEnabled int `json:"authoritiesEnabled"`
 	// RateLimit throttles the credential endpoints (SEC-10).
 	RateLimit store.RateLimitPolicy `json:"rateLimit"`
@@ -854,7 +869,6 @@ func (a *API) loadSettingsPayload(ctx context.Context) (settingsPayload, error) 
 	reg := a.st.GetRegistrationPolicy(ctx)
 	p.SelfRegistration = reg.LocalEnabled
 	p.SelfRegisterCaptcha = !reg.CaptchaDisabled
-	p.PasswordLogin = a.st.GetPasswordLoginPolicy(ctx).Mode
 	if n, err := a.enabledAuthorities(ctx); err == nil {
 		p.AuthoritiesEnabled = n
 	}
@@ -862,8 +876,9 @@ func (a *API) loadSettingsPayload(ctx context.Context) (settingsPayload, error) 
 	return p, nil
 }
 
-// enabledAuthorities counts the authorities that could actually authenticate
-// someone if the local password stopped doing it.
+// enabledAuthorities counts the authorities that can actually authenticate
+// someone, the local accounts included (AUTH-24): zero means nobody signs in
+// to the data plane at all.
 func (a *API) enabledAuthorities(ctx context.Context) (int, error) {
 	all, err := a.st.ListAuthProviders(ctx)
 	if err != nil {
@@ -959,33 +974,6 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 	}
 	if err := a.st.SetSetting(r.Context(), store.SettingRegistration,
 		store.RegistrationPolicy{LocalEnabled: p.SelfRegistration, CaptchaDisabled: !p.SelfRegisterCaptcha}); err != nil {
-		a.internal(w, err)
-		return
-	}
-	// Closing the local password (AUTH-24). Refused when nothing else could
-	// answer: an installation whose only way in is a password it no longer
-	// accepts is one nobody signs into, and the setting that did it is on a
-	// screen that now requires signing in.
-	if !store.ValidPasswordLoginMode(p.PasswordLogin) {
-		writeErr(w, http.StatusUnprocessableEntity,
-			"password sign-in must be empty (everyone), "+store.PasswordLoginAdmins+" or "+store.PasswordLoginNobody)
-		return
-	}
-	if p.PasswordLogin != store.PasswordLoginEveryone {
-		enabled, err := a.enabledAuthorities(r.Context())
-		if err != nil {
-			a.internal(w, err)
-			return
-		}
-		if enabled == 0 {
-			writeErr(w, http.StatusUnprocessableEntity,
-				"no authority is enabled: restricting the password would leave no way into the data plane "+
-					"(configure one under Infra, Authentication)")
-			return
-		}
-	}
-	if err := a.st.SetSetting(r.Context(), store.SettingPasswordLogin,
-		store.PasswordLoginPolicy{Mode: p.PasswordLogin}); err != nil {
 		a.internal(w, err)
 		return
 	}

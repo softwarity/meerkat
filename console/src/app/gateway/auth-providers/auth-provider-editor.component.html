@@ -13,7 +13,7 @@
   <mat-button-toggle-group
     class="kinds"
     [value]="kind()"
-    (change)="kind.set($event.value)"
+    (change)="pickKind($event.value)"
     [disabled]="!creating()"
     hideSingleSelectionIndicator
   >
@@ -44,33 +44,81 @@
     }
   </p>
 
-  <app-form-field i18n-label="@@Identifier" label="Identifier" i18n-hint="@@Provider_id_hint" hint="Used in the sign-in URL, never shown to users">
-    <textarea
-      matInput
-      rows="1"
-      class="oneline mono"
-      spellcheck="false"
-      autocapitalize="off"
-      autocorrect="off"
-      [value]="id()"
-      [disabled]="!creating()"
-      (input)="id.set($any($event.target).value)"
-      (keydown.enter)="$event.preventDefault()"
-      placeholder="acme-sso"
-    ></textarea>
-  </app-form-field>
+  <!-- What the admin has to paste into the VENDOR's form, under the vendor's
+       own labels, each with its copy button. Handed over rather than
+       described: a first setup fails here more than anywhere else. -->
+  @if (vendorFields().length) {
+    <div class="callback">
+      <span class="text-muted" i18n="@@Register_these_on_the_authority">Register these on the authority</span>
+      @for (f of vendorFields(); track f.label) {
+        <div class="vendor-row">
+          <span class="vendor-label text-muted">{{ f.label }}</span>
+          <code class="mono truncate">{{ f.value }}</code>
+          <button matIconButton (click)="copy(f.value)" i18n-matTooltip="@@Copy" matTooltip="Copy" i18n-aria-label="@@Copy" aria-label="Copy">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+      }
+      @if (kind() === 'github') {
+        <p class="hint text-muted" i18n="@@Github_setup_hint">
+          Register an OAuth app on GitHub with these two addresses, then paste back the Client ID
+          and the secret it gives you.
+        </p>
+        <!-- Straight to the form rather than a path through four menus. -->
+        <a matButton href="https://github.com/settings/applications/new" target="_blank" rel="noopener">
+          <mat-icon>open_in_new</mat-icon>
+          <ng-container i18n="@@Create_an_OAuth_app">Create an OAuth app on GitHub</ng-container>
+        </a>
+      }
+      @if (localOrigin()) {
+        <p class="hint text-muted" i18n="@@Local_origin_warning">
+          These addresses come from the one you reached this gateway by. In production, register
+          the public domain name instead: a vendor handed a localhost sends everyone back to a
+          machine that is not yours.
+        </p>
+      }
+    </div>
+  }
 
-  <app-form-field i18n-label="@@Name" label="Name" i18n-hint="@@Provider_name_hint" hint="What the login page shows on the button">
-    <textarea
-      matInput
-      rows="1"
-      class="oneline"
-      [value]="name()"
-      (input)="name.set($any($event.target).value)"
-      (keydown.enter)="$event.preventDefault()"
-      placeholder="Acme SSO"
-    ></textarea>
-  </app-form-field>
+  @if (showName()) {
+    <app-form-field i18n-label="@@Name" label="Name" i18n-hint="@@Provider_name_hint" hint="What the login page shows on the button">
+      <textarea
+        matInput
+        rows="1"
+        class="oneline"
+        [value]="name()"
+        (input)="setName($any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()"
+        placeholder="Acme SSO"
+      ></textarea>
+    </app-form-field>
+  }
+
+  <!-- Derived, not asked: it is the URL segment a sign-in travels through, and
+       it is shown only to whoever asks for it. Frozen after creation — changing
+       it would break the callback already registered with the vendor. -->
+  @if (identityShown()) {
+    <app-form-field i18n-label="@@Identifier" label="Identifier" i18n-hint="@@Provider_id_hint" hint="The segment of the sign-in URL, derived from the authority">
+      <textarea
+        matInput
+        rows="1"
+        class="oneline mono"
+        spellcheck="false"
+        autocapitalize="off"
+        autocorrect="off"
+        [value]="id()"
+        [disabled]="!creating()"
+        (input)="id.set($any($event.target).value)"
+        (keydown.enter)="$event.preventDefault()"
+        placeholder="acme-sso"
+      ></textarea>
+    </app-form-field>
+  } @else {
+    <button matButton (click)="showIdentity()">
+      <mat-icon>edit</mat-icon>
+      <ng-container i18n="@@Name_and_identifier">Name and identifier</ng-container>
+    </button>
+  }
 
   @if (kind() === 'oidc') {
     <app-form-field i18n-label="@@Issuer" label="Issuer" i18n-hint="@@Issuer_hint" hint="Its discovery document is read from there" allowVault="values" vaultScope="infra">
@@ -95,17 +143,6 @@
         (keydown.enter)="$event.preventDefault()" placeholder="acme.io"></textarea>
     </app-form-field>
 
-    @if (callbackUrl()) {
-      <div class="callback">
-        <span class="text-muted" i18n="@@Register_this_callback">Register this callback on the authority</span>
-        <div class="flex items-center gap-2">
-          <code class="mono truncate">{{ callbackUrl() }}</code>
-          <button matIconButton (click)="copyCallback()" i18n-matTooltip="@@Copy" matTooltip="Copy" i18n-aria-label="@@Copy" aria-label="Copy">
-            <mat-icon>content_copy</mat-icon>
-          </button>
-        </div>
-      </div>
-    }
   }
 
   @if (kind() === 'github') {
@@ -130,23 +167,11 @@
         (keydown.enter)="$event.preventDefault()" placeholder="softwarity"></textarea>
     </app-form-field>
 
-    <p class="hint text-muted" i18n="@@Github_setup_hint">
-      Create an OAuth app under Settings, Developer settings, and paste the callback below into its
-      Authorization callback URL. Organisations and teams come back as groups, an organisation as
-      "org" and a team as "org/team".
+    <p class="hint text-muted" i18n="@@Allowed_orgs_groups_hint">
+      These organisations and teams also come back as groups — "org" for an organisation,
+      "org/team" for a team — which a tenant's group rule can turn into roles.
     </p>
 
-    @if (callbackUrl()) {
-      <div class="callback">
-        <span class="text-muted" i18n="@@Register_this_callback">Register this callback on the authority</span>
-        <div class="flex items-center gap-2">
-          <code class="mono truncate">{{ callbackUrl() }}</code>
-          <button matIconButton (click)="copyCallback()" i18n-matTooltip="@@Copy" matTooltip="Copy" i18n-aria-label="@@Copy" aria-label="Copy">
-            <mat-icon>content_copy</mat-icon>
-          </button>
-        </div>
-      </div>
-    }
   }
 
   @if (kind() === 'ldap') {

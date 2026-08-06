@@ -65,6 +65,28 @@ func (h *Handler) hasDirectory(ctx context.Context) bool {
 	return false
 }
 
+// anyAuthorityEnabled reports whether ONE door is still open on this plane —
+// the local accounts among them, since they are an authority in the same list
+// (AUTH-24). It is what decides whether the passkey button is worth showing:
+// the page does not know who is about to sign in, so it can only ask whether
+// anything at all could stand behind them.
+func (h *Handler) anyAuthorityEnabled(ctx context.Context) bool {
+	if h.adminPlane {
+		return true
+	}
+	all, err := h.st.ListAuthProviders(ctx)
+	if err != nil {
+		slog.Error("auth providers lookup failed", "err", err)
+		return false
+	}
+	for _, p := range all {
+		if p.Enabled {
+			return true
+		}
+	}
+	return false
+}
+
 // redirectProviders lists the authorities that deserve a button.
 func (h *Handler) redirectProviders(ctx context.Context) []externalProvider {
 	all, err := h.st.ListAuthProviders(ctx)

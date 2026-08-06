@@ -402,6 +402,9 @@ export interface User {
   createdAt: number;
   updatedAt: number;
   lastConnectionAt: number;
+  // Read-only: whether a LOCAL password exists at all. An account born at an
+  // authority has none, so there is nothing to reset — only one to set.
+  hasPassword?: boolean;
 }
 
 // One completed sign-in, as the gateway records it (method: password | totp |
@@ -621,12 +624,14 @@ export interface TrustedBrowserPolicy {
 // Outbound e-mail config: the password is WRITE-ONLY ('' on PUT keeps the
 // stored one; passwordSet says whether one exists).
 // The mail RELAY (infra plane): transport only. The password is write-only.
-// An external authority people may sign in through (AUTH-19). Config is
-// kind-specific and may hold $name vault references, so a client secret or a
-// bind password never has to sit in it.
+// One authority people may sign in through (AUTH-19). Config is kind-specific
+// and may hold $name vault references, so a client secret or a bind password
+// never has to sit in it. The 'local' kind is the accounts held HERE (AUTH-24):
+// seeded, unique, without configuration — disabling it is what closes password
+// sign-in on the data plane, and it never affects this console.
 export interface AuthProvider {
   id: string;
-  kind: 'oidc' | 'ldap' | 'saml' | 'github';
+  kind: 'local' | 'oidc' | 'ldap' | 'saml' | 'github';
   name: string;
   enabled: boolean;
   order: number;
@@ -750,11 +755,8 @@ export interface Settings {
   selfRegistration: boolean;
   // The built-in anti-robot check on /register (default on).
   selfRegisterCaptcha: boolean;
-  // Who may still sign in with a LOCAL password on the data plane (AUTH-24):
-  // '' everyone, 'admins', 'nobody'. Never affects this console.
-  passwordLogin?: string;
-  // Read-only: how many authorities are enabled. Restricting the password
-  // without one would leave nobody able to sign in.
+  // Read-only: how many authorities are enabled, the local accounts included
+  // (AUTH-24). Zero means nobody can sign in to the data plane.
   authoritiesEnabled?: number;
   // The APPLICATION's locale pool: routes pick from it, the flow pages speak
   // its intersection with Meerkat's embedded languages. May be empty.
@@ -844,6 +846,14 @@ export class ApiService {
 
   authProviders(): Observable<AuthProvider[]> {
     return this.http.get<AuthProvider[]>('/api/auth-providers');
+  }
+
+  // The address a callback is built from ('.../login/'), so the editor can show
+  // the full URL while the identifier is still being typed. Only the server
+  // knows it: the callback lands on the DATA plane, and this console is served
+  // by the admin port.
+  authCallbackBase(): Observable<{ origin: string; base: string }> {
+    return this.http.get<{ origin: string; base: string }>('/api/auth-providers/callback-base');
   }
 
   saveAuthProvider(p: AuthProvider): Observable<AuthProvider> {

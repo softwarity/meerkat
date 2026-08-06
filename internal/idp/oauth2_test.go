@@ -20,8 +20,11 @@ type fakeGitHub struct {
 	tokenBody string // overridden to rehearse a refusal
 	emails    string
 	orgs      string
-	teams     string
-	lastForm  url.Values
+	// orgsStatus rehearses the organisation that restricts third-party apps:
+	// GitHub answers 403 until an owner approves this one.
+	orgsStatus int
+	teams      string
+	lastForm   url.Values
 }
 
 func newFakeGitHub(t *testing.T) *fakeGitHub {
@@ -54,6 +57,10 @@ func newFakeGitHub(t *testing.T) *fakeGitHub {
 		_, _ = w.Write([]byte(g.emails))
 	})
 	mux.HandleFunc("/user/orgs", func(w http.ResponseWriter, _ *http.Request) {
+		if g.orgsStatus != 0 {
+			w.WriteHeader(g.orgsStatus)
+			return
+		}
 		_, _ = w.Write([]byte(g.orgs))
 	})
 	mux.HandleFunc("/user/teams", func(w http.ResponseWriter, _ *http.Request) {
@@ -86,9 +93,12 @@ func ghCallback(state string) *http.Request {
 // TestGitHubSignIn: the whole exchange, and the three GitHub specifics that a
 // generic OAuth2 form could never express — the address behind its own
 // endpoint, the numeric id as the subject, and organisations as groups.
+//
+// With an allow-list configured, since that is what makes the organisations
+// worth asking for at all (see TestGitHubAsksOnlyForWhatItUses).
 func TestGitHubSignIn(t *testing.T) {
 	g := newFakeGitHub(t)
-	o := githubDriver(t, nil)
+	o := githubDriver(t, map[string]any{"allowedOrgs": []string{"softwarity"}})
 	req := AuthRequest{State: "st", RedirectURI: "https://gw/login/gh/callback", ProviderID: "gh"}
 
 	authURL, err := o.AuthURL(req)
@@ -183,4 +193,74 @@ func TestGitHubNeedsCredentials(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "clientSecret") {
 		t.Fatalf("a missing secret must be named, got %v", err)
 	}
+}
+
+// TestGitHubAsksOnlyForWhatItUses: reading someone's organisations is what
+// makes GitHub's consent screen list their employers, so it is asked for only
+// when the configuration cannot work without it — an organisation allow-list.
+// Identity alone costs the address scope and nothing more.
+func TestGitHubAsksOnlyForWhatItUses(t *testing.T) {
+	g := newFakeGitHub(t)
+	req := AuthRequest{State: "st", RedirectURI: "https://gw/login/gh/callback", ProviderID: "gh"}
+
+	// No allow-list: the profile and the address, full stop.
+	plain := githubDriver(t, nil)
+	authURL, err := plain.AuthURL(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	scope := mustQuery(t, authURL).Get("scope")
+	if !strings.Contains(scope, "user:email") {
+		t.Fatalf("the address is always needed, got %q", scope)
+	}
+	if strings.Contains(scope, "read:org") {
+		t.Fatalf("nothing uses the organisations here, they must not be asked for: %q", scope)
+	}
+	// And nothing is collected behind the person's back either.
+	id, err := plain.Callback(context.Background(), ghCallback("st"), req)
+	if err != nil {
+		t.Fatalf("callback: %v", err)
+	}
+	if len(id.Groups) != 0 {
+		t.Fatalf("groups gathered without the scope that pays for them: %v", id.Groups)
+	}
+
+	// An allow-list cannot be enforced without them: now it is asked.
+	gated := githubDriver(t, map[string]any{"allowedOrgs": []string{"softwarity"}})
+	authURL, err = gated.AuthURL(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if scope := mustQuery(t, authURL).Get("scope"); !strings.Contains(scope, "read:org") {
+		t.Fatalf("an allow-list needs the organisations, got %q", scope)
+	}
+	_ = g
+}
+
+// TestGitHubCannotReadTheOrganisations: "could not ask" is not "belongs to
+// nothing". An organisation restricting third-party applications answers 403
+// until an owner approves the app, and refusing its members with "you belong
+// to none of the allowed organisations" sends them hunting for the wrong bug.
+func TestGitHubCannotReadTheOrganisations(t *testing.T) {
+	g := newFakeGitHub(t)
+	g.orgsStatus = http.StatusForbidden
+	o := githubDriver(t, map[string]any{"allowedOrgs": []string{"softwarity"}})
+	req := AuthRequest{State: "st", RedirectURI: "https://gw/login/gh/callback", ProviderID: "gh"}
+
+	_, err := o.Callback(context.Background(), ghCallback("st"), req)
+	if err == nil {
+		t.Fatal("an allow-list that cannot be evaluated must fail closed")
+	}
+	if !strings.Contains(err.Error(), "could not read") {
+		t.Fatalf("the refusal must say what actually happened, got %v", err)
+	}
+}
+
+func mustQuery(t *testing.T, raw string) url.Values {
+	t.Helper()
+	u, err := url.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return u.Query()
 }

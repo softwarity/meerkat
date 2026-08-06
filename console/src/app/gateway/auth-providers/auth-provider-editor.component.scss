@@ -65,6 +65,25 @@ mat-form-field {
   min-width: 0;
   font-size: 0.82rem;
 }
+/* One row per value the vendor asks for: its own label, the value, its copy
+   button. The label is what the VENDOR calls it, so the eye jumps from their
+   form to the right line. */
+.vendor-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 8px;
+}
+.vendor-label {
+  grid-column: 1 / -1;
+  font-size: 0.78rem;
+}
+.vendor-row + .vendor-row {
+  margin-top: 6px;
+}
+.callback .hint {
+  margin: 8px 0 0;
+}
 section h3 {
   margin: 12px 0 8px;
   font-size: 0.95rem;

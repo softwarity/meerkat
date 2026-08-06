@@ -1,8 +1,6 @@
 package admin
 
 import (
-	"context"
-	"errors"
 	"maps"
 	"net/http"
 	"strings"
@@ -12,12 +10,21 @@ import (
 	"github.com/softwarity/meerkat/internal/vault"
 )
 
-// External authorities (AUTH-19), INFRA plane. A directory or an identity
-// provider is a third-party service reached by URL, with credentials and
-// certificates, exactly like a route's upstream or the mail relay. What it
-// grants once someone is in — tenants, roles — stays the application's.
+// The authorities (AUTH-19), INFRA plane. A directory or an identity provider
+// is a third-party service reached by URL, with credentials and certificates,
+// exactly like a route's upstream or the mail relay. What it grants once
+// someone is in — tenants, roles — stays the application's.
+//
+// The accounts held HERE are in that same list (AUTH-24, kind "local"): one
+// screen answers "by which door does one come in", and closing the local
+// password is disabling that entry, like any other. It is seeded, unique and
+// never deleted — and it never governs the ADMIN plane, which always keeps its
+// password sign-in so a broken authority stays repairable. Disabling every
+// authority is allowed: it means nobody signs in to the DATA plane, which is a
+// legitimate state for a gateway serving public routes only.
 func (a *API) registerAuthProviders(mux *http.ServeMux) {
 	mux.Handle("GET /api/auth-providers", a.infraAdmin(a.listAuthProviders))
+	mux.Handle("GET /api/auth-providers/callback-base", a.infraAdmin(a.getCallbackBase))
 	mux.Handle("PUT /api/auth-providers/{id}", a.infraAdmin(a.putAuthProvider))
 	mux.Handle("DELETE /api/auth-providers/{id}", a.infraAdmin(a.deleteAuthProvider))
 	mux.Handle("POST /api/auth-providers/{id}/check", a.infraAdmin(a.checkAuthProvider))
@@ -78,28 +85,6 @@ func (a *API) providerView(r *http.Request, p store.AuthProvider) providerView {
 	return v
 }
 
-// lastWayIn refuses to take away the last authority while the local password
-// is restricted (AUTH-24). Two screens, two admins, one hole: the password can
-// be closed on the application side and the authority disabled on the infra
-// side, and neither knows about the other. This is the check on the second
-// side. excludeID is the authority about to be disabled or deleted.
-func (a *API) lastWayIn(ctx context.Context, excludeID string) error {
-	if a.st.GetPasswordLoginPolicy(ctx).Mode == store.PasswordLoginEveryone {
-		return nil
-	}
-	all, err := a.st.ListAuthProviders(ctx)
-	if err != nil {
-		return err
-	}
-	for _, p := range all {
-		if p.Enabled && p.ID != excludeID {
-			return nil
-		}
-	}
-	return errors.New("password sign-in is restricted (Application, Security): " +
-		"this is the last authority, and taking it away would leave no way into the data plane")
-}
-
 // carrySecretsForward fills back the secrets the console could not send. It
 // never received the literal, so a blank field means "leave it alone", not
 // "erase it" — without this, opening an authority and renaming it would wipe
@@ -120,6 +105,15 @@ func carrySecretsForward(incoming *store.AuthProvider, stored store.AuthProvider
 	}
 }
 
+// getCallbackBase answers what the editor needs to show the values an admin
+// has to paste into the vendor's form: the data plane's own address (GitHub
+// asks for a homepage URL) and the base a callback is built from, so the full
+// URL can be composed while the identifier is still being decided.
+func (a *API) getCallbackBase(w http.ResponseWriter, r *http.Request, _ store.User) {
+	origin := a.dataOrigin(r)
+	writeJSON(w, http.StatusOK, map[string]string{"origin": origin, "base": origin + "/login/"})
+}
+
 func (a *API) listAuthProviders(w http.ResponseWriter, r *http.Request, _ store.User) {
 	all, err := a.st.ListAuthProviders(r.Context())
 	if err != nil {
@@ -134,11 +128,17 @@ func (a *API) listAuthProviders(w http.ResponseWriter, r *http.Request, _ store.
 }
 
 func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor store.User) {
-	var p store.AuthProvider
-	if err := decodeStrict(r, &p); err != nil {
+	// Decoded as the VIEW, saved as the model: the console sends back the
+	// object it was given, and an endpoint that refuses a field it emitted
+	// itself (linked, callbackUrl, secretsSet) breaks the plainest gesture
+	// there is — flipping the switch on a row. They are read-only, so they are
+	// accepted and dropped here.
+	var in providerView
+	if err := decodeStrict(r, &in); err != nil {
 		writeErr(w, http.StatusBadRequest, "malformed provider: "+err.Error())
 		return
 	}
+	p := in.AuthProvider
 	p.ID = r.PathValue("id")
 	p.Name = strings.TrimSpace(p.Name)
 	if p.Name == "" {
@@ -148,6 +148,15 @@ func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor stor
 	if !store.ValidProviderKind(p.Kind) {
 		writeErr(w, http.StatusUnprocessableEntity, "unknown provider kind "+p.Kind+
 			" (allowed: "+store.ProviderOIDC+", "+store.ProviderLDAP+", "+store.ProviderSAML+")")
+		return
+	}
+	// The local accounts are ONE seeded entry (AUTH-24): its name and its
+	// switch are editable, its identity is not. A second one would be a second
+	// answer to the same question.
+	if (p.Kind == store.ProviderLocal) != (p.ID == store.LocalProviderID) {
+		writeErr(w, http.StatusUnprocessableEntity,
+			"the local accounts are the built-in authority "+store.LocalProviderID+
+				": it cannot be created, renamed to another kind, or duplicated")
 		return
 	}
 	if !store.ValidPolicy(p.MFARequired) || !store.ValidPolicy(p.Passkeys) {
@@ -163,16 +172,10 @@ func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor stor
 
 	// Build the driver before storing: a configuration that cannot even be
 	// compiled must be refused at save time, not discovered by the first
-	// person trying to sign in.
-	if _, err := idp.New(p); err != nil {
-		writeErr(w, http.StatusUnprocessableEntity, err.Error())
-		return
-	}
-	// The other half of the AUTH-24 guard: restricting the password checks that
-	// an authority exists, and this checks that the last one does not go away
-	// underneath it. Either way round, the data plane keeps a way in.
-	if !p.Enabled && before.Enabled {
-		if err := a.lastWayIn(r.Context(), p.ID); err != nil {
+	// person trying to sign in. The local accounts have no driver — there is
+	// no third party to reach — so there is nothing to compile.
+	if p.Kind != store.ProviderLocal {
+		if _, err := idp.New(p); err != nil {
 			writeErr(w, http.StatusUnprocessableEntity, err.Error())
 			return
 		}
@@ -203,11 +206,12 @@ func (a *API) deleteAuthProvider(w http.ResponseWriter, r *http.Request, actor s
 		writeErr(w, http.StatusNotFound, "unknown provider "+id)
 		return
 	}
-	if before.Enabled {
-		if err := a.lastWayIn(r.Context(), id); err != nil {
-			writeErr(w, http.StatusUnprocessableEntity, err.Error())
-			return
-		}
+	// The local accounts are part of the product, not a configuration one
+	// added: they are turned off, never removed.
+	if before.Kind == store.ProviderLocal {
+		writeErr(w, http.StatusUnprocessableEntity,
+			"the local accounts cannot be deleted: disable them to close password sign-in on the data plane")
+		return
 	}
 	ok, err := a.st.DeleteAuthProvider(r.Context(), id)
 	if err != nil {
@@ -254,6 +258,24 @@ func (a *API) checkAuthProvider(w http.ResponseWriter, r *http.Request, _ store.
 // plane and the data plane are different origins, and the sign-in happens on
 // the DATA plane, so it is derived from there.
 func (a *API) callbackURL(r *http.Request, providerID string) string {
+	return a.callbackBase(r) + providerID + "/callback"
+}
+
+// callbackBase is that same address minus the identifier, and it exists for
+// the moment the identifier does not: while CREATING an authority, the admin
+// is filling in the vendor's form in another tab and needs the callback then,
+// not after a first save. Only the server can build it — the console is served
+// by the admin port and has no idea what the data plane listens on — so it
+// hands over the base and the console completes it.
+func (a *API) callbackBase(r *http.Request) string {
+	return a.dataOrigin(r) + "/login/"
+}
+
+// dataOrigin is where a sign-in actually happens, scheme and host. The admin
+// plane and the data plane are different origins, and every address a vendor
+// has to be given (GitHub asks for a homepage AND a callback) is rooted here,
+// never in the console's own address.
+func (a *API) dataOrigin(r *http.Request) string {
 	scheme := "http"
 	if r.TLS != nil {
 		scheme = "https"
@@ -267,5 +289,5 @@ func (a *API) callbackURL(r *http.Request, providerID string) string {
 		}
 		host = name + host
 	}
-	return scheme + "://" + host + "/login/" + providerID + "/callback"
+	return scheme + "://" + host
 }

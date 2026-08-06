@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strings"
 	"testing"
@@ -310,54 +311,85 @@ func TestStashTheRelayPassword(t *testing.T) {
 	}
 }
 
-// TestLastAuthorityCannotBeTakenAway closes the hole two screens leave open:
-// the password is restricted from the application side, the authority disabled
-// from the infra side, and neither knows about the other. Between them, nobody
-// can sign in to the data plane any more.
-func TestLastAuthorityCannotBeTakenAway(t *testing.T) {
+// TestLocalAuthorityIsPartOfTheProduct: the accounts held here are ONE seeded
+// authority (AUTH-24). It ships in the list, it is turned off rather than
+// removed, and there is never a second one — one question, one answer. Turning
+// it off IS allowed even as the last authority: it means nobody signs in to the
+// data plane, which a gateway serving public routes only may well want, and the
+// console keeps its own password sign-in whatever happens.
+func TestLocalAuthorityIsPartOfTheProduct(t *testing.T) {
 	f := setup(t)
-	enabled := `{"kind":"oidc","name":"Acme SSO","enabled":true,"config":{` +
+	list := get(t, f, "/api/auth-providers")
+	if !strings.Contains(list, `"kind":"local"`) {
+		t.Fatalf("the local accounts must ship as an authority: %s", list)
+	}
+
+	// Removing it is refused, and the message says what to do instead.
+	code, body := f.call(t, "DELETE", "/api/auth-providers/local", "", f.rootC)
+	if code != http.StatusUnprocessableEntity || !strings.Contains(body, "cannot be deleted") {
+		t.Fatalf("deleting the local accounts: %d %s, want 422 saying so", code, body)
+	}
+	// A second one would be a second answer to the same question.
+	dup := `{"kind":"local","name":"More local accounts","enabled":true}`
+	code, body = f.call(t, "PUT", "/api/auth-providers/local-2", dup, f.rootC)
+	if code != http.StatusUnprocessableEntity {
+		t.Fatalf("duplicating the local accounts: %d %s, want 422", code, body)
+	}
+	// Nor may another kind squat the reserved id.
+	squat := `{"kind":"oidc","name":"Squatter","enabled":true,"config":{` +
 		`"issuer":"https://sso.acme.io","clientId":"meerkat"}}`
-	if code, body := f.call(t, "PUT", "/api/auth-providers/acme", enabled, f.rootC); code != http.StatusOK {
+	code, body = f.call(t, "PUT", "/api/auth-providers/local", squat, f.rootC)
+	if code != http.StatusUnprocessableEntity {
+		t.Fatalf("squatting the local id: %d %s, want 422", code, body)
+	}
+
+	// Closing password sign-in on the data plane: one switch, no other screen
+	// involved, and it passes with nothing else enabled. Sent the way the
+	// console sends it — see TestTheConsoleCanFlipTheSwitch.
+	off := `{"kind":"local","name":"Local accounts","enabled":false}`
+	if code, body := f.call(t, "PUT", "/api/auth-providers/local", off, f.rootC); code != http.StatusOK {
+		t.Fatalf("disabling the local accounts: %d %s", code, body)
+	}
+}
+
+// TestTheConsoleCanFlipTheSwitch: the row's switch sends back the object the
+// list handed over, read-only fields included (linked, callbackUrl,
+// secretsSet). An endpoint that refuses what it emitted itself breaks the
+// plainest gesture in the screen, and no test caught it because they all sent
+// hand-written minimal payloads.
+func TestTheConsoleCanFlipTheSwitch(t *testing.T) {
+	f := setup(t)
+	oidc := `{"kind":"oidc","name":"Acme SSO","enabled":true,"config":{` +
+		`"issuer":"https://sso.acme.io","clientId":"meerkat"}}`
+	if code, body := f.call(t, "PUT", "/api/auth-providers/acme", oidc, f.rootC); code != http.StatusOK {
 		t.Fatalf("save: %d %s", code, body)
 	}
-	// While everyone may still use a password, disabling is nobody's business.
-	disabled := strings.Replace(enabled, `"enabled":true`, `"enabled":false`, 1)
-	if code, body := f.call(t, "PUT", "/api/auth-providers/acme", disabled, f.rootC); code != http.StatusOK {
-		t.Fatalf("disabling with the password open: %d %s", code, body)
-	}
 
-	// Re-enable, then close the password.
-	if code, _ := f.call(t, "PUT", "/api/auth-providers/acme", enabled, f.rootC); code != http.StatusOK {
-		t.Fatal("re-enable")
+	var list []map[string]any
+	if err := json.Unmarshal([]byte(get(t, f, "/api/auth-providers")), &list); err != nil {
+		t.Fatal(err)
 	}
-	settings := get(t, f, "/api/settings")
-	closed := strings.Replace(settings, `"passwordLogin":""`, `"passwordLogin":"nobody"`, 1)
-	if closed == settings {
-		t.Fatalf("the settings payload no longer carries passwordLogin: %s", settings)
+	if len(list) != 2 {
+		t.Fatalf("want the local accounts and the authority just saved, got %d", len(list))
 	}
-	if code, body := f.call(t, "PUT", "/api/settings", closed, f.rootC); code != http.StatusOK {
-		t.Fatalf("closing the password: %d %s", code, body)
-	}
-
-	// Now the same disabling must be refused, and say why.
-	code, body := f.call(t, "PUT", "/api/auth-providers/acme", disabled, f.rootC)
-	if code != http.StatusUnprocessableEntity || !strings.Contains(body, "last authority") {
-		t.Fatalf("disabling the last authority: %d %s, want 422 saying so", code, body)
-	}
-	// Deleting it is the same act by another route.
-	code, body = f.call(t, "DELETE", "/api/auth-providers/acme", "", f.rootC)
-	if code != http.StatusUnprocessableEntity || !strings.Contains(body, "last authority") {
-		t.Fatalf("deleting the last authority: %d %s, want 422", code, body)
-	}
-	// And a SECOND authority makes the first one expendable again.
-	second := `{"kind":"oidc","name":"Other","enabled":true,"config":{` +
-		`"issuer":"https://other.io","clientId":"meerkat"}}`
-	if code, body := f.call(t, "PUT", "/api/auth-providers/other", second, f.rootC); code != http.StatusOK {
-		t.Fatalf("second authority: %d %s", code, body)
-	}
-	if code, body := f.call(t, "PUT", "/api/auth-providers/acme", disabled, f.rootC); code != http.StatusOK {
-		t.Fatalf("with a spare authority, disabling must pass: %d %s", code, body)
+	// Every row, exactly as the console would send it back.
+	for _, row := range list {
+		id, _ := row["id"].(string)
+		if _, ok := row["linked"]; !ok {
+			t.Fatalf("%s: the list stopped carrying linked, this test no longer proves anything", id)
+		}
+		row["enabled"] = false
+		payload, err := json.Marshal(row)
+		if err != nil {
+			t.Fatal(err)
+		}
+		code, body := f.call(t, "PUT", "/api/auth-providers/"+id, string(payload), f.rootC)
+		if code != http.StatusOK {
+			t.Fatalf("flipping %s the way the console does: %d %s", id, code, body)
+		}
+		if !strings.Contains(body, `"enabled":false`) {
+			t.Fatalf("%s did not come back disabled: %s", id, body)
+		}
 	}
 }
 

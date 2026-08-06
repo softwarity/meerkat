@@ -51,8 +51,15 @@ export class AuthProvidersPageComponent {
     if (this.urlSegs()?.some((s) => s.path === 'new')) return 'new';
     const id = this.params()?.get('id');
     if (!id) return null;
-    return this.providers().find((p) => p.id === id) ?? null;
+    const found = this.providers().find((p) => p.id === id) ?? null;
+    // A hand-typed /auth-providers/local opens nothing either: there is no
+    // configuration behind it, and an editor showing one would invite a save
+    // the server is right to refuse.
+    return found && this.isLocal(found) ? null : found;
   });
+  // What a derived identifier must not collide with (the editor suffixes).
+  protected readonly takenIds = computed(() => this.providers().map((p) => p.id));
+
   protected readonly editingProvider = computed(() => {
     const e = this.editing();
     return e === null || e === 'new' ? null : e;
@@ -73,6 +80,13 @@ export class AuthProvidersPageComponent {
     });
   }
 
+  // The accounts held here (AUTH-24) are an authority in this list, but not a
+  // configuration: there is no third party to reach, so the row carries a
+  // switch and nothing to open.
+  protected isLocal(p: AuthProvider): boolean {
+    return p.kind === 'local';
+  }
+
   // What an authority points at, in one line: the issuer, or the server.
   protected target(p: AuthProvider): string {
     const cfg = p.config ?? {};
@@ -87,6 +101,8 @@ export class AuthProvidersPageComponent {
 
   protected kindLabel(p: AuthProvider): string {
     switch (p.kind) {
+      case 'local':
+        return $localize`:@@Kind_local_accounts:Local accounts`;
       case 'oidc':
         return 'OpenID Connect';
       case 'ldap':

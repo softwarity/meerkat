@@ -82,7 +82,6 @@ var ExportedSettings = []string{
 	store.SettingRateLimit,
 	store.SettingAPITokens,
 	store.SettingPasskeys,
-	store.SettingPasswordLogin,
 	store.SettingIssuesEnabled,
 }
 

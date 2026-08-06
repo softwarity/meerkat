@@ -45,9 +45,11 @@ var vendors = map[string]vendor{
 		authURL:  "https://github.com/login/oauth/authorize",
 		tokenURL: "https://github.com/login/oauth/access_token",
 		userURL:  "https://api.github.com/user",
-		// read:user for the profile, user:email because /user hides a private
-		// address, read:org so a private organisation still answers.
-		scopes:   []string{"read:user", "user:email", "read:org"},
+		// The FLOOR, asked of everyone: /user answers the profile (login, id,
+		// name, avatar) with no scope at all, and user:email is what it takes
+		// to read the private, verified address. Nothing else is anyone's
+		// business — see scopes() for the one thing that may be added.
+		scopes:   []string{"user:email"},
 		identity: githubIdentity,
 	},
 }
@@ -85,6 +87,25 @@ func newOAuth2(p store.AuthProvider) (Driver, error) {
 	return &oauth2Provider{p: p, v: v, cfg: cfg, client: &http.Client{Timeout: 10 * time.Second}}, nil
 }
 
+// scopes is what this authority asks the PERSON to consent to, and it follows
+// what the configuration actually uses. Reading someone's organisations is the
+// scope that makes a consent screen list their employers, so it is asked for
+// only when an organisation allow-list is set — the one setting that cannot
+// work without it. Configure that list, and GitHub will ask again: the
+// permission really did change.
+func (o *oauth2Provider) scopes() []string {
+	if len(o.cfg.AllowedOrgs) == 0 {
+		return o.v.scopes
+	}
+	return append(append([]string{}, o.v.scopes...), "read:org")
+}
+
+// wantsGroups: the organisations and teams are collected for the same reason
+// they are asked for, and never behind the person's back.
+func (o *oauth2Provider) wantsGroups() bool {
+	return len(o.cfg.AllowedOrgs) > 0
+}
+
 func (o *oauth2Provider) Kind() string { return o.v.kind }
 func (o *oauth2Provider) Name() string { return o.p.Name }
 
@@ -110,7 +131,7 @@ func (o *oauth2Provider) AuthURL(req AuthRequest) (string, error) {
 	q := url.Values{
 		"client_id":     {o.cfg.ClientID},
 		"redirect_uri":  {req.RedirectURI},
-		"scope":         {strings.Join(o.v.scopes, " ")},
+		"scope":         {strings.Join(o.scopes(), " ")},
 		"state":         {req.State},
 		"response_type": {"code"},
 	}
@@ -275,15 +296,27 @@ func githubIdentity(ctx context.Context, o *oauth2Provider, token string, user m
 	}
 
 	// Organisations and teams are GitHub's groups. Teams are reported as
-	// "org/team", so a role mapping can key on either level.
+	// "org/team", so a role mapping can key on either level. Only fetched
+	// when the configuration uses them — the read:org scope is not asked for
+	// otherwise, and calling these endpoints without it would fail anyway.
+	if !o.wantsGroups() {
+		return id, nil
+	}
 	var orgs []struct {
 		Login string `json:"login"`
 	}
-	if err := o.get(ctx, "https://api.github.com/user/orgs", token, &orgs); err == nil {
-		for _, org := range orgs {
-			if org.Login != "" {
-				id.Groups = append(id.Groups, org.Login)
-			}
+	if err := o.get(ctx, "https://api.github.com/user/orgs", token, &orgs); err != nil {
+		// "Could not ask" must not be reported as "belongs to nothing": the
+		// allow-list below would refuse a legitimate member and blame them.
+		// An organisation enforcing third-party application restrictions is
+		// the usual cause, and it needs an owner's approval, not a retry.
+		return id, fmt.Errorf("idp: %s: could not read this account's organisations "+
+			"(an organisation restricting third-party applications must approve this OAuth app): %w",
+			o.p.Name, err)
+	}
+	for _, org := range orgs {
+		if org.Login != "" {
+			id.Groups = append(id.Groups, org.Login)
 		}
 	}
 	var teams []struct {
@@ -292,6 +325,8 @@ func githubIdentity(ctx context.Context, o *oauth2Provider, token string, user m
 			Login string `json:"login"`
 		} `json:"organization"`
 	}
+	// Teams are a refinement, not a gate: the allow-list keys on the
+	// organisation, which the call above already established.
 	if err := o.get(ctx, "https://api.github.com/user/teams", token, &teams); err == nil {
 		for _, t := range teams {
 			if t.Slug != "" && t.Organization.Login != "" {

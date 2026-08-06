@@ -383,11 +383,6 @@ const (
 	// users may register passkeys and sign in with them. Global, never per
 	// tenant: a passkey login happens before the tenant is known.
 	SettingPasskeys = "passkeys_allowed"
-	// SettingPasswordLogin says who may still sign in with a LOCAL password on
-	// the data plane (AUTH-24). Closing it is what makes an external authority
-	// exclusive: as long as the form answers, every local password is a way in
-	// that bypasses the authority entirely.
-	SettingPasswordLogin = "password_login"
 	// One-time guard: the theme presets have been topped up into an existing
 	// install (THEME-04). Prevents resurrecting a preset the admin deleted.
 	SettingThemePresetsSeeded = "theme_presets_seeded"

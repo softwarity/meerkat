@@ -59,6 +59,7 @@
       [value]="routeAccess()"
       [users]="users()"
       [roles]="roles()"
+      [tenants]="tenants()"
       (valueChange)="setRouteAccess($event)"
     />
     <p class="rd-hint" i18n="@@Delegation_hint">
@@ -167,6 +168,7 @@
                 [value]="stateOf(o).access"
                 [users]="users()"
                 [roles]="roles()"
+                [tenants]="tenants()"
                 (valueChange)="setOpAccess(o, $event)"
               />
             } @else {

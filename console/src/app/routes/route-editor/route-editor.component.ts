@@ -15,7 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { LOCALE_ID } from '@angular/core';
-import { Access, ApiService, CatalogEntry, IDENTITY_FIELDS, IdentityAttr, IdentityForward, PAGE_USER_FIELDS, Role, Route, User, USER_BUTTON_POSITIONS } from '../../api.service';
+import { Access, ApiService, CatalogEntry, IDENTITY_FIELDS, IdentityAttr, IdentityForward, PAGE_USER_FIELDS, Role, Route, Tenant, User, USER_BUTTON_POSITIONS } from '../../api.service';
 import { MeService } from '../../me.service';
 import { humanDuration } from '../../shared/duration';
 import { UrlInputComponent } from '../../shared/url-input.component';
@@ -50,7 +50,9 @@ const IDENTITY_TTL_CHOICES = ['PT1M', 'PT2M', 'PT5M', 'PT10M', 'PT15M', 'PT30M',
 
 // The route's base Access as the editor's non-optional shape.
 function toAccessState(a: Access | undefined): AccessState {
-  return a ? { authenticated: !!a.authenticated, users: a.users ?? [], roles: a.roles ?? [] } : emptyAccess();
+  return a
+    ? { level: a.level ?? '', tenants: a.tenants ?? [], roles: a.roles ?? [], users: a.users ?? [] }
+    : emptyAccess();
 }
 
 // Route editor — a side-drawer inspector (not a modal). Sections down the left,
@@ -212,16 +214,19 @@ export class RouteEditorComponent {
   protected readonly identityFields = IDENTITY_FIELDS;
   protected readonly pageUserFields = PAGE_USER_FIELDS;
   protected readonly appLanguages = signal<string[]>([]);
-  // Roles and users feed the Security section's access editor. The users list is
-  // app-admin scoped, so a pure infra-admin may get an empty one (tolerated).
+  // Roles, users and organisations feed the Security section's access editor.
+  // All three are app-scoped, so a pure infra-admin may get empty lists
+  // (tolerated: the rule can still be set to a level that names nothing).
   protected readonly roles = signal<Role[]>([]);
   protected readonly users = signal<User[]>([]);
+  protected readonly tenants = signal<Tenant[]>([]);
   private readonly consoleNames = new Intl.DisplayNames([inject(LOCALE_ID)], { type: 'language' });
 
   constructor() {
     this.api.settings().subscribe({ next: (s) => this.appLanguages.set(s.languages ?? []) });
     this.api.listRoles().subscribe({ next: (r) => this.roles.set(r) });
     this.api.listUsers().subscribe({ next: (u) => this.users.set(u), error: () => this.users.set([]) });
+    this.api.listTenants().subscribe({ next: (t) => this.tenants.set(t), error: () => this.tenants.set([]) });
   }
 
   protected setAccess(a: AccessState): void {

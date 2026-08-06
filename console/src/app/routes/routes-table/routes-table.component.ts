@@ -52,7 +52,9 @@ export class RoutesTableComponent {
   // roles icons, activated when set — same as the endpoint-security screen).
   protected accessBadge(r: Route): AccessState {
     const a = r.access;
-    return a ? { authenticated: !!a.authenticated, users: a.users ?? [], roles: a.roles ?? [] } : emptyAccess();
+    return a
+      ? { level: a.level ?? '', tenants: a.tenants ?? [], roles: a.roles ?? [], users: a.users ?? [] }
+      : emptyAccess();
   }
 
   protected summary(r: Route): string {

@@ -15,6 +15,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { sessionStored } from '@softwarity/store';
 import { Subject, catchError, debounceTime, firstValueFrom, of } from 'rxjs';
 import {
+  Access,
   ApiService,
   EndpointPolicy,
   OpenAPIOperation,
@@ -22,6 +23,7 @@ import {
   Route,
   RouteOperations,
   RouteSecurity,
+  Tenant,
   User,
 } from '../../api.service';
 import { AccessBadgesComponent } from './access-badges.component';
@@ -45,18 +47,24 @@ function methodRank(m: string): number {
   return i < 0 ? METHOD_ORDER.length : i;
 }
 
-// Turn the editor's non-optional access into the wire shape (empty lists and a
-// false flag are simply omitted).
+// Turn the editor's non-optional access into the wire shape (a delegated level
+// and empty lists are simply omitted).
 function toPolicy(method: string, path: string, a: AccessState): EndpointPolicy {
   const ep: EndpointPolicy = { method: method.toUpperCase(), path };
-  if (a.authenticated) ep.authenticated = true;
-  if (a.users.length) ep.users = a.users;
+  if (a.level) ep.level = a.level;
+  if (a.tenants.length) ep.tenants = a.tenants;
   if (a.roles.length) ep.roles = a.roles;
+  if (a.users.length) ep.users = a.users;
   return ep;
 }
 
-function fromWire(a: { authenticated?: boolean; users?: string[]; roles?: string[] } | undefined): AccessState {
-  return { authenticated: !!a?.authenticated, users: a?.users ?? [], roles: a?.roles ?? [] };
+function fromWire(a: Access | undefined): AccessState {
+  return {
+    level: a?.level ?? '',
+    tenants: a?.tenants ?? [],
+    roles: a?.roles ?? [],
+    users: a?.users ?? [],
+  };
 }
 
 // Endpoint security (RBAC-07): a dedicated Gateway page. Pick a route that
@@ -102,6 +110,7 @@ export class EndpointSecurityComponent {
   protected readonly routes = signal<Route[]>([]);
   protected readonly roles = signal<Role[]>([]);
   protected readonly users = signal<User[]>([]);
+  protected readonly tenants = signal<Tenant[]>([]);
   protected readonly selectedId = signal('');
   protected readonly data = signal<RouteOperations | null>(null);
 
@@ -202,15 +211,18 @@ export class EndpointSecurityComponent {
     this.loadingRoutes.set(true);
     this.error.set('');
     try {
-      // Roles and users are app-scoped: tolerate a 403 for a pure gateway admin
-      // (the rule can still be set to plain authenticated).
-      const [routes, roles, users] = await Promise.all([
+      // Roles, users and organisations are app-scoped: tolerate a 403 for a
+      // pure gateway admin (the rule can still be set to a level that names
+      // nothing).
+      const [routes, roles, users, tenants] = await Promise.all([
         firstValueFrom(this.api.listRoutes()),
         firstValueFrom(this.api.listRoles().pipe(catchError(() => of<Role[]>([])))),
         firstValueFrom(this.api.listUsers().pipe(catchError(() => of<User[]>([])))),
+        firstValueFrom(this.api.listTenants().pipe(catchError(() => of<Tenant[]>([])))),
       ]);
       this.roles.set(roles);
       this.users.set(users);
+      this.tenants.set(tenants);
       this.routes.set(routes);
       const exposing = routes.filter((r) => !!r.api?.openapiUrl);
       const pick = exposing.find((r) => r.id === preselect)?.id ?? exposing[0]?.id ?? '';
@@ -335,9 +347,10 @@ export class EndpointSecurityComponent {
     const ra = this.routeAccess();
     const security: RouteSecurity = {
       access: {
-        ...(ra.authenticated ? { authenticated: true } : {}),
-        ...(ra.users.length ? { users: ra.users } : {}),
+        ...(ra.level ? { level: ra.level } : {}),
+        ...(ra.tenants.length ? { tenants: ra.tenants } : {}),
         ...(ra.roles.length ? { roles: ra.roles } : {}),
+        ...(ra.users.length ? { users: ra.users } : {}),
       },
       endpoints,
     };

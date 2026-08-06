@@ -1,19 +1,22 @@
 import { Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AccessState, isEmpty } from './access-editor.component';
+import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
 
-// The three access dimensions shown at a glance: authentication, named users,
-// named roles. Each icon is always present and lights up when its dimension is
-// set; the users/roles counts sit in a FIXED-WIDTH slot (two digits) right of
-// the icon, so a count is always visible yet never shifts the layout. All three
-// dim means no gateway rule (delegated to the API backend).
+// The rule at a glance: the belonging level, then the two lists. Every icon is
+// always present and lights up when its dimension is set, so the row never
+// shifts; the counts sit in a FIXED-WIDTH slot right of their icon. All dim
+// means no gateway rule at all - delegated to the upstream, which is NOT the
+// same as public and is why the lock has three states rather than two.
 @Component({
   selector: 'app-access-badges',
   imports: [MatIconModule, MatTooltipModule],
   template: `
     <span class="set" [class.delegated]="empty()" [matTooltip]="empty() ? delegatedTip : ''">
-      <mat-icon class="d d-auth" [class.on]="access().authenticated" [matTooltip]="authTip">lock</mat-icon>
+      <mat-icon class="d d-auth" [class.on]="gated()" [matTooltip]="levelTip()">{{ levelIcon() }}</mat-icon>
+      <span class="d d-tenants" [class.on]="access().level === 'tenant' || access().level === 'tenants'" [matTooltip]="tenantsTip()">
+        <mat-icon>corporate_fare</mat-icon><span class="n">{{ access().tenants.length || '' }}</span>
+      </span>
       <span class="d d-users" [class.on]="access().users.length > 0" [matTooltip]="usersTip()">
         <mat-icon>group</mat-icon><span class="n">{{ access().users.length || '' }}</span>
       </span>
@@ -63,6 +66,10 @@ import { AccessState, isEmpty } from './access-editor.component';
         color: var(--mk-signal);
         opacity: 1;
       }
+      .d-tenants.on {
+        color: var(--mk-signal);
+        opacity: 1;
+      }
     `,
   ],
 })
@@ -70,8 +77,21 @@ export class AccessBadgesComponent {
   readonly access = input.required<AccessState>();
 
   protected readonly empty = computed(() => isEmpty(this.access()));
+  protected readonly gated = computed(() => this.access().level !== '' && this.access().level !== 'public');
 
-  protected readonly authTip = $localize`:@@Authenticated:Authenticated`;
+  // An OPEN lock for public: the gateway decided, and it decided to open. A
+  // dim closed lock is the delegated case - no decision at all.
+  protected readonly levelIcon = computed(() => (this.access().level === 'public' ? 'lock_open' : 'lock'));
+  protected readonly levelTip = computed(
+    () => ACCESS_LEVELS.find((l) => l.value === this.access().level)?.label ?? '',
+  );
+  protected readonly tenantsTip = computed(() => {
+    const a = this.access();
+    if (a.level === 'tenants') {
+      return $localize`:@@Organisations:Organisations` + ': ' + a.tenants.join(', ');
+    }
+    return ACCESS_LEVELS.find((l) => l.value === a.level)?.label ?? '';
+  });
   protected readonly delegatedTip = $localize`:@@Delegated_to_backend:No gateway rule — delegated to the API backend`;
   protected readonly usersTip = computed(() => {
     const u = this.access().users;

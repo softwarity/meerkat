@@ -352,11 +352,11 @@
       </trans-unit>
       <trans-unit id="Access_public" datatype="html">
         <source>Public</source>
-        <target>Public</target>
+        <target>Publique</target>
       </trans-unit>
       <trans-unit id="Access_authenticated" datatype="html">
         <source>Authenticated</source>
-        <target>Authentifié</target>
+        <target>Connecté</target>
       </trans-unit>
       <trans-unit id="Access_roles" datatype="html">
         <source>Roles</source>
@@ -5130,6 +5130,240 @@ Permettre aux utilisateurs de sauter le challenge double facteur sur un navigate
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
           <context context-type="linenumber">17,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Register_these_on_the_authority" datatype="html">
+        <source>Register these on the authority</source>
+        <target>Register these on the authority</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">52,53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Create_an_OAuth_app" datatype="html">
+        <source>Create an OAuth app on GitHub</source>
+        <target>Create an OAuth app on GitHub</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">70,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Local_origin_warning" datatype="html">
+        <source>
+          These addresses come from the one you reached this gateway by. In production, register
+          the public domain name instead: a vendor handed a localhost sends everyone back to a
+          machine that is not yours.
+        </source>
+        <target>
+          These addresses come from the one you reached this gateway by. In production, register
+          the public domain name instead: a vendor handed a localhost sends everyone back to a
+          machine that is not yours.
+        </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">75,83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Name_and_identifier" datatype="html">
+        <source>Name and identifier</source>
+        <target>Name and identifier</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">119,122</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Allowed_orgs_groups_hint" datatype="html">
+        <source>
+      These organisations and teams also come back as groups — &quot;org&quot; for an organisation,
+      &quot;org/team&quot; for a team — which a tenant&apos;s group rule can turn into roles.
+    </source>
+        <target>
+      These organisations and teams also come back as groups — &quot;org&quot; for an organisation,
+      &quot;org/team&quot; for a team — which a tenant&apos;s group rule can turn into roles.
+    </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">171,178</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Homepage_URL" datatype="html">
+        <source>Homepage URL</source>
+        <target>Homepage URL</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
+          <context context-type="linenumber">249</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Authorization_callback_URL" datatype="html">
+        <source>Authorization callback URL</source>
+        <target>Authorization callback URL</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
+          <context context-type="linenumber">250</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Redirect_URI" datatype="html">
+        <source>Redirect URI</source>
+        <target>Redirect URI</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
+          <context context-type="linenumber">254</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Local_accounts_target" datatype="html">
+        <source>
+                    The passwords held here. Off, only the other authorities answer; this console
+                    always keeps its own password sign-in.
+                  </source>
+        <target>
+                    The passwords held here. Off, only the other authorities answer; this console
+                    always keeps its own password sign-in.
+                  </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-providers-page.component.html</context>
+          <context context-type="linenumber">46,50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Kind_local_accounts" datatype="html">
+        <source>Local accounts</source>
+        <target>Local accounts</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-providers-page.component.ts</context>
+          <context context-type="linenumber">105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="No_authority_and_no_password" datatype="html">
+        <source>
+        No authority is linked and this account has no local password: it cannot sign in. Link it
+        to an authority, or set a password.
+      </source>
+        <target>
+        No authority is linked and this account has no local password: it cannot sign in. Link it
+        to an authority, or set a password.
+      </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/external-identities.component.html</context>
+          <context context-type="linenumber">36,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Set_a_password" datatype="html">
+        <source>Set a password</source>
+        <target>Set a password</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Organisations" datatype="html">
+        <source>Organisations</source>
+        <target>Organisations</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-badges.component.ts</context>
+          <context context-type="linenumber">91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_delegated" datatype="html">
+        <source>Delegated</source>
+        <target>Déléguée</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_delegated_hint" datatype="html">
+        <source>Meerkat adds no gate: the upstream keeps its own security. Not the same as public.</source>
+        <target>Meerkat ne pose aucune barrière : l'amont garde sa propre sécurité. Ce n'est pas la même chose que public.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_public_hint" datatype="html">
+        <source>Open to everyone, signed in or not.</source>
+        <target>Ouverte à tous, connecté ou non.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_authenticated_hint" datatype="html">
+        <source>Anyone with an account, including one that belongs to no organisation yet.</source>
+        <target>Toute personne ayant un compte, y compris un compte qui n'appartient encore à aucune organisation.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_in_an_organisation" datatype="html">
+        <source>In an organisation</source>
+        <target>Dans une organisation</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_in_an_organisation_hint" datatype="html">
+        <source>An organisation must be active on the session. Turns away an account still awaiting access.</source>
+        <target>Une organisation doit être active sur la session. Écarte un compte encore en attente d'accès.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">47</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_in_one_of_these" datatype="html">
+        <source>In one of these organisations</source>
+        <target>Dans une de ces organisations</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Access_in_one_of_these_hint" datatype="html">
+        <source>The active organisation must be one of those named below.</source>
+        <target>L'organisation active doit être une de celles nommées ci-dessous.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Who_may_call_it" datatype="html">
+        <source>Who may call it</source>
+        <target>Qui peut l'appeler</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">72,73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Organisations_any_of" datatype="html">
+        <source>Organisations (any one grants access)</source>
+        <target>Organisations (une seule suffit)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">85,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Roles_in_active_org_hint" datatype="html">
+        <source>Held in the active organisation. Left empty, any role passes.</source>
+        <target>Détenu dans l'organisation active. Laissé vide, n'importe quel rôle passe.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">114,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Users_always_allowed" datatype="html">
+        <source>Users always allowed</source>
+        <target>Utilisateurs toujours autorisés</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">119,120</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Users_exception_hint" datatype="html">
+        <source>An exception, not a level: they pass whatever is required above.</source>
+        <target>Une exception, pas un niveau : ils passent quoi qu'il soit exigé au-dessus.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/routes/endpoint-security/access-editor.component.ts</context>
+          <context context-type="linenumber">131,133</context>
         </context-group>
       </trans-unit>
     </body>

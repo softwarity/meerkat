@@ -20,10 +20,17 @@ export interface RouteAPIOptions {
 // per-endpoint override. Public when nothing is set; otherwise a session is
 // required, and when users or roles are named the caller must be one of the
 // users OR hold one of the roles. Naming a user or role implies authentication.
+// An access rule on two crossed axes (RBAC-06). level says what BELONGING is
+// required - '' delegates to the upstream, which is not the same as 'public' -
+// and roles filters on what the caller holds in the ACTIVE organisation. Named
+// users are the exception: they pass whatever the level asks.
+export type AccessLevel = '' | 'public' | 'auth' | 'tenant' | 'tenants';
+
 export interface Access {
-  authenticated?: boolean;
-  users?: string[];
+  level?: AccessLevel;
+  tenants?: string[];
   roles?: string[];
+  users?: string[];
 }
 
 // One method+path override (RBAC-07): the access fields are inlined next to the

@@ -3,10 +3,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
 
-// The rule at a glance: the belonging level, the organisations, the two lists,
-// and - when the caller passes it - the number of per-endpoint overrides. Every
-// icon is always present and lights up when its dimension is set, so the row
-// never shifts; the counts sit in a FIXED-WIDTH slot right of their icon.
+// The rule at a glance. The LEVEL is written, not drawn: a lit padlock said
+// "some rule" and left "signed in", "in an organisation" and "in one of these
+// two" looking identical, which is the one thing a list of routes has to make
+// obvious. So it is a short word - AUTH, ORG, ORG·2 - and only the two lists
+// and the endpoint count stay as icons, where a number IS the information.
+//
+// The counts sit in a FIXED-WIDTH slot right of their icon, so a number
+// appearing never shifts the row.
 //
 // `unguarded` is the one thing drawn in the error tone: Meerkat poses NO
 // condition here and none on any endpoint either. That is a legitimate choice -
@@ -18,12 +22,7 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
   imports: [MatIconModule, MatTooltipModule],
   template: `
     <span class="set" [class.delegated]="empty()" [class.unguarded]="unguarded()" [matTooltip]="setTip()">
-      <span class="d d-auth" [class.on]="gated()" [matTooltip]="levelTip()">
-        <mat-icon>lock</mat-icon><span class="n"></span>
-      </span>
-      <span class="d d-tenants" [class.on]="access().level === 'tenant' || access().level === 'tenants'" [matTooltip]="tenantsTip()">
-        <mat-icon>corporate_fare</mat-icon><span class="n">{{ access().tenants.length || '' }}</span>
-      </span>
+      <span class="lvl" [class.on]="gated()" [matTooltip]="levelTip()">{{ levelShort() }}</span>
       <span class="d d-users" [class.on]="access().users.length > 0" [matTooltip]="usersTip()">
         <mat-icon>group</mat-icon><span class="n">{{ access().users.length || '' }}</span>
       </span>
@@ -59,6 +58,24 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
       // though it never has a number: without it the icons that DO carry a
       // count trail two characters of nothing and the row reads unevenly
       // spaced.
+      // The level, written. Sized for its widest form so the icons after it
+      // line up whatever the rule says.
+      .lvl {
+        display: inline-block;
+        min-width: 5ch;
+        text-align: center;
+        padding: 1px 6px;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--mat-sys-on-surface-variant);
+        border: 1px solid var(--mat-sys-outline-variant);
+      }
+      .lvl.on {
+        color: #d98420;
+        border-color: currentColor;
+      }
       .n {
         display: inline-block;
         width: 2ch;
@@ -82,18 +99,18 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
         color: var(--mk-signal);
         opacity: 1;
       }
-      .d-tenants.on {
-        color: var(--mk-signal);
-        opacity: 1;
-      }
       .d-endpoints.on {
         color: #2f6feb;
         opacity: 1;
       }
       // Nothing gated anywhere: the only state this row raises its voice for.
-      .set.unguarded .d {
+      .set.unguarded .d,
+      .set.unguarded .lvl {
         color: var(--mat-sys-error);
         opacity: 0.85;
+      }
+      .set.unguarded .lvl {
+        border-color: currentColor;
       }
     `,
   ],
@@ -113,16 +130,28 @@ export class AccessBadgesComponent {
     return this.empty() ? this.delegatedTip : '';
   });
   protected readonly gated = computed(() => this.access().level !== '');
+  // The written form. Kept to a few characters because it sits in a table
+  // column: the full sentence is one hover away, and the organisations it
+  // names come with it rather than needing a second badge.
+  protected readonly levelShort = computed(() => {
+    const a = this.access();
+    switch (a.level) {
+      case 'auth':
+        return $localize`:@@Level_short_auth:AUTH`;
+      case 'tenant':
+        return $localize`:@@Level_short_tenant:ORG`;
+      case 'tenants':
+        return $localize`:@@Level_short_tenants:ORG` + '\u00b7' + a.tenants.length;
+      default:
+        return '\u2014';
+    }
+  });
+  // The full sentence on hover. The organisations themselves are not listed:
+  // the rule carries ids, which say nothing to a reader, and the route's own
+  // screen shows them by name.
   protected readonly levelTip = computed(
     () => ACCESS_LEVELS.find((l) => l.value === this.access().level)?.label ?? '',
   );
-  protected readonly tenantsTip = computed(() => {
-    const a = this.access();
-    if (a.level === 'tenants') {
-      return $localize`:@@Organisations:Organisations` + ': ' + a.tenants.join(', ');
-    }
-    return ACCESS_LEVELS.find((l) => l.value === a.level)?.label ?? '';
-  });
   protected readonly delegatedTip = $localize`:@@Delegated_to_backend:No gateway rule — delegated to the API backend`;
   protected readonly unguardedTip = $localize`:@@Nothing_gated_here:Meerkat gates nothing here, on the route or on any endpoint: the service decides alone.`;
   protected readonly endpointsTip = computed(() => {

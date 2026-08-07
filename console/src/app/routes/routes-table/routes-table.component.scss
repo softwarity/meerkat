@@ -46,8 +46,10 @@ mat-row.clickable:hover {
 }
 /* A fixed-width column keeps the access badges vertically aligned (no staircase
    from variable-length names). */
+// Wide enough for the written level plus three counted icons, so the badges
+// never wrap and the column below them stays aligned.
 .access-col {
-  flex: 0 0 140px;
+  flex: 0 0 190px;
   justify-content: flex-start;
 }
 // The drag handle rides INSIDE the first cell (like the roles table), so the

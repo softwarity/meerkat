@@ -157,7 +157,7 @@ export class AccessBadgesComponent {
     const n = this.endpoints() ?? 0;
     return n
       ? $localize`:@@Endpoints_with_their_own_rule:Endpoints with their own rule` + ': ' + n
-      : $localize`:@@No_endpoint_override:No endpoint overrides the route's rule`;
+      : $localize`:@@Every_endpoint_follows_the_route:Every endpoint follows the route's rule`;
   });
   protected readonly usersTip = computed(() => {
     const u = this.access().users;

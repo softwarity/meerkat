@@ -309,6 +309,8 @@ export class EndpointSecurityComponent {
     () => Object.values(this.state()).filter((s) => s.override).length + this.extras().length,
   );
 
+  protected readonly isEmptyRule = isEmpty;
+
   // The rule actually in force for an operation: its override, or the route default.
   protected effective(o: OpenAPIOperation): AccessState {
     const s = this.stateOf(o);

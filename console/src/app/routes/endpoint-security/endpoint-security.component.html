@@ -52,7 +52,11 @@
     <mat-expansion-panel-header>
       <mat-panel-title i18n="@@Whole_route_default">Whole route (default for every operation)</mat-panel-title>
       <mat-panel-description>
-        <app-access-badges [access]="routeAccess()" [endpoints]="overrideCount()" />
+        <app-access-badges
+          [access]="routeAccess()"
+          [endpoints]="overrideCount()"
+          [unguarded]="isEmptyRule(routeAccess()) && overrideCount() === 0"
+        />
       </mat-panel-description>
     </mat-expansion-panel-header>
     <app-access-editor

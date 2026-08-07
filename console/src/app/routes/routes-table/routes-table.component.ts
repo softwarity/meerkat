@@ -7,7 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RowActionsDirective } from '@softwarity/row-actions';
 import { Route } from '../../api.service';
 import { AccessBadgesComponent } from '../endpoint-security/access-badges.component';
-import { AccessState, emptyAccess } from '../endpoint-security/access-editor.component';
+import { AccessState, emptyAccess, isEmpty } from '../endpoint-security/access-editor.component';
 
 // Presentational routes table: data in, intents out. Rows are drag-orderable
 // (first-match-wins, so order is significant) via the drag handle.
@@ -57,11 +57,19 @@ export class RoutesTableComponent {
       : emptyAccess();
   }
 
-  // How many operations carry their own rule (RBAC-07). Passing it is what
-  // lets the badges tell "delegated on the route, but gated per endpoint" from
-  // "gated nowhere at all" - only the second is drawn as a warning.
-  protected endpointRules(r: Route): number {
+  // How many operations carry their own rule (RBAC-07), or null for a route
+  // that exposes no OpenAPI spec: there is nothing to override there, and a
+  // badge counting to zero would only be noise.
+  protected endpointRules(r: Route): number | null {
+    if (!r.api?.openapiUrl) return null;
     return r.api?.security?.endpoints?.length ?? 0;
+  }
+
+  // Meerkat gates nothing on this route: no rule of its own, and no endpoint
+  // making up for it. A legitimate choice, and also what a route someone has
+  // not finished configuring looks like - hence the warning tone.
+  protected gatesNothing(r: Route): boolean {
+    return isEmpty(this.accessBadge(r)) && !this.endpointRules(r);
   }
 
   protected summary(r: Route): string {

@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
@@ -19,7 +20,7 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
 // route looks like.
 @Component({
   selector: 'app-access-badges',
-  imports: [MatIconModule, MatTooltipModule],
+  imports: [MatIconModule, MatTooltipModule, RouterLink],
   template: `
     <span class="set" [class.delegated]="empty()" [class.unguarded]="unguarded()">
       <span class="lvl" [class.on]="gated()" [matTooltip]="levelTip()">{{ levelShort() }}</span>
@@ -30,9 +31,22 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
         <mat-icon>badge</mat-icon><span class="n">{{ access().roles.length || '' }}</span>
       </span>
       @if (endpoints() !== null) {
-        <span class="d d-endpoints" [class.on]="(endpoints() ?? 0) > 0" [matTooltip]="endpointsTip()">
-          <mat-icon>api</mat-icon><span class="n">{{ endpoints() || '' }}</span>
-        </span>
+        @if (endpointsLink(); as link) {
+          <a
+            class="d d-endpoints act"
+            [class.on]="(endpoints() ?? 0) > 0"
+            [routerLink]="link"
+            [queryParams]="endpointsQuery()"
+            [matTooltip]="endpointsTip()"
+            (click)="$event.stopPropagation()"
+          >
+            <mat-icon>api</mat-icon><span class="n">{{ endpoints() || '' }}</span>
+          </a>
+        } @else {
+          <span class="d d-endpoints" [class.on]="(endpoints() ?? 0) > 0" [matTooltip]="endpointsTip()">
+            <mat-icon>api</mat-icon><span class="n">{{ endpoints() || '' }}</span>
+          </span>
+        }
       }
     </span>
   `,
@@ -103,6 +117,15 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
         color: #2f6feb;
         opacity: 1;
       }
+      // Actionable: this one goes somewhere, so it says so on hover.
+      a.act {
+        text-decoration: none;
+        border-radius: 6px;
+      }
+      a.act:hover {
+        background: var(--mat-sys-surface-container-high);
+        opacity: 1;
+      }
       // Nothing gated anywhere: the only state this row raises its voice for.
       .set.unguarded .d,
       .set.unguarded .lvl {
@@ -118,13 +141,22 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
 export class AccessBadgesComponent {
   readonly access = input.required<AccessState>();
   // The number of per-endpoint overrides (RBAC-07). null - the default - means
-  // the caller is showing ONE rule and the question does not arise: inside the
-  // endpoint screen, an operation with no override inherits the route's rule,
-  // it is not unguarded.
+  // the question does not arise here: a route exposing no OpenAPI spec has
+  // nothing to override, and inside the endpoint screen a single operation is
+  // one rule, not a set of them.
   readonly endpoints = input<number | null>(null);
+  // Where that count is edited. Given, the badge becomes the way in - which is
+  // the difference between reading "3 endpoints have their own rule" and being
+  // able to do something about it.
+  readonly endpointsLink = input<string | null>(null);
+  readonly endpointsQuery = input<Record<string, string>>({});
+  // Drawn in the error tone. The caller decides, because only it knows what
+  // "nothing gated" means in its screen: on a list of routes it is a rule
+  // gating nothing anywhere, inside the endpoint screen an operation with no
+  // override simply follows the route.
+  readonly unguarded = input(false);
 
   protected readonly empty = computed(() => isEmpty(this.access()));
-  protected readonly unguarded = computed(() => this.empty() && this.endpoints() === 0);
   protected readonly gated = computed(() => this.access().level !== '');
   // The written form. Kept to a few characters because it sits in a table
   // column: the full sentence is one hover away, and the organisations it

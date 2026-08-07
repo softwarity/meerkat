@@ -80,13 +80,9 @@
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
-    <mat-row
-      *matRowDef="let row; columns: columns"
-      cdkDrag
-      class="clickable"
-      (click)="onRowClick(row)"
-      i18n-title="@@Edit_route"
-      title="Edit route"
-    ></mat-row>
+    <!-- No title on the row: a native tooltip covering the whole width shows
+         up over every badge that has something of its own to say, and the
+         cursor already says the row is clickable. -->
+    <mat-row *matRowDef="let row; columns: columns" cdkDrag class="clickable" (click)="onRowClick(row)"></mat-row>
   </mat-table>
 </div>

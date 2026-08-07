@@ -18,7 +18,9 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
   imports: [MatIconModule, MatTooltipModule],
   template: `
     <span class="set" [class.delegated]="empty()" [class.unguarded]="unguarded()" [matTooltip]="setTip()">
-      <mat-icon class="d d-auth" [class.on]="gated()" [matTooltip]="levelTip()">lock</mat-icon>
+      <span class="d d-auth" [class.on]="gated()" [matTooltip]="levelTip()">
+        <mat-icon>lock</mat-icon><span class="n"></span>
+      </span>
       <span class="d d-tenants" [class.on]="access().level === 'tenant' || access().level === 'tenants'" [matTooltip]="tenantsTip()">
         <mat-icon>corporate_fare</mat-icon><span class="n">{{ access().tenants.length || '' }}</span>
       </span>
@@ -53,6 +55,10 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
         width: 20px;
         height: 20px;
       }
+      // Every dimension reserves the same count slot, the level included even
+      // though it never has a number: without it the icons that DO carry a
+      // count trail two characters of nothing and the row reads unevenly
+      // spaced.
       .n {
         display: inline-block;
         width: 2ch;

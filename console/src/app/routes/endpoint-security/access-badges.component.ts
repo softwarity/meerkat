@@ -21,7 +21,7 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
   selector: 'app-access-badges',
   imports: [MatIconModule, MatTooltipModule],
   template: `
-    <span class="set" [class.delegated]="empty()" [class.unguarded]="unguarded()" [matTooltip]="setTip()">
+    <span class="set" [class.delegated]="empty()" [class.unguarded]="unguarded()">
       <span class="lvl" [class.on]="gated()" [matTooltip]="levelTip()">{{ levelShort() }}</span>
       <span class="d d-users" [class.on]="access().users.length > 0" [matTooltip]="usersTip()">
         <mat-icon>group</mat-icon><span class="n">{{ access().users.length || '' }}</span>
@@ -125,10 +125,6 @@ export class AccessBadgesComponent {
 
   protected readonly empty = computed(() => isEmpty(this.access()));
   protected readonly unguarded = computed(() => this.empty() && this.endpoints() === 0);
-  protected readonly setTip = computed(() => {
-    if (this.unguarded()) return this.unguardedTip;
-    return this.empty() ? this.delegatedTip : '';
-  });
   protected readonly gated = computed(() => this.access().level !== '');
   // The written form. Kept to a few characters because it sits in a table
   // column: the full sentence is one hover away, and the organisations it
@@ -146,12 +142,15 @@ export class AccessBadgesComponent {
         return '\u2014';
     }
   });
-  // The full sentence on hover. The organisations themselves are not listed:
-  // the rule carries ids, which say nothing to a reader, and the route's own
-  // screen shows them by name.
-  protected readonly levelTip = computed(
-    () => ACCESS_LEVELS.find((l) => l.value === this.access().level)?.label ?? '',
-  );
+  // The full sentence on hover, carried by the level chip alone - the set used
+  // to hold one too, and every icon then answered twice. The organisations
+  // themselves are not listed: the rule carries ids, which say nothing to a
+  // reader, and the route's own screen shows them by name.
+  protected readonly levelTip = computed(() => {
+    if (this.unguarded()) return this.unguardedTip;
+    if (this.empty()) return this.delegatedTip;
+    return ACCESS_LEVELS.find((l) => l.value === this.access().level)?.label ?? '';
+  });
   protected readonly delegatedTip = $localize`:@@Delegated_to_backend:No gateway rule — delegated to the API backend`;
   protected readonly unguardedTip = $localize`:@@Nothing_gated_here:Meerkat gates nothing here, on the route or on any endpoint: the service decides alone.`;
   protected readonly endpointsTip = computed(() => {

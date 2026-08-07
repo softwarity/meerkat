@@ -20,7 +20,7 @@
     <ng-container matColumnDef="access">
       <mat-header-cell *matHeaderCellDef class="access-col"></mat-header-cell>
       <mat-cell *matCellDef="let r" class="access-col" [class.off]="!r.enabled">
-        <app-access-badges [access]="accessBadge(r)" />
+        <app-access-badges [access]="accessBadge(r)" [endpoints]="endpointRules(r)" />
       </mat-cell>
     </ng-container>
 

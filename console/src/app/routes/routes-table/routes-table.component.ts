@@ -48,13 +48,20 @@ export class RoutesTableComponent {
     this.reorder.emit(ids);
   }
 
-  // The route's base Access as the badges' non-optional shape (lock / users /
-  // roles icons, activated when set — same as the endpoint-security screen).
+  // The route's base Access as the badges' non-optional shape (level /
+  // organisations / users / roles, same as the endpoint-security screen).
   protected accessBadge(r: Route): AccessState {
     const a = r.access;
     return a
       ? { level: a.level ?? '', tenants: a.tenants ?? [], roles: a.roles ?? [], users: a.users ?? [] }
       : emptyAccess();
+  }
+
+  // How many operations carry their own rule (RBAC-07). Passing it is what
+  // lets the badges tell "delegated on the route, but gated per endpoint" from
+  // "gated nowhere at all" - only the second is drawn as a warning.
+  protected endpointRules(r: Route): number {
+    return r.api?.security?.endpoints?.length ?? 0;
   }
 
   protected summary(r: Route): string {

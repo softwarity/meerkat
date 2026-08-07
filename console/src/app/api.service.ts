@@ -17,10 +17,7 @@ export interface RouteAPIOptions {
 }
 
 // A unified access rule (RBAC-06/07), used as a route-wide default and as a
-// per-endpoint override. Public when nothing is set; otherwise a session is
-// required, and when users or roles are named the caller must be one of the
-// users OR hold one of the roles. Naming a user or role implies authentication.
-// An access rule on two crossed axes (RBAC-06). level says what BELONGING is
+// per-endpoint override, on two crossed axes. level says what BELONGING is
 // required and roles filters on what the caller holds in the ACTIVE
 // organisation; named users are the exception, passing whatever the level
 // asks. Whatever is set here, the upstream still applies its own rules

@@ -302,6 +302,13 @@ export class EndpointSecurityComponent {
     return this.state()[opKey(o.method, o.path)] ?? { override: false, access: emptyAccess() };
   }
 
+  // How many operations carry their own rule, plus the saved overrides that
+  // match no listed operation: what the badges need to tell "delegated on the
+  // route but gated per endpoint" from "gated nowhere at all".
+  protected readonly overrideCount = computed(
+    () => Object.values(this.state()).filter((s) => s.override).length + this.extras().length,
+  );
+
   // The rule actually in force for an operation: its override, or the route default.
   protected effective(o: OpenAPIOperation): AccessState {
     const s = this.stateOf(o);

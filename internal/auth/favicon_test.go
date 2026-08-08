@@ -3,6 +3,7 @@ package auth
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -228,5 +229,32 @@ func TestAdminSignInOffersNoPasskey(t *testing.T) {
 
 	if strings.Contains(rec.Body.String(), "pk-login") {
 		t.Fatal("the admin sign-in page must not offer a passkey it cannot honour")
+	}
+}
+
+// The user button injected into the application's pages follows the imposed
+// scheme too. It read the visitor's cookie on its own, so a light-only install
+// still handed out a dark button - on the very pages the choice exists for.
+func TestUserButtonFollowsTheImposedScheme(t *testing.T) {
+	mux, _, st := setupFlow(t)
+	if err := st.SetSetting(context.Background(), store.SettingPagesScheme, "light"); err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/meerkat/user-button.json", nil)
+	// The visitor asked for dark on the flow pages: the integrator's choice wins.
+	req.AddCookie(&http.Cookie{Name: "MEERKAT_SCHEME", Value: "dark"})
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	var payload struct {
+		Scheme        string `json:"scheme"`
+		SchemeImposed bool   `json:"schemeImposed"`
+	}
+	if err := json.NewDecoder(rec.Body).Decode(&payload); err != nil {
+		t.Fatalf("payload: %v", err)
+	}
+	if payload.Scheme != "light" || !payload.SchemeImposed {
+		t.Fatalf("got scheme %q imposed=%v, want light imposed", payload.Scheme, payload.SchemeImposed)
 	}
 }

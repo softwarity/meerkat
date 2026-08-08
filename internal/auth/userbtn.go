@@ -69,6 +69,12 @@ type userButtonPayload struct {
 	// filtered to class-safe tokens - what roles.js stamps on <body>.
 	Roles  []string `json:"roles,omitempty"`
 	Scheme string   `json:"scheme"`
+	// SchemeImposed says the integrator settled the light/dark question
+	// (THEME-05): the button wears that scheme, stops following the system and
+	// the visitor's cookie, and drops its own switch. Without this it kept
+	// reading the cookie on its own and stayed dark on a light-only install -
+	// the one place the choice was supposed to be visible.
+	SchemeImposed bool `json:"schemeImposed,omitempty"`
 	// Issues turns the "Report an issue" panel on (ISSUE-01): the tracker
 	// setting is enabled AND the caller is signed in. It travels here (this
 	// payload is no-store) because the component JS is cached for 5 minutes.
@@ -119,8 +125,12 @@ func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 	// Lang/Labels are Meerkat's OWN strings, in a flow-page (embedded)
 	// language - a different level from the route's forwarded locales, which
 	// the component resolves itself from its `languages` attribute.
+	scheme, imposed := p.Scheme, false
+	if forced := h.imposedScheme(); forced != "" {
+		scheme, imposed = forced, true
+	}
 	payload := userButtonPayload{
-		Scheme: p.Scheme, Labels: labels,
+		Scheme: scheme, SchemeImposed: imposed, Labels: labels,
 		ThemeCSS: strings.Replace(string(css), ":root", ":host", 1),
 	}
 
@@ -221,13 +231,22 @@ const userButtonJS = `(() => {
       // system colors follow the host's color-scheme. The PAGE is only
       // driven when the route offers the switch (scheme="select").
       this.applyScheme(getCookie(COOKIE_SCHEME) || 'auto');
-      // In auto, follow the system live (attribute/class mechanisms included).
+      // In auto, follow the system live (attribute/class mechanisms included)
+      // - unless the integrator settled it, which the payload tells us below.
       darkMedia.addEventListener('change', () => {
+        if (this.schemeImposed) return;
         if ((getCookie(COOKIE_SCHEME) || 'auto') === 'auto') this.applyScheme('auto');
       });
       fetch('/meerkat/user-button.json', { credentials: 'same-origin' })
         .then(r => r.json())
         .then(data => {
+          // The integrator settled light/dark: wear it, whatever the cookie or
+          // the system say. Applied before rendering so the button never shows
+          // one look and then swaps.
+          if (data.schemeImposed) {
+            this.schemeImposed = true;
+            this.applyScheme(data.scheme);
+          }
           // A dev on a UI route also asks whether a UI test runs here
           // (uisim.go) - the developer bar and the frame render from it.
           const route = this.getAttribute('route');
@@ -343,7 +362,7 @@ const userButtonJS = `(() => {
         // The head IS the profile link (one entry saved), and the 3-state
         // scheme button rides ITS line (another entry saved): auto -> light
         // -> dark, same glyphs as the flow pages' switcher.
-        const schemeBtn = this.getAttribute('scheme') === 'select'
+        const schemeBtn = this.getAttribute('scheme') === 'select' && !data.schemeImposed
           ? '<button class="sw on" data-scheme-cycle="' + (SCHEME_NEXT[data.scheme] || 'light') +
             '" title="' + esc(L.colorScheme) + '">' + (SCHEME_ICONS[data.scheme] || '◐') + '</button>'
           : '';

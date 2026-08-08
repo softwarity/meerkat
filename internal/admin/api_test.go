@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/softwarity/meerkat/internal/features"
 	"github.com/softwarity/meerkat/internal/gateway"
 	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
@@ -24,6 +25,11 @@ type fixture struct {
 
 func setup(t *testing.T) fixture {
 	t.Helper()
+	// Every Enterprise feature on: these tests are about the API's behaviour,
+	// not about what an edition sells. The refusals themselves are pinned in
+	// edition_test.go, which starts from nothing enabled.
+	features.Enable(features.All...)
+	t.Cleanup(features.Reset)
 	st, err := store.Open(t.TempDir())
 	if err != nil {
 		t.Fatalf("store.Open: %v", err)

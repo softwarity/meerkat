@@ -16,6 +16,7 @@ import (
 
 	"golang.org/x/text/language"
 
+	"github.com/softwarity/meerkat/internal/features"
 	"github.com/softwarity/meerkat/internal/store"
 )
 
@@ -166,9 +167,44 @@ func (a *API) me(w http.ResponseWriter, r *http.Request, actor store.User) {
 	if administered, err := a.st.ListTenantsAdministeredBy(r.Context(), actor.ID); err == nil {
 		tenantAdmin = len(administered) > 0
 	}
+	// The mode, and the organisation a single installation serves: the console
+	// targets it for Groups, Members and the rules without ever naming it.
+	tenancy := a.st.Tenancy(r.Context())
+	primary := ""
+	if p, err := a.st.PrimaryTenant(r.Context()); err == nil {
+		primary = p.ID
+	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"user": actor, "tenants": tenants, "activeTenant": activeTenant, "tenantAdmin": tenantAdmin,
+		"tenancy": tenancy, "primaryTenant": primary,
 	})
+}
+
+// requireBusinessHours refuses a CHANGE to a working-hours window without the
+// feature. Saving the window one already has is not a change, which matters:
+// every screen that carries hours saves them alongside everything else, so a
+// plain rename would otherwise be refused for a field nobody touched.
+func (a *API) requireBusinessHours(ctx context.Context, want store.BusinessAccess, key string) error {
+	var current store.BusinessAccess
+	if err := a.st.GetSetting(ctx, key, &current); err == nil && businessAccessEqual(current, want) {
+		return nil
+	}
+	return features.Require(features.BusinessHours)
+}
+
+// businessAccessEqual compares two windows by value; the day list is ordered,
+// so a plain element-wise walk is the comparison.
+func businessAccessEqual(a, b store.BusinessAccess) bool {
+	if a.Inherited != b.Inherited || a.Timezone != b.Timezone ||
+		a.DateFrom != b.DateFrom || a.DateTo != b.DateTo || len(a.Days) != len(b.Days) {
+		return false
+	}
+	for i := range a.Days {
+		if a.Days[i] != b.Days[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // ── users (root scope) ───────────────────────────────────────────────────────
@@ -527,6 +563,14 @@ func (a *API) createTenant(w http.ResponseWriter, r *http.Request, actor store.U
 		writeErr(w, http.StatusForbidden, "creating tenants requires root or the tenant-creator superpower")
 		return
 	}
+	// A SECOND organisation is what the licence covers - every installation
+	// owns one from its first boot, and single-tenant mode never names it.
+	if n, err := a.st.CountTenants(r.Context()); err == nil && n >= 1 {
+		if err := features.Require(features.MultiTenant); err != nil {
+			writeErr(w, http.StatusForbidden, err.Error())
+			return
+		}
+	}
 	var t store.Tenant
 	if err := decodeStrict(r, &t); err != nil {
 		writeErr(w, http.StatusBadRequest, "malformed tenant: "+err.Error())
@@ -608,6 +652,12 @@ func (a *API) updateTenant(w http.ResponseWriter, r *http.Request, actor store.U
 	if err != nil {
 		writeErr(w, http.StatusNotFound, "tenant not found")
 		return
+	}
+	if !businessAccessEqual(existing.BusinessAccess, t.BusinessAccess) {
+		if err := features.Require(features.BusinessHours); err != nil {
+			writeErr(w, http.StatusForbidden, err.Error())
+			return
+		}
 	}
 	// Ownership is NOT changed by the general update — it is transferred in the
 	// Danger zone (POST .../owner). Carry the stored owner forward whatever the
@@ -697,6 +747,15 @@ func (a *API) putMember(w http.ResponseWriter, r *http.Request, actor store.User
 	old, hadMembership := store.Membership{}, false
 	if prev, err := a.st.GetMembership(r.Context(), userID, tenantID); err == nil {
 		old, hadMembership = prev, true
+	}
+	// A per-person window is the third level of the same feature. Joining
+	// someone or flipping their type is not: only a CHANGE to the hours asks
+	// for the licence.
+	if !businessAccessEqual(old.BusinessAccess, m.BusinessAccess) {
+		if err := features.Require(features.BusinessHours); err != nil {
+			writeErr(w, http.StatusForbidden, err.Error())
+			return
+		}
 	}
 	// Ownership is not a membership type — SaveMembership rejects OWNER (422).
 	// Ownership is transferred through POST .../owner (TENANT-02).
@@ -932,6 +991,14 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 			return
 		}
 		p.Languages[i] = tag.String()
+	}
+	// Working hours (TENANT-04) are internal control rather than security - no
+	// attacker is stopped by opening hours - which is why they are sold while
+	// MFA never will be. Gated on the WRITE only: a window already in place
+	// keeps applying, licence or not.
+	if err := a.requireBusinessHours(r.Context(), p.BusinessAccess, store.SettingBusinessAccess); err != nil {
+		writeErr(w, http.StatusForbidden, err.Error())
+		return
 	}
 	if err := a.st.SetSetting(r.Context(), store.SettingBusinessAccess, p.BusinessAccess); err != nil {
 		a.internal(w, err)

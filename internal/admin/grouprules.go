@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/softwarity/meerkat/internal/features"
 	"github.com/softwarity/meerkat/internal/store"
 )
 
@@ -125,6 +126,13 @@ func (a *API) saveRule(w http.ResponseWriter, r *http.Request, actor store.User,
 }
 
 func (a *API) createGroupRule(w http.ResponseWriter, r *http.Request, actor store.User) {
+	// A rule exists only to project what a DIRECTORY declares, so it belongs to
+	// the same feature. Reading and applying existing rules is untouched: what
+	// a licence gates is writing.
+	if err := features.Require(features.Directories); err != nil {
+		writeErr(w, http.StatusForbidden, err.Error())
+		return
+	}
 	var rule store.GroupRule
 	if err := decodeStrict(r, &rule); err != nil {
 		writeErr(w, http.StatusBadRequest, "malformed rule: "+err.Error())
@@ -135,6 +143,10 @@ func (a *API) createGroupRule(w http.ResponseWriter, r *http.Request, actor stor
 }
 
 func (a *API) updateGroupRule(w http.ResponseWriter, r *http.Request, actor store.User) {
+	if err := features.Require(features.Directories); err != nil {
+		writeErr(w, http.StatusForbidden, err.Error())
+		return
+	}
 	var rule store.GroupRule
 	if err := decodeStrict(r, &rule); err != nil {
 		writeErr(w, http.StatusBadRequest, "malformed rule: "+err.Error())

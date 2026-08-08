@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/softwarity/meerkat/internal/features"
 	"github.com/softwarity/meerkat/internal/idp"
 	"github.com/softwarity/meerkat/internal/store"
 	"github.com/softwarity/meerkat/internal/vault"
@@ -150,6 +151,18 @@ func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor stor
 			" (allowed: "+store.ProviderOIDC+", "+store.ProviderLDAP+", "+store.ProviderSAML+")")
 		return
 	}
+	// A directory or a SAML federation is what the licence covers. OIDC and
+	// GitHub stay community on purpose: without a free path to a modern
+	// identity provider this would be a toll rather than an edition, and what
+	// is bought here is plugging an existing estate in DIRECTLY.
+	//
+	// Only the WRITE is gated. A provider already declared keeps authenticating
+	// whatever the licence says - cutting sign-in over a contract would make
+	// this undeployable in front of a production.
+	if err := requiredFeatureFor(p.Kind); err != nil {
+		writeErr(w, http.StatusForbidden, err.Error())
+		return
+	}
 	// The local accounts are ONE seeded entry (AUTH-24): its name and its
 	// switch are editable, its identity is not. A second one would be a second
 	// answer to the same question.
@@ -290,4 +303,15 @@ func (a *API) dataOrigin(r *http.Request) string {
 		host = name + host
 	}
 	return scheme + "://" + host
+}
+
+// requiredFeatureFor maps an authority kind to the feature that may declare it.
+func requiredFeatureFor(kind string) error {
+	switch kind {
+	case store.ProviderLDAP:
+		return features.Require(features.Directories)
+	case store.ProviderSAML:
+		return features.Require(features.SAML)
+	}
+	return nil
 }

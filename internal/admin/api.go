@@ -68,6 +68,7 @@ func (a *API) Register(mux *http.ServeMux) {
 	a.registerAdminTokens(mux)
 	a.registerAPIDocs(mux)
 	a.registerIssues(mux)
+	a.registerEdition(mux)
 	a.registerConfig(mux)
 	a.registerBackup(mux)
 	a.auditRegisterViewer(mux)

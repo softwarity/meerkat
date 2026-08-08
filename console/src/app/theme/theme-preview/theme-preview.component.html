@@ -1,6 +1,13 @@
 <div class="duo" #duo>
   <div class="pane" [style.height.px]="paneHeight()" [style.width.px]="paneWidth()">
-    <span class="badge"><mat-icon inline>dark_mode</mat-icon> <ng-container i18n="@@Dark">Dark</ng-container></span>
+    <span class="badge">
+      <mat-checkbox
+        [checked]="darkOffered()"
+        [disabled]="darkOffered() && !lightOffered()"
+        (change)="offer('dark', $event.checked)"
+        matTooltip="Uncheck to stop offering this scheme on the built-in pages"
+      ><mat-icon inline>dark_mode</mat-icon> <ng-container i18n="@@Dark">Dark</ng-container></mat-checkbox>
+    </span>
     @if (darkUrl(); as url) {
       <iframe
         [src]="url"
@@ -11,7 +18,14 @@
     }
   </div>
   <div class="pane" [style.height.px]="paneHeight()" [style.width.px]="paneWidth()">
-    <span class="badge"><mat-icon inline>light_mode</mat-icon> <ng-container i18n="@@Light">Light</ng-container></span>
+    <span class="badge">
+      <mat-checkbox
+        [checked]="lightOffered()"
+        [disabled]="lightOffered() && !darkOffered()"
+        (change)="offer('light', $event.checked)"
+        matTooltip="Uncheck to stop offering this scheme on the built-in pages"
+      ><mat-icon inline>light_mode</mat-icon> <ng-container i18n="@@Light">Light</ng-container></mat-checkbox>
+    </span>
     @if (lightUrl(); as url) {
       <iframe
         [src]="url"

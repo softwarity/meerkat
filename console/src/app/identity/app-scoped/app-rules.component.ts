@@ -23,7 +23,9 @@ import { TenantScope } from '../tenant-scope';
     <div class="banner">
       <h1 i18n="@@Group_rules">Group rules</h1>
     </div>
-    <app-tenant-rules ee-feature="directories" />
+    <div class="panel">
+      <app-tenant-rules ee-feature="directories" />
+    </div>
   `,
   styles: [
     `
@@ -46,7 +48,18 @@ import { TenantScope } from '../tenant-scope';
         margin: 0;
         flex: 1;
       }
-      app-tenant-rules {
+      /* The same frame the organisation page gives its sections: without it
+         the matrix touched the window edges here and nowhere else. */
+      .panel {
+        flex: 1 1 auto;
+        min-height: 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 0 24px 20px;
+      }
+      .panel > * {
         flex: 1 1 auto;
         min-height: 0;
       }

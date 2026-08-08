@@ -63,12 +63,14 @@ import { GroupsMatrixComponent } from '../groups-matrix/groups-matrix.component'
     </div>
 
     @if (tenantId(); as id) {
-      <app-groups-matrix
-        [tenantId]="id"
-        [filter]="filter()"
-        [tagFilter]="tagFilter()"
-        (availableTags)="tags.set($event)"
-      />
+      <div class="panel">
+        <app-groups-matrix
+          [tenantId]="id"
+          [filter]="filter()"
+          [tagFilter]="tagFilter()"
+          (availableTags)="tags.set($event)"
+        />
+      </div>
     }
   `,
   styles: [
@@ -108,7 +110,18 @@ import { GroupsMatrixComponent } from '../groups-matrix/groups-matrix.component'
         flex: 1 1 240px;
         max-width: 420px;
       }
-      app-groups-matrix {
+      /* The same frame the organisation page gives its sections: without it
+         the matrix touched the window edges here and nowhere else. */
+      .panel {
+        flex: 1 1 auto;
+        min-height: 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 0 24px 20px;
+      }
+      .panel > * {
         flex: 1 1 auto;
         min-height: 0;
       }

@@ -159,20 +159,22 @@ export class ThemePageComponent {
   }
 
   // Branding is global - its persistence is deliberately separate from themes.
-  protected setPagesScheme(value: '' | 'light' | 'dark'): void {
+  protected onPagesScheme(value: '' | 'light' | 'dark'): void {
+    this.pagesScheme.set(value);
+    this.savePagesScheme(value);
+  }
+
+  // Saved as soon as a box is ticked: the two checkboxes ARE the setting, so
+  // asking for a Save button beside them would be asking twice.
+  private savePagesScheme(value: '' | 'light' | 'dark'): void {
     const current = this.settings;
     if (!current) return;
-    const previous = this.pagesScheme();
-    this.pagesScheme.set(value);
     this.api.saveSettings({ ...current, pagesScheme: value }).subscribe({
       next: (s) => {
         this.settings = s;
         this.snack.open($localize`:@@Saved:Saved`, undefined, { duration: 2000 });
       },
-      error: (err) => {
-        this.pagesScheme.set(previous); // put the screen back where it was
-        this.snack.open(errMsg(err), undefined, { duration: 4000 });
-      },
+      error: (err) => this.snack.open(errMsg(err), undefined, { duration: 4000 }),
     });
   }
 

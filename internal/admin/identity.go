@@ -653,7 +653,9 @@ func (a *API) updateTenant(w http.ResponseWriter, r *http.Request, actor store.U
 		writeErr(w, http.StatusNotFound, "tenant not found")
 		return
 	}
-	if !businessAccessEqual(existing.BusinessAccess, t.BusinessAccess) {
+	// Same rule as a membership: inheriting poses no window, so it asks for
+	// nothing.
+	if !t.BusinessAccess.Inherited && !businessAccessEqual(existing.BusinessAccess, t.BusinessAccess) {
 		if err := features.Require(features.BusinessHours); err != nil {
 			writeErr(w, http.StatusForbidden, err.Error())
 			return
@@ -749,9 +751,14 @@ func (a *API) putMember(w http.ResponseWriter, r *http.Request, actor store.User
 		old, hadMembership = prev, true
 	}
 	// A per-person window is the third level of the same feature. Joining
-	// someone or flipping their type is not: only a CHANGE to the hours asks
+	// someone or flipping their type is not: only a window of THEIR OWN asks
 	// for the licence.
-	if !businessAccessEqual(old.BusinessAccess, m.BusinessAccess) {
+	//
+	// Inherited is the test, not "did the value change". A brand new membership
+	// has no previous one to compare against, and the zero value of a struct is
+	// not "inherited" - so creating one, which is what ticking a group does,
+	// was refused for a feature the tick has nothing to do with.
+	if !m.BusinessAccess.Inherited && !businessAccessEqual(old.BusinessAccess, m.BusinessAccess) {
 		if err := features.Require(features.BusinessHours); err != nil {
 			writeErr(w, http.StatusForbidden, err.Error())
 			return

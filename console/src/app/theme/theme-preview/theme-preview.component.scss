@@ -44,7 +44,10 @@
   color: var(--mat-sys-on-secondary-container);
   background: color-mix(in srgb, var(--mat-sys-secondary-container) 85%, transparent);
   backdrop-filter: blur(4px);
-  pointer-events: none;
+  /* It used to be a decoration lying over the frame, so it ignored the mouse.
+     It now holds the checkbox that decides whether this scheme is offered at
+     all, so it has to be clickable. */
+  cursor: pointer;
 }
 
 iframe {

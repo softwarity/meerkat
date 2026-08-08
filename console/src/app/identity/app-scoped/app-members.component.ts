@@ -29,7 +29,9 @@ import { MembersMatrixComponent } from '../members-matrix/members-matrix.compone
     </div>
 
     @if (tenantId(); as id) {
-      <app-members-matrix [tenantId]="id" [ownerId]="ownerId()" [filter]="filter()" />
+      <div class="panel">
+        <app-members-matrix [tenantId]="id" [ownerId]="ownerId()" [filter]="filter()" />
+      </div>
     }
   `,
   styles: [
@@ -61,7 +63,18 @@ import { MembersMatrixComponent } from '../members-matrix/members-matrix.compone
         width: 100%;
         max-width: 420px;
       }
-      app-members-matrix {
+      /* The same frame the organisation page gives its sections: without it
+         the matrix touched the window edges here and nowhere else. */
+      .panel {
+        flex: 1 1 auto;
+        min-height: 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 0 24px 20px;
+      }
+      .panel > * {
         flex: 1 1 auto;
         min-height: 0;
       }

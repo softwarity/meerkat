@@ -209,3 +209,24 @@ func TestPagesSchemeCanBeImposed(t *testing.T) {
 		})
 	}
 }
+
+// The passkey block (registering one, signing in with one) is mounted on the
+// data plane only, so offering the button on the admin sign-in page pointed at
+// an endpoint that is not there - and nothing in the console can register a key
+// to begin with.
+func TestAdminSignInOffersNoPasskey(t *testing.T) {
+	st, err := store.Open(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = st.Close() })
+
+	mux := http.NewServeMux()
+	NewAdmin(st, session.NewManager(st)).Register(mux)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/login", nil))
+
+	if strings.Contains(rec.Body.String(), "pk-login") {
+		t.Fatal("the admin sign-in page must not offer a passkey it cannot honour")
+	}
+}

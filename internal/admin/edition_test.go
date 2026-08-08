@@ -177,3 +177,28 @@ func TestConsoleStampCarriesTheEdition(t *testing.T) {
 		}
 	}
 }
+
+// Joining someone to an organisation is not a working-hours change, and the
+// community edition must be able to do it. Ticking a group in the members
+// matrix creates the membership, and that was refused with "business-hours is
+// an Enterprise feature" - for a window the tick never touched.
+func TestJoiningSomeoneNeedsNoLicence(t *testing.T) {
+	f := setup(t)
+	// AFTER setup: the fixture turns every feature on so the general tests do
+	// not trip over licensing, so resetting before it would be undone.
+	features.Reset()
+
+	code, body := f.call(t, "PUT", "/api/tenants/default/members/bob",
+		`{"type":"USER","enabled":true,"businessAccess":{"inherited":true},"sessionTTL":""}`, f.rootC)
+	if code != http.StatusOK {
+		t.Fatalf("joining refused in the community edition: %d %s", code, body)
+	}
+
+	// A window of their OWN is the Enterprise feature, and stays refused.
+	code, body = f.call(t, "PUT", "/api/tenants/default/members/bob",
+		`{"type":"USER","enabled":true,"businessAccess":{"inherited":false,"timezone":"Europe/Paris","days":[{"day":1,"from":"09:00","to":"18:00"}]},"sessionTTL":""}`,
+		f.rootC)
+	if code != http.StatusForbidden {
+		t.Fatalf("a per-person window must ask for the licence, got %d %s", code, body)
+	}
+}

@@ -2109,7 +2109,13 @@ func (h *Handler) render(w http.ResponseWriter, r *http.Request, next, errMsg st
 		Public: h.publicLinks(r.Context()),
 		// A passkey is a shortcut to an authority: with every one of them off,
 		// it opens nothing, so it is not offered.
-		Passkeys: h.st.PasskeysAllowed(r.Context()) && h.anyAuthorityEnabled(r.Context()),
+		//
+		// And never on the ADMIN plane: the whole passkey block - registering
+		// one, signing in with one - is mounted on the data plane only, so the
+		// button was offering a door with no handle. It called an endpoint that
+		// does not exist there, and nothing in the console let anyone register
+		// a key in the first place.
+		Passkeys: !h.adminPlane && h.st.PasskeysAllowed(r.Context()) && h.anyAuthorityEnabled(r.Context()),
 		Register: h.selfRegisterOpen(r.Context()), Forgot: h.forgotOpen(r),
 		Providers:   h.redirectProviders(r.Context()),
 		Credentials: h.credentialFormOpen(r.Context()),

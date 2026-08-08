@@ -65,6 +65,13 @@ type Router struct {
 	// signing holds the gateway's identity signing keys (signed-jwt). Loaded
 	// at Reload; nil until a route uses signed-jwt or the admin generates them.
 	signing *signing.Set
+
+	// tagsMu guards the catalogue's tag -> role names table, read by routes
+	// that narrow what they forward. Cached: the catalogue changes far less
+	// often than requests arrive, and a few seconds late is invisible.
+	tagsMu     sync.Mutex
+	tagsCache  map[string][]string
+	tagsReadAt time.Time
 }
 
 type compiledRoute struct {
@@ -543,6 +550,9 @@ func validateRouteType(r store.Route) error {
 				return fmt.Errorf("identity attribute %q is set twice", a.Field)
 			}
 			seen[a.Field] = true
+			if len(a.Tags) > 0 && a.Field != "roles" {
+				return fmt.Errorf("identity attribute %q cannot be narrowed by tags: only roles carry them", a.Field)
+			}
 			if a.TrimPrefix != "" {
 				if a.Field != "roles" {
 					return fmt.Errorf("identity attribute %q cannot trim a prefix: only roles carry one", a.Field)
@@ -703,14 +713,18 @@ var tagNameOK = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9-]*$`)
 // Every token is validated (validateRouteType) or HTML-escaped, so no free
 // text ever reaches the page.
 type identityData struct {
-	UserID   string
-	Username string
-	Fullname string
-	Email    string
-	Timezone string
-	TenantID string
-	Tenant   string
-	Roles    []string
+	// RolesByTag maps a catalogue tag to the role NAMES carrying it, for the
+	// attributes that narrow what they forward. Read from a short-lived cache:
+	// a catalogue changes far less often than requests arrive.
+	RolesByTag map[string][]string
+	UserID     string
+	Username   string
+	Fullname   string
+	Email      string
+	Timezone   string
+	TenantID   string
+	Tenant     string
+	Roles      []string
 }
 
 // sessionIdentity resolves the caller for per-request injections and
@@ -758,8 +772,35 @@ func (rt *Router) sessionIdentity(req *http.Request) (identityData, bool) {
 				}
 			}
 		}
+		if len(d.Roles) > 0 {
+			d.RolesByTag = rt.rolesByTag(req)
+		}
 	}
 	return d, true
+}
+
+// rolesByTag returns the catalogue as tag -> role names, from a short-lived
+// cache.
+func (rt *Router) rolesByTag(req *http.Request) map[string][]string {
+	rt.tagsMu.Lock()
+	defer rt.tagsMu.Unlock()
+	if time.Since(rt.tagsReadAt) < 5*time.Second && rt.tagsCache != nil {
+		return rt.tagsCache
+	}
+	roles, err := rt.st.ListRoles(req.Context())
+	if err != nil {
+		// Keeping the previous table beats forwarding nothing: a database
+		// hiccup must not silently strip every role from every request.
+		return rt.tagsCache
+	}
+	byTag := map[string][]string{}
+	for _, r := range roles {
+		for _, tag := range r.Tags {
+			byTag[tag] = append(byTag[tag], r.Name)
+		}
+	}
+	rt.tagsCache, rt.tagsReadAt = byTag, time.Now()
+	return byTag
 }
 
 // onlyMembership returns the organisation a caller belongs to when there is
@@ -1274,7 +1315,7 @@ func identityHeaderPairs(cfg store.IdentityForward, d identityData) []IdentityHe
 			if len(d.Roles) == 0 {
 				continue
 			}
-			roles := trimRolePrefix(d.Roles, a.TrimPrefix)
+			roles := trimRolePrefix(keepTagged(d.Roles, a.Tags, d.RolesByTag), a.TrimPrefix)
 			if a.AsJSON {
 				b, err := json.Marshal(roles)
 				if err != nil {
@@ -1288,6 +1329,28 @@ func identityHeaderPairs(cfg store.IdentityForward, d identityData) []IdentityHe
 		}
 		if v := userFieldValue(d, a.Field); v != "" {
 			out = append(out, IdentityHeader{Name: name, Value: v})
+		}
+	}
+	return out
+}
+
+// keepTagged narrows roles to those carrying one of the wanted catalogue tags.
+// No tag wanted means no narrowing - which is what every route does until
+// someone decides otherwise.
+func keepTagged(roles, wanted []string, tagged map[string][]string) []string {
+	if len(wanted) == 0 || len(roles) == 0 {
+		return roles
+	}
+	keep := make(map[string]bool)
+	for _, tag := range wanted {
+		for _, name := range tagged[tag] {
+			keep[name] = true
+		}
+	}
+	out := roles[:0:0]
+	for _, r := range roles {
+		if keep[r] {
+			out = append(out, r)
 		}
 	}
 	return out
@@ -1360,7 +1423,7 @@ func identityClaims(cfg store.IdentityForward, routeName string, d identityData)
 			name = a.Field
 		}
 		if a.Field == "roles" {
-			roles := trimRolePrefix(d.Roles, a.TrimPrefix)
+			roles := trimRolePrefix(keepTagged(d.Roles, a.Tags, d.RolesByTag), a.TrimPrefix)
 			if a.AsJSON {
 				claims[name] = roles
 			} else {

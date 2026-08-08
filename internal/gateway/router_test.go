@@ -992,3 +992,51 @@ func TestRolePrefixIsTrimmedOnlyWhenAsked(t *testing.T) {
 		t.Fatalf("got %q", got[0].Value)
 	}
 }
+
+// Narrowing what a route forwards, by catalogue tag. The reason it exists is
+// weight: 320 roles is 9 KB of header on every request, sent to a service that
+// uses four of them - and some upstreams refuse a header that size outright.
+func TestRolesAreNarrowedByTag(t *testing.T) {
+	byTag := map[string][]string{
+		"FPL":   {"ROLE_APP_FPL", "ROLE_FPL_USER"},
+		"CLIM":  {"ROLE_APP_CLIM"},
+		"OTHER": {"ROLE_CONFIGURATOR", "ROLE_PLOTTING"},
+	}
+	held := identityData{
+		Roles:      []string{"ROLE_APP_FPL", "ROLE_FPL_USER", "ROLE_APP_CLIM", "ROLE_CONFIGURATOR"},
+		RolesByTag: byTag,
+	}
+
+	for _, tc := range []struct {
+		name string
+		tags []string
+		want string
+	}{
+		{"no tag sends everything", nil, "ROLE_APP_FPL,ROLE_FPL_USER,ROLE_APP_CLIM,ROLE_CONFIGURATOR"},
+		{"one tag", []string{"FPL"}, "ROLE_APP_FPL,ROLE_FPL_USER"},
+		// A module gathers roles no name pattern would: OTHER holds
+		// CONFIGURATOR and PLOTTING, which is why this is by tag.
+		{"two tags, union", []string{"FPL", "OTHER"}, "ROLE_APP_FPL,ROLE_FPL_USER,ROLE_CONFIGURATOR"},
+		{"a tag the caller holds nothing of", []string{"CLIM"}, "ROLE_APP_CLIM"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got := identityHeaderPairs(store.IdentityForward{
+				Mechanism:  "headers",
+				Attributes: []store.IdentityAttr{{Field: "roles", As: "roles", Tags: tc.tags}},
+			}, held)
+			if len(got) != 1 || got[0].Value != tc.want {
+				t.Fatalf("got %+v, want %q", got, tc.want)
+			}
+		})
+	}
+
+	// The narrowing composes with the prefix trim, in that order: the tags
+	// name roles as the catalogue holds them.
+	got := identityHeaderPairs(store.IdentityForward{
+		Mechanism:  "headers",
+		Attributes: []store.IdentityAttr{{Field: "roles", As: "roles", Tags: []string{"FPL"}, TrimPrefix: "ROLE_"}},
+	}, held)
+	if got[0].Value != "APP_FPL,FPL_USER" {
+		t.Fatalf("got %q", got[0].Value)
+	}
+}

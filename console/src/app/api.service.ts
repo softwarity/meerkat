@@ -162,6 +162,9 @@ export interface IdentityAttr {
   field: string;
   as?: string;
   asJson?: boolean;
+  // Narrows which roles travel to those carrying one of these catalogue tags
+  // (roles only). Empty sends them all.
+  tags?: string[];
   // Drops a common head from every role before it travels (roles only): a
   // catalogue mirroring another system carries one, and it is dead weight on
   // the wire. Off by default - a service testing for ROLE_ADMIN needs it.

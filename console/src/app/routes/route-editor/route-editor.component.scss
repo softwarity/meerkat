@@ -340,7 +340,18 @@ header .ui-toggle {
   margin-right: 4px;
 }
 
-/* Roles only: the head to drop from each one before it travels. */
+/* Roles only: which ones travel, and the head to drop from each. */
+.id-tags {
+  flex: 0 0 150px;
+}
+
 .id-trim {
-  flex: 0 0 130px;
+  flex: 0 0 120px;
+}
+
+/* What the choice above costs on the wire, on this catalogue. */
+.id-weight {
+  margin: 2px 0 10px 30px;
+  font-size: 0.76rem;
+  color: var(--mat-sys-on-surface-variant);
 }

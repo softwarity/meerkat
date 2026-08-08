@@ -262,9 +262,18 @@ export class RouteEditorComponent {
         // The mapping input starts on the attribute's own name (the default a
         // fact travels under); the admin overwrites it to rename. buildRoute
         // drops it again when it still equals the field name.
-        return [f, { selected, as: found?.as || f, asJson: found?.asJson ?? false, trimPrefix: found?.trimPrefix ?? '' }];
+        return [
+          f,
+          {
+            selected,
+            as: found?.as || f,
+            asJson: found?.asJson ?? false,
+            trimPrefix: found?.trimPrefix ?? '',
+            tags: found?.tags ?? [],
+          },
+        ];
       }),
-    ) as Record<string, { selected: boolean; as: string; asJson: boolean; trimPrefix: string }>,
+    ) as Record<string, { selected: boolean; as: string; asJson: boolean; trimPrefix: string; tags: string[] }>,
   }));
 
   // The APPLICATION's locale offer, shown read-only (managed in Application
@@ -359,6 +368,31 @@ export class RouteEditorComponent {
   // Dropping it saves it on every request - 320 roles is 1600 bytes of the
   // same five characters - and it is opt-in: a service testing for ROLE_ADMIN
   // has to keep receiving it.
+  // The tags a catalogue actually uses, for the narrowing picker.
+  protected readonly roleTags = computed(() =>
+    [...new Set(this.roles().flatMap((r) => r.tags ?? []))].sort(),
+  );
+
+  // What the header will WEIGH, on this catalogue. Without it the setting is
+  // blind: the whole point is that 320 roles are 9 KB on every request, and
+  // the only way to see a narrowing work is to watch that number fall.
+  protected readonly rolesWeight = computed(() => {
+    const attr = this.draft().identityAttrs['roles'];
+    const wanted = new Set(attr.tags);
+    const kept = this.roles()
+      .filter((r) => wanted.size === 0 || (r.tags ?? []).some((t) => wanted.has(t)))
+      .map((r) => (attr.trimPrefix ? r.name.replace(attr.trimPrefix, '') : r.name));
+    const bytes = attr.asJson ? JSON.stringify(kept).length : kept.join(',').length;
+    return { count: kept.length, bytes };
+  });
+
+  protected setAttrTags(tags: string[]): void {
+    this.draft.update((d) => ({
+      ...d,
+      identityAttrs: { ...d.identityAttrs, roles: { ...d.identityAttrs['roles'], tags } },
+    }));
+  }
+
   protected setAttrTrim(prefix: string): void {
     this.draft.update((d) => ({
       ...d,
@@ -681,6 +715,7 @@ export class RouteEditorComponent {
       if (as && as !== f) a.as = as;
       if (f === 'roles' && d.identityAttrs[f].asJson) a.asJson = true;
       if (f === 'roles' && d.identityAttrs[f].trimPrefix.trim()) a.trimPrefix = d.identityAttrs[f].trimPrefix.trim();
+      if (f === 'roles' && d.identityAttrs[f].tags.length) a.tags = d.identityAttrs[f].tags;
       return a;
     });
     const identity: IdentityForward = { mechanism: d.identityMechanism, attributes };

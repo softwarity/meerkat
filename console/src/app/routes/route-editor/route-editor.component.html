@@ -224,6 +224,19 @@
                   </button>
                 </mat-form-field>
                 @if (field === 'roles') {
+                  <mat-form-field class="id-tags" subscriptSizing="dynamic">
+                    <mat-label i18n="@@Only_tagged">Only tagged</mat-label>
+                    <mat-select
+                      multiple
+                      [value]="draft().identityAttrs['roles'].tags"
+                      [disabled]="!draft().identityAttrs['roles'].selected"
+                      (selectionChange)="setAttrTags($event.value)"
+                    >
+                      @for (t of roleTags(); track t) {
+                        <mat-option [value]="t">{{ t }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
                   <mat-form-field class="id-trim" subscriptSizing="dynamic">
                     <mat-label i18n="@@Drop_prefix">Drop prefix</mat-label>
                     <input
@@ -238,6 +251,12 @@
                 <span class="id-eq">=</span>
                 <code class="id-sample">{{ mappedExample(field, draft().identityAttrs[field].asJson) }}</code>
               </div>
+              @if (field === 'roles' && draft().identityAttrs['roles'].selected) {
+                <p class="id-weight" i18n="@@Roles_weight">
+                  {{ rolesWeight().count }} roles in the catalogue, {{ rolesWeight().bytes }} bytes on every
+                  request. Some services refuse a header past 8 KB.
+                </p>
+              }
             }
           </div>
         }

@@ -860,6 +860,15 @@ type IdentityAttr struct {
 	Field  string `json:"field"`
 	As     string `json:"as,omitempty"`
 	AsJSON bool   `json:"asJson,omitempty"`
+	// Tags narrows which ROLES travel: only those carrying one of these
+	// catalogue tags. Empty sends them all.
+	//
+	// Tags rather than name patterns because a catalogue is not always tidy -
+	// a module can hold CONFIGURATOR, PLOTTING and WRITE_PREFERENCE, which no
+	// pattern gathers - and because a tag survives renaming a role. The reason
+	// this exists at all is weight: 320 roles is 9 KB of header on every single
+	// request, sent to a service that uses four of them.
+	Tags []string `json:"tags,omitempty"`
 	// TrimPrefix drops a common head from every ROLE before it travels.
 	// Catalogues that mirror another system carry one - "ROLE_" for a Spring
 	// estate - and it is dead weight on the wire: 320 roles is 1600 bytes of

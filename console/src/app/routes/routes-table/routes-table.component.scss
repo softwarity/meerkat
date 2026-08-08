@@ -84,3 +84,13 @@ mat-row.clickable:hover {
 }
 
 @include table.banded-rows;
+
+// The UI mark sits with the name, quiet enough not to compete with it.
+.ui-mark {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  margin-left: 6px;
+  color: var(--mat-sys-on-surface-variant);
+  flex: none;
+}

@@ -83,6 +83,7 @@ var ExportedSettings = []string{
 	store.SettingAPITokens,
 	store.SettingPasskeys,
 	store.SettingIssuesEnabled,
+	store.SettingPagesScheme,
 }
 
 // stampedKeys are written by the store on every save. They say WHEN an object

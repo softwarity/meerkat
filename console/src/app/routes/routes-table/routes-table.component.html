@@ -13,6 +13,10 @@
         <span class="name-cell" [class.off]="!r.enabled">
           <span class="dot" [title]="r.enabled ? 'enabled' : 'disabled'"></span>
           <span class="name">{{ r.name }}</span>
+          <!-- A route is always a service; UI comes on top (ROUTE-02), and it
+               changes what the route can do - injections, the user button, path
+               locales. Worth seeing without opening it. -->
+          @if (r.isUi) {<mat-icon class="ui-mark" i18n-matTooltip="@@Serves_pages_in_a_browser" matTooltip="UI: serves pages in a browser">web</mat-icon>}
         </span>
       </mat-cell>
     </ng-container>

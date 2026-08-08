@@ -161,3 +161,51 @@ func firstLine(s string) string {
 	}
 	return s
 }
+
+// The pages sit in FRONT of an application that may only know one look. A
+// sign-in page following a dark system, handing over to a light-only portal,
+// reads as two products - and the integrator cannot fix that from their side.
+func TestPagesSchemeCanBeImposed(t *testing.T) {
+	for _, tc := range []struct {
+		name, setting, cookie string
+		wantScheme            string
+		wantSwitch            bool
+	}{
+		{"the visitor decides by default", "", "", "auto", true},
+		{"and their choice is remembered", "", "dark", "dark", true},
+		{"imposed light wins over the system", "light", "", "light", false},
+		{"imposed light wins over their cookie too", "light", "dark", "light", false},
+		{"imposed dark", "dark", "light", "dark", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			mux, _, st := setupFlow(t)
+			if err := st.SetSetting(context.Background(), store.SettingPagesScheme, tc.setting); err != nil {
+				t.Fatal(err)
+			}
+			req := httptest.NewRequest(http.MethodGet, "/login", nil)
+			if tc.cookie != "" {
+				req.AddCookie(&http.Cookie{Name: "MEERKAT_SCHEME", Value: tc.cookie})
+			}
+			rec := httptest.NewRecorder()
+			mux.ServeHTTP(rec, req)
+			body := rec.Body.String()
+
+			// Match the :root RULE, not the words: the stylesheet mentions
+			// color-scheme elsewhere, so a bare Contains passes on anything.
+			if tc.wantScheme == "auto" {
+				if strings.Contains(body, ":root { color-scheme:") {
+					t.Fatal("auto must leave the scheme to the system")
+				}
+			} else if !strings.Contains(body, ":root { color-scheme: "+tc.wantScheme) {
+				t.Fatalf("want :root color-scheme %s", tc.wantScheme)
+			}
+			// The button that would let a visitor break the pairing goes away
+			// with the choice. Match the BUTTON: the page's script mentions
+			// data-scheme-next whether or not the button is rendered.
+			hasSwitch := strings.Contains(body, `class="scheme-cycle"`)
+			if hasSwitch != tc.wantSwitch {
+				t.Fatalf("scheme button present=%v, want %v", hasSwitch, tc.wantSwitch)
+			}
+		})
+	}
+}

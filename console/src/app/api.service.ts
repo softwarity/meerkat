@@ -784,6 +784,9 @@ export interface Settings {
   // The APPLICATION's locale pool: routes pick from it, the flow pages speak
   // its intersection with Meerkat's embedded languages. May be empty.
   languages: string[];
+  // The flow pages' look: '' lets the visitor decide (their system, then a
+  // button that remembers), 'light' or 'dark' imposes one.
+  pagesScheme?: '' | 'light' | 'dark';
 }
 
 // Global application identity shown on the flow pages (THEME-02) — one per

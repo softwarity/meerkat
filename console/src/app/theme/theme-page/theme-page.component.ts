@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
+import { MatRadioModule } from '@angular/material/radio';
 import { ApiService, Settings, Theme } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
 import { BrandingCardComponent } from '../branding-card/branding-card.component';
@@ -19,6 +20,7 @@ import { CSS_VARS } from '../theme-tokens';
   selector: 'app-theme-page',
   imports: [
     MatCardModule,
+    MatRadioModule,
     MatFormFieldModule,
     MatSelectModule,
     LoadingIndicatorComponent,
@@ -51,6 +53,11 @@ export class ThemePageComponent {
   protected readonly brandTagline = signal('');
   protected readonly brandLogo = signal('');
   protected readonly brandFavicon = signal('');
+  // The flow pages' look. It rides on /api/settings, whose PUT takes the WHOLE
+  // payload, so the loaded object is kept to send back with one field changed —
+  // a partial body would quietly reset the rest.
+  protected readonly pagesScheme = signal<'' | 'light' | 'dark'>('');
+  private settings: Settings | null = null;
 
   // Hovered token (from the palette editor) → CSS var for the preview.
   private readonly hoverKey = signal('');
@@ -63,6 +70,13 @@ export class ThemePageComponent {
   constructor() {
     this.load();
     this.api.listPresets().subscribe({ next: (p) => this.presets.set(p) });
+    this.api.settings().subscribe({
+      next: (s) => {
+        this.settings = s;
+        this.pagesScheme.set(s.pagesScheme ?? '');
+      },
+      error: () => undefined,
+    });
     this.api.branding().subscribe({
       next: (b) => {
         this.brandName.set(b.appName);
@@ -145,6 +159,23 @@ export class ThemePageComponent {
   }
 
   // Branding is global — its persistence is deliberately separate from themes.
+  protected setPagesScheme(value: '' | 'light' | 'dark'): void {
+    const current = this.settings;
+    if (!current) return;
+    const previous = this.pagesScheme();
+    this.pagesScheme.set(value);
+    this.api.saveSettings({ ...current, pagesScheme: value }).subscribe({
+      next: (s) => {
+        this.settings = s;
+        this.snack.open($localize`:@@Saved:Saved`, undefined, { duration: 2000 });
+      },
+      error: (err) => {
+        this.pagesScheme.set(previous); // put the screen back where it was
+        this.snack.open(errMsg(err), undefined, { duration: 4000 });
+      },
+    });
+  }
+
   protected saveBranding(): void {
     this.api
       .saveBranding({

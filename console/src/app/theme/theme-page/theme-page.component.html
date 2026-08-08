@@ -8,6 +8,20 @@
   <div class="layout">
     <div class="left">
       <app-branding-card [(appName)]="brandName" [(tagline)]="brandTagline" [(logo)]="brandLogo" [(favicon)]="brandFavicon" (save)="saveBranding()" />
+
+      <mat-card appearance="outlined" class="scheme-card">
+        <h3>Light or dark</h3>
+        <p class="hint">
+          These pages sit in front of your application. If it only knows one look, say so here — a sign-in
+          page following the visitor's dark system, handing over to a light-only application, reads as two
+          products.
+        </p>
+        <mat-radio-group [value]="pagesScheme()" (change)="setPagesScheme($event.value)">
+          <mat-radio-button value="">The visitor decides <span class="aside">their system first, then a button that remembers</span></mat-radio-button>
+          <mat-radio-button value="light">Always light <span class="aside">no button</span></mat-radio-button>
+          <mat-radio-button value="dark">Always dark <span class="aside">no button</span></mat-radio-button>
+        </mat-radio-group>
+      </mat-card>
       @if (selected()) {
         <app-palette-editor [(dark)]="dark" [(light)]="light" [(flat)]="flat" [saving]="saving()" (hoverToken)="hover($event)" (save)="save()" />
       }

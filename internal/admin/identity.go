@@ -880,6 +880,9 @@ type settingsPayload struct {
 	// Languages is the APPLICATION's locale pool (free BCP 47). The flow pages
 	// speak its intersection with Meerkat's embedded languages (fallback en).
 	Languages []string `json:"languages"`
+	// PagesScheme imposes the flow pages' look: "" (the visitor decides),
+	// "light" or "dark" (THEME-05).
+	PagesScheme string `json:"pagesScheme"`
 }
 
 // smtpPayload is the APPLICATION's side of outbound e-mail: the display NAME
@@ -920,6 +923,7 @@ func (a *API) loadSettingsPayload(ctx context.Context) (settingsPayload, error) 
 	p.APITokens = a.st.APITokensAllowed(ctx)
 	// The application locale pool may legitimately be empty.
 	_ = a.st.GetSetting(ctx, store.SettingLanguages, &p.Languages)
+	_ = a.st.GetSetting(ctx, store.SettingPagesScheme, &p.PagesScheme)
 	smtp := a.st.GetSMTP(ctx)
 	p.SMTP = smtpPayload{
 		FromName: smtp.FromName, RelayHost: smtp.Host, RelayFrom: smtp.Address(),
@@ -1067,6 +1071,17 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 	}
 	if err := a.st.SetSetting(r.Context(), store.SettingLanguages, p.Languages); err != nil {
 		a.internal(w, err)
+		return
+	}
+	switch p.PagesScheme {
+	case "", "light", "dark":
+		if err := a.st.SetSetting(r.Context(), store.SettingPagesScheme, p.PagesScheme); err != nil {
+			a.internal(w, err)
+			return
+		}
+	default:
+		writeErr(w, http.StatusUnprocessableEntity,
+			"pages scheme "+p.PagesScheme+" is not allowed: use \"\" (the visitor decides), light or dark")
 		return
 	}
 	// The default route lives in the data plane's snapshot — apply on save.

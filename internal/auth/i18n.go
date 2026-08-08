@@ -106,6 +106,24 @@ func (h *Handler) offeredLanguages() []string {
 	return out
 }
 
+// imposedScheme returns the light/dark the integrator forces on the flow pages,
+// or "" when the visitor decides (THEME-05). Cached like the theme.
+func (h *Handler) imposedScheme() string {
+	h.themeMu.Lock()
+	defer h.themeMu.Unlock()
+	if time.Since(h.schemeReadAt) < 5*time.Second {
+		return h.schemeCache
+	}
+	var scheme string
+	_ = h.st.GetSetting(context.Background(), store.SettingPagesScheme, &scheme)
+	if scheme != "light" && scheme != "dark" {
+		scheme = ""
+	}
+	h.schemeCache = scheme
+	h.schemeReadAt = time.Now()
+	return scheme
+}
+
 // flowChrome is the shared model every flow page embeds: theme, branding and
 // the request's language/scheme preferences.
 type flowChrome struct {
@@ -145,6 +163,12 @@ func (h *Handler) flowData(r *http.Request, titleKey string) flowChrome {
 	chrome.T = t
 	if h.adminPlane {
 		chrome.Scheme = "dark"
+		chrome.SchemeSwitch = false
+	} else if imposed := h.imposedScheme(); imposed != "" {
+		// The application behind only knows one look: the pages in front of it
+		// wear that one, and the button that would let a visitor break the
+		// pairing goes away with the choice.
+		chrome.Scheme = imposed
 		chrome.SchemeSwitch = false
 	}
 	chrome.LangNames = langNames

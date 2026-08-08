@@ -989,6 +989,10 @@ type Handler struct {
 	themeReadAt time.Time
 	langsCache  []string
 	langsReadAt time.Time
+	// schemeCache is the imposed light/dark, cached beside the theme (same 5s
+	// staleness budget) - it is read on every flow page.
+	schemeCache  string
+	schemeReadAt time.Time
 }
 
 // New builds the data-plane auth handler (full flow).

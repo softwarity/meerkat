@@ -382,6 +382,15 @@ const (
 	// SettingSMTP is the gateway-wide outbound e-mail config (mail.Config):
 	// confirmations, admin notifications, later password resets.
 	SettingSMTP = "smtp"
+	// SettingPagesScheme decides the flow pages' light/dark behaviour (THEME-05):
+	// "" lets the visitor choose (their system to begin with, then a button that
+	// remembers), "light" or "dark" imposes one and removes the button.
+	//
+	// Imposing is not a whim: the pages sit in FRONT of an application that may
+	// only know one look. A sign-in page following the visitor's dark system,
+	// handing over to a portal that is light-only, reads as two products - and
+	// the integrator cannot fix it from their side.
+	SettingPagesScheme = "pages_scheme"
 	// SettingIssuesEnabled turns on the embedded issue tracker (ISSUE-04):
 	// the user-button of proxied apps gains a "Report an issue" panel and the
 	// data plane accepts reports. Ships OFF; the switch lives on the Issues
@@ -463,6 +472,9 @@ func (s *Store) seedDefaultSettings() error {
 		// The application locale pool ships EMPTY — the integrator declares
 		// their app's languages (flow pages then fall back to English).
 		SettingLanguages: `[]`,
+		// Empty: the visitor decides, which is right until an integrator tells
+		// us their application only knows one look.
+		SettingPagesScheme: `""`,
 		// Single until someone says otherwise at startup, with a license.
 		SettingTenancy: `"` + TenancySingle + `"`,
 	}

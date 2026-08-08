@@ -1,8 +1,20 @@
 <mat-card appearance="outlined">
   <div class="head">
     <span i18n="@@Token">Token</span>
-    <span i18n="@@Dark">Dark</span>
-    <span i18n="@@Light">Light</span>
+    <mat-checkbox
+      [checked]="darkOffered()"
+      [disabled]="darkOffered() && !lightOffered()"
+      (change)="offerScheme('dark', $event.checked)"
+      i18n-matTooltip="@@Scheme_offer_tooltip"
+      matTooltip="Uncheck to stop offering this scheme on the built-in pages"
+    ><ng-container i18n="@@Dark">Dark</ng-container></mat-checkbox>
+    <mat-checkbox
+      [checked]="lightOffered()"
+      [disabled]="lightOffered() && !darkOffered()"
+      (change)="offerScheme('light', $event.checked)"
+      i18n-matTooltip="@@Scheme_offer_tooltip"
+      matTooltip="Uncheck to stop offering this scheme on the built-in pages"
+    ><ng-container i18n="@@Light">Light</ng-container></mat-checkbox>
   </div>
 
   @for (group of tokenGroups; track group.label) {
@@ -27,31 +39,31 @@
         } @else {
           <span class="label" (mouseenter)="hoverToken.emit(tok.key)" (mouseleave)="hoverToken.emit('')">{{ tok.label }}</span>
         }
-        <span class="cell">
+        <span class="cell" [class.dimmed]="!darkOffered()">
           <input
             type="color"
             [value]="dark()[tok.key] || '#000000'"
-            [disabled]="glowOff"
+            [disabled]="glowOff || !darkOffered()"
             (input)="setColor('dark', tok.key, $any($event.target).value)"
           />
           <input
             class="hex"
             [value]="dark()[tok.key] || ''"
-            [disabled]="glowOff"
+            [disabled]="glowOff || !darkOffered()"
             (change)="setColor('dark', tok.key, $any($event.target).value)"
           />
         </span>
-        <span class="cell">
+        <span class="cell" [class.dimmed]="!lightOffered()">
           <input
             type="color"
             [value]="light()[tok.key] || '#ffffff'"
-            [disabled]="glowOff"
+            [disabled]="glowOff || !lightOffered()"
             (input)="setColor('light', tok.key, $any($event.target).value)"
           />
           <input
             class="hex"
             [value]="light()[tok.key] || ''"
-            [disabled]="glowOff"
+            [disabled]="glowOff || !lightOffered()"
             (change)="setColor('light', tok.key, $any($event.target).value)"
           />
         </span>

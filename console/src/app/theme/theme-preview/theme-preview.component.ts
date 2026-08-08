@@ -5,14 +5,10 @@ import {
   effect,
   inject,
   input,
-  model,
   signal,
   viewChild,
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { CSS_VARS } from '../theme-tokens';
 
 // The live preview: the gateway-rendered flow-page specimen, dark and light
@@ -21,7 +17,6 @@ import { CSS_VARS } from '../theme-tokens';
 // are pushed into both frames over postMessage, no reload.
 @Component({
   selector: 'app-theme-preview',
-  imports: [MatCheckboxModule, MatIconModule, MatTooltipModule],
   templateUrl: './theme-preview.component.html',
   styleUrl: './theme-preview.component.scss',
 })
@@ -34,22 +29,13 @@ export class ThemePreviewComponent {
   readonly brandTagline = input.required<string>();
   readonly brandLogo = input.required<string>();
   readonly flat = input(false); // flat design -> --mk-glow 0, effects off
-  // Which schemes the built-in pages OFFER (THEME-05), read off the two boxes
-  // rather than explained in a paragraph: '' means both (the visitor decides),
-  // a single value means that one is imposed. Unchecking the last one is
-  // refused - the pages have to look like something.
-  readonly pagesScheme = model<'' | 'light' | 'dark'>('');
+  readonly highlight = input('');
+  // Which schemes the built-in pages offer, read-only here: the pane of a
+  // scheme nobody will be served is dimmed, so the screen never shows a look
+  // that cannot happen.
+  readonly pagesScheme = input<'' | 'light' | 'dark'>('');
   protected readonly darkOffered = computed(() => this.pagesScheme() !== 'light');
   protected readonly lightOffered = computed(() => this.pagesScheme() !== 'dark');
-
-  protected offer(scheme: 'dark' | 'light', on: boolean): void {
-    if (on) {
-      this.pagesScheme.set('');
-      return;
-    }
-    this.pagesScheme.set(scheme === 'dark' ? 'light' : 'dark');
-  }
-  readonly highlight = input.required<string>(); // a --mk-* var, or ''
 
   private readonly sanitizer = inject(DomSanitizer);
   private readonly frames = new Set<HTMLIFrameElement>();

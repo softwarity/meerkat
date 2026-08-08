@@ -184,6 +184,15 @@ export class RespondEditorComponent {
             EditorView.lineWrapping,
             EditorView.theme({
               '&': { maxHeight: '280px' },
+              // The colours of the template's own syntax. Declared through
+              // CodeMirror's theme API rather than a global stylesheet: the
+              // editor builds its own DOM, and this is the door it provides
+              // for reaching it.
+              '.tpl-action': { color: 'var(--mat-sys-tertiary)' },
+              '.tpl-field': { color: 'var(--mk-signal)', fontWeight: '600' },
+              '.tpl-var': { color: 'var(--mat-sys-primary)' },
+              '.tpl-fn': { color: '#f5a97f' },
+              '.tpl-str': { color: '#a6da95' },
               '.cm-scroller': { overflow: 'auto' },
               // A floor, plus the blank lines a new template opens with: an
               // editor showing one line inside an empty box reads as broken.

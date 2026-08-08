@@ -1,4 +1,4 @@
-import { Component, input, model, output } from '@angular/core';
+import { Component, computed, input, model, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -24,6 +24,18 @@ import { TOKEN_GROUPS } from '../theme-tokens';
   styleUrl: './palette-editor.component.scss',
 })
 export class PaletteEditorComponent {
+  // Which schemes the built-in pages OFFER (THEME-05). It belongs in this
+  // header rather than on the preview: the question "is this scheme offered?"
+  // sits right above the colours that answer it, and a column header needs no
+  // paragraph to explain what unticking it means.
+  readonly pagesScheme = model<'' | 'light' | 'dark'>('');
+  protected readonly darkOffered = computed(() => this.pagesScheme() !== 'light');
+  protected readonly lightOffered = computed(() => this.pagesScheme() !== 'dark');
+
+  protected offerScheme(scheme: 'dark' | 'light', on: boolean): void {
+    this.pagesScheme.set(on ? '' : scheme === 'dark' ? 'light' : 'dark');
+  }
+
   readonly dark = model.required<Record<string, string>>();
   readonly light = model.required<Record<string, string>>();
   // Flat design: dropping every decorative flow-page effect (glows + app-name

@@ -371,13 +371,12 @@ const STATUS_CODES: { value: string; what: string }[] = [
         <mat-autocomplete
           #ct="matAutocomplete"
           panelWidth="300px"
-          class="stacked-options"
           (optionSelected)="set('contentType', $event.option.value)"
         >
           @for (o of contentTypes; track o.value) {
             <mat-option [value]="o.value">
-              <span class="opt-value">{{ o.value }}</span>
-              <span class="opt-what">{{ o.what }}</span>
+              <div>{{ o.value }}</div>
+              <small>{{ o.what }}</small>
             </mat-option>
           }
         </mat-autocomplete>
@@ -395,13 +394,12 @@ const STATUS_CODES: { value: string; what: string }[] = [
         <mat-autocomplete
           #sc="matAutocomplete"
           panelWidth="300px"
-          class="stacked-options"
           (optionSelected)="setStatus($event.option.value)"
         >
           @for (o of statusCodes; track o.value) {
             <mat-option [value]="o.value">
-              <span class="opt-value">{{ o.value }}</span>
-              <span class="opt-what">{{ o.what }}</span>
+              <div>{{ o.value }}</div>
+              <small>{{ o.what }}</small>
             </mat-option>
           }
         </mat-autocomplete>

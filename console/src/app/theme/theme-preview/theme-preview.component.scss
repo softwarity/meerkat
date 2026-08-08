@@ -28,27 +28,6 @@
   background: var(--mat-sys-surface-container-low);
 }
 
-.badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 12px 4px 8px;
-  border-radius: 999px;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--mat-sys-on-secondary-container);
-  background: color-mix(in srgb, var(--mat-sys-secondary-container) 85%, transparent);
-  backdrop-filter: blur(4px);
-  /* It used to be a decoration lying over the frame, so it ignored the mouse.
-     It now holds the checkbox that decides whether this scheme is offered at
-     all, so it has to be clickable. */
-  cursor: pointer;
-}
 
 iframe {
   position: absolute;
@@ -58,4 +37,12 @@ iframe {
   height: 640px;
   border: 0;
   transform-origin: 0 0;
+}
+
+/* A scheme nobody will be served: shown, but visibly out of play. Hiding the
+   pane would make the screen jump every time a box is ticked, and the colours
+   still exist - they are simply not going to be used. */
+.pane.off {
+  opacity: 0.4;
+  filter: saturate(0.5);
 }

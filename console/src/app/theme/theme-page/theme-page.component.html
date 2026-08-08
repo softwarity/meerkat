@@ -10,7 +10,16 @@
       <app-branding-card [(appName)]="brandName" [(tagline)]="brandTagline" [(logo)]="brandLogo" [(favicon)]="brandFavicon" (save)="saveBranding()" />
 
       @if (selected()) {
-        <app-palette-editor [(dark)]="dark" [(light)]="light" [(flat)]="flat" [saving]="saving()" (hoverToken)="hover($event)" (save)="save()" />
+        <app-palette-editor
+          [(dark)]="dark"
+          [(light)]="light"
+          [(flat)]="flat"
+          [pagesScheme]="pagesScheme()"
+          (pagesSchemeChange)="onPagesScheme($event)"
+          [saving]="saving()"
+          (hoverToken)="hover($event)"
+          (save)="save()"
+        />
       }
     </div>
 
@@ -28,7 +37,6 @@
         [flat]="flat()"
         [highlight]="highlightVar()"
         [pagesScheme]="pagesScheme()"
-        (pagesSchemeChange)="onPagesScheme($event)"
       >
         <app-theme-carousel
           [themes]="themes()"

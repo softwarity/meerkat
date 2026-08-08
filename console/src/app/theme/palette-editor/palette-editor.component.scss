@@ -94,3 +94,9 @@ input[type='color'] {
   justify-content: flex-end;
   margin-top: 14px;
 }
+
+/* The colours of a scheme the pages do not offer: still there, since ticking
+   its box brings them back, but plainly out of play. */
+.cell.dimmed {
+  opacity: 0.45;
+}

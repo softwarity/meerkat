@@ -78,7 +78,7 @@ import { RouterLink } from '@angular/router';
     </p>
 
     <h3>Try it (once it exists)</h3>
-    <pre><code>docker run -p 8080:8080 ghcr.io/softwarity/meerkat</code></pre>
+    <pre><code>docker run -p 8080:8080 softwarity/meerkat</code></pre>
 
     <h3>Why “Meerkat”?</h3>
     <p>

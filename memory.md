@@ -1066,7 +1066,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   (`./...`) sur ubuntu ; **un job par annuaire réel** (OpenLDAP, Active
   Directory, Dex) qui **compte les PASS** parce qu'un skip est vert ;
   Playwright ; compilation linux **amd64 + arm64** ; image multi-arch
-  **`ghcr.io/softwarity/meerkat`** (distroless, runners arm natifs) publiée
+  **`softwarity/meerkat`** sur Docker Hub (distroless, runners arm natifs) publiée
   seulement si tout est vert ; release par tag gated sur CI verte
   (`softwarity/release-flow`, secret `PAT_TOKEN` requis) ; doc
   **https://softwarity.github.io/meerkat/** (Angular, déployée par push sur `docs/`).

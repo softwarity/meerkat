@@ -83,7 +83,7 @@ hors cloud (on-premise). Partis pris qui en découlent :
 - **Éditeur : Softwarity** — modèle « un éditeur, des produits » : pas de domaine dédié,
   le produit vit sous l'ombrelle : site `softwarity.io/meerkat` (et/ou
   `meerkat.softwarity.io`), dépôt `github.com/softwarity/meerkat`, image
-  `ghcr.io/softwarity/meerkat`, CLI compagnon `softwarity/plug`.
+  **`softwarity/meerkat`** sur Docker Hub, CLI compagnon `softwarity/plug`.
 - Les projets tiers nommés « meerkat » sur GitHub n'opèrent pas dans le domaine des
   gateways ; le namespace Softwarity lève toute ambiguïté. (Réflexe : vérification marques
   EUIPO avant communication publique.)

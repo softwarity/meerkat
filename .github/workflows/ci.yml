@@ -290,5 +290,8 @@ jobs:
     if: success() && github.event_name != 'pull_request'
     permissions:
       contents: read
-      packages: write
+    # Without this the registry credentials never reach the reusable workflow:
+    # a called workflow gets no repository secret unless the caller passes it,
+    # and the preflight would report "not set" forever.
+    secrets: inherit
     uses: ./.github/workflows/_docker.yml

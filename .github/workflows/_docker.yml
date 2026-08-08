@@ -5,19 +5,43 @@ name: Reusable Docker build & publish
 # pushed by digest; a final job assembles the manifest list. Tags are derived
 # from the caller's ref by metadata-action, so the same logic serves branch
 # pushes (CI) and version tags (release).
+#
+# Docker Hub is where the image ships: `docker pull softwarity/meerkat` is what
+# a reader types without being told about a registry first. It needs two
+# repository secrets, DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (an access token,
+# never the account password); without them the preflight below skips the push
+# and says so, rather than turning the pipeline red over a credential.
 on:
   workflow_call:
 
 env:
-  IMAGE: ghcr.io/softwarity/meerkat
+  IMAGE: docker.io/softwarity/meerkat
 
 jobs:
+  preflight:
+    name: Registry credentials
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.check.outputs.publish }}
+    steps:
+      - id: check
+        env:
+          USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -n "$USERNAME" ] && [ -n "$TOKEN" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Image not published::DOCKERHUB_USERNAME / DOCKERHUB_TOKEN are not set, so the image is built but not pushed."
+          fi
+
   build:
     name: Build ${{ matrix.platform }}
+    needs: preflight
     runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     permissions:
       contents: read
-      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -34,12 +58,12 @@ jobs:
         with:
           images: ${{ env.IMAGE }}
       - uses: docker/setup-buildx-action@v4
-      - name: Log in to GHCR
+      - name: Log in to Docker Hub
+        if: needs.preflight.outputs.publish == 'true'
         uses: docker/login-action@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Resolve version
         id: ver
         # A v-tag → its semver; any branch → "dev". The short commit is
@@ -64,15 +88,17 @@ jobs:
             BUILD_DATE=${{ steps.ver.outputs.date }}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=${{ needs.preflight.outputs.publish }}
           cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }}
           cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}
       - name: Export digest
+        if: needs.preflight.outputs.publish == 'true'
         run: |
           mkdir -p "${{ runner.temp }}/digests"
           digest="${{ steps.build.outputs.digest }}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
       - name: Upload digest
+        if: needs.preflight.outputs.publish == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: digests-${{ env.PLATFORM_PAIR }}
@@ -83,10 +109,10 @@ jobs:
   merge:
     name: Merge manifest list
     runs-on: ubuntu-latest
-    needs: build
+    needs: [preflight, build]
+    if: needs.preflight.outputs.publish == 'true'
     permissions:
       contents: read
-      packages: write
     steps:
       - name: Download digests
         uses: actions/download-artifact@v8
@@ -106,12 +132,11 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-      - name: Log in to GHCR
+      - name: Log in to Docker Hub
         uses: docker/login-action@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Create and push manifest list
         working-directory: ${{ runner.temp }}/digests
         run: |

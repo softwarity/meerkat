@@ -521,6 +521,23 @@ export interface Me {
   // True when the user administers at least one tenant — as its owner (even
   // without a membership) or an ADMIN member. Drives the tenant-admin role CSS.
   tenantAdmin?: boolean;
+  // What this installation is, for the fallback path: normally the gateway has
+  // already stamped both on <body> before Angular started.
+  tenancy?: 'single' | 'multi';
+  primaryTenant?: string;
+}
+
+// What the edition screen reads, and what the fallback path uses to put the
+// feature classes on <body> when no stamp did.
+export interface Edition {
+  enterprise: boolean;
+  features: string[];
+  known: string[];
+  tenancy: 'single' | 'multi';
+  primaryTenant: string;
+  hiddenTenants: number;
+  tenancyLocked: boolean;
+  tenancyLockWhy?: string;
 }
 
 // One field's before/after inside an audit event (from/to are the decoded JSON
@@ -1038,6 +1055,17 @@ export class ApiService {
 
   me(): Observable<Me> {
     return this.http.get<Me>('/api/me');
+  }
+
+  // What this installation is: edition, unlocked features, mode. One endpoint,
+  // so a locked control on one screen and a hidden entry on another cannot
+  // disagree.
+  edition(): Observable<Edition> {
+    return this.http.get<Edition>('/api/edition');
+  }
+
+  setTenancy(tenancy: 'single' | 'multi'): Observable<Edition> {
+    return this.http.put<Edition>('/api/settings/tenancy', { tenancy });
   }
 
   listUsers(): Observable<User[]> {

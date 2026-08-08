@@ -4,6 +4,7 @@
 @use '@softwarity/timezone-select/timezone-select-theme' as timezone-select;
 @use './styles/theme-colors' as brand;
 @use './styles/roles' as roles;
+@use './styles/modes';
 @use './styles/base';
 @use './styles/overrides';
 @use './styles/material-overrides';

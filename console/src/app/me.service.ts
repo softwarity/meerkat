@@ -1,6 +1,6 @@
 import { Service, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiService, Me, User } from './api.service';
+import { ApiService, Edition, Me, User } from './api.service';
 
 // Session identity. The gateway STAMPS it on <body> when it serves the
 // console (capability roles as classes, data-meerkat-* attributes): reading
@@ -23,6 +23,46 @@ export class MeService {
   // carried on /api/me (a non-member owner would be missed by the memberships).
   readonly isTenantAdmin = computed(() => this.isRoot() || (this.me()?.tenantAdmin ?? false));
 
+  // What this installation IS. Stamped on <body> by the gateway, like the
+  // roles: read here, never written. The CSS in styles/_modes.scss already
+  // applied it before this class existed - these signals are for the handful
+  // of places that need the value rather than the styling (route guards, and
+  // the screens that target the served organisation without naming it).
+  readonly multiTenant = signal(document.body.classList.contains('multi-tenant'));
+  readonly primaryTenant = signal(document.body.getAttribute('data-meerkat-primary-tenant') ?? '');
+  private readonly eeFeatures = signal<string[]>(
+    [...document.body.classList].filter((c) => c.startsWith('ee-')).map((c) => c.slice(3)),
+  );
+  // The organisation the tenant-scoped endpoints are called with: whichever is
+  // being administered in multi, the served one in single - where no screen
+  // ever names it.
+  readonly scopeTenant = computed(() => this.primaryTenant());
+  has(feature: string): boolean {
+    return this.eeFeatures().includes(feature);
+  }
+
+  // The fallback path: no stamp means the console was not served by the
+  // gateway, so what it is has to be asked for and put on <body> by hand -
+  // the CSS reads classes, not signals, and it would otherwise draw the
+  // community shape over an Enterprise installation.
+  private applyEdition(e: Edition): void {
+    this.multiTenant.set(e.tenancy === 'multi');
+    this.primaryTenant.set(e.primaryTenant);
+    this.eeFeatures.set(e.features);
+    document.body.classList.toggle('multi-tenant', e.tenancy === 'multi');
+    for (const known of e.known) {
+      document.body.classList.toggle('ee-' + known, e.features.includes(known));
+    }
+  }
+
+  // Called after switching the mode: the stamp is a page-load thing, and the
+  // switch is not worth a reload.
+  refreshEdition(): Promise<void> {
+    return firstValueFrom(this.api.edition())
+      .then((e) => this.applyEdition(e))
+      .catch(() => undefined);
+  }
+
   private loading?: Promise<Me | null>;
 
   // Resolves the identity once (cached); safe to call from guards and the
@@ -37,6 +77,7 @@ export class MeService {
         this.loading = firstValueFrom(this.api.me())
           .then((me) => {
             this.apply(me);
+            void this.refreshEdition();
             return me;
           })
           .catch(() => {

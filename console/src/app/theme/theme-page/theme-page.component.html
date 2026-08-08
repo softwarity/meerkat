@@ -7,7 +7,7 @@
 } @else {
   <div class="layout">
     <div class="left">
-      <app-branding-card [(appName)]="brandName" [(tagline)]="brandTagline" [(logo)]="brandLogo" [(favicon)]="brandFavicon" (save)="saveBranding()" />
+      <app-branding-card [(appName)]="brandName" [(tagline)]="brandTagline" [(logo)]="brandLogo" [(favicon)]="brandFavicon" (changed)="brandingChanged()" />
 
       @if (selected()) {
         <app-palette-editor

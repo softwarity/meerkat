@@ -178,6 +178,16 @@ export class ThemePageComponent {
     });
   }
 
+  private brandingTimer?: ReturnType<typeof setTimeout>;
+
+  // Debounced, so typing a name does not send one call per letter. 700ms is
+  // long enough to finish a word and short enough that leaving the screen right
+  // after typing still saves.
+  protected brandingChanged(): void {
+    clearTimeout(this.brandingTimer);
+    this.brandingTimer = setTimeout(() => this.saveBranding(), 700);
+  }
+
   protected saveBranding(): void {
     this.api
       .saveBranding({
@@ -187,7 +197,8 @@ export class ThemePageComponent {
         favicon: this.brandFavicon(),
       })
       .subscribe({
-        next: () => this.snack.open($localize`:@@Branding_saved:Branding saved`, undefined, { duration: 2500 }),
+        next: () => undefined, // silent: the preview already showed it
+
         error: (err) => this.snack.open(errMsg(err), undefined, { duration: 4000 }),
       });
   }

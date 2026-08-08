@@ -38,7 +38,7 @@ export class BrandingCardComponent {
   readonly tagline = model.required<string>();
   readonly logo = model.required<string>();
   readonly favicon = model.required<string>();
-  readonly save = output<void>();
+  readonly changed = output<void>();
 
   protected readonly dragging = signal(false);
   // What the tab will actually show, which is the cascade the gateway applies
@@ -88,7 +88,10 @@ export class BrandingCardComponent {
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => target.set(String(reader.result));
+    reader.onload = () => {
+      target.set(String(reader.result));
+      this.changed.emit();
+    };
     reader.readAsDataURL(file);
   }
 }

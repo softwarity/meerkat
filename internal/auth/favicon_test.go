@@ -5,6 +5,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/softwarity/meerkat/internal/session"
@@ -115,4 +116,48 @@ func TestBrandingRefusesAnUnusableIcon(t *testing.T) {
 			}
 		})
 	}
+}
+
+// The admin plane speaks English, whatever the integrator declares for their
+// own users: it is the door to a console that speaks English anyway.
+func TestAdminSignInIsEnglishOnly(t *testing.T) {
+	st, err := store.Open(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = st.Close() })
+	// The application declares French and German for ITS users.
+	if err := st.SetSetting(context.Background(), store.SettingLanguages, []string{"fr", "de"}); err != nil {
+		t.Fatal(err)
+	}
+
+	mux := http.NewServeMux()
+	NewAdmin(st, session.NewManager(st)).Register(mux)
+
+	req := httptest.NewRequest(http.MethodGet, "/login", nil)
+	req.Header.Set("Accept-Language", "fr-FR,fr;q=0.9")
+	req.AddCookie(&http.Cookie{Name: "MEERKAT_LANG", Value: "de"})
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	body := rec.Body.String()
+	if !strings.Contains(body, `<html lang="en"`) {
+		t.Fatalf("the admin sign-in page must be English: %q", firstLine(body))
+	}
+	// One language means no switcher to show. Match the ELEMENT, not the class:
+	// the stylesheet always carries .lang-menu, so "lang-menu" alone is a test
+	// that fails whatever the page does.
+	if strings.Contains(body, `id="lang-menu"`) {
+		t.Fatal("the admin sign-in page must not offer a language menu")
+	}
+}
+
+func firstLine(s string) string {
+	if i := strings.Index(s, "\n<title"); i > 0 && i < 400 {
+		return s[:i]
+	}
+	if len(s) > 200 {
+		return s[:200]
+	}
+	return s
 }

@@ -75,7 +75,16 @@ func matchAcceptLanguage(header string, offered []string) string {
 // actually embeds (the messages catalogue). An app locale Meerkat does not
 // embed (e.g. vi) never reaches the flow pages; an empty pool falls back to
 // English. Cached alongside the theme (same 5s staleness budget).
+//
+// The ADMIN plane is out of it, in English like the console it leads to. The
+// pool belongs to the INTEGRATOR's application: letting it decide the language
+// of Meerkat's own sign-in page meant an operator could be greeted in a
+// language chosen for someone else's end users, one click before a console
+// that speaks English anyway.
 func (h *Handler) offeredLanguages() []string {
+	if h.adminPlane {
+		return []string{"en"}
+	}
 	h.themeMu.Lock()
 	defer h.themeMu.Unlock()
 	if time.Since(h.langsReadAt) < 5*time.Second && len(h.langsCache) > 0 {

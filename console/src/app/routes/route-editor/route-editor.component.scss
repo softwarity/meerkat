@@ -325,3 +325,17 @@ mat-selection-list mat-list-option[aria-selected='true'] {
     flex: none;
   }
 }
+
+/* The header carries the identity of what is being edited: its name, and
+   whether it serves pages. Both stay in view whatever section is open - they
+   are what someone checks they are on the right route with. */
+header .name-field {
+  flex: 1;
+  min-width: 0;
+  margin-right: 4px;
+}
+
+header .ui-toggle {
+  flex: none;
+  margin-right: 4px;
+}

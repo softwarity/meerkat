@@ -1,9 +1,15 @@
 <header>
-  @if (route()) {
-    <h2 i18n="@@Edit_route">Edit route</h2>
-  } @else {
-    <h2 i18n="@@New_route">New route</h2>
-  }
+  <mat-form-field class="name-field" subscriptSizing="dynamic">
+    <mat-label i18n="@@Name">Name</mat-label>
+    <input matInput [formField]="f.name" i18n-placeholder="@@New_route" placeholder="New route" />
+  </mat-form-field>
+  <mat-slide-toggle
+    class="ui-toggle"
+    [checked]="draft().isUi"
+    (change)="setIsUi($event.checked)"
+    i18n-matTooltip="@@UI_serves_pages_in_a_browser"
+    matTooltip="UI: serves pages in a browser"
+  ><ng-container i18n="@@UI">UI</ng-container></mat-slide-toggle>
   <button matIconButton (click)="closed.emit()" i18n-aria-label="@@Close" aria-label="Close">
     <mat-icon>close</mat-icon>
   </button>
@@ -46,17 +52,6 @@
   <div class="panel">
     @switch (section()) {
       @case ('general') {
-        <mat-form-field>
-          <mat-label i18n="@@Name">Name</mat-label>
-          <input matInput [formField]="f.name" />
-        </mat-form-field>
-
-        <mat-divider class="ui-sep" />
-        <div class="type-row">
-          <mat-slide-toggle [checked]="draft().isUi" (change)="setIsUi($event.checked)">
-            <ng-container i18n="@@UI_serves_pages_in_a_browser">UI (serves pages in a browser)</ng-container>
-          </mat-slide-toggle>
-        </div>
         @if (draft().isUi) {
           <mat-form-field>
             <mat-label i18n="@@Link">Link</mat-label>

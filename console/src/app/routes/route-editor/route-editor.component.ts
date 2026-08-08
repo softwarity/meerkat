@@ -15,7 +15,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { LOCALE_ID } from '@angular/core';
-import { Access, ApiService, CatalogEntry, IDENTITY_FIELDS, IdentityAttr, IdentityForward, PAGE_USER_FIELDS, Role, Route, Tenant, User, USER_BUTTON_POSITIONS } from '../../api.service';
+import { Access, ApiService, CatalogEntry, Spec, IDENTITY_FIELDS, IdentityAttr, IdentityForward, PAGE_USER_FIELDS, Role, Route, Tenant, User, USER_BUTTON_POSITIONS } from '../../api.service';
+import { MaintenanceFilterComponent, RedirectFilterComponent, RespondFilterComponent } from '../filters/filter-fields.component';
 import { MeService } from '../../me.service';
 import { humanDuration } from '../../shared/duration';
 import { UrlInputComponent } from '../../shared/url-input.component';
@@ -29,9 +30,9 @@ type Section =
   | 'general'
   | 'security'
   | 'predicates'
+  | 'target'
   | 'modin'
   | 'modout'
-  | 'modterm'
   | 'identity'
   | 'button'
   | 'locales'
@@ -78,6 +79,9 @@ function toAccessState(a: Access | undefined): AccessState {
     MatTooltipModule,
     PredicatesComponent,
     FiltersComponent,
+    MaintenanceFilterComponent,
+    RedirectFilterComponent,
+    RespondFilterComponent,
     UrlInputComponent,
     AccessEditorComponent,
   ],
@@ -107,16 +111,39 @@ export class RouteEditorComponent {
     return this.draft().filters.filter((s) => phaseOf(s.type) === phase).length;
   }
 
-  // A terminal filter (redirect) answers the route itself: the upstream is
-  // then ignored, and the hint saying so only shows in that case.
-  protected readonly hasTerminalFilter = () => {
-    const terminals = new Set(
-      this.catalog()
-        .filter((e) => e.phase === 'terminal')
-        .map((e) => e.type),
-    );
-    return this.draft().filters.some((f) => terminals.has(f.type));
-  };
+  // How this route answers. The mode is DERIVED, never stored: a terminal
+  // filter in the list is the mode (its type), none is "proxy". So switching
+  // mode is adding or dropping that one filter, the model does not gain a
+  // field, and an exported configuration reads exactly as before.
+  protected readonly terminalTypes = computed(
+    () => new Set(this.catalog().filter((e) => e.phase === 'terminal').map((e) => e.type)),
+  );
+  protected readonly terminalSpec = computed(
+    () => this.draft().filters.find((f) => this.terminalTypes().has(f.type)) ?? null,
+  );
+  protected readonly mode = computed(() => this.terminalSpec()?.type ?? 'proxy');
+  protected readonly hasTerminalFilter = () => this.terminalSpec() !== null;
+  // The server refuses a terminal filter alongside any other: worth saying
+  // here rather than at save time.
+  protected readonly otherModifiers = computed(
+    () => this.draft().filters.filter((f) => !this.terminalTypes().has(f.type)).length,
+  );
+
+  protected setMode(m: string): void {
+    this.draft.update((d) => {
+      const rest = d.filters.filter((f) => !this.terminalTypes().has(f.type));
+      // The upstream is KEPT when leaving proxy: switching back must not cost
+      // the address someone typed.
+      return { ...d, filters: m === 'proxy' ? rest : [...rest, { type: m, args: {} }] };
+    });
+  }
+
+  protected patchTerminal(spec: Spec): void {
+    this.draft.update((d) => ({
+      ...d,
+      filters: d.filters.map((f) => (this.terminalTypes().has(f.type) ? spec : f)),
+    }));
+  }
 
   // The active section: a NEW url value wins, the UI toggle kicks disabled
   // sections back to General, local picks flow through onSectionPick.

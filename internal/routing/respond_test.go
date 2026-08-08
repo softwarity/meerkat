@@ -167,3 +167,42 @@ func TestRespondOptions(t *testing.T) {
 		}
 	})
 }
+
+// wrap exists because the shape it produces is what half the applications
+// expect for roles, and writing it by hand is a range plus an index test for
+// the comma — six words of intent, four lines of template.
+func TestRespondWrapsAListIntoObjects(t *testing.T) {
+	h, err := compileRespond(t, map[string]any{
+		"body": `{"name": {{json .Username}}, "isPasswordUpdatable": false, "authorities": {{json (wrap "authority" .Roles)}}}`,
+	})
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+	res := serve(t, h, Identity{Username: "admin", Roles: []string{"ROLE_APP_CLIM", "ROLE_APP_SWAGGER"}})
+	defer func() { _ = res.Body.Close() }()
+
+	var got struct {
+		Name        string `json:"name"`
+		Authorities []struct {
+			Authority string `json:"authority"`
+		} `json:"authorities"`
+	}
+	if err := json.NewDecoder(res.Body).Decode(&got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Name != "admin" || len(got.Authorities) != 2 ||
+		got.Authorities[0].Authority != "ROLE_APP_CLIM" || got.Authorities[1].Authority != "ROLE_APP_SWAGGER" {
+		t.Fatalf("got %+v", got)
+	}
+
+	// No role at all must still be a list, not null: an application reading
+	// authorities.length would break on null.
+	empty := serve(t, h, Identity{Username: "newcomer"})
+	defer func() { _ = empty.Body.Close() }()
+	if err := json.NewDecoder(empty.Body).Decode(&got); err != nil {
+		t.Fatalf("an account with no role produced unusable JSON: %v", err)
+	}
+	if got.Authorities == nil || len(got.Authorities) != 0 {
+		t.Fatalf("want an empty list, got %v", got.Authorities)
+	}
+}

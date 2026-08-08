@@ -141,3 +141,33 @@ $mat-block: 'mat-card, mat-card-header, mat-card-content, mat-card-actions,'
 @each $role in roles.$known-roles {
   @include reveal('body.#{$role}', "~='#{$role}'");
 }
+
+// Suggestion lists that stack a value over its meaning (route Target: content
+// type, status code). The rules live here, not in the component: an
+// autocomplete panel is rendered in an overlay, outside the component that
+// declares it, so component styles never reach it.
+.stacked-options {
+  .mat-mdc-option {
+    height: auto;
+    min-height: 0;
+    padding-block: 8px;
+    line-height: 1.4;
+  }
+
+  .mat-mdc-option .mdc-list-item__primary-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .opt-value {
+    font-family: var(--mk-mono);
+    font-size: 0.85rem;
+  }
+
+  .opt-what {
+    font-size: 0.76rem;
+    color: var(--mat-sys-on-surface-variant);
+    white-space: normal;
+  }
+}

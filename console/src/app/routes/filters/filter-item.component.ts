@@ -6,6 +6,7 @@ import { humanize } from '../predicates/args';
 import {
   HeaderFilterComponent,
   MaintenanceFilterComponent,
+  RespondFilterComponent,
   PrefixPathFilterComponent,
   RedirectFilterComponent,
   RemoveHeaderFilterComponent,
@@ -34,6 +35,7 @@ const KIND: Record<string, string> = {
   'set-status': 'set-status',
   redirect: 'redirect',
   maintenance: 'maintenance',
+  respond: 'respond',
 };
 
 // One filter in the ordered list: a header (the type, its phase, reorder and
@@ -53,6 +55,7 @@ const KIND: Record<string, string> = {
       SetStatusFilterComponent,
     RedirectFilterComponent,
     MaintenanceFilterComponent,
+    RespondFilterComponent,
   ],
   styles: [
     `
@@ -139,6 +142,9 @@ const KIND: Record<string, string> = {
       }
       @case ('maintenance') {
         <app-maintenance-filter [spec]="spec()" (specChange)="spec.set($event)" />
+      }
+      @case ('respond') {
+        <app-respond-filter [spec]="spec()" (specChange)="spec.set($event)" />
       }
     }
   `,

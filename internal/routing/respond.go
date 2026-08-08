@@ -46,6 +46,21 @@ var respondFuncs = template.FuncMap{
 	// join flattens a list into a separated string, for the many services that
 	// read roles as "A,B,C".
 	"join": func(sep string, list []string) string { return strings.Join(list, sep) },
+	// wrap turns a list of strings into a list of one-key objects, which is the
+	// shape half the applications out there expect for roles:
+	//
+	//	{{json (wrap "authority" .Roles)}}  →  [{"authority":"A"},{"authority":"B"}]
+	//
+	// Written by hand that is a range, an index test for the comma and two
+	// nested actions — for something anyone would describe in six words. The
+	// loop is still there for the shapes this does not cover.
+	"wrap": func(key string, list []string) []map[string]string {
+		out := make([]map[string]string, 0, len(list))
+		for _, v := range list {
+			out = append(out, map[string]string{key: v})
+		}
+		return out
+	},
 }
 
 // bodyDoc is what the console shows under the template field. It is the only
@@ -54,11 +69,12 @@ var respondFuncs = template.FuncMap{
 const bodyDoc = "Go text/template. The caller is available as " +
 	"{{.Username}} {{.UserID}} {{.Fullname}} {{.Email}} {{.Tenant}} {{.TenantID}} " +
 	"{{.Timezone}} {{.Roles}}, plus {{.SignedIn}} (false when nobody is signed in). " +
-	"Functions: json (renders a value as JSON, quotes and escaping included) and " +
-	"join (e.g. {{join \",\" .Roles}}). " +
+	"Functions: json (renders a value as JSON, quotes and escaping included), " +
+	"join (e.g. {{join \",\" .Roles}}) and wrap, which turns a list into one-key " +
+	"objects: {{json (wrap \"authority\" .Roles)}} gives [{\"authority\":\"A\"}]. " +
 	"Write \"name\": {{json .Username}} and NOT \"name\": \"{{.Username}}\" — the second " +
 	"breaks on a name holding a quote. Example: " +
-	`{"name": {{json .Username}}, "authorities": [{{range $i, $r := .Roles}}{{if $i}},{{end}}{"authority": {{json $r}}}{{end}}]}`
+	`{"name": {{json .Username}}, "authorities": {{json (wrap "authority" .Roles)}}}`
 
 func init() {
 	registerFilter(filterDef{

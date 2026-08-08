@@ -302,3 +302,9 @@ mat-selection-list mat-list-option[aria-selected='true'] {
   --mdc-list-list-item-hover-label-text-color: var(--mat-sys-on-secondary-container);
 }
 
+
+// A route that answers here cannot also carry modifiers: the server refuses
+// the combination, so say it where the choice is made.
+.section-hint.warn {
+  color: var(--mat-sys-error);
+}

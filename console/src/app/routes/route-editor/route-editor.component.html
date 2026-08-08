@@ -12,6 +12,7 @@
 <div class="body">
   <mat-selection-list [multiple]="false" hideSingleSelectionIndicator (selectionChange)="onSectionPick($event.options[0].value)">
     <mat-list-option value="general" [selected]="section() === 'general'" i18n="@@Section_general">General</mat-list-option>
+    <mat-list-option value="target" [selected]="section() === 'target'" i18n="@@Section_target">Target</mat-list-option>
     <mat-list-option value="security" [selected]="section() === 'security'" i18n="@@Section_security">Security</mat-list-option>
     <mat-list-option value="predicates" [selected]="section() === 'predicates'">
       <span i18n="@@Predicates">Predicates</span>
@@ -29,12 +30,6 @@
     <mat-list-option value="modout" [selected]="section() === 'modout'">
       <span i18n="@@Outgoing">Outgoing</span>
       @if (countPhase('response'); as n) {
-        ({{ n }})
-      }
-    </mat-list-option>
-    <mat-list-option value="modterm" [selected]="section() === 'modterm'">
-      <span i18n="@@Redirect">Redirect</span>
-      @if (countPhase('terminal'); as n) {
         ({{ n }})
       }
     </mat-list-option>
@@ -56,13 +51,39 @@
           <input matInput [formField]="f.name" />
         </mat-form-field>
 
+        <mat-divider class="ui-sep" />
+        <div class="type-row">
+          <mat-slide-toggle [checked]="draft().isUi" (change)="setIsUi($event.checked)">
+            <ng-container i18n="@@UI_serves_pages_in_a_browser">UI (serves pages in a browser)</ng-container>
+          </mat-slide-toggle>
+        </div>
+        @if (draft().isUi) {
+          <mat-form-field>
+            <mat-label i18n="@@Link">Link</mat-label>
+            <input matInput [value]="draft().uiLink" (input)="patch('uiLink', $any($event.target).value)" />
+            <mat-hint i18n="@@Link_hint">
+              When set, this app shows in the user's apps menu (if their access allows it), under this name.
+            </mat-hint>
+          </mat-form-field>
+        }
+      }
+      @case ('target') {
+        <p class="section-hint" i18n="@@Target_hint">How this route answers. Proxying fetches from a service and hands
+          back what it says; the other three answer here, without calling anything.</p>
+        <mat-form-field>
+          <mat-label i18n="@@Mode">Mode</mat-label>
+          <mat-select [value]="mode()" (selectionChange)="setMode($event.value)">
+            <mat-option value="proxy" i18n="@@Mode_proxy">Proxy — fetch from a service</mat-option>
+            <mat-option value="redirect" i18n="@@Mode_redirect">Redirect — send the browser elsewhere</mat-option>
+            <mat-option value="maintenance" i18n="@@Mode_maintenance">Maintenance — the built-in unavailable page</mat-option>
+            <mat-option value="respond" i18n="@@Mode_respond">Respond — an answer built from a template</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (mode() === 'proxy') {
         <mat-form-field>
           <mat-label i18n="@@Upstream">Upstream</mat-label>
           <app-url-input [value]="draft().upstream" (valueChange)="patch('upstream', $event)"
             hostPlaceholder="service:8080/base" i18n-hostLabel="@@Upstream" hostLabel="Upstream" />
-          <!-- No whitespace inside the @if: with preserveWhitespaces (i18n) a
-               stray text node stops the hint from reaching its projection slot. -->
-          @if (hasTerminalFilter()) {<mat-hint i18n="@@Upstream_ignored_terminal">Ignored: a redirect answers this route</mat-hint>}
         </mat-form-field>
 
         <mat-form-field>
@@ -88,21 +109,15 @@
           </button>
           <mat-hint i18n="@@OpenAPI_hint">The OpenAPI spec the service exposes, for endpoint-level security and swagger UI</mat-hint>
         </mat-form-field>
-
-        <mat-divider class="ui-sep" />
-        <div class="type-row">
-          <mat-slide-toggle [checked]="draft().isUi" (change)="setIsUi($event.checked)">
-            <ng-container i18n="@@UI_serves_pages_in_a_browser">UI (serves pages in a browser)</ng-container>
-          </mat-slide-toggle>
-        </div>
-        @if (draft().isUi) {
-          <mat-form-field>
-            <mat-label i18n="@@Link">Link</mat-label>
-            <input matInput [value]="draft().uiLink" (input)="patch('uiLink', $any($event.target).value)" />
-            <mat-hint i18n="@@Link_hint">
-              When set, this app shows in the user's apps menu (if their access allows it), under this name.
-            </mat-hint>
-          </mat-form-field>
+        } @else {
+          @if (otherModifiers()) {<p class="section-hint warn" i18n="@@Terminal_excludes_modifiers">This route also carries incoming or outgoing modifiers. A route that answers here cannot have any: remove them, or go back to Proxy.</p>}
+          @if (terminalSpec(); as t) {
+            @switch (mode()) {
+              @case ('redirect') {<app-redirect-filter [spec]="t" (specChange)="patchTerminal($event)" />}
+              @case ('maintenance') {<app-maintenance-filter [spec]="t" (specChange)="patchTerminal($event)" />}
+              @case ('respond') {<app-respond-filter [spec]="t" (specChange)="patchTerminal($event)" />}
+            }
+          }
         }
       }
       @case ('security') {
@@ -127,9 +142,6 @@
       }
       @case ('modout') {
         <app-filters [formField]="f.filters" [entries]="filterEntries()" phase="response" />
-      }
-      @case ('modterm') {
-        <app-filters [formField]="f.filters" [entries]="filterEntries()" phase="terminal" />
       }
       @case ('identity') {
         <p class="section-hint" i18n="@@Identity_section_hint">

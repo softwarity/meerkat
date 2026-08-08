@@ -64,7 +64,7 @@ export const PLANNED_MODIFIERS: Record<string, PlannedBrick[]> = {
     { type: 'secure-headers', doc: $localize`:@@planned_secure_headers:Add the classic security headers` },
     { type: 'response-cache', doc: $localize`:@@planned_response_cache:Cache upstream responses locally` },
   ],
-  terminal: [
-    { type: 'respond', doc: $localize`:@@planned_respond:Answer a fixed status and body` },
-  ],
+  // Nothing planned here: respond shipped, and it does more than the fixed
+  // status and body this list once promised.
+  terminal: [],
 };

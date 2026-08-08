@@ -363,12 +363,22 @@
           on top if it has one.
         </p>
         <div class="flags">
-          <mat-checkbox [checked]="draft().schemeSelect" (change)="setFlag('schemeSelect', $event.checked)">
+          <mat-checkbox
+            [checked]="draft().schemeSelect && !imposedScheme()"
+            [disabled]="!!imposedScheme()"
+            (change)="setFlag('schemeSelect', $event.checked)"
+          >
             <ng-container i18n="@@Offer_scheme_switch">
               Offer the color-scheme switch (reflected on the page for the application)
             </ng-container>
           </mat-checkbox>
         </div>
+        @if (imposedScheme(); as imposed) {
+          <p class="section-hint warn" i18n="@@Scheme_switch_unavailable">
+            The built-in pages only offer {{ imposed }}, so there is nothing to switch between.
+            <a routerLink="/application/built-in-pages">Change that in Built-in pages</a>.
+          </p>
+        }
         @if (draft().schemeSelect) {
           <div class="btn-row">
             <mat-form-field class="position-field">
@@ -546,7 +556,7 @@
               </mat-form-field>
             }
           </div>
-          @for (field of pageUserFields; track field) {
+          @for (field of pageUserFields(); track field) {
             <div class="field-row">
               <mat-checkbox
                 [checked]="draft().userInfoFields[field].enabled"

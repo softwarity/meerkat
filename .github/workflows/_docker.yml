@@ -8,7 +8,7 @@ name: Reusable Docker build & publish
 #
 # Docker Hub is where the image ships: `docker pull softwarity/meerkat` is what
 # a reader types without being told about a registry first. It needs two
-# repository secrets, DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (an access token,
+# secrets, DOCKERHUB_USERNAME and DOCKERHUB_RW (a read/write access token,
 # never the account password); without them the preflight below skips the push
 # and says so, rather than turning the pipeline red over a credential.
 on:
@@ -27,13 +27,13 @@ jobs:
       - id: check
         env:
           USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          TOKEN: ${{ secrets.DOCKERHUB_RW }}
         run: |
           if [ -n "$USERNAME" ] && [ -n "$TOKEN" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           else
             echo "publish=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Image not published::DOCKERHUB_USERNAME / DOCKERHUB_TOKEN are not set, so the image is built but not pushed."
+            echo "::warning title=Image not published::DOCKERHUB_USERNAME / DOCKERHUB_RW are not set, so the image is built but not pushed."
           fi
 
   build:
@@ -63,7 +63,7 @@ jobs:
         uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_RW }}
       - name: Resolve version
         id: ver
         # A v-tag -> its semver; any branch -> "dev". The short commit is
@@ -136,7 +136,7 @@ jobs:
         uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_RW }}
       - name: Create and push manifest list
         working-directory: ${{ runner.temp }}/digests
         run: |

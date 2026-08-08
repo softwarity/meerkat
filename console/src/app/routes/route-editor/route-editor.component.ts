@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { LOCALE_ID } from '@angular/core';
 import { Access, ApiService, CatalogEntry, Spec, IDENTITY_FIELDS, IdentityAttr, IdentityForward, PAGE_USER_FIELDS, Role, Route, Tenant, User, USER_BUTTON_POSITIONS } from '../../api.service';
@@ -99,6 +99,7 @@ function toAccessState(a: Access | undefined): AccessState {
     MatSelectModule,
     MatSlideToggleModule,
     MatTooltipModule,
+    RouterLink,
     PredicatesComponent,
     FiltersComponent,
     MaintenanceFilterComponent,
@@ -262,7 +263,15 @@ export class RouteEditorComponent {
   // General). Display names come from Intl: the console's locale for the
   // reader, the code's own locale for what the button menu shows (endonym).
   protected readonly identityFields = IDENTITY_FIELDS;
-  protected readonly pageUserFields = PAGE_USER_FIELDS;
+  // In single-organisation mode the tenant is implicit and never named, so
+  // stamping it on a page says nothing: one value, always the same.
+  protected readonly pageUserFields = computed(() =>
+    this.me.multiTenant() ? PAGE_USER_FIELDS : PAGE_USER_FIELDS.filter((f) => f !== 'tenant' && f !== 'tenantid'),
+  );
+  // The scheme the built-in pages impose, if any: offering a switch on the
+  // application's pages while its own sign-in page has none would promise
+  // something the gateway will not honour.
+  protected readonly imposedScheme = signal<'' | 'light' | 'dark'>('');
   protected readonly appLanguages = signal<string[]>([]);
   // Roles, users and organisations feed the Security section's access editor.
   // All three are app-scoped, so a pure infra-admin may get empty lists
@@ -273,7 +282,12 @@ export class RouteEditorComponent {
   private readonly consoleNames = new Intl.DisplayNames([inject(LOCALE_ID)], { type: 'language' });
 
   constructor() {
-    this.api.settings().subscribe({ next: (s) => this.appLanguages.set(s.languages ?? []) });
+    this.api.settings().subscribe({
+      next: (s) => {
+        this.appLanguages.set(s.languages ?? []);
+        this.imposedScheme.set(s.pagesScheme ?? '');
+      },
+    });
     this.api.listRoles().subscribe({ next: (r) => this.roles.set(r) });
     this.api.listUsers().subscribe({ next: (u) => this.users.set(u), error: () => this.users.set([]) });
     this.api.listTenants().subscribe({ next: (t) => this.tenants.set(t), error: () => this.tenants.set([]) });

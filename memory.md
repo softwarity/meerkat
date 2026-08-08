@@ -5,7 +5,9 @@
 > quand l'état change. Le contrat produit reste `requirements.md` ; les conventions,
 > `CLAUDE.md` ; ici : l'état courant, les chantiers, les pièges.
 
-_Derniere mise a jour : 2026-08-06 : CI **docker-only** (plus de binaires natifs
+_Derniere mise a jour : 2026-08-08 : **editions CE/EE tranchees** (8 cles, licence
+perpetuelle, gating sur les ecritures seules) et **mode mono-organisation par
+defaut** basculable a chaud - voir la section dediee. Avant : 2026-08-06 : CI **docker-only** (plus de binaires natifs
 ni de matrice macOS/Windows), **schema declare une seule fois** dans les
 `CREATE TABLE` (fin de `addMissingColumns`), **unification du style des tables**
 (cadre sur ce qui defile, couture sticky, en-tetes opaques). **Question ouverte
@@ -1889,6 +1891,58 @@ Trois options posees (avis donne : **a**) :
 **Second trou du meme genre** : quelqu'un membre de PLUSIEURS tenants qui n'a pas
 choisi traverse une route `authenticated` avec **zero role** alors qu'il en a -
 son appel est evalue comme s'il n'avait aucun droit, silencieusement.
+
+## Session 2026-08-08 - editions CE/EE et mode mono-organisation
+
+Decoupe **arretee** (voir Q9 et TENANT-08 dans requirements.md) sur une ligne
+unique : *ce qui coute a l'organisation qui grossit se paie, ce qui protege
+l'utilisateur ne se paie pas*. **8 cles** dans `internal/features` :
+`multi-tenant`, `directories` (LDAP/AD/Kerberos + les regles de groupe),
+`saml`, `scim`, `business-hours`, `cluster`, `audit-export`, `white-label`.
+OIDC et GitHub restent **gratuits** : sans chemin libre vers un fournisseur
+moderne, ce serait un peage et non une edition.
+
+- **La licence est perpetuelle** : `Parse` refusait une licence expiree, ce qui
+  aurait coupe l'authentification devant une production. Elle n'eteint plus
+  rien ; le terme dit jusqu'ou les mises a jour sont couvertes (`Covered`).
+  `features.Require` ne garde que les **ecritures** (2e organisation, annuaire
+  LDAP/SAML, regle de groupe, CHANGEMENT d'horaires compare par valeur - sinon
+  renommer une organisation demanderait une licence).
+- **MEERKAT_FEATURES=cle1,cle2** active sans fichier signe (aucune cle de
+  signature dans un build source). Log en WARN.
+- **Mode mono/multi** : reglage **lu par requete**, bascule a chaud dans les
+  deux sens (`PUT /api/settings/tenancy`, root, audite). Redescendre en mono
+  avec plusieurs organisations est AUTORISE et ne supprime rien - elles
+  cessent d'etre servies, `hiddenTenants` les compte, rebasculer rend tout.
+  Le flag `-tenancy` n'amorce que le premier demarrage puis s'efface.
+  **Aucun refus de demarrage** sauf un mode inconnu : une gateway qui ne boote
+  pas parce qu'un flag contredit sa base transforme une erreur de config en
+  panne.
+- **`GET /api/edition`** : edition, features actives, catalogue complet, mode,
+  organisation servie, nombre masque. Un seul endroit de verite.
+- **Console** : `styles/_modes.scss` - `[multi-tenant-only]` cache ce qui n'a
+  pas de sens (un concept absent, pas une fonction refusee),
+  `[ee-feature="x"]` verrouille sans cacher + `app-ee-lock` (badge + tooltip +
+  lien vers /license). Le `html` en tete du selecteur n'est pas decoratif : le
+  moteur des roles pose `display !important` sur les memes elements et gagnait
+  a specificite egale.
+- **Ecrans deplaces** : Groupes, Membres, Regles de groupe passent sous
+  **Application** ; le group mode quitte l'onglet General d'une organisation
+  pour l'ecran Groupes ; la colonne d'appartenance de la matrice Membres n'est
+  pas rendue en mono (structure d'une table, pas du CSS).
+
+**Deux defauts anterieurs trouves en chemin** :
+1. **Le stamp ne marchait qu'en dev** : le proxy reecrivait `<body>`, la console
+   EMBARQUEE (celle d'une release) non. En production la console demarrait nue
+   et reconstruisait les classes depuis `/api/me` une peinture plus tard -
+   exactement ce que le stamp existe pour eviter.
+2. **`PrimaryTenant` triait par `created_at`** (resolution : la seconde), donc
+   une instance amorcee par fichier retombait sur l'ordre alphabetique des ids.
+   C'est l'ordre d'insertion (`rowid`) qui dit "la premiere organisation".
+
+**Publication Docker Hub** : prete (`softwarity/meerkat`), en attente des
+secrets `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` - un job preliminaire saute le
+push et l'annonce plutot que de rougir la CI. GHCR n'est plus une cible.
 
 ## En attente de validation François
 

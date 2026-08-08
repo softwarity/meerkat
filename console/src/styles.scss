@@ -171,3 +171,29 @@ $mat-block: 'mat-card, mat-card-header, mat-card-content, mat-card-actions,'
     white-space: normal;
   }
 }
+
+// The respond template's colours. Global, like .stacked-options above and for
+// the same reason: CodeMirror builds its own DOM, which never carries the
+// component's encapsulation attribute — component styles simply miss it.
+.cm-editor {
+  .tpl-action {
+    color: var(--mat-sys-tertiary);
+  }
+
+  .tpl-field {
+    color: var(--mk-signal);
+    font-weight: 600;
+  }
+
+  .tpl-var {
+    color: var(--mat-sys-primary);
+  }
+
+  .tpl-fn {
+    color: #f5a97f;
+  }
+
+  .tpl-str {
+    color: #a6da95;
+  }
+}

@@ -2,6 +2,15 @@
   display: block;
   max-width: 720px;
 }
+/* What scrolls is the LIST, not the dialog. Letting the whole content scroll
+   carried the method and the path off the top: you lose sight of the request
+   you are testing exactly when you read the answer to it. */
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 72vh;
+}
 .intro {
   margin: 0 0 16px;
   color: var(--mat-sys-on-surface-variant);
@@ -53,7 +62,11 @@
   margin-top: 16px;
   border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mk-radius);
-  overflow: hidden;
+  /* The one scrolling area: it takes the room left and keeps its own bar
+     inside the border, rather than pushing the form out of view. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 .step {
   display: flex;

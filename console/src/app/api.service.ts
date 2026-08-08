@@ -788,6 +788,14 @@ export interface Settings {
 
 // Global application identity shown on the flow pages (THEME-02) — one per
 // gateway, whatever theme is active. Logo is a data URI ('' = built-in mark).
+// What the respond editor gets back while someone types (one of the two
+// fields is set).
+export interface RespondPreview {
+  output?: string;
+  error?: string;
+  caller?: Record<string, unknown>;
+}
+
 export interface Branding {
   appName: string;
   tagline: string;
@@ -832,6 +840,12 @@ export class ApiService {
   // Persist a new route order (first-match-wins, so order is significant).
   reorderRoutes(ids: string[]): Observable<{ reordered: number }> {
     return this.http.post<{ reordered: number }>('/api/routes/reorder', ids);
+  }
+
+  // Renders a respond template against the gateway's witness caller: either the
+  // bytes an application would receive, or the error the save would raise.
+  respondPreview(body: string): Observable<RespondPreview> {
+    return this.http.post<RespondPreview>('/api/routes/respond-preview', { body });
   }
 
   deleteRoute(id: string): Observable<void> {

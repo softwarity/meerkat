@@ -3,6 +3,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { RespondEditorComponent } from './respond-editor.component';
 import { Spec } from '../../api.service';
 import { argBool, argStr, patchSpec } from '../predicates/args';
 
@@ -310,7 +311,7 @@ const STATUS_CODES: { value: string; what: string }[] = [
 // at a <textarea> that is perfectly fine).
 @Component({
   selector: 'app-respond-filter',
-  imports: [MatAutocompleteModule, MatFormFieldModule, MatInputModule],
+  imports: [MatAutocompleteModule, MatFormFieldModule, MatInputModule, RespondEditorComponent],
   styles: [
     FIELDS_STYLE,
     `
@@ -323,11 +324,28 @@ const STATUS_CODES: { value: string; what: string }[] = [
         line-height: 1.5;
       }
       .vars {
-        grid-column: 1 / -1;
-        margin: -2px 0 10px;
+        margin: 12px 0 4px;
         font-size: 0.78rem;
-        line-height: 1.7;
+        line-height: 1.6;
         color: var(--mat-sys-on-surface-variant);
+        max-width: 78ch;
+      }
+      .vars p {
+        margin: 0 0 8px;
+      }
+      .vars .lead {
+        color: var(--mat-sys-on-surface);
+      }
+      .vars dl {
+        margin: 0 0 8px;
+        display: grid;
+        gap: 3px 0;
+      }
+      .vars dt {
+        margin-top: 5px;
+      }
+      .vars dd {
+        margin: 0 0 0 14px;
       }
       .vars code {
         font-family: var(--mk-mono);
@@ -339,27 +357,37 @@ const STATUS_CODES: { value: string; what: string }[] = [
   ],
   template: `
     <div class="fields">
-      <mat-form-field class="body">
-        <mat-label>Template</mat-label>
-        <textarea
-          matInput
-          rows="6"
-          spellcheck="false"
-          [placeholder]="EXAMPLE"
-          [value]="body()"
-          (input)="set('body', $any($event.target).value)"
-        ></textarea>
-        <mat-hint>Write {{ GOOD }} and never {{ BAD }} — a name holding a quote would break the document.</mat-hint>
-      </mat-form-field>
-      <p class="vars">
-        The caller: <code>.Username</code> <code>.UserID</code> <code>.Fullname</code> <code>.Email</code>
-        <code>.Tenant</code> <code>.TenantID</code> <code>.Timezone</code> <code>.Roles</code>
-        <code>.SignedIn</code><br />
-        Functions: <code>json</code> (renders a value as JSON, quotes and escaping included),
-        <code>join</code> — <code>{{ JOIN }}</code>, and <code>wrap</code>, which turns a list into
-        one-key objects: <code>{{ WRAP }}</code><br />
-        For anything else, loop: <code>{{ LOOP }}</code>
-      </p>
+      <div class="body">
+        <app-respond-editor [value]="body()" (changed)="set('body', $event)" />
+        <div class="vars">
+          <p class="lead">
+            The answer is written literally, and anything between
+            <code>&#123;&#123;</code> and <code>&#125;&#125;</code> is replaced by something about the caller.
+            Everything else is sent as typed.
+          </p>
+          <dl>
+            <dt><code>{{ GOOD }}</code></dt>
+            <dd>
+              the caller's name, <strong>with its quotes and escaping</strong>. Always through
+              <code>json</code> — <code>{{ BAD }}</code> looks equivalent and breaks the day a name holds a
+              quote, which is a name that comes from a directory, not from you.
+            </dd>
+            <dt><code>{{ WRAP }}</code></dt>
+            <dd>the roles as one-key objects: <code>{{ WRAP_OUT }}</code>. Empty list if the caller holds none.</dd>
+            <dt><code>{{ JOIN }}</code></dt>
+            <dd>the roles as one string: <code>ROLE_A,ROLE_B</code>.</dd>
+            <dt><code>{{ IFELSE }}</code></dt>
+            <dd>two answers in one route: nobody is signed in when the route has no gateway rule.</dd>
+          </dl>
+          <p class="also">
+            Also available: <code>.UserID</code> <code>.Fullname</code> <code>.Email</code> <code>.Tenant</code>
+            <code>.TenantID</code> <code>.Timezone</code> <code>.Roles</code>. For a shape none of the above
+            covers, loop: <code>{{ LOOP }}</code> — where <code>{{ COMMA }}</code> writes the separating comma
+            (<code>$i</code> is the index, zero is false, so the first element gets none — JSON forbids a
+            trailing one).
+          </p>
+        </div>
+      </div>
       <mat-form-field>
         <mat-label>Content type</mat-label>
         <input
@@ -419,6 +447,9 @@ export class RespondFilterComponent {
   protected readonly BAD = '"{{.Username}}"';
   protected readonly JOIN = '{{join "," .Roles}}';
   protected readonly WRAP = '{{json (wrap "authority" .Roles)}}';
+  protected readonly WRAP_OUT = '[{"authority":"ROLE_A"},{"authority":"ROLE_B"}]';
+  protected readonly IFELSE = '{{if .SignedIn}}…{{else}}…{{end}}';
+  protected readonly COMMA = '{{if $i}},{{end}}';
   protected readonly LOOP = '{{range $i, $r := .Roles}}…{{end}}';
   protected readonly body = computed(() => argStr(this.spec(), 'body'));
   protected readonly contentType = computed(() => argStr(this.spec(), 'contentType'));

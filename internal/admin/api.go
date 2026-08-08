@@ -52,6 +52,7 @@ func (a *API) Register(mux *http.ServeMux) {
 	mux.Handle("GET /api/catalog", a.gw(a.catalog))
 	mux.Handle("GET /api/routes", a.gw(a.listRoutes))
 	mux.Handle("POST /api/routes/reorder", a.infraAdmin(a.reorderRoutes))
+	mux.Handle("POST /api/routes/respond-preview", a.infraAdmin(a.previewRespond))
 	mux.Handle("GET /api/routes/{id}", a.gw(a.getRoute))
 	mux.Handle("PUT /api/routes/{id}", a.infraAdmin(a.putRoute))
 	mux.Handle("DELETE /api/routes/{id}", a.infraAdmin(a.deleteRoute))
@@ -103,6 +104,34 @@ func (a *API) getRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, route)
+}
+
+// previewRespond renders a respond template against the witness caller, so the
+// editor can show what an application would receive WHILE it is being written.
+//
+// It runs the engine's own code, not a re-implementation: a preview that agreed
+// with a second parser and disagreed with the gateway would be worse than none.
+// Nothing is persisted and nothing is read — the template only ever sees the
+// fictional caller.
+func (a *API) previewRespond(w http.ResponseWriter, r *http.Request, _ store.User) {
+	var in struct {
+		Body string `json:"body"`
+	}
+	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64<<10))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&in); err != nil {
+		writeErr(w, http.StatusBadRequest, "malformed body: expected {\"body\": \"…\"}")
+		return
+	}
+	out, err := routing.PreviewRespond(in.Body)
+	if err != nil {
+		// 200 with the error INSIDE: this is a live preview of something being
+		// typed, and half of what someone types is not valid yet. A 4xx here
+		// would light up the console's error handling on every keystroke.
+		writeJSON(w, http.StatusOK, map[string]any{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"output": out, "caller": routing.PreviewCaller()})
 }
 
 // reorderRoutes persists a new route order (first-match-wins, so order matters)

@@ -138,5 +138,41 @@ func readableTemplateError(err error) string {
 	if i := strings.Index(msg, "executing \"respond\" at "); i >= 0 {
 		msg = strings.TrimSpace(msg[:i]) + " " + strings.TrimSpace(msg[i+len("executing \"respond\" at "):])
 	}
+	msg = strings.TrimSpace(msg)
+	// text/template names the Go type it was handed ("in type
+	// routing.Identity"), which means nothing to whoever is writing a template.
+	// Say what they can actually write instead.
+	if i := strings.Index(msg, " in type routing.Identity"); i >= 0 {
+		msg = msg[:i] + " — the caller has: " + strings.Join(IdentityFields, " ")
+	}
 	return strings.TrimSpace(msg)
 }
+
+// IdentityFields is what a template may name, in the order the documentation
+// lists them. Kept beside the error message that quotes it.
+var IdentityFields = []string{
+	".Username", ".UserID", ".Fullname", ".Email", ".Tenant", ".TenantID",
+	".Timezone", ".Roles", ".SignedIn",
+}
+
+// PreviewRespond renders a template against the witness caller, exactly as the
+// route would. It is what the editor calls while someone types: the answer is
+// either the bytes an application would receive, or the error the save would
+// have raised — and both come from the SAME code path as the real thing, so
+// the preview can never disagree with what ships.
+func PreviewRespond(body string) (string, error) {
+	tmpl, err := template.New("respond").Funcs(respondFuncs).Parse(body)
+	if err != nil {
+		return "", fmt.Errorf("%s", readableTemplateError(err))
+	}
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, SampleIdentity); err != nil {
+		return "", fmt.Errorf("%s", readableTemplateError(err))
+	}
+	return buf.String(), nil
+}
+
+// PreviewCaller is the witness the preview renders with, so the editor can show
+// WHO it is talking about rather than leaving the reader to guess where "Jane"
+// came from.
+func PreviewCaller() Identity { return SampleIdentity }

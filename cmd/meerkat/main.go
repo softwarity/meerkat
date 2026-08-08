@@ -14,6 +14,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"slices"
+	"strings"
 	"syscall"
 	"time"
 	_ "time/tzdata" // IANA zones for business-access windows, even on distroless
@@ -21,7 +23,9 @@ import (
 	"github.com/softwarity/meerkat/internal/admin"
 	"github.com/softwarity/meerkat/internal/auth"
 	"github.com/softwarity/meerkat/internal/config"
+	"github.com/softwarity/meerkat/internal/features"
 	"github.com/softwarity/meerkat/internal/gateway"
+	"github.com/softwarity/meerkat/internal/license"
 	"github.com/softwarity/meerkat/internal/mail"
 	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/session"
@@ -37,6 +41,10 @@ func main() {
 	dataDir := flag.String("data", envOr("MEERKAT_DATA", "data"), "data directory (embedded storage)")
 	configFile := flag.String("config", envOr("MEERKAT_CONFIG_FILE", ""),
 		"configuration file (YAML or JSON) seeding an EMPTY gateway on first start; never overwrites a configured one")
+	licenseFile := flag.String("license", envOr("MEERKAT_LICENSE_FILE", ""),
+		"Enterprise license file; without one this is the community edition")
+	tenancy := flag.String("tenancy", envOr("MEERKAT_TENANCY", store.TenancySingle),
+		"single (one implicit organisation) or multi (Enterprise); chosen once, at the first start")
 	vaultFile := flag.String("vault", envOr("MEERKAT_VAULT_FILE", ""),
 		"encrypted vault file to ingest once (passphrase in MEERKAT_VAULT_PASSPHRASE or _FILE)")
 	flag.Parse()
@@ -46,13 +54,13 @@ func main() {
 		return
 	}
 
-	if err := run(*addr, *adminAddr, *consoleURL, *dataDir, *configFile, *vaultFile); err != nil {
+	if err := run(*addr, *adminAddr, *consoleURL, *dataDir, *configFile, *vaultFile, *licenseFile, *tenancy); err != nil {
 		slog.Error("fatal", "err", err)
 		os.Exit(1)
 	}
 }
 
-func run(addr, adminAddr, consoleURL, dataDir, configFile, vaultFile string) error {
+func run(addr, adminAddr, consoleURL, dataDir, configFile, vaultFile, licenseFile, tenancy string) error {
 	if err := os.MkdirAll(dataDir, 0o750); err != nil {
 		return fmt.Errorf("data dir: %w", err)
 	}
@@ -63,6 +71,14 @@ func run(addr, adminAddr, consoleURL, dataDir, configFile, vaultFile string) err
 	defer func() { _ = st.Close() }()
 
 	ctx := context.Background()
+	// The license, then the mode it may unlock. Both before anything is served:
+	// what an installation IS must be settled before it answers a request.
+	if err := loadLicense(licenseFile); err != nil {
+		return err
+	}
+	if err := settleTenancy(ctx, st, tenancy); err != nil {
+		return err
+	}
 	// The VAULT first (VAULT-03): a configuration references $names, and a
 	// route saved before its reference resolves comes up inert. Ingested once,
 	// then never replayed.
@@ -284,6 +300,103 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 			{Type: "path", Args: map[string]any{"patterns": []any{"/**"}}},
 		},
 	})
+}
+
+// loadLicense turns a license file into enabled features. No file is the
+// community edition, and that is a normal way to run - not an error.
+//
+// A license is PERPETUAL: it is not re-checked against today's date, and an
+// elapsed term never turns anything off. What the term says is how far
+// updates were paid for, which is reported and nothing more. A gateway that
+// stopped authenticating over a lapsed subscription could not be put in front
+// of a production, so it does not.
+func loadLicense(path string) error {
+	if path == "" {
+		// MEERKAT_FEATURES turns features on without a license file. It exists
+		// because there is no other way to run the Enterprise shape while
+		// developing (no signing key ships with a source build) and because
+		// the licence is an honour system anyway: it grants a RIGHT, it is not
+		// a lock. Whoever sets this in production without paying is breaching
+		// a contract, which is not a problem code can solve - so the log says
+		// it loudly rather than pretending to police it.
+		if raw := strings.TrimSpace(os.Getenv("MEERKAT_FEATURES")); raw != "" {
+			var names []string
+			for _, name := range strings.Split(raw, ",") {
+				name = strings.TrimSpace(name)
+				if name == "" {
+					continue
+				}
+				if !slices.Contains(features.All, name) {
+					return fmt.Errorf("MEERKAT_FEATURES: %q is not a feature: known ones are %s",
+						name, strings.Join(features.All, ", "))
+				}
+				names = append(names, name)
+			}
+			features.Enable(names...)
+			slog.Warn("enterprise features enabled WITHOUT a license, from MEERKAT_FEATURES",
+				"features", features.Enabled())
+			return nil
+		}
+		slog.Info("community edition", "enterprise_features", "none")
+		return nil
+	}
+	lic, err := license.Load(path)
+	if err != nil {
+		return fmt.Errorf("license %q: %w", path, err)
+	}
+	features.Enable(lic.Features...)
+	slog.Info("license loaded", "licensee", lic.Licensee, "plan", lic.Plan,
+		"features", features.Enabled())
+	if built, perr := time.Parse(time.RFC3339, version.Date); perr == nil && !lic.Covered(built) {
+		slog.Warn("this build was released after the licensed term: everything keeps working, but updates are no longer covered",
+			"covered_until", lic.ExpiresAt.Format(time.DateOnly), "build", version.Date)
+	}
+	return nil
+}
+
+// settleTenancy fixes what this installation IS, once. The mode is chosen at
+// the first start and recorded; a later start that contradicts it is refused
+// rather than obeyed, because there is no safe way to swap the two shapes
+// under a live database: going down to single would hide organisations behind
+// an interface that no longer names them, and going up to multi would leave
+// every existing account belonging to an organisation nobody chose.
+func settleTenancy(ctx context.Context, st *store.Store, asked string) error {
+	switch asked {
+	case store.TenancySingle, store.TenancyMulti:
+	default:
+		return fmt.Errorf("tenancy %q is not allowed: use %q or %q",
+			asked, store.TenancySingle, store.TenancyMulti)
+	}
+	if asked == store.TenancyMulti {
+		if err := features.Require(features.MultiTenant); err != nil {
+			return fmt.Errorf("-tenancy multi: %w", err)
+		}
+	}
+	recorded := st.Tenancy(ctx)
+	// A database written before the mode existed answers "single"; so does a
+	// fresh one, whose setting the seed just wrote. Either way the first start
+	// that asks for something else is the one that decides.
+	n, err := st.CountTenants(ctx)
+	if err != nil {
+		return err
+	}
+	if recorded == asked {
+		slog.Info("tenancy", "mode", asked)
+		return nil
+	}
+	if asked == store.TenancySingle && n > 1 {
+		return fmt.Errorf("this installation holds %d organisations and cannot run in single-tenant mode: "+
+			"they would still exist but no screen would name them (start with -tenancy multi, or remove all but one)", n)
+	}
+	if recorded == store.TenancyMulti && asked == store.TenancySingle {
+		return fmt.Errorf("this installation was started in multi-tenant mode and cannot go back to single: " +
+			"start with -tenancy multi")
+	}
+	if err := st.SetSetting(ctx, store.SettingTenancy, asked); err != nil {
+		return err
+	}
+	slog.Info("tenancy settled", "mode", asked, "was", recorded)
+	return nil
 }
 
 func envOr(key, fallback string) string {

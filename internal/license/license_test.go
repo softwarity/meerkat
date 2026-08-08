@@ -11,7 +11,7 @@ func testLicense() License {
 	return License{
 		Licensee:  "ACME Corp",
 		Plan:      "enterprise",
-		Features:  []string{"sso-oidc", "cluster"},
+		Features:  []string{"directories", "cluster"},
 		IssuedAt:  time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC),
 		ExpiresAt: time.Date(2027, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
@@ -52,12 +52,28 @@ func TestParseRejectsTampering(t *testing.T) {
 	}
 }
 
-func TestParseRejectsExpired(t *testing.T) {
+// A license is perpetual: long past its expiry date it still validates and
+// still carries its features. Whoever paid keeps what they paid for - cutting
+// authentication over a lapsed subscription would make this undeployable in
+// front of a production.
+func TestParseStaysValidPastExpiry(t *testing.T) {
 	pub, priv, _ := ed25519.GenerateKey(nil)
 	data, _ := Sign(testLicense(), priv)
-	_, err := Parse(data, []ed25519.PublicKey{pub}, time.Date(2028, 1, 1, 0, 0, 0, 0, time.UTC))
-	if !errors.Is(err, ErrExpired) {
-		t.Fatalf("want ErrExpired, got %v", err)
+	lic, err := Parse(data, []ed25519.PublicKey{pub}, time.Date(2038, 1, 1, 0, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("a perpetual license must survive its expiry date: %v", err)
+	}
+	if len(lic.Features) == 0 {
+		t.Fatal("features must still be carried")
+	}
+	// What the date DOES say: how far updates were paid for. A build from
+	// before it is covered, one from after is not - and that is only ever
+	// reported, never enforced.
+	if !lic.Covered(time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)) {
+		t.Fatal("a build released during the term must be covered")
+	}
+	if lic.Covered(time.Date(2028, 1, 1, 0, 0, 0, 0, time.UTC)) {
+		t.Fatal("a build released after the term must be reported as uncovered")
 	}
 }
 

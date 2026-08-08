@@ -58,6 +58,22 @@ type Tenant struct {
 	UpdatedAt     int64  `json:"updatedAt"`
 }
 
+// The tenancy modes. Single is the default and the only one a community
+// build offers: ONE implicit organisation, created at first boot, which the
+// console never names - someone protecting three internal applications has no
+// reason to learn the word. Multi is the Enterprise mode and is chosen at
+// startup, once: the two shapes cannot be swapped under a live database.
+const (
+	TenancySingle = "single"
+	TenancyMulti  = "multi"
+
+	// DefaultTenantID is the organisation every single-tenant installation
+	// hangs off. It exists in multi mode too - it is simply the first one -
+	// so nothing in the RBAC model needs a special case for "no organisation".
+	DefaultTenantID   = "default"
+	defaultTenantName = "Default"
+)
+
 // Membership types (TENANT-02 revised): ADMINs administer the tenant, USERs
 // belong to it. Ownership is NOT a membership type — it lives on the tenant
 // (Tenant.OwnerID), decoupled so an owner need not be a member. Tenant
@@ -371,6 +387,13 @@ const (
 	// data plane accepts reports. Ships OFF; the switch lives on the Issues
 	// screen, next to what it fills.
 	SettingIssuesEnabled = "issues_enabled"
+	// SettingTenancy records the mode this installation was FIRST started in:
+	// TenancySingle (one implicit organisation, the notion never surfaces) or
+	// TenancyMulti. It is chosen at startup and never changes afterwards -
+	// switching would either hide live organisations or leave every account
+	// belonging nowhere - so this is the memory a later boot is checked
+	// against, not a knob the console turns.
+	SettingTenancy = "tenancy"
 	// SettingRegistration is the self-registration policy (AUTH-20): who may
 	// create their own account. Ships closed.
 	SettingRegistration = "registration"
@@ -437,6 +460,8 @@ func (s *Store) seedDefaultSettings() error {
 		// The application locale pool ships EMPTY — the integrator declares
 		// their app's languages (flow pages then fall back to English).
 		SettingLanguages: `[]`,
+		// Single until someone says otherwise at startup, with a license.
+		SettingTenancy: `"` + TenancySingle + `"`,
 	}
 	for key, value := range defaults {
 		if _, err := s.db.Exec(
@@ -444,6 +469,53 @@ func (s *Store) seedDefaultSettings() error {
 			key, value); err != nil {
 			return fmt.Errorf("store: seed setting %q: %w", key, err)
 		}
+	}
+	return nil
+}
+
+// Tenancy reports the mode this installation runs in, defaulting to single
+// for a database written before the setting existed.
+func (s *Store) Tenancy(ctx context.Context) string {
+	var mode string
+	if err := s.GetSetting(ctx, SettingTenancy, &mode); err != nil || mode == "" {
+		return TenancySingle
+	}
+	return mode
+}
+
+// CountTenants is what a boot checks before accepting single mode: switching
+// an installation that holds several organisations down to one would hide
+// live data behind an interface that no longer mentions it.
+func (s *Store) CountTenants(ctx context.Context) (int, error) {
+	var n int
+	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM tenants`).Scan(&n); err != nil {
+		return 0, fmt.Errorf("store: count tenants: %w", err)
+	}
+	return n, nil
+}
+
+// seedDefaultTenant creates the implicit organisation on a database that has
+// none. Every installation has one from its first boot, single or multi, so
+// groups and memberships always have somewhere to hang and no code path has
+// to answer "what if there is no organisation".
+func (s *Store) seedDefaultTenant() error {
+	var n int
+	if err := s.db.QueryRow(`SELECT COUNT(*) FROM tenants`).Scan(&n); err != nil {
+		return fmt.Errorf("store: seed default tenant: %w", err)
+	}
+	if n > 0 {
+		return nil
+	}
+	ba, err := json.Marshal(BusinessAccess{Inherited: true})
+	if err != nil {
+		return fmt.Errorf("store: seed default tenant: %w", err)
+	}
+	now := time.Now().Unix()
+	if _, err := s.db.Exec(
+		`INSERT INTO tenants (id, name, description, enabled, business_access, session_ttl, group_mode, created_by, owner_id, created_at, updated_at)
+		 VALUES (?, ?, '', 1, ?, '', '', '', '', ?, ?)`,
+		DefaultTenantID, defaultTenantName, string(ba), now, now); err != nil {
+		return fmt.Errorf("store: seed default tenant: %w", err)
 	}
 	return nil
 }

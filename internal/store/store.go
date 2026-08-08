@@ -519,6 +519,9 @@ func (s *Store) migrate() error {
 	if err := s.seedThemes(); err != nil {
 		return err
 	}
+	if err := s.seedDefaultTenant(); err != nil {
+		return err
+	}
 	if err := s.seedLocalProvider(); err != nil {
 		return err
 	}

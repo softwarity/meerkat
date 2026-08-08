@@ -18,7 +18,6 @@ import (
 // Errors returned by Parse.
 var (
 	ErrSignature = errors.New("license: invalid signature")
-	ErrExpired   = errors.New("license: expired")
 	ErrNotYet    = errors.New("license: not valid yet")
 )
 
@@ -54,6 +53,14 @@ func Load(path string) (*License, error) {
 
 // Parse validates a license file against the given public keys at the given
 // instant. It is the testable core of Load.
+//
+// A license is PERPETUAL: whoever paid keeps the right to run what they paid
+// for, and an expiry date never turns anything off. It says how far updates
+// are covered - a build released after it is outside the deal - which Covered
+// reports so the console and the log can say so without anyone being locked
+// out of their own gateway. Cutting authentication over a late invoice would
+// make this unusable in front of a production, and nobody serious would
+// deploy it.
 func Parse(data []byte, keys []ed25519.PublicKey, now time.Time) (*License, error) {
 	var env envelope
 	if err := json.Unmarshal(data, &env); err != nil {
@@ -66,13 +73,18 @@ func Parse(data []byte, keys []ed25519.PublicKey, now time.Time) (*License, erro
 	if err := json.Unmarshal(env.Payload, &lic); err != nil {
 		return nil, fmt.Errorf("license: malformed payload: %w", err)
 	}
+	// Not-yet-valid is refused: that is a minting mistake, not a customer.
 	if now.Before(lic.IssuedAt) {
 		return nil, ErrNotYet
 	}
-	if now.After(lic.ExpiresAt) {
-		return nil, ErrExpired
-	}
 	return &lic, nil
+}
+
+// Covered reports whether a build dated buildDate falls within what this
+// license paid for. False does NOT disable anything - it is what the log and
+// the Licence screen say to explain that an update went past the coverage.
+func (l *License) Covered(buildDate time.Time) bool {
+	return !buildDate.After(l.ExpiresAt)
 }
 
 func verify(env envelope, keys []ed25519.PublicKey) bool {

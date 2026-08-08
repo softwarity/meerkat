@@ -50,6 +50,7 @@ export class ThemePageComponent {
   protected readonly brandName = signal('');
   protected readonly brandTagline = signal('');
   protected readonly brandLogo = signal('');
+  protected readonly brandFavicon = signal('');
 
   // Hovered token (from the palette editor) → CSS var for the preview.
   private readonly hoverKey = signal('');
@@ -67,6 +68,7 @@ export class ThemePageComponent {
         this.brandName.set(b.appName);
         this.brandTagline.set(b.tagline);
         this.brandLogo.set(b.logo);
+        this.brandFavicon.set(b.favicon ?? '');
       },
     });
   }
@@ -145,7 +147,12 @@ export class ThemePageComponent {
   // Branding is global — its persistence is deliberately separate from themes.
   protected saveBranding(): void {
     this.api
-      .saveBranding({ appName: this.brandName().trim(), tagline: this.brandTagline().trim(), logo: this.brandLogo() })
+      .saveBranding({
+        appName: this.brandName().trim(),
+        tagline: this.brandTagline().trim(),
+        logo: this.brandLogo(),
+        favicon: this.brandFavicon(),
+      })
       .subscribe({
         next: () => this.snack.open($localize`:@@Branding_saved:Branding saved`, undefined, { duration: 2500 }),
         error: (err) => this.snack.open(errMsg(err), undefined, { duration: 4000 }),

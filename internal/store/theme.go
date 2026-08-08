@@ -50,10 +50,27 @@ var themeTokens = []struct{ Key, CSSVar string }{
 // ONE per gateway (global), whatever theme is active — themes are color
 // trials, the identity does not fork with them. Logo is a data URI ("" = the
 // built-in meerkat mark).
+//
+// Favicon is the browser-tab icon and is OPTIONAL on purpose: left empty, the
+// logo serves as the icon. A logo is nearly always usable as one, and asking
+// for a second image to see one's own mark in the tab is a step most people
+// skip — after which the sign-in page of their application wears Meerkat's
+// sentinel, which is the one place it must not.
 type Branding struct {
 	AppName string `json:"appName"`
 	Tagline string `json:"tagline"`
 	Logo    string `json:"logo"`
+	Favicon string `json:"favicon,omitempty"`
+}
+
+// TabIcon is what a browser tab must show: the favicon when one was set, the
+// logo otherwise, and "" when neither exists — the caller then falls back to
+// Meerkat's own mark.
+func (b Branding) TabIcon() string {
+	if b.Favicon != "" {
+		return b.Favicon
+	}
+	return b.Logo
 }
 
 // MeerkatBranding is Meerkat's own identity — the ADMIN plane wears it,
@@ -69,31 +86,48 @@ func DefaultBranding() Branding {
 	return Branding{AppName: "MY APP", Tagline: "My application description"}
 }
 
-// SanitizeBranding normalizes and validates: the logo must be an image data
-// URI of reasonable size — it lands in a src attribute, nothing else may.
+// SanitizeBranding normalizes and validates: an image must be a data URI of
+// reasonable size — it lands in a src attribute, nothing else may.
 func SanitizeBranding(b *Branding) error {
 	b.AppName = strings.TrimSpace(b.AppName)
 	b.Tagline = strings.TrimSpace(b.Tagline)
 	if b.AppName == "" {
 		b.AppName = DefaultBranding().AppName
 	}
-	if b.Logo == "" {
+	if err := checkImageDataURI("logo", b.Logo, 300_000); err != nil {
+		return err
+	}
+	// A favicon is a 32-pixel square: what does not fit in 64 KiB is a full
+	// image someone dropped in by mistake, and it would ride on every page.
+	return checkImageDataURI("favicon", b.Favicon, 64_000)
+}
+
+// imageDataURIPrefixes are the only shapes an image field may take. ICO is
+// allowed for the favicon and harmless for the logo: it is the format most
+// people already have to hand when they think "favicon".
+var imageDataURIPrefixes = []string{
+	"data:image/png;base64,",
+	"data:image/jpeg;base64,",
+	"data:image/webp;base64,",
+	"data:image/svg+xml;base64,",
+	"data:image/x-icon;base64,",
+	"data:image/vnd.microsoft.icon;base64,",
+}
+
+func checkImageDataURI(field, value string, limit int) error {
+	if value == "" {
 		return nil
 	}
-	if len(b.Logo) > 300_000 {
-		return fmt.Errorf("branding logo is too large (%d bytes): keep it under ~200 KiB", len(b.Logo))
+	if len(value) > limit {
+		return fmt.Errorf("branding %s is too large (%d bytes): keep it under ~%d KiB",
+			field, len(value), limit*2/3/1024)
 	}
-	ok := false
-	for _, prefix := range []string{"data:image/png;base64,", "data:image/jpeg;base64,", "data:image/webp;base64,", "data:image/svg+xml;base64,"} {
-		if strings.HasPrefix(b.Logo, prefix) {
-			ok = true
-			break
+	for _, prefix := range imageDataURIPrefixes {
+		if strings.HasPrefix(value, prefix) {
+			return nil
 		}
 	}
-	if !ok {
-		return fmt.Errorf("branding logo must be a base64 data URI of type png, jpeg, webp or svg+xml")
-	}
-	return nil
+	return fmt.Errorf("branding %s must be a base64 data URI of type png, jpeg, webp, svg+xml or x-icon", field)
 }
 
 // ThemeTokenKeys returns the editable token keys (console editor order).

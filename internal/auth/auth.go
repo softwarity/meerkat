@@ -143,7 +143,7 @@ const flowTop = `<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="/meerkat/favicon.svg">
+  <link rel="icon" href="/meerkat/favicon">
   <title>__TITLE__</title>
   <style>
     {{.ThemeCSS}}
@@ -886,10 +886,55 @@ const faviconSVG = `<svg viewBox="-14 -4 72 72" xmlns="http://www.w3.org/2000/sv
 <path d="M22 14l2.5 2.1-2.5 1.3-2.5-1.3z" fill="#12222f"/>
 </svg>`
 
+// favicon serves the browser-tab icon: the integrator's, or Meerkat's.
+//
+// The cascade is favicon, then logo, then the sentinel — and the middle step
+// is the one that matters. Nobody sets a favicon; everybody sets a logo. Left
+// to a single explicit field, the sign-in page of someone else's application
+// would wear our mark in the tab, which is the one place a white-label story
+// falls apart in front of an end user.
+//
+// The ADMIN plane never enters the cascade: the console is Meerkat's own
+// product and wears its own face, the same reason its theme is not the
+// integrator's to restyle.
 func (h *Handler) favicon(w http.ResponseWriter, _ *http.Request) {
+	if !h.adminPlane {
+		if _, brand := h.chrome(); brand.icon != "" {
+			if mediaType, raw, ok := decodeImageDataURI(brand.icon); ok {
+				w.Header().Set("Content-Type", mediaType)
+				// Short: an icon changed in the console must show up in the tab
+				// while the admin is still looking at it, not tomorrow.
+				w.Header().Set("Cache-Control", "public, max-age=60")
+				_, _ = w.Write(raw)
+				return
+			}
+		}
+	}
 	w.Header().Set("Content-Type", "image/svg+xml")
 	w.Header().Set("Cache-Control", "public, max-age=86400")
 	_, _ = w.Write([]byte(faviconSVG))
+}
+
+// decodeImageDataURI splits a validated "data:<media-type>;base64,<payload>"
+// into what an HTTP response needs. It re-checks rather than trusting the
+// stored value: this writes bytes with a caller-influenced Content-Type, and
+// the store's guarantee is one refactor away from being someone else's
+// assumption.
+func decodeImageDataURI(uri string) (mediaType string, raw []byte, ok bool) {
+	const marker = ";base64,"
+	head, payload, found := strings.Cut(uri, marker)
+	if !found || !strings.HasPrefix(head, "data:image/") {
+		return "", nil, false
+	}
+	mediaType = strings.TrimPrefix(head, "data:")
+	if strings.ContainsAny(mediaType, "\r\n\"") {
+		return "", nil, false
+	}
+	raw, err := base64.StdEncoding.DecodeString(payload)
+	if err != nil || len(raw) == 0 {
+		return "", nil, false
+	}
+	return mediaType, raw, true
 }
 
 // profilePasswordBody is the dedicated self-service change-password page, reached
@@ -967,10 +1012,19 @@ type brandView struct {
 	// its pulse are Meerkat lore — an integrator's app gets a neutral
 	// placeholder and no animation.
 	Meerkat bool
+	// icon is the raw tab-icon data URI. It stays unexported and never reaches
+	// a template: the pages link to /meerkat/favicon instead, so a 64 KiB
+	// image is fetched once and cached rather than inlined in every page.
+	icon string
 }
 
 func toBrandView(b store.Branding) brandView {
-	return brandView{AppName: b.AppName, Tagline: b.Tagline, LogoURL: template.URL(b.Logo)} //nolint:gosec // sanitized data URI
+	return brandView{
+		AppName: b.AppName,
+		Tagline: b.Tagline,
+		LogoURL: template.URL(b.Logo), //nolint:gosec // sanitized data URI
+		icon:    b.TabIcon(),
+	}
 }
 
 // chrome returns the flow pages' shared skin — ACTIVE theme CSS + branding —
@@ -1086,6 +1140,8 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /totp", h.doTOTP)
 	mux.HandleFunc("GET /totp-enroll", h.showTOTPEnroll)
 	mux.HandleFunc("POST /totp-enroll", h.doTOTPEnroll)
+	mux.HandleFunc("GET /meerkat/favicon", h.favicon)
+	// The old path, kept because pages cached in a browser still ask for it.
 	mux.HandleFunc("GET /meerkat/favicon.svg", h.favicon)
 	mux.HandleFunc("GET /login", h.showLogin)
 	mux.HandleFunc("POST /login", h.doLogin)

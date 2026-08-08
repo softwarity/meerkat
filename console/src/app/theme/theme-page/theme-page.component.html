@@ -7,7 +7,7 @@
 } @else {
   <div class="layout">
     <div class="left">
-      <app-branding-card [(appName)]="brandName" [(tagline)]="brandTagline" [(logo)]="brandLogo" (save)="saveBranding()" />
+      <app-branding-card [(appName)]="brandName" [(tagline)]="brandTagline" [(logo)]="brandLogo" [(favicon)]="brandFavicon" (save)="saveBranding()" />
       @if (selected()) {
         <app-palette-editor [(dark)]="dark" [(light)]="light" [(flat)]="flat" [saving]="saving()" (hoverToken)="hover($event)" (save)="save()" />
       }

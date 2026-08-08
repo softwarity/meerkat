@@ -792,6 +792,9 @@ export interface Branding {
   appName: string;
   tagline: string;
   logo: string;
+  // The browser-tab icon. Empty means "use the logo", which is what the
+  // gateway serves on /meerkat/favicon.
+  favicon?: string;
 }
 
 // Theme of the SHARED flow pages (login, select-tenant, OTP… — THEME-04).

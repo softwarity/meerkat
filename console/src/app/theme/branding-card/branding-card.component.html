@@ -48,6 +48,43 @@
     />
   </div>
 
+  <!-- The browser tab. Left alone it follows the logo, which is what almost
+       everyone wants and nobody would think to configure. -->
+  <div class="tab-icon">
+    <div class="tab-preview" [class.empty]="!tabIcon()">
+      @if (tabIcon(); as icon) {
+        <img [src]="icon" alt="" />
+      } @else {
+        <mat-icon>public</mat-icon>
+      }
+    </div>
+    <div class="tab-text">
+      <div class="tab-title">Browser tab icon</div>
+      <div class="tab-hint">
+        @if (favicon()) {
+          Its own image.
+        } @else if (logo()) {
+          Follows the logo above.
+        } @else {
+          Meerkat's mark, until you set a logo.
+        }
+      </div>
+    </div>
+    <button matButton (click)="faviconInput.click()">Choose</button>
+    @if (favicon()) {
+      <button matIconButton (click)="favicon.set('')" matTooltip="Follow the logo again" aria-label="Follow the logo again">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+    <input
+      #faviconInput
+      type="file"
+      accept="image/png,image/svg+xml,image/x-icon,image/vnd.microsoft.icon,image/webp"
+      hidden
+      (change)="onFaviconFile($event)"
+    />
+  </div>
+
   <div class="actions">
     <button matButton="tonal" (click)="save.emit()" i18n="@@Save">Save</button>
   </div>

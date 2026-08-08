@@ -1,0 +1,22 @@
+# httpbin de démo pour le swagger meerkat (spec sur /spec.json, API complète).
+#
+# L'image amont (kennethreitz/httpbin) est amd64-only et le scheduler swarm la
+# refuserait sur Apple Silicon en résolvant son manifest. Le tag LOCAL contourne
+# ça dans le fichier même : introuvable sur un registry, il n'est pas résolu et
+# le nœud exécute l'image locale (Rosetta). Une fois, après le pull :
+#
+#   docker tag kennethreitz/httpbin:latest httpbin:local
+#
+# puis, sans aucun flag :
+#
+#   docker stack deploy -c httpbin-compose.yml neo
+services:
+  httpbin:
+    image: httpbin:local
+    ports:
+      - "85:80"
+    networks:
+      - neo_network
+
+networks:
+  neo_network:

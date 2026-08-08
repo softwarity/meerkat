@@ -56,14 +56,14 @@ export class RoutesPageComponent {
     const e = this.editing();
     return e === null || e === 'new' ? null : e;
   });
-  protected readonly section = computed(() => this.params()?.get('section') ?? 'general');
+  protected readonly section = computed(() => this.params()?.get('section') ?? 'target');
 
   constructor() {
     this.load();
   }
 
   protected openEdit(route: Route): void {
-    void this.router.navigate(['/infra/routes', route.id, 'general']);
+    void this.router.navigate(['/infra/routes', route.id, 'target']);
   }
 
   protected openNew(): void {
@@ -114,7 +114,7 @@ export class RoutesPageComponent {
   onSaved(saved: Route): void {
     this.snack.open($localize`:@@Route_NAME_saved_and_applied:Route "${saved.name}:NAME:" saved and applied`, undefined, { duration: 2500 });
     if (this.editing() === 'new') {
-      void this.router.navigate(['/infra/routes', saved.id, 'general'], { replaceUrl: true });
+      void this.router.navigate(['/infra/routes', saved.id, 'target'], { replaceUrl: true });
     }
     this.load();
   }

@@ -27,7 +27,6 @@ import { argStr, cleanSpecs } from '../predicates/args';
 import { PredicatesComponent } from '../predicates/predicates.component';
 
 type Section =
-  | 'general'
   | 'security'
   | 'predicates'
   | 'target'
@@ -38,6 +37,14 @@ type Section =
   | 'locales'
   | 'userinfo'
   | 'inject';
+
+// Every section the drawer knows. A url naming anything else - an old
+// bookmark on the General section that no longer exists - lands on Target
+// rather than on an empty panel.
+const SECTIONS: Section[] = [
+  'security', 'predicates', 'target', 'modin', 'modout',
+  'identity', 'button', 'locales', 'userinfo', 'inject',
+];
 
 // Sections that only make sense for one route type - they show disabled (not
 // hidden) when the other type is selected.
@@ -116,7 +123,7 @@ export class RouteEditorComponent {
   readonly catalog = input.required<CatalogEntry[]>();
   // The URL owns the active section: it seeds this input, and local picks are
   // emitted back so the page can navigate (F5-proof deep links).
-  readonly initialSection = input<string>('general');
+  readonly initialSection = input<string>('target');
   readonly sectionChange = output<string>();
   readonly saved = output<Route>();
   readonly closed = output<void>();
@@ -170,12 +177,13 @@ export class RouteEditorComponent {
   }
 
   // The active section: a NEW url value wins, the UI toggle kicks disabled
-  // sections back to General, local picks flow through onSectionPick.
+  // sections back to Target, local picks flow through onSectionPick.
   protected readonly section = linkedSignal<{ ui: boolean; ini: string }, Section>({
     source: () => ({ ui: this.draft().isUi, ini: this.initialSection() }),
     computation: (src, previous) => {
       let s = (previous && previous.source.ini === src.ini ? previous.value : src.ini) as Section;
-      if (!src.ui && UI_SECTIONS.includes(s)) s = 'general';
+      if (!SECTIONS.includes(s)) s = 'target';
+      if (!src.ui && UI_SECTIONS.includes(s)) s = 'target';
       return s;
     },
   });

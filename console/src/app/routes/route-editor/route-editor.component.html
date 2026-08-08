@@ -17,7 +17,6 @@
 
 <div class="body">
   <mat-selection-list [multiple]="false" hideSingleSelectionIndicator (selectionChange)="onSectionPick($event.options[0].value)">
-    <mat-list-option value="general" [selected]="section() === 'general'" i18n="@@Section_general">General</mat-list-option>
     <mat-list-option value="target" [selected]="section() === 'target'" i18n="@@Section_target">Target</mat-list-option>
     <mat-list-option value="security" [selected]="section() === 'security'" i18n="@@Section_security">Security</mat-list-option>
     <mat-list-option value="predicates" [selected]="section() === 'predicates'">
@@ -51,18 +50,7 @@
 
   <div class="panel">
     @switch (section()) {
-      @case ('general') {
-        @if (draft().isUi) {
-          <mat-form-field>
-            <mat-label i18n="@@Link">Link</mat-label>
-            <input matInput [value]="draft().uiLink" (input)="patch('uiLink', $any($event.target).value)" />
-            <mat-hint i18n="@@Link_hint">
-              When set, this app shows in the user's apps menu (if their access allows it), under this name.
-            </mat-hint>
-          </mat-form-field>
-        }
-      }
-      @case ('target') {
+            @case ('target') {
         <p class="section-hint" i18n="@@Target_hint">How this route answers. Proxying fetches from a service and hands
           back what it says; the other three answer here, without calling anything.</p>
         <mat-form-field>
@@ -243,6 +231,13 @@
         }
       }
       @case ('button') {
+        <mat-form-field>
+          <mat-label i18n="@@Link">Link</mat-label>
+          <input matInput [value]="draft().uiLink" (input)="patch('uiLink', $any($event.target).value)" />
+          <mat-hint i18n="@@Link_hint">
+            When set, this app shows in the user's apps menu (if their access allows it), under this name.
+          </mat-hint>
+        </mat-form-field>
         <h3 class="sub" i18n="@@User_button">User button</h3>
         <p class="section-hint" i18n="@@User_button_hint">
           Injects the meerkat-user-button web component into the pages: profile, tenant switch,

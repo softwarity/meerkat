@@ -90,7 +90,7 @@ func (h *Handler) sendMail(ctx context.Context, msg mail.Message) error {
 }
 
 // rateLimiter is a small sliding-window attempt counter (SEC-10). Lives ON
-// the handler (not a package global) so instances — and tests — never share
+// the handler (not a package global) so instances - and tests - never share
 // counters. In-memory, per node: enough for the single-binary deployment;
 // the cluster backend will revisit it.
 type rateLimiter struct {
@@ -354,7 +354,7 @@ func (h *Handler) doRegister(w http.ResponseWriter, r *http.Request) {
 		h.renderRegister(w, r, withErr(data, h.tr(r, "errTooManyAttempts")), http.StatusTooManyRequests)
 		return
 	}
-	// The anti-robot check consumes its challenge whatever the outcome — a
+	// The anti-robot check consumes its challenge whatever the outcome - a
 	// wrong copy means solving a brand-new image.
 	if h.captchaRequired(ctx) && !h.checkCaptcha(ctx, r.PostFormValue("captcha_id"), r.PostFormValue("captcha")) {
 		h.renderRegister(w, r, withErr(data, h.tr(r, "errCaptcha")), http.StatusUnprocessableEntity)
@@ -418,7 +418,7 @@ func (h *Handler) sendConfirmation(r *http.Request, u store.User) error {
 	})
 }
 
-// externalURL rebuilds the address this request was reached on — the only
+// externalURL rebuilds the address this request was reached on - the only
 // base a mailed link can use (the gateway fronts arbitrary domains).
 func (h *Handler) externalURL(r *http.Request) string {
 	scheme := "http"
@@ -450,7 +450,7 @@ func (h *Handler) doConfirm(w http.ResponseWriter, r *http.Request) {
 }
 
 // notifyAdminsNewAccount tells every app-admin (and root) that a confirmed
-// account waits for access — each in their own language. Best-effort.
+// account waits for access - each in their own language. Best-effort.
 func (h *Handler) notifyAdminsNewAccount(ctx context.Context, u store.User) {
 	admins, err := h.st.ListNotifiableAdmins(ctx)
 	if err != nil {
@@ -472,7 +472,7 @@ func (h *Handler) notifyAdminsNewAccount(ctx context.Context, u store.User) {
 }
 
 // showAccountPending is the waiting room (AUTH-20): signed in, confirmed, but
-// no access granted yet — offer the public routes meanwhile.
+// no access granted yet - offer the public routes meanwhile.
 func (h *Handler) showAccountPending(w http.ResponseWriter, r *http.Request) {
 	sess, err := h.sm.Resolve(r.Context(), r)
 	if err != nil {
@@ -483,7 +483,7 @@ func (h *Handler) showAccountPending(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/"+sess.Pending, http.StatusSeeOther)
 		return
 	}
-	// The waiting room offers whatever THIS session may already open — the
+	// The waiting room offers whatever THIS session may already open - the
 	// public routes at least, plus the authenticated ones.
 	writeFlow(w, pendingPage, pendingData{
 		flowChrome: h.flowData(r, "titlePending"),
@@ -492,7 +492,7 @@ func (h *Handler) showAccountPending(w http.ResponseWriter, r *http.Request) {
 }
 
 // waitingRoom reports whether a fresh session has nothing to reach: no
-// membership, no capability — the default landing would only hit the traps.
+// membership, no capability - the default landing would only hit the traps.
 func waitingRoom(user store.User, memberships int) bool {
 	return memberships == 0 && !user.Root && !user.InfraAdmin && !user.AppAdmin &&
 		!user.Dev && !user.TenantCreator

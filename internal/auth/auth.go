@@ -1,6 +1,6 @@
 // Package auth serves Meerkat's own authentication pages and endpoints. The
 // pages are deliberately vanilla HTML (PAGE-01): light, framework-free, and
-// meant to become integrator-customizable (theme, logo, layouts — PAGE-02/03).
+// meant to become integrator-customizable (theme, logo, layouts - PAGE-02/03).
 package auth
 
 import (
@@ -31,7 +31,7 @@ import (
 )
 
 // flowPage assembles a user-flow page (PAGE-01) from the shared chrome: ONE
-// copy of the design tokens and layout for every page of the flow — the token
+// copy of the design tokens and layout for every page of the flow - the token
 // block the theme editor rewrites at runtime (THEME-04) must exist exactly
 // once. Titles and texts come from the request's locale (flowChrome.T);
 // bodies differ, the chrome never does.
@@ -52,7 +52,7 @@ var (
 	specimenPage        = flowPage("specimen", specimenBody)
 )
 
-// specimenBody is the REAL login screen with its error state made visible —
+// specimenBody is the REAL login screen with its error state made visible -
 // one honest screen, and together its elements already exercise every theme
 // token (fields, card, CTA, texts, outline, error, glow).
 const specimenBody = `    <form onsubmit="return false">
@@ -69,7 +69,7 @@ const specimenBody = `    <form onsubmit="return false">
     </form>
     <script>
     // Live preview: the theme editor posts token values as the admin drags a
-    // color — applied straight to :root, no reload. Specimen page ONLY (the
+    // color - applied straight to :root, no reload. Specimen page ONLY (the
     // real flow pages never embed this). Same-origin messages, --mk-* vars
     // carrying light-dark(#hex, #hex) values, nothing else passes.
     let hiTimer = null, hiVar = null, hiPrev = '';
@@ -86,7 +86,7 @@ const specimenBody = `    <form onsubmit="return false">
       if (e.data.vars && hiTimer) clearHighlight();
       for (const [k, v] of Object.entries(e.data.vars || {})) {
         // --mk-glow is the flat-design switch (1 = full effects, 0 = flat): a
-        // bare 0|1, not a color — accept it explicitly, everything else must be
+        // bare 0|1, not a color - accept it explicitly, everything else must be
         // a --mk-* light-dark(#hex, #hex) pair.
         if (k === '--mk-glow' && /^[01]$/.test(v)) {
           document.documentElement.style.setProperty(k, v);
@@ -96,7 +96,7 @@ const specimenBody = `    <form onsubmit="return false">
       }
       if ('highlight' in e.data) {
         // Hovering a token name in the editor BLINKS that token's value here:
-        // whatever it drives visibly flip-flops — the clearest possible "this
+        // whatever it drives visibly flip-flops - the clearest possible "this
         // is what changes". Hot pink on purpose: never part of a theme.
         clearHighlight();
         const k = e.data.highlight;
@@ -332,7 +332,7 @@ const flowTop = `<!doctype html>
     /* button.pk-btn: must out-rank button.choice, whose margin: 0 wins over
        a bare class selector */
     button.pk-btn { margin-top: 22px; width: 100%; justify-content: center; }
-    /* language / color-scheme switchers — persisted in cookies, applied
+    /* language / color-scheme switchers - persisted in cookies, applied
        server-side on the next render (no flash) */
     .prefs {
       margin-top: 18px; display: flex; align-items: center; gap: 4px;
@@ -411,7 +411,7 @@ const flowBottom = `    {{if .Brand.Meerkat}}<p class="foot">on watch</p>{{end}}
   </main>
   <script>
   // Every password input gets a show/hide eye (generic: login, update,
-  // profile — one place).
+  // profile - one place).
   (() => {
     const eye = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-6.4 10-6.4S22 12 22 12s-3.6 6.4-10 6.4S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>';
     const eyeOff = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-6.4 10-6.4S22 12 22 12s-3.6 6.4-10 6.4S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/><path d="M4 20 20 4"/></svg>';
@@ -542,7 +542,7 @@ const updatePasswordBody = `    <form method="post" action="update-password">
 const selectTenantBody = `    <form method="post" action="select-tenant">
       <p class="lead">{{.T.chooseTenantLead}}</p>
       {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
-      {{/* The membership type stays out on purpose: this is the APP side —
+      {{/* The membership type stays out on purpose: this is the APP side -
            administration lives on the admin port, which shows what you
            administer. */}}
       {{range .Tenants}}
@@ -555,7 +555,7 @@ const selectTenantBody = `    <form method="post" action="select-tenant">
 
 // profileBody is the self-service profile page (data plane, "Moi" scope): the
 // user's identity + a change-password form (needs the CURRENT password) + sign
-// out. Avatar is generated initials — NO Gravatar, which would be an external
+// out. Avatar is generated initials - NO Gravatar, which would be an external
 // request and break the offline-first rule for the flow pages.
 const profileBody = `    <style>
       .avatar {
@@ -654,7 +654,7 @@ const profileBody = `    <style>
 `
 
 // profileSecurityBody groups everything security: the second factor, the
-// password, and the passkeys — reached from the profile hub.
+// password, and the passkeys - reached from the profile hub.
 const profileSecurityBody = `    <style>
       .mfa-link {
         display: flex; align-items: center; gap: 12px; width: 100%;
@@ -787,7 +787,7 @@ const profileSecurityBody = `    <style>
 `
 
 // profileDevBody is the DEVELOPER hub: one entry per developer tool. Two for
-// now — the public certificate (to plug services) and the API documentation —
+// now - the public certificate (to plug services) and the API documentation -
 // and room for more (the install command will land next to the cert). Each
 // entry is a two-line link: what it is, and a short why.
 const profileDevBody = `    <style>
@@ -873,7 +873,7 @@ const profileDevCertBody = `    <style>
     <p class="back"><a href="/profile/dev">{{.T.backToDeveloper}}</a></p>
 `
 
-// faviconSVG is the sentinel in Sentinel cyan, squared for a browser tab —
+// faviconSVG is the sentinel in Sentinel cyan, squared for a browser tab -
 // the same silhouette as the console's meerkat.svg, with fixed colors (a
 // favicon has no CSS context). Served on BOTH planes under /meerkat/.
 const faviconSVG = `<svg viewBox="-14 -4 72 72" xmlns="http://www.w3.org/2000/svg">
@@ -888,7 +888,7 @@ const faviconSVG = `<svg viewBox="-14 -4 72 72" xmlns="http://www.w3.org/2000/sv
 
 // favicon serves the browser-tab icon: the integrator's, or Meerkat's.
 //
-// The cascade is favicon, then logo, then the sentinel — and the middle step
+// The cascade is favicon, then logo, then the sentinel - and the middle step
 // is the one that matters. Nobody sets a favicon; everybody sets a logo. Left
 // to a single explicit field, the sign-in page of someone else's application
 // would wear our mark in the tab, which is the one place a white-label story
@@ -965,9 +965,9 @@ const profilePasswordBody = `    <form method="post" action="/profile/password">
 `
 
 // Handler serves the user-flow pages (login, select-tenant, logout). The two
-// planes get different rules: the DATA plane runs the full flow — tenant
+// planes get different rules: the DATA plane runs the full flow - tenant
 // selection (TENANT-03), working-hours enforcement (TENANT-04), resolved TTL
-// (TENANT-05) — while the ADMIN plane stays a plain credentials check with the
+// (TENANT-05) - while the ADMIN plane stays a plain credentials check with the
 // global TTL: operators are never locked out by application access windows,
 // and the console needs no active tenant.
 type Handler struct {
@@ -1007,13 +1007,13 @@ func NewAdmin(st *store.Store, sm *session.Manager) *Handler {
 
 // brandView is the branding as the templates consume it (THEME-02). LogoURL
 // is template.URL because a validated data: URI must survive html/template's
-// URL filter — store.SanitizeBranding is the gatekeeper.
+// URL filter - store.SanitizeBranding is the gatekeeper.
 type brandView struct {
 	AppName string
 	Tagline string
 	LogoURL template.URL
 	// Meerkat marks the ADMIN plane's built-in identity: the sentinel mark and
-	// its pulse are Meerkat lore — an integrator's app gets a neutral
+	// its pulse are Meerkat lore - an integrator's app gets a neutral
 	// placeholder and no animation.
 	Meerkat bool
 	// icon is the raw tab-icon data URI. It stays unexported and never reaches
@@ -1031,12 +1031,12 @@ func toBrandView(b store.Branding) brandView {
 	}
 }
 
-// chrome returns the flow pages' shared skin — ACTIVE theme CSS + branding —
+// chrome returns the flow pages' shared skin - ACTIVE theme CSS + branding -
 // cached briefly so pages never pay reads per request and pick changes up
 // within seconds.
 func (h *Handler) chrome() (template.CSS, brandView) {
 	// The ADMIN plane keeps Meerkat's own look: the console is a product, not
-	// the integrator's application — the theme editor only ever restyles the
+	// the integrator's application - the theme editor only ever restyles the
 	// DATA plane's flow pages (:8080).
 	if h.adminPlane {
 		brand := toBrandView(store.MeerkatBranding())
@@ -1063,7 +1063,7 @@ func (h *Handler) chrome() (template.CSS, brandView) {
 }
 
 // WriteThemePreview renders the flow-page SPECIMEN (every element of the flow
-// design system) with an arbitrary theme, one scheme forced — the console's
+// design system) with an arbitrary theme, one scheme forced - the console's
 // theme editor iframes it twice, dark and light side by side. No session, no
 // side effect.
 func WriteThemePreview(w http.ResponseWriter, t store.Theme, b store.Branding, scheme string) {
@@ -1080,7 +1080,7 @@ func WriteThemePreview(w http.ResponseWriter, t store.Theme, b store.Branding, s
 	}{flowChrome: flowChrome{
 		ThemeCSS: template.CSS(css), //nolint:gosec // store sanitizes hex-only tokens
 		Brand:    toBrandView(b),
-		Title:    "Theme preview · Meerkat",
+		Title:    "Theme preview - Meerkat",
 		Lang:     "en",
 		Langs:    []string{"en"},
 		Scheme:   "auto",
@@ -1106,7 +1106,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 		mux.HandleFunc("GET /profile/password", h.showProfilePassword)
 		mux.HandleFunc("GET /profile/security", h.showProfileSecurity)
 		mux.HandleFunc("GET /profile/history", h.showProfileHistory)
-		// Personal API tokens (AUTH-16) — the pages 404 while the policy is off.
+		// Personal API tokens (AUTH-16) - the pages 404 while the policy is off.
 		mux.HandleFunc("GET /profile/tokens", h.showTokens)
 		mux.HandleFunc("POST /profile/tokens", h.doTokens)
 		mux.HandleFunc("GET /profile/dev", h.showProfileDev)
@@ -1115,7 +1115,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 		// Self-service second-factor management (MFA-01): enrol, renew, disable.
 		mux.HandleFunc("GET /profile/mfa", h.showProfileMFA)
 		mux.HandleFunc("POST /profile/mfa", h.doProfileMFA)
-		// Self-registration (AUTH-20) — the pages 404 while the policy is off.
+		// Self-registration (AUTH-20) - the pages 404 while the policy is off.
 		mux.HandleFunc("GET /register", h.showRegister)
 		mux.HandleFunc("POST /register", h.doRegister)
 		mux.HandleFunc("POST /register/captcha", h.doRegisterCaptcha)
@@ -1132,7 +1132,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 
 	mux.HandleFunc("GET /update-password", h.showUpdatePassword)
 	mux.HandleFunc("POST /update-password", h.doUpdatePassword)
-	// Forgot password (AUTH-21) — both planes, like /update-password; the
+	// Forgot password (AUTH-21) - both planes, like /update-password; the
 	// pages 404 while no SMTP is configured.
 	mux.HandleFunc("GET /forgot-password", h.showForgot)
 	mux.HandleFunc("POST /forgot-password", h.doForgot)
@@ -1170,7 +1170,7 @@ func (h *Handler) localPasswordAllowed(ctx context.Context) bool {
 
 // credentialFormOpen says whether the username/password form is still of any
 // use. It closes only when NOTHING can answer it: local accounts disabled and
-// no directory to ask — the form is not only the local password's, it is also
+// no directory to ask - the form is not only the local password's, it is also
 // how a directory is queried.
 func (h *Handler) credentialFormOpen(ctx context.Context) bool {
 	return h.localPasswordAllowed(ctx) || h.hasDirectory(ctx)
@@ -1214,7 +1214,7 @@ func (h *Handler) doLogin(w http.ResponseWriter, r *http.Request) {
 	user, err := h.st.GetUserByUsername(r.Context(), username)
 	// Same code path and same message whether the user is unknown or the
 	// password is wrong (SEC-09: no account enumeration). A directory may
-	// still know this pair, so it gets asked before the refusal — and an
+	// still know this pair, so it gets asked before the refusal - and an
 	// account that exists here only as an external identity carries no local
 	// hash, which never matches.
 	if err != nil {
@@ -1227,8 +1227,8 @@ func (h *Handler) doLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// A password that is CORRECT but no longer accepted (AUTH-24) takes the
-	// same path as a wrong one: the directories are still asked — someone whose
-	// local and LDAP passwords match must come in through the directory — and
+	// same path as a wrong one: the directories are still asked - someone whose
+	// local and LDAP passwords match must come in through the directory - and
 	// the refusal is worded identically, so nothing is enumerated.
 	if user.PasswordHash == "" ||
 		bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil ||
@@ -1249,7 +1249,7 @@ func (h *Handler) doLogin(w http.ResponseWriter, r *http.Request) {
 	h.regLimit.reset(loginKey)
 	// A self-registered account stays unusable until its address is confirmed
 	// (AUTH-20). Only revealed to someone holding the CORRECT password, and
-	// the confirmation is re-sent (rate-limited) — the usual lost-mail rescue.
+	// the confirmation is re-sent (rate-limited) - the usual lost-mail rescue.
 	if user.SelfRegistered && !user.EmailVerified {
 		if h.registerAllow(clientIP(r)) {
 			if err := h.sendConfirmation(r, user); err != nil {
@@ -1265,7 +1265,7 @@ func (h *Handler) doLogin(w http.ResponseWriter, r *http.Request) {
 	dest := safeNext(next)
 
 	// AUTH-05 step 1: a temporary/expired password must be changed before
-	// anything else — the session is issued with the step pending, and every
+	// anything else - the session is issued with the step pending, and every
 	// navigation is redirected to it until done (gateway + flow pages enforce).
 	if user.MustChangePassword {
 		h.issueAndGoPending(w, r, user, stepUpdatePassword, dest)
@@ -1306,7 +1306,7 @@ func (h *Handler) resolveTenantAndGo(w http.ResponseWriter, r *http.Request, use
 	switch len(memberships) {
 	case 0:
 		// Confirmed but nothing granted yet: land on the waiting room instead
-		// of the data plane's catch-all (AUTH-20) — unless a precise
+		// of the data plane's catch-all (AUTH-20) - unless a precise
 		// destination was asked for.
 		if waitingRoom(user, 0) && dest == "/" {
 			dest = "/account-pending"
@@ -1315,7 +1315,7 @@ func (h *Handler) resolveTenantAndGo(w http.ResponseWriter, r *http.Request, use
 	case 1:
 		tid := memberships[0].TenantID
 		if !h.withinHours(r.Context(), user.ID, tid) {
-			// A closed window is refused EXPLICITLY (TENANT-04) — unlike bad
+			// A closed window is refused EXPLICITLY (TENANT-04) - unlike bad
 			// credentials, there is nothing to enumerate here.
 			h.render(w, r, next, h.tr(r, "errOutsideHours"), http.StatusForbidden)
 			return
@@ -1326,7 +1326,7 @@ func (h *Handler) resolveTenantAndGo(w http.ResponseWriter, r *http.Request, use
 	}
 }
 
-// issueAndGo resolves the applicable TTL (membership → tenant → global,
+// issueAndGo resolves the applicable TTL (membership -> tenant -> global,
 // TENANT-05), issues the session carrying the post-login destination `next`, and
 // redirects to `dest` (usually `next`, or the select-tenant step).
 func (h *Handler) issueAndGo(w http.ResponseWriter, r *http.Request, user store.User, tenantID, next, dest, method string) {
@@ -1371,7 +1371,7 @@ const (
 // nextStepAfterPassword decides which second-factor step (if any) a user owes
 // once their password is accepted (MFA-01/04): an enrolled user is challenged,
 // UNLESS this browser is trusted (MFA-03); a user with no factor is forced to
-// enrol only when MFA is mandatory for them; otherwise "" — no step, proceed to
+// enrol only when MFA is mandatory for them; otherwise "" - no step, proceed to
 // tenant selection.
 func (h *Handler) nextStepAfterPassword(ctx context.Context, userID, trustToken string) (string, error) {
 	totp, err := h.st.GetUserTOTP(ctx, userID)
@@ -1409,12 +1409,12 @@ func (h *Handler) issueAndGoPending(w http.ResponseWriter, r *http.Request, user
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	// The destination now rides on the session — the step URL stays clean.
+	// The destination now rides on the session - the step URL stays clean.
 	http.Redirect(w, r, "/"+pending, http.StatusSeeOther)
 }
 
 // continueAfterStep resumes the flow once a step completed: on the data plane
-// the tenant remains to be resolved (0/1/N — TENANT-03), on the admin plane we
+// the tenant remains to be resolved (0/1/N - TENANT-03), on the admin plane we
 // are done.
 func (h *Handler) continueAfterStep(w http.ResponseWriter, r *http.Request, userID, next string) {
 	if h.adminPlane {
@@ -1484,7 +1484,7 @@ func (h *Handler) doUpdatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	if sess.Pending != stepUpdatePassword {
 		// Outside the forced step this endpoint would let a hijacked session
-		// take the account over without knowing the current password — refuse.
+		// take the account over without knowing the current password - refuse.
 		http.Error(w, "no password change is pending on this session", http.StatusForbidden)
 		return
 	}
@@ -1534,7 +1534,7 @@ func (h *Handler) advanceAfterPassword(w http.ResponseWriter, r *http.Request, s
 	h.finishFlow(w, r, sess)
 }
 
-// finishFlow clears the login-flow step and resumes tenant resolution — the
+// finishFlow clears the login-flow step and resumes tenant resolution - the
 // terminal transition once every AUTH-05 step (password, MFA) is satisfied.
 func (h *Handler) finishFlow(w http.ResponseWriter, r *http.Request, sess store.Session) {
 	if err := h.sm.ClearPending(r.Context(), r); err != nil {
@@ -1557,7 +1557,7 @@ func (h *Handler) renderUpdatePassword(w http.ResponseWriter, r *http.Request, e
 }
 
 // profileData is the self-service profile page's model (the "Moi" scope). Each
-// action (password, two-factor) is its own dedicated page reached by a link —
+// action (password, two-factor) is its own dedicated page reached by a link -
 // nothing is edited inline here.
 type profileData struct {
 	flowChrome
@@ -1569,7 +1569,7 @@ type profileData struct {
 	Email      string
 	TenantName string
 	IsDev      bool
-	// Apps: the UI routes this session may open — the way back into the
+	// Apps: the UI routes this session may open - the way back into the
 	// applications from the profile flow.
 	Apps []publicLink
 }
@@ -1630,7 +1630,7 @@ type profilePasswordData struct {
 }
 
 // showProfilePassword renders the dedicated change-password page (reached by a
-// link from the profile — the same pattern as /profile/mfa).
+// link from the profile - the same pattern as /profile/mfa).
 func (h *Handler) showProfilePassword(w http.ResponseWriter, r *http.Request) {
 	sess, err := h.sm.Resolve(r.Context(), r)
 	if err != nil {
@@ -1698,7 +1698,7 @@ func (h *Handler) doProfilePassword(w http.ResponseWriter, r *http.Request) {
 }
 
 // doProfileAvatar uploads (or clears) the user's profile photo: read, type-
-// sniffed, size-bounded, stored as a data URI (offline-first — served back
+// sniffed, size-bounded, stored as a data URI (offline-first - served back
 // inline, no file storage, no external request).
 func (h *Handler) doProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	sess, err := h.sm.Resolve(r.Context(), r)
@@ -1752,7 +1752,7 @@ func (h *Handler) doProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }
 
-// doProfileDevCert stores or clears a DEVELOPER's public certificate — the
+// doProfileDevCert stores or clears a DEVELOPER's public certificate - the
 // credential their plugged service will authenticate with (dev plug
 // matching). Devs only; the store validates the PEM.
 func (h *Handler) doProfileDevCert(w http.ResponseWriter, r *http.Request) {
@@ -1865,7 +1865,7 @@ func (h *Handler) renderProfileSecurity(w http.ResponseWriter, r *http.Request, 
 	writeFlow(w, profileSecurityPage, data, status)
 }
 
-// showProfileDev renders the Developer page — dev capability required.
+// showProfileDev renders the Developer page - dev capability required.
 func (h *Handler) showProfileDev(w http.ResponseWriter, r *http.Request) {
 	sess, err := h.sm.Resolve(r.Context(), r)
 	if err != nil {
@@ -1915,7 +1915,7 @@ func (h *Handler) renderProfileDevCert(w http.ResponseWriter, r *http.Request, s
 	writeFlow(w, profileDevCertPage, data, status)
 }
 
-// initials builds a 1–2 letter avatar seed from the user's name (offline — no
+// initials builds a 1-2 letter avatar seed from the user's name (offline - no
 // Gravatar).
 func initials(u store.User) string {
 	src := strings.TrimSpace(u.Fullname)
@@ -1954,7 +1954,7 @@ func (h *Handler) activeMemberships(ctx context.Context, userID string) ([]store
 }
 
 // withinHours evaluates the resolved working-hours window (TENANT-04). A
-// broken configuration (bad timezone) fails OPEN with a warning — a config
+// broken configuration (bad timezone) fails OPEN with a warning - a config
 // mistake must not lock every user out.
 func (h *Handler) withinHours(ctx context.Context, userID, tenantID string) bool {
 	ba, err := h.st.ResolveBusinessAccess(ctx, userID, tenantID)
@@ -1977,7 +1977,7 @@ type selectTenantData struct {
 }
 
 // showSelectTenant lists the tenants the signed-in user may enter
-// (TENANT-03). With one or none there is nothing to choose — pass through.
+// (TENANT-03). With one or none there is nothing to choose - pass through.
 func (h *Handler) showSelectTenant(w http.ResponseWriter, r *http.Request) {
 	sess, err := h.sm.Resolve(r.Context(), r)
 	if err != nil {
@@ -1999,7 +1999,7 @@ func (h *Handler) showSelectTenant(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, next, http.StatusSeeOther)
 		return
 	case 1:
-		// Nothing to choose — stamp the only tenant (hours-checked) and go.
+		// Nothing to choose - stamp the only tenant (hours-checked) and go.
 		if !h.withinHours(r.Context(), sess.UserID, memberships[0].TenantID) {
 			h.render(w, r, next, h.tr(r, "errOutsideHours"), http.StatusForbidden)
 			return
@@ -2102,7 +2102,7 @@ func (h *Handler) render(w http.ResponseWriter, r *http.Request, next, errMsg st
 		// close the form: a directory is asked through this very field.
 		Credentials bool
 		// Shut: nothing on this page can let anyone in. Said plainly and
-		// WITHOUT saying why — which door is closed is nobody's business but
+		// WITHOUT saying why - which door is closed is nobody's business but
 		// the administrator's.
 		Shut bool
 	}{flowChrome: h.flowData(r, "titleSignIn"), Next: next, Error: errMsg,
@@ -2124,7 +2124,7 @@ type publicLink struct {
 }
 
 // publicLinks lists the enabled, unauthenticated UI routes that expose a
-// usable entry path. API routes are not navigation targets and stay out —
+// usable entry path. API routes are not navigation targets and stay out -
 // and so does the ADMIN plane's login: application routes are a data-plane
 // affair, the console offers nothing anonymous.
 func (h *Handler) publicLinks(ctx context.Context) []publicLink {
@@ -2153,7 +2153,7 @@ func (h *Handler) publicLinks(ctx context.Context) []publicLink {
 // reachableLinks lists the UI routes THIS session may open: the public ones,
 // the authenticated ones (the caller is signed in), and the role-gated ones
 // whose role the active tenant actually grants. This feeds the profile hub
-// and the user-button's Applications submenu — the way back into the apps.
+// and the user-button's Applications submenu - the way back into the apps.
 func (h *Handler) reachableLinks(ctx context.Context, sess store.Session) []publicLink {
 	if h.adminPlane {
 		return nil
@@ -2164,7 +2164,7 @@ func (h *Handler) reachableLinks(ctx context.Context, sess store.Session) []publ
 	}
 	// The caller, to test each route's Access. Memberships are NOT filled in:
 	// this list is what one can open right now, in the organisation currently
-	// active — offering a link that would land on the tenant chooser would be
+	// active - offering a link that would land on the tenant chooser would be
 	// offering a detour, not an application.
 	caller := store.Caller{Authenticated: true, TenantID: sess.TenantID}
 	if u, err := h.st.GetUserByID(ctx, sess.UserID); err == nil {
@@ -2222,11 +2222,11 @@ var dummyHash = func() []byte {
 	return h
 }()
 
-// safeNext only allows same-site relative redirects — never an absolute URL
+// safeNext only allows same-site relative redirects - never an absolute URL
 // (open-redirect guard).
 // safeNext validates a post-login redirect target against open-redirect abuse:
 // only a clean SAME-ORIGIN path is allowed, anything else collapses to "/". It
-// rejects protocol-relative ("//host"), backslash tricks ("/\\host" — browsers
+// rejects protocol-relative ("//host"), backslash tricks ("/\\host" - browsers
 // fold "\" into "/"), control characters (tab/newline get stripped and can
 // smuggle "//"), and absolute URLs (scheme or host).
 func safeNext(next string) string {
@@ -2245,7 +2245,7 @@ func safeNext(next string) string {
 }
 
 // SeedAdmin creates the first root account when no user exists. The password
-// comes from MEERKAT_ADMIN_PASSWORD, or is generated and printed once — the
+// comes from MEERKAT_ADMIN_PASSWORD, or is generated and printed once - the
 // proper first-start setup page (LIFE-01) will replace this.
 func SeedAdmin(ctx context.Context, st *store.Store) error {
 	n, err := st.CountUsers(ctx)
@@ -2268,13 +2268,13 @@ func SeedAdmin(ctx context.Context, st *store.Store) error {
 	if err := st.CreateUser(ctx, store.User{
 		ID: "admin", Username: "admin", PasswordHash: string(hash),
 		Fullname: "Administrator", Enabled: true, Root: true, EmailVerified: true,
-		// A generated password is printed once — force a change at first login.
+		// A generated password is printed once - force a change at first login.
 		MustChangePassword: generated,
 	}); err != nil {
 		return err
 	}
 	if generated {
-		slog.Warn("first start: admin account created — change this password",
+		slog.Warn("first start: admin account created - change this password",
 			"username", "admin", "password", password)
 	} else {
 		slog.Info("first start: admin account created from MEERKAT_ADMIN_PASSWORD", "username", "admin")

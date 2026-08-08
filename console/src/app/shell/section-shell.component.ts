@@ -65,7 +65,7 @@ const PLANES: Record<string, { title: string; links: SectionLink[] }> = {
 // same shape a tenant already had, rather than in a drawer sliding out of the
 // rail. Sections are CHILD routes (/infra/routes, /application/users), so the
 // URL says which plane one is in and this shell stays mounted while moving
-// between sections. Which plane it serves comes from the route's `plane` data —
+// between sections. Which plane it serves comes from the route's `plane` data -
 // the router already knows, so there is no URL to parse.
 //
 // The transverse screens (vault, audit) sit outside: they belong to no plane.

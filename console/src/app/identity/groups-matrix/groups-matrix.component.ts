@@ -48,7 +48,7 @@ interface RoleRow extends RoleTreeRow {
 })
 export class GroupsMatrixComponent {
   readonly tenantId = input.required<string>();
-  // Name/description search and the single-tag filter — both live in the
+  // Name/description search and the single-tag filter - both live in the
   // layout's right-zone header.
   readonly filter = input('');
   readonly tagFilter = input('');
@@ -67,7 +67,7 @@ export class GroupsMatrixComponent {
   protected readonly roles = signal<Role[]>([]);
   protected readonly groups = signal<Group[]>([]);
 
-  // roleId → its parent, to walk the ancestor chain: a role implied by an
+  // roleId -> its parent, to walk the ancestor chain: a role implied by an
   // ancestor already in the group is checked AND locked (you cannot uncheck a
   // child while its parent grants it).
   private readonly parentOf = computed(() => {
@@ -153,7 +153,7 @@ export class GroupsMatrixComponent {
   }
 
   // Look the group up fresh from the signal (NOT the column-loop closure) so a
-  // cell re-evaluates when groups() changes — otherwise the checkbox is stale.
+  // cell re-evaluates when groups() changes - otherwise the checkbox is stale.
   private groupById(id: string): Group | undefined {
     return this.groups().find((g) => g.id === id);
   }

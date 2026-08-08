@@ -20,15 +20,15 @@ func newAuditID() string {
 
 // AuditEvent is one recorded administrative mutation (the audit trail). It
 // captures WHO (actor), WHAT (action + target), and the exact field-level diff
-// — only what changed, with before/after — so a group-mode edit reads as
-// "groupMode: MULTIPLE → SINGLE", never "modified tenant X".
+// - only what changed, with before/after - so a group-mode edit reads as
+// "groupMode: MULTIPLE -> SINGLE", never "modified tenant X".
 type AuditEvent struct {
 	ID string `json:"id"`
 	At int64  `json:"at"`
 	// ActorID survives the actor's deletion (no FK); ActorName is joined on read.
 	ActorID   string `json:"actorId"`
 	ActorName string `json:"actorName,omitempty"`
-	// Action is a dotted verb: "tenant.update", "member.remove", "settings.update"…
+	// Action is a dotted verb: "tenant.update", "member.remove", "settings.update"...
 	Action string `json:"action"`
 	// Target is the object kind ("tenant", "user", "membership", "role",
 	// "group", "settings", "route"); TargetID/TargetName identify the instance
@@ -104,7 +104,7 @@ func (s *Store) AddAuditEvent(ctx context.Context, ev AuditEvent) error {
 }
 
 // ListAuditEvents returns matching events newest first, each enriched with the
-// actor's current username (best-effort — "" if the actor is gone).
+// actor's current username (best-effort - "" if the actor is gone).
 func (s *Store) ListAuditEvents(ctx context.Context, f AuditFilter) ([]AuditEvent, error) {
 	var where []string
 	var args []any
@@ -122,7 +122,7 @@ func (s *Store) ListAuditEvents(ctx context.Context, f AuditFilter) ([]AuditEven
 	}
 	if f.Scope != nil {
 		if len(f.Scope.Targets) == 0 && len(f.Scope.TenantIDs) == 0 {
-			return []AuditEvent{}, nil // no domain, no tenant → sees nothing
+			return []AuditEvent{}, nil // no domain, no tenant -> sees nothing
 		}
 		var ors []string
 		if len(f.Scope.Targets) > 0 {

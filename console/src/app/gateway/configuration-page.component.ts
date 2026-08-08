@@ -37,13 +37,13 @@ const SETTING_LABELS: Record<string, () => string> = {
   issues_enabled: () => $localize`:@@Setting_issues:issue reporting`,
 };
 
-// Import and export of the whole configuration (CFG-03/05) — INFRA plane,
+// Import and export of the whole configuration (CFG-03/05) - INFRA plane,
 // root only.
 //
 // The screen is built around one promise: the file that leaves is PUBLIC. It
 // says so, and it says what it left behind, before the download rather than
 // after. On the way back in, nothing is applied until the admin has seen what
-// would change and what the vault is missing — that preview is the last moment
+// would change and what the vault is missing - that preview is the last moment
 // anyone remembers what a given $name was, which is why the entries are filled
 // in right there.
 @Component({
@@ -490,7 +490,7 @@ export class ConfigurationPageComponent {
   protected readonly report = signal<ConfigReport | null>(null);
 
   // The file the admin picked, kept AS IT IS: the same bytes are previewed and
-  // then imported, so what was shown is what applies — and a package read as
+  // then imported, so what was shown is what applies - and a package read as
   // text on the way would be corrupted.
   protected readonly file = signal<File | null>(null);
   protected readonly filename = signal('');
@@ -556,7 +556,7 @@ export class ConfigurationPageComponent {
     ].join('\n');
   }
 
-  // "4 routes, 2 roles, the mail relay, 13 settings" — the NATURE of what is in
+  // "4 routes, 2 roles, the mail relay, 13 settings" - the NATURE of what is in
   // the file and how much of it, on one line. Which objects exactly is what the
   // file itself answers.
   protected carried(sections: ConfigSection[]): string {
@@ -586,7 +586,7 @@ export class ConfigurationPageComponent {
     return bytes < 1024 ? `${bytes} B` : `${Math.round(bytes / 1024)} kB`;
   }
 
-  // "3 routes", "1 role" — the plural is the count's business, not the label's.
+  // "3 routes", "1 role" - the plural is the count's business, not the label's.
   protected family(kind: string, count: number): string {
     const one = count === 1;
     switch (kind) {

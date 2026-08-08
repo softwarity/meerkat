@@ -94,7 +94,7 @@ func TestSignAndVerifyAllAlgorithms(t *testing.T) {
 }
 
 // TestJWKSVerifiesES256 rebuilds the EC public key from the published JWKS
-// coordinates and verifies a token with it — proving the JWKS is usable, not
+// coordinates and verifies a token with it - proving the JWKS is usable, not
 // just well-shaped.
 func TestJWKSVerifiesES256(t *testing.T) {
 	set, err := Generate()

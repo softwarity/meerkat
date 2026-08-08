@@ -1,6 +1,6 @@
 // Package admin is Meerkat's control plane: the API served on the dedicated
 // admin port (CONSOLE-11), consumed by the console. It is strictly separated
-// from the data plane — nothing here is ever routable from the application
+// from the data plane - nothing here is ever routable from the application
 // port.
 package admin
 
@@ -27,7 +27,7 @@ type API struct {
 	// Mailer sends outbound e-mail through the STORED config; nil answers "not
 	// configured". Wired by main, faked in tests.
 	Mailer func(ctx context.Context, msg mail.Message) error
-	// MailerWith sends through an EXPLICIT config — the relay test tries what is
+	// MailerWith sends through an EXPLICIT config - the relay test tries what is
 	// on screen, not what is stored. Defaults to mail.Send; faked in tests.
 	MailerWith func(ctx context.Context, cfg mail.Config, msg mail.Message) error
 
@@ -41,7 +41,7 @@ type API struct {
 }
 
 // New builds the admin API. router receives a hot reload after every
-// mutation — saving IS applying.
+// mutation - saving IS applying.
 func New(st *store.Store, sm *session.Manager, router *gateway.Router) *API {
 	return &API{st: st, sm: sm, router: router}
 }
@@ -111,7 +111,7 @@ func (a *API) getRoute(w http.ResponseWriter, r *http.Request) {
 //
 // It runs the engine's own code, not a re-implementation: a preview that agreed
 // with a second parser and disagreed with the gateway would be worse than none.
-// Nothing is persisted and nothing is read — the template only ever sees the
+// Nothing is persisted and nothing is read - the template only ever sees the
 // fictional caller.
 func (a *API) previewRespond(w http.ResponseWriter, r *http.Request, _ store.User) {
 	var in struct {
@@ -120,7 +120,7 @@ func (a *API) previewRespond(w http.ResponseWriter, r *http.Request, _ store.Use
 	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64<<10))
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&in); err != nil {
-		writeErr(w, http.StatusBadRequest, "malformed body: expected {\"body\": \"…\"}")
+		writeErr(w, http.StatusBadRequest, "malformed body: expected {\"body\": \"...\"}")
 		return
 	}
 	out, err := routing.PreviewRespond(in.Body)
@@ -156,8 +156,8 @@ func (a *API) reorderRoutes(w http.ResponseWriter, r *http.Request, actor store.
 	writeJSON(w, http.StatusOK, map[string]int{"reordered": len(ids)})
 }
 
-// putRoute upserts a route: the body is validated by COMPILING it — the
-// exact same code path the engine uses — so an invalid route is refused with
+// putRoute upserts a route: the body is validated by COMPILING it - the
+// exact same code path the engine uses - so an invalid route is refused with
 // the engine's precise error and never persisted.
 func (a *API) putRoute(w http.ResponseWriter, r *http.Request, actor store.User) {
 	var route store.Route
@@ -191,7 +191,7 @@ func (a *API) putRoute(w http.ResponseWriter, r *http.Request, actor store.User)
 	}
 	if err := a.router.Reload(r.Context()); err != nil {
 		// This route is valid, so a reload failure means another stored route
-		// is broken — surface it instead of pretending everything applied.
+		// is broken - surface it instead of pretending everything applied.
 		a.internal(w, fmt.Errorf("saved, but reload failed: %w", err))
 		return
 	}

@@ -12,7 +12,7 @@ import (
 
 // Outbound e-mail + self-registration (AUTH-20): the SMTP config is a
 // gateway-wide setting; self-registration is a policy PER PROVIDER (local
-// only today — external providers will carry their own knob).
+// only today - external providers will carry their own knob).
 
 // GetSMTP reads the SMTP config; an unset key means "not configured" (zero
 // value), which mail.Send refuses explicitly. Vault references ($name) are
@@ -39,7 +39,7 @@ func (s *Store) GetSMTP(ctx context.Context) mail.Config {
 // RawSMTP reads the relay AS STORED, references unexpanded. It is what the
 // admin screen must be served: a form showing the resolved value would send
 // that value back on the next save and quietly replace the reference with the
-// secret itself — the screen would eat the very thing it is meant to display.
+// secret itself - the screen would eat the very thing it is meant to display.
 func (s *Store) RawSMTP(ctx context.Context) mail.Config {
 	var cfg mail.Config
 	_ = s.GetSetting(ctx, SettingSMTP, &cfg)
@@ -85,7 +85,7 @@ type RegistrationPolicy struct {
 	// LocalEnabled opens the /register page (local accounts, e-mail confirmed).
 	LocalEnabled bool `json:"localEnabled"`
 	// CaptchaDisabled turns the home-grown captcha OFF (inverted so the safe
-	// behaviour — captcha on — is the zero value of an older stored policy).
+	// behaviour - captcha on - is the zero value of an older stored policy).
 	CaptchaDisabled bool `json:"captchaDisabled"`
 }
 
@@ -98,7 +98,7 @@ func (s *Store) GetRegistrationPolicy(ctx context.Context) RegistrationPolicy {
 
 // Who may still sign in with a local password is no longer a setting of its
 // own (AUTH-24): the accounts held here are an AUTHORITY in the list, and
-// closing that door is disabling it — see ProviderLocal and LocalSignInEnabled.
+// closing that door is disabling it - see ProviderLocal and LocalSignInEnabled.
 
 // RateLimitPolicy throttles the unauthenticated credential endpoints
 // (SEC-10): failed sign-ins per IP+account, wrong TOTP codes per account.
@@ -138,7 +138,7 @@ func (s *Store) PutEmailToken(ctx context.Context, tokenHash, userID, purpose st
 	return nil
 }
 
-// PeekEmailToken checks a token WITHOUT consuming it — the reset link's GET
+// PeekEmailToken checks a token WITHOUT consuming it - the reset link's GET
 // must survive the mail scanners that prefetch URLs; only the POST consumes.
 func (s *Store) PeekEmailToken(ctx context.Context, tokenHash, purpose string, now int64) (string, error) {
 	var userID string
@@ -198,7 +198,7 @@ func (s *Store) UserIDByEmail(ctx context.Context, email string) (string, error)
 
 // ListNotifiableAdmins lists who receives account-management notifications:
 // the enabled root and app-admin users that carry an e-mail address (the
-// application's identity is app-admin scope — RBAC-05).
+// application's identity is app-admin scope - RBAC-05).
 func (s *Store) ListNotifiableAdmins(ctx context.Context) ([]User, error) {
 	rows, err := s.db.QueryContext(ctx,
 		`SELECT `+userCols+` FROM users

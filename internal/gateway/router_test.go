@@ -101,7 +101,7 @@ func TestProxiesWithStripPrefixAndInjection(t *testing.T) {
 func TestUpstreamBasePathComposesWithStrip(t *testing.T) {
 	upstream := htmlUpstream(t, "/base/page")
 	// Upstream carries a base path: strip works on the REQUEST path, then the
-	// base path is prepended — /demo/page → /page → /base/page.
+	// base path is prepended - /demo/page -> /page -> /base/page.
 	rt := newRouter(t, pathRoute("r1", "demo", 1, "/demo/**", upstream.URL+"/base",
 		routing.Spec{Type: "strip-prefix", Args: map[string]any{"parts": 1}},
 	))
@@ -381,7 +381,7 @@ func TestReloadPicksUpChanges(t *testing.T) {
 	}
 }
 
-// TestCatchAllRouteTraps: the TRAP (ROUTE-10) is an ordinary route — a "/**"
+// TestCatchAllRouteTraps: the TRAP (ROUTE-10) is an ordinary route - a "/**"
 // catch-all ordered LAST. Whatever the routes above did not match lands on it,
 // "/" included, any method; without such a route, unmatched is a plain 404.
 func TestCatchAllRouteTraps(t *testing.T) {
@@ -441,7 +441,7 @@ func TestUpstreamHangIs502(t *testing.T) {
 		t.Fatalf("hanging upstream: %d, want 502", rec.Code)
 	}
 	if elapsed := time.Since(start); elapsed > 3*time.Second {
-		t.Fatalf("502 took %v — the timeout did not bound the wait", elapsed)
+		t.Fatalf("502 took %v - the timeout did not bound the wait", elapsed)
 	}
 }
 
@@ -841,7 +841,7 @@ func fetchES256JWK(t *testing.T, url string) (*ecdsa.PublicKey, string) {
 
 // Outgoing filters apply to what the route answers ITSELF. An identity endpoint
 // built with respond is called by a browser like any other, so it needs the
-// same CORS or Cache-Control headers a proxied one would — telling admins that
+// same CORS or Cache-Control headers a proxied one would - telling admins that
 // outgoing filters work everywhere except here would be arbitrary.
 func TestOutgoingFiltersApplyToTheRoutesOwnAnswer(t *testing.T) {
 	rt := newRouter(t, store.Route{

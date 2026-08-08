@@ -19,12 +19,12 @@
                 <span class="dot" [title]="u.enabled ? 'enabled' : 'disabled'"></span>
                 <span class="id">
                   <span class="mono">{{ u.username }}</span>
-                  <span class="muted">{{ u.fullname }}{{ u.fullname && u.email ? ' · ' : '' }}{{ u.email }}</span>
+                  <span class="muted">{{ u.fullname }}{{ u.fullname && u.email ? ' - ' : '' }}{{ u.email }}</span>
                 </span>
               </mat-cell>
             </ng-container>
 
-            <!-- Capabilities toggle right here — a badge click flips the power
+            <!-- Capabilities toggle right here - a badge click flips the power
                  without opening the drawer (stopPropagation keeps the row click
                  for the drawer). -->
             <ng-container matColumnDef="summary">

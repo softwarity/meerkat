@@ -14,7 +14,7 @@ import { TenantsService } from '../../shared/tenants.service';
 
 // The tenant's General section (a child route of the tenant layout): identity
 // and working hours, committed together with Save. The layout owns the tenant
-// signal — a save pushes the fresh copy back so the left nav's name follows.
+// signal - a save pushes the fresh copy back so the left nav's name follows.
 @Component({
   selector: 'app-tenant-general',
   imports: [

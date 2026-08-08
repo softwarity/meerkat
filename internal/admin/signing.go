@@ -50,7 +50,7 @@ func (a *API) previewIdentity(w http.ResponseWriter, r *http.Request, _ store.Us
 	}
 	cfg := req.Identity
 	// Validate through the engine: a preview must refuse exactly what a save
-	// would refuse (unknown mechanism, bad attribute, bad claim name…).
+	// would refuse (unknown mechanism, bad attribute, bad claim name...).
 	if err := gateway.Validate(store.Route{
 		Name: req.RouteName, Upstream: "http://preview.invalid",
 		Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []any{"/**"}}}},

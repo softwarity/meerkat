@@ -65,7 +65,7 @@ func (h *Handler) hasDirectory(ctx context.Context) bool {
 	return false
 }
 
-// anyAuthorityEnabled reports whether ONE door is still open on this plane —
+// anyAuthorityEnabled reports whether ONE door is still open on this plane -
 // the local accounts among them, since they are an authority in the same list
 // (AUTH-24). It is what decides whether the passkey button is worth showing:
 // the page does not know who is about to sign in, so it can only ask whether
@@ -196,7 +196,7 @@ func (h *Handler) completeExternal(w http.ResponseWriter, r *http.Request,
 	// What the authority said is confronted with each tenant's own rules
 	// (RBAC-10). On EVERY sign-in, because membership changes upstream: this is
 	// what turns "an admin places everyone by hand" into "upstream decides".
-	// A failure here must not refuse the sign-in — the person is who they say
+	// A failure here must not refuse the sign-in - the person is who they say
 	// they are, and what they reach is decided a line below by what the store
 	// actually holds.
 	if _, err := h.st.SyncMappedGroups(r.Context(), user.ID, p.ID, identity.Groups); err != nil {
@@ -228,7 +228,7 @@ var errNoAutoCreate = errors.New("auth: this provider does not create accounts")
 // linkOrCreate resolves an authenticated identity to a local account, in the
 // only order that is safe:
 //
-//  1. an existing LINK for this authority's subject — the stable answer;
+//  1. an existing LINK for this authority's subject - the stable answer;
 //  2. an account holding the same VERIFIED address, which the authority
 //     vouches for: link it, so someone who signed up locally and then moves to
 //     SSO keeps their account, their tenants and their roles;

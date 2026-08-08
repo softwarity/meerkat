@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// Setting resolution — the validated configuration model: the most specific
-// level wins, membership → tenant → global (TENANT-04/05). A level whose
+// Setting resolution - the validated configuration model: the most specific
+// level wins, membership -> tenant -> global (TENANT-04/05). A level whose
 // value carries Inherited=true (or, for the TTL, an empty string) defers to
 // the level above. tenantID "" resolves straight from the global level (users
 // without membership: root, console-only accounts).
@@ -43,7 +43,7 @@ func (s *Store) ResolveBusinessAccess(ctx context.Context, userID, tenantID stri
 }
 
 // ResolveSessionTTL returns the ISO-8601 session lifetime that applies to
-// userID within tenantID (membership → tenant → global — TENANT-05).
+// userID within tenantID (membership -> tenant -> global - TENANT-05).
 func (s *Store) ResolveSessionTTL(ctx context.Context, userID, tenantID string) (string, error) {
 	if tenantID != "" {
 		m, err := s.GetMembership(ctx, userID, tenantID)
@@ -92,7 +92,7 @@ func WithinBusinessAccess(ba BusinessAccess, now time.Time) (bool, error) {
 	if len(ba.Days) == 0 {
 		return true, nil // no weekday/hour restriction
 	}
-	// time.Weekday counts Sunday=0; the window counts Monday=1 … Sunday=7.
+	// time.Weekday counts Sunday=0; the window counts Monday=1 ... Sunday=7.
 	iso := int(local.Weekday())
 	if iso == 0 {
 		iso = 7
@@ -118,7 +118,7 @@ func WithinBusinessAccess(ba BusinessAccess, now time.Time) (bool, error) {
 
 // ParseISODuration parses the ISO-8601 duration subset Meerkat uses for TTLs
 // (PT10M, PT1H, P1D, P7D, and combinations like P1DT12H). Weeks, months and
-// years are not accepted — a session TTL has no business being that long.
+// years are not accepted - a session TTL has no business being that long.
 func ParseISODuration(s string) (time.Duration, error) {
 	orig := s
 	if len(s) < 3 || s[0] != 'P' {

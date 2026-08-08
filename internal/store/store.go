@@ -74,16 +74,16 @@ func (s *Store) Close() error { return s.db.Close() }
 // sessions carry their pending step, users their must-change-password flag);
 // v6 themes for the flow pages (THEME-04); v10 the second factor (MFA-01:
 // users carry a TOTP secret + scratch codes); v11 the MFA policy lives on the
-// user (mfa_required tri-state) + global — NOT per tenant, since the MFA step
+// user (mfa_required tri-state) + global - NOT per tenant, since the MFA step
 // runs before tenant selection (AUTH-05), so a tenant override is unresolvable;
 // v12 passkeys (AUTH-15): per-user WebAuthn credentials + a challenge store;
 // v13 role descriptions (RBAC-01); v14 tenant descriptions; v15 business-access
-// windows became per-day hour ranges (design phase: no data conversion —
+// windows became per-day hour ranges (design phase: no data conversion -
 // databases are recreated, the model and schema just move together);
 // v16 route types API/UI + per-type options (ROUTE-02);
 // v17 sign-in history (login_events: one row per completed login, pruned);
 // v18 split administration (RBAC-05): infra_admin (routing plane, built-in
-// pages) and app_admin (users, roles, identity settings) capabilities — root
+// pages) and app_admin (users, roles, identity settings) capabilities - root
 // keeps implying both; tenant administration stays the membership type;
 // v19 self-registration (AUTH-20): users carry email_verified +
 // self_registered, one-shot email_tokens (confirmation, later resets);
@@ -95,15 +95,15 @@ func (s *Store) Close() error { return s.db.Close() }
 // each capturing the tenant+group context it was created in;
 // v23 tenants carry created_by (audit: who created the tenant); groups gain a
 // human description (RBAC-02);
-// v24 tenant ownership is DECOUPLED from membership (TENANT-02 revised) — the
+// v24 tenant ownership is DECOUPLED from membership (TENANT-02 revised) - the
 // tenant carries owner_id (always set, the creator by default, transferable),
 // so a tenant always has an owner even when created by root, and an owner need
 // not be a member; the OWNER membership type is retired (types are ADMIN/USER);
 // v25 the audit trail (audit_events): one row per administrative mutation, with
-// the actor, the target, and the FIELD-LEVEL diff (before/after) — not "object
-// modified" but "groupMode: MULTIPLE → SINGLE";
+// the actor, the target, and the FIELD-LEVEL diff (before/after) - not "object
+// modified" but "groupMode: MULTIPLE -> SINGLE";
 // v26 API tokens carry a PLANE (data|admin): a data token authenticates on the
-// data plane only, an admin (control-plane) token on the admin port only —
+// data plane only, an admin (control-plane) token on the admin port only -
 // each plane accepts its own scope, never the other's. Admin tokens are the
 // foundation for headless management (CLI/MCP), minted by root.
 // v33 issue reports (ISSUE-01/02): user-filed reports from the injected
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS users (
   tenant_creator       INTEGER NOT NULL DEFAULT 0,
   -- Split administration (RBAC-05): the routing plane and the application's
   -- identity are separate concerns with separate admins. Tenant
-  -- administration is NOT a flag here — it lives in memberships (TENANT-02).
+  -- administration is NOT a flag here - it lives in memberships (TENANT-02).
   infra_admin          INTEGER NOT NULL DEFAULT 0,
   app_admin            INTEGER NOT NULL DEFAULT 0,
   locale               TEXT NOT NULL DEFAULT '',
@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS users (
   -- secret ('' = not enrolled); totp_pending holds a secret mid-enrolment,
   -- before the first code confirms it; totp_scratch is a JSON array of the
   -- SHA-256 hashes of single-use backup codes. These never travel on the User
-  -- struct — they are read and written only through the mfa.go methods.
+  -- struct - they are read and written only through the mfa.go methods.
   totp_secret          TEXT NOT NULL DEFAULT '',
   totp_pending         TEXT NOT NULL DEFAULT '',
   totp_scratch         TEXT NOT NULL DEFAULT '[]',
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   -- The active group in SINGLE mode (RBAC-03); '' = none/cumulative.
   group_id   TEXT NOT NULL DEFAULT '',
   -- The login-flow step this session must complete before anything else
-  -- (AUTH-05): 'update-password', 'totp'…; '' = flow complete.
+  -- (AUTH-05): 'update-password', 'totp'...; '' = flow complete.
   pending    TEXT NOT NULL DEFAULT '',
   -- The post-login destination, carried on the session instead of the URL.
   next       TEXT NOT NULL DEFAULT '',
@@ -218,10 +218,10 @@ CREATE TABLE IF NOT EXISTS tenants (
   session_ttl     TEXT NOT NULL DEFAULT '',
   -- '' = inherit the gateway-wide group mode; MULTIPLE/SINGLE = forced here.
   group_mode      TEXT NOT NULL DEFAULT '',
-  -- Who created the tenant (audit) — set once, never changed.
+  -- Who created the tenant (audit) - set once, never changed.
   created_by      TEXT NOT NULL DEFAULT '',
   -- The tenant's owner (TENANT-02): always set (the creator by default),
-  -- transferable, and INDEPENDENT of membership — an owner need not be a
+  -- transferable, and INDEPENDENT of membership - an owner need not be a
   -- member. This is why there is no OWNER membership type.
   owner_id        TEXT NOT NULL DEFAULT '',
   created_at      INTEGER NOT NULL DEFAULT 0,
@@ -353,7 +353,7 @@ CREATE INDEX IF NOT EXISTS webauthn_credentials_user ON webauthn_credentials(use
 
 -- Generic short-lived one-shot challenges (v20): WebAuthn ceremony state
 -- between begin and finish, and the registration captcha's expected code.
--- Consuming deletes the row — nothing here is ever replayable.
+-- Consuming deletes the row - nothing here is ever replayable.
 CREATE TABLE IF NOT EXISTS challenges (
   id         TEXT PRIMARY KEY,
   data       TEXT NOT NULL,
@@ -447,7 +447,7 @@ CREATE TABLE IF NOT EXISTS api_tokens (
 CREATE INDEX IF NOT EXISTS api_tokens_user ON api_tokens(user_id);
 
 -- Audit trail (v25): one row per administrative mutation. actor_id/target_id
--- are NOT foreign keys — the trail must outlive a deleted actor or target
+-- are NOT foreign keys - the trail must outlive a deleted actor or target
 -- (knowing who did what matters most once they are gone). target_name is the
 -- human label captured at write time; changes is the JSON field-level diff
 -- (before/after); tenant_id scopes tenant-admin visibility ("" = global).
@@ -556,14 +556,14 @@ type RouteAPI struct {
 // Access levels (RBAC-06), the BELONGING axis of an access rule. They are
 // ordered, and each one is the previous plus one requirement:
 //
-//	""          delegated — the gateway poses no condition and lets the request
+//	""          delegated - the gateway poses no condition and lets the request
 //	            through, session or not. There was a "public" level beside this
 //	            one for a while; it did exactly the same thing, so it is gone.
 //	            "Delegated" is the honest name: the upstream is ALWAYS free to
 //	            apply its own rules on top, at every level below as well. What
 //	            Meerkat gates, it gates in ADDITION to the service, never
 //	            instead of it.
-//	auth        a valid session. Says who it is, nothing more — a person whose
+//	auth        a valid session. Says who it is, nothing more - a person whose
 //	            account is confirmed but who belongs to no organisation yet
 //	            (AUTH-20's waiting room) passes here, and that is deliberate:
 //	            it is how one serves the page explaining how to ask for access.
@@ -573,7 +573,7 @@ type RouteAPI struct {
 //	tenants     the active organisation is one of AccessLevelTenants' names.
 //
 // The reason "tenant" exists at all: roles are granted by groups, groups belong
-// to an organisation, so without one a caller has NO role — they used to reach
+// to an organisation, so without one a caller has NO role - they used to reach
 // a route gated on "authenticated" carrying an identity stripped of everything
 // that decides anything.
 const (
@@ -593,7 +593,7 @@ const (
 //
 // They cross on purpose. The role catalogue is global while groups are
 // per-organisation, so `roles: [admin]` alone means "an admin of ANY
-// organisation" — a cross-org administration UI — while `tenants: [acme] +
+// organisation" - a cross-org administration UI - while `tenants: [acme] +
 // roles: [admin]` means "an admin OF ACME". Neither could be expressed before.
 //
 // Users is the exception, not a level: whoever is named passes whatever the
@@ -734,7 +734,7 @@ func validHTTPMethod(m string) bool {
 
 // UserButton configures the <meerkat-user-button> web component injected into
 // a UI route's pages: pixel height, whether the username shows beside the
-// avatar, and a two-word position whose FIRST word is the anchored edge — it
+// avatar, and a two-word position whose FIRST word is the anchored edge - it
 // decides where the menu opens (top-left drops the menu downward, left-top
 // opens it to the right).
 type UserButton struct {
@@ -767,9 +767,9 @@ type SchemeConfig struct {
 	Dark      string `json:"dark,omitempty"`      // attribute value or class for dark
 }
 
-// RolesConfig puts the user's EFFECTIVE role names on the page — as classes
+// RolesConfig puts the user's EFFECTIVE role names on the page - as classes
 // (default) or one attribute on a chosen tag (default body), or as a <meta>
-// tag — so the application can gate elements on roles with pure CSS.
+// tag - so the application can gate elements on roles with pure CSS.
 type RolesConfig struct {
 	Enabled   bool   `json:"enabled"`
 	Mechanism string `json:"mechanism,omitempty"` // class (default) | attribute | meta
@@ -779,7 +779,7 @@ type RolesConfig struct {
 
 // PageUserFields are the signed-in user's facts a UI route may stamp on its
 // pages. Each one's attribute/meta name is configurable and DEFAULTS TO THE
-// FIELD ITSELF — `tenantid="acme"`, not `data-tenantid` (roles are the ones
+// FIELD ITSELF - `tenantid="acme"`, not `data-tenantid` (roles are the ones
 // that carry a prefix, see RolesConfig).
 //
 // Hence the lower case, which is not a slip: these values are written into the
@@ -788,7 +788,7 @@ type RolesConfig struct {
 // promise a casing the browser does not keep.
 var PageUserFields = []string{"username", "userid", "fullname", "email", "tenant", "tenantid", "timezone"}
 
-// UserInfoConfig exposes the signed-in user's identity to the page — the
+// UserInfoConfig exposes the signed-in user's identity to the page - the
 // SELECTED fields land as attributes on a chosen tag (default body) or as
 // <meta> tags, each under its configured name.
 type UserInfoConfig struct {
@@ -799,7 +799,7 @@ type UserInfoConfig struct {
 }
 
 // LocalesConfig drives how a route forwards the user's locale choice. The
-// language OFFER itself lives at the APPLICATION level (SettingLanguages) —
+// language OFFER itself lives at the APPLICATION level (SettingLanguages) -
 // a route only picks extra transport mechanisms, CUMULATIVE: "custom" sets
 // the Header header, "query" sets the Param query parameter (default lg),
 // "path" (UI only) prefixes the upstream path with /<locale>.
@@ -883,11 +883,11 @@ type Route struct {
 	Filters    []routing.Spec `json:"filters"`
 	API        *RouteAPI      `json:"api,omitempty"`
 	UI         *RouteUI       `json:"ui,omitempty"`
-	// Identity forwards the signed-in user to the upstream service — valid
+	// Identity forwards the signed-in user to the upstream service - valid
 	// for both route types (an API service wants the caller too).
 	Identity *IdentityForward `json:"identity,omitempty"`
 	// Locales is the route's language offer (inherited from the application
-	// languages by default) and its forwarding mechanism — both types too:
+	// languages by default) and its forwarding mechanism - both types too:
 	// an API takes the locale as a header or query parameter.
 	Locales *LocalesConfig `json:"locales,omitempty"`
 }
@@ -985,7 +985,7 @@ func (s *Store) SaveRoute(ctx context.Context, r Route) error {
 	return nil
 }
 
-// ReorderRoutes sets each route's ord to its position in ids — route matching
+// ReorderRoutes sets each route's ord to its position in ids - route matching
 // is first-match-wins, so this ordering is significant (ROUTE order). Runs in a
 // transaction so a partial reorder never lands.
 func (s *Store) ReorderRoutes(ctx context.Context, ids []string) error {
@@ -1089,12 +1089,12 @@ func (s *Store) CountRoutes(ctx context.Context) (int, error) {
 	return n, nil
 }
 
-// User is a local Meerkat account (the nominal identity model — §1.3 of the
+// User is a local Meerkat account (the nominal identity model - §1.3 of the
 // requirements). Password is stored as a bcrypt hash, never in clear. The
 // boolean flags are the cross-cutting SUPERPOWERS (RBAC-05): root administers
 // the gateway, dev unlocks the developer tooling, tester can opt into dev
 // variants, tenant_creator may create tenants. Tenant administration is not a
-// superpower — it is the membership type (TENANT-02).
+// superpower - it is the membership type (TENANT-02).
 type User struct {
 	ID            string `json:"id"`
 	Username      string `json:"username"`
@@ -1117,13 +1117,13 @@ type User struct {
 	UpdatedAt        int64  `json:"updatedAt"`
 	LastConnectionAt int64  `json:"lastConnectionAt"`
 	// MustChangePassword forces the update-password step at next login
-	// (temporary passwords from creation or reset — AUTH-05 step 1).
+	// (temporary passwords from creation or reset - AUTH-05 step 1).
 	MustChangePassword bool `json:"mustChangePassword"`
 	// MFARequired is the per-user second-factor policy (MFA-04): "" inherits the
 	// global setting, "true"/"false" force it for this user.
 	MFARequired string `json:"mfaRequired"`
 	// EmailVerified is false only for a self-registered account that has not
-	// confirmed its address yet (AUTH-20) — such an account cannot sign in.
+	// confirmed its address yet (AUTH-20) - such an account cannot sign in.
 	EmailVerified bool `json:"emailVerified"`
 	// SelfRegistered marks accounts born on /register (purge + admin display).
 	SelfRegistered bool `json:"selfRegistered"`
@@ -1199,7 +1199,7 @@ func (s *Store) UpdateUser(ctx context.Context, u User) error {
 }
 
 // SetUserPassword replaces a user's password hash. mustChange marks the new
-// password as temporary (an admin reset — the next login forces the
+// password as temporary (an admin reset - the next login forces the
 // update-password step); a user changing their own password clears it.
 func (s *Store) SetUserPassword(ctx context.Context, id, passwordHash string, mustChange bool) error {
 	res, err := s.db.ExecContext(ctx,
@@ -1305,7 +1305,7 @@ func (s *Store) GetUserDevCert(ctx context.Context, id string) (string, error) {
 }
 
 // SanitizeAvatar validates a profile photo: an image data URI (png, jpeg or
-// webp — a photo, not a logo) of reasonable size; "" clears it. It lands in a
+// webp - a photo, not a logo) of reasonable size; "" clears it. It lands in a
 // src attribute, nothing else may.
 func SanitizeAvatar(avatar string) error {
 	if avatar == "" {
@@ -1323,7 +1323,7 @@ func SanitizeAvatar(avatar string) error {
 }
 
 // SetUserAvatar stores (or clears, with "") a user's profile photo. The
-// avatar lives in its own column and is only ever read on demand — user
+// avatar lives in its own column and is only ever read on demand - user
 // LISTS never carry it.
 func (s *Store) SetUserAvatar(ctx context.Context, id, avatar string) error {
 	if err := SanitizeAvatar(avatar); err != nil {
@@ -1378,7 +1378,7 @@ func (s *Store) CountUsers(ctx context.Context) (int, error) {
 }
 
 // Session is the persisted server-side state behind an opaque cookie. Only a
-// hash of the token is stored — a database leak reveals no usable cookies.
+// hash of the token is stored - a database leak reveals no usable cookies.
 // TenantID is the active tenant (TENANT-03): "" when the user has no
 // membership or has not selected one yet.
 type Session struct {
@@ -1387,16 +1387,16 @@ type Session struct {
 	TenantID  string
 	// GroupID is the ACTIVE group when the tenant's effective group mode is
 	// SINGLE (RBAC-03): "" = none chosen (or cumulative mode). Reset on every
-	// tenant change — groups are per tenant.
+	// tenant change - groups are per tenant.
 	GroupID string
-	Pending string // login-flow step to complete ("" = none — AUTH-05)
+	Pending string // login-flow step to complete ("" = none - AUTH-05)
 	// Next is the post-login destination, carried on the session across the
 	// multi-step flow so it need not ride in the URL. Validated (safeNext) before
 	// it is stored, immutable by the client thereafter.
 	Next      string
 	ExpiresAt int64 // unix seconds
 	// Plane isolates the two ports' sessions: cookies are not port-scoped, so
-	// each plane uses its own cookie name AND every resolve checks the plane —
+	// each plane uses its own cookie name AND every resolve checks the plane -
 	// a data-plane token pasted into the admin cookie dies here.
 	Plane string // "data" | "admin"
 }
@@ -1440,10 +1440,10 @@ func (s *Store) SetSessionPending(ctx context.Context, tokenHash, pending string
 }
 
 // SetSessionTenant records the active tenant of a session (login with a single
-// membership, or the select-tenant page — TENANT-03).
+// membership, or the select-tenant page - TENANT-03).
 func (s *Store) SetSessionTenant(ctx context.Context, tokenHash, tenantID string) error {
 	// Groups are PER TENANT: changing the tenant always resets the active
-	// group — the handler re-runs the group decision for the new tenant.
+	// group - the handler re-runs the group decision for the new tenant.
 	res, err := s.db.ExecContext(ctx,
 		`UPDATE sessions SET tenant_id = ?, group_id = '' WHERE token_hash = ?`, tenantID, tokenHash)
 	if err != nil {
@@ -1469,7 +1469,7 @@ func (s *Store) SetSessionGroup(ctx context.Context, tokenHash, groupID string) 
 	return nil
 }
 
-// DeleteSessionsForUser revokes EVERY session of a user (both planes) — a
+// DeleteSessionsForUser revokes EVERY session of a user (both planes) - a
 // password reset kills whatever a possible intruder still holds.
 func (s *Store) DeleteSessionsForUser(ctx context.Context, userID string) (int64, error) {
 	res, err := s.db.ExecContext(ctx, `DELETE FROM sessions WHERE user_id = ?`, userID)
@@ -1505,12 +1505,12 @@ func (s *Store) PurgeExpiredSessions(ctx context.Context, now int64) (int64, err
 // Design phase: columns come and go, and nobody writes a migration for each
 // one. But CREATE TABLE IF NOT EXISTS does nothing to a table that already
 // exists, so a database created two weeks ago keeps the columns it was born
-// with and fails at the worst moment — an INSERT naming a column that is not
+// with and fails at the worst moment - an INSERT naming a column that is not
 // there, surfacing as an SQL error three layers up.
 //
 // So the schema itself is the reference: it is applied to an in-memory
 // database, the two are compared table by table, and whatever is missing is
-// added. Nothing is ever dropped or rewritten — a column that disappears from
+// added. Nothing is ever dropped or rewritten - a column that disappears from
 // the schema simply stays behind, unused, which costs nothing and loses no
 // data.
 func (s *Store) addMissingColumns() error {

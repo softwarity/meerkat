@@ -8,8 +8,8 @@
 //   - Credential authorities (LDAP) are asked directly, with the username and
 //     password the person typed on our own form.
 //
-// Everything here is about ESTABLISHING who the person is. What happens next —
-// linking to a local account, creating a pending one, granting roles — belongs
+// Everything here is about ESTABLISHING who the person is. What happens next -
+// linking to a local account, creating a pending one, granting roles - belongs
 // to internal/auth, because it is the same story as self-registration.
 package idp
 
@@ -36,7 +36,7 @@ type Identity struct {
 	EmailVerified bool
 	Fullname      string
 	// Groups are the authority's own groups or roles, kept for the mapping to
-	// Meerkat roles (RBAC) — recorded now, acted on later.
+	// Meerkat roles (RBAC) - recorded now, acted on later.
 	Groups []string
 	// Raw keeps the claims/attributes as received, for the admin to see what
 	// an authority actually sends when a mapping does not do what they expect.
@@ -72,7 +72,7 @@ type Driver interface {
 // This is what turns a passkey into a SHORTCUT rather than a second front door.
 // A passkey proves possession of a key tied to a LOCAL account; it says nothing
 // about the directory that owns the person. Without this call, disabling
-// someone in the annuaire would not stop them signing in here — they would keep
+// someone in the annuaire would not stop them signing in here - they would keep
 // a way in that the directory believes it has closed.
 //
 // Only a directory can answer. A redirect authority has no equivalent that
@@ -80,7 +80,7 @@ type Driver interface {
 // redirect and belongs elsewhere), so it simply does not implement this.
 type Revalidator interface {
 	// Recognises reports whether subject is still an active account. The
-	// subject is what the identity was linked under — for LDAP, the entry's DN.
+	// subject is what the identity was linked under - for LDAP, the entry's DN.
 	//
 	// An error means "could not ask", which is NOT the same as "no": a
 	// directory that is down must not sign everybody out.

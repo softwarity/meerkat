@@ -13,7 +13,7 @@ import (
 
 // QRDataURI renders text (an otpauth:// URI) as a PNG QR code and returns it as
 // a data: URI ready to drop into an <img src>. Everything is computed in-process
-// — no external QR service — so enrolment works on an air-gapped gateway.
+// - no external QR service - so enrolment works on an air-gapped gateway.
 //
 // The bitmap is drawn by hand from code.Black(): rsc.io/qr's own Image() ignores
 // its Scale field (it maps image pixels 1:1 to modules, leaving the QR tiny in a

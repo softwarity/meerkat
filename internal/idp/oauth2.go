@@ -34,7 +34,7 @@ type vendor struct {
 	userURL  string
 	scopes   []string
 	// identity turns the vendor's own payloads into ours. It receives the
-	// authenticated client so it can make the extra calls a vendor requires —
+	// authenticated client so it can make the extra calls a vendor requires -
 	// GitHub keeps addresses and organisations behind their own endpoints.
 	identity func(ctx context.Context, c *oauth2Provider, token string, user map[string]any) (Identity, error)
 }
@@ -48,7 +48,7 @@ var vendors = map[string]vendor{
 		// The FLOOR, asked of everyone: /user answers the profile (login, id,
 		// name, avatar) with no scope at all, and user:email is what it takes
 		// to read the private, verified address. Nothing else is anyone's
-		// business — see scopes() for the one thing that may be added.
+		// business - see scopes() for the one thing that may be added.
 		scopes:   []string{"user:email"},
 		identity: githubIdentity,
 	},
@@ -90,7 +90,7 @@ func newOAuth2(p store.AuthProvider) (Driver, error) {
 // scopes is what this authority asks the PERSON to consent to, and it follows
 // what the configuration actually uses. Reading someone's organisations is the
 // scope that makes a consent screen list their employers, so it is asked for
-// only when an organisation allow-list is set — the one setting that cannot
+// only when an organisation allow-list is set - the one setting that cannot
 // work without it. Configure that list, and GitHub will ask again: the
 // permission really did change.
 func (o *oauth2Provider) scopes() []string {
@@ -126,7 +126,7 @@ func (o *oauth2Provider) endpoint(vendorURL string) string {
 
 // AuthURL sends the browser to the vendor. There is no nonce and no PKCE here:
 // GitHub's OAuth apps support neither, so `state` is the only guard against a
-// forged callback — which is exactly why it is checked without mercy below.
+// forged callback - which is exactly why it is checked without mercy below.
 func (o *oauth2Provider) AuthURL(req AuthRequest) (string, error) {
 	q := url.Values{
 		"client_id":     {o.cfg.ClientID},
@@ -297,7 +297,7 @@ func githubIdentity(ctx context.Context, o *oauth2Provider, token string, user m
 
 	// Organisations and teams are GitHub's groups. Teams are reported as
 	// "org/team", so a role mapping can key on either level. Only fetched
-	// when the configuration uses them — the read:org scope is not asked for
+	// when the configuration uses them - the read:org scope is not asked for
 	// otherwise, and calling these endpoints without it would fail anyway.
 	if !o.wantsGroups() {
 		return id, nil

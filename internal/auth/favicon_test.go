@@ -37,7 +37,7 @@ func setBranding(t *testing.T, st *store.Store, b store.Branding) {
 }
 
 // The cascade, and the middle step is the point: nobody sets a favicon, but
-// everybody sets a logo — so an application that never heard of the field
+// everybody sets a logo - so an application that never heard of the field
 // still gets its own mark in the browser tab instead of ours.
 func TestFaviconFollowsTheBranding(t *testing.T) {
 	for _, tc := range []struct {
@@ -97,7 +97,7 @@ func TestAdminFaviconIgnoresTheBranding(t *testing.T) {
 }
 
 // A favicon rides on every sign-in page, so the size ceiling is part of the
-// contract — and the type list is what keeps a Content-Type from being
+// contract - and the type list is what keeps a Content-Type from being
 // whatever an admin typed.
 func TestBrandingRefusesAnUnusableIcon(t *testing.T) {
 	big := "data:image/png;base64," + string(bytes.Repeat([]byte("A"), 64_001))

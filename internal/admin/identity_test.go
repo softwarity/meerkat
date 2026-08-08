@@ -144,11 +144,11 @@ func TestTenantScoping(t *testing.T) {
 		t.Fatalf("admin of acme must not read globex: %d", code)
 	}
 
-	// ADMIN cannot destroy the tenant (that is for root or the owner)…
+	// ADMIN cannot destroy the tenant (that is for root or the owner)...
 	if code, _ = f.call(t, "DELETE", "/api/tenants/"+acme.ID, "", f.plainC); code != http.StatusForbidden {
 		t.Fatalf("ADMIN deleting the tenant must 403: %d", code)
 	}
-	// …nor transfer ownership — only root or the current owner may.
+	// ...nor transfer ownership - only root or the current owner may.
 	if code, _ = f.call(t, "POST", "/api/tenants/"+acme.ID+"/owner",
 		`{"userId":"bob"}`, f.plainC); code != http.StatusForbidden {
 		t.Fatalf("ADMIN transferring ownership must 403: %d", code)
@@ -164,7 +164,7 @@ func TestTenantScoping(t *testing.T) {
 		t.Fatalf("root transferring ownership: %d %s", code, body)
 	}
 	// The transfer leaves bob's membership untouched (still ADMIN, not a type
-	// change) — ownership no longer rides on the membership.
+	// change) - ownership no longer rides on the membership.
 	_, members := f.call(t, "GET", "/api/tenants/"+acme.ID+"/members", "", f.rootC)
 	if !strings.Contains(members, `"userId":"bob","tenantId":"`+acme.ID+`","type":"ADMIN"`) {
 		t.Fatalf("transfer must not change membership type: %s", members)

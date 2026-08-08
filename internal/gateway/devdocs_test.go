@@ -17,7 +17,7 @@ import (
 )
 
 // The developer docs: the dev capability is the gate; every route
-// exposing a spec is listed (even disabled — a dev sees what is being
+// exposing a spec is listed (even disabled - a dev sees what is being
 // built), and specs come out rewritten to this very origin.
 func TestDevDocs(t *testing.T) {
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +180,7 @@ func TestDevDocs(t *testing.T) {
 			t.Fatalf("groupMode = %q, want MULTIPLE (default)", c.GroupMode)
 		}
 		// Only the CURRENT tenant's group, name alone, roles RESOLVED (admin
-		// grants viewer through the hierarchy) — the page never re-does RBAC.
+		// grants viewer through the hierarchy) - the page never re-does RBAC.
 		if len(c.Groups) != 1 || c.Groups[0].Name != "staff" ||
 			strings.Join(c.Groups[0].Roles, ",") != "admin,viewer" {
 			t.Fatalf("catalog groups = %+v (want the current tenant's staff only)", c.Groups)
@@ -235,7 +235,7 @@ func TestDevDocs(t *testing.T) {
 			t.Fatalf("dev simulation: %d, want 200", res.StatusCode)
 		}
 		// The backend can tell a test from real traffic: the tool, and the
-		// REAL developer behind it — not the impersonated "ghost".
+		// REAL developer behind it - not the impersonated "ghost".
 		if body := readBody(t, res); body != "test=dev-swagger|by=devon" {
 			t.Fatalf("upstream markers = %q, want the dev-swagger test tag by devon", body)
 		}

@@ -29,7 +29,7 @@ const PREFERRED_ORDER = [
 // matchers make sense several times (two different headers, cookies, params).
 const MULTI_INSTANCE = ['header', 'cookie', 'query'];
 
-// Predicates section — an addable list; "Add" opens a right-hand drawer with
+// Predicates section - an addable list; "Add" opens a right-hand drawer with
 // the whole catalog, a real explanation per entry. Predicates are ANDed
 // (order carries no meaning, no reorder); single-instance types gray out
 // once present. A FormValueControl bound with [formField].

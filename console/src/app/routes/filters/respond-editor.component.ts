@@ -10,16 +10,16 @@ import { ApiService } from '../../api.service';
 // The template editor: colours, and an answer under the cursor.
 //
 // A plain <textarea> was not enough, and the reason is not decoration. Go
-// template syntax is not guessable — {{if $i}},{{end}} to place a comma reads
-// like line noise until someone explains it — so the editor has to do the
+// template syntax is not guessable - {{if $i}},{{end}} to place a comma reads
+// like line noise until someone explains it - so the editor has to do the
 // explaining: actions stand out from the literal text, and the panel below
 // shows what an application would actually receive, rendered by the gateway
 // itself for a witness caller. Someone who cannot remember the syntax can
 // still tell whether they got it right, which is the part that matters.
 
-// ACTION matches one {{ … }}, DOT a .Field inside it, FUNC a leading function
+// ACTION matches one {{ ... }}, DOT a .Field inside it, FUNC a leading function
 // name, VAR a $variable. Deliberately shallow: this is highlighting, not
-// parsing — the gateway owns the truth, and it answers in the panel below.
+// parsing - the gateway owns the truth, and it answers in the panel below.
 const ACTION = /\{\{[^}]*\}\}/g;
 const INNER = /(\.[A-Za-z][A-Za-z0-9]*)|(\$[A-Za-z][A-Za-z0-9]*)|\b(json|join|wrap|range|if|else|end|with)\b|("[^"]*")/g;
 
@@ -185,10 +185,11 @@ export class RespondEditorComponent {
             EditorView.theme({
               '&': { maxHeight: '280px' },
               '.cm-scroller': { overflow: 'auto' },
-              // The editable area fills the box, so clicking anywhere in it
-              // places the cursor - five visible lines that only answer on the
-              // first one read as a broken field.
-              '.cm-content': { minHeight: '110px' },
+              // A floor, plus the blank lines a new template opens with: an
+              // editor showing one line inside an empty box reads as broken.
+              // Those lines are trimmed when the route is saved, so they never
+              // reach the answer.
+              '.cm-content': { minHeight: '120px' },
             }),
             EditorView.updateListener.of((u) => {
               if (!u.docChanged) return;

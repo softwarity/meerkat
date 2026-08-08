@@ -15,7 +15,7 @@ import (
 
 // The rule this whole feature exists for: an authority proves WHO someone is,
 // it never decides what they may do here. A first sign-in therefore behaves
-// exactly like a self-registration — an account appears, it reaches nothing,
+// exactly like a self-registration - an account appears, it reaches nothing,
 // and an admin has to place it.
 
 func externalFixture(t *testing.T) (*Handler, *store.Store) {
@@ -71,7 +71,7 @@ func TestFirstExternalSignInCreatesAPendingAccount(t *testing.T) {
 	}
 
 	// Signing in again finds the SAME account through the link, and creates
-	// nothing — even if the authority renamed the person meanwhile.
+	// nothing - even if the authority renamed the person meanwhile.
 	renamed := id
 	renamed.Username = "john.doe"
 	again, created, err := h.linkOrCreate(ctx, p, renamed)

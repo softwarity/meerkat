@@ -20,7 +20,7 @@ import (
 // The console can offer this on a field it knows nothing about, because the
 // move happens ENTIRELY server-side: the browser sends a name, not a value. It
 // is the only way to handle a secret that arrived through the bootstrap file or
-// an older save — the console never received that literal, so it could not put
+// an older save - the console never received that literal, so it could not put
 // it in the vault itself even if it wanted to.
 //
 // One endpoint rather than one per screen, so the form field component can do
@@ -97,7 +97,7 @@ func (a *API) secretHolders() map[string]secretHolder {
 }
 
 // stashRequest is what the console sends: where the secret is, and what to call
-// the entry. Never the value — it does not have it.
+// the entry. Never the value - it does not have it.
 type stashRequest struct {
 	Holder      string `json:"holder"`
 	ID          string `json:"id"`
@@ -181,7 +181,7 @@ func (a *API) stashSecret(w http.ResponseWriter, r *http.Request, actor store.Us
 	name := strings.TrimSpace(req.Name)
 	if name == "" {
 		// A holder with no id of its own (there is one mail relay) would derive
-		// a bare field name — "password" alone, squatting a name the whole
+		// a bare field name - "password" alone, squatting a name the whole
 		// infra scope shares. Fall back to what it is.
 		name = SuggestEntryName(cmp.Or(strings.TrimSpace(req.ID), req.Holder), req.Field)
 	}
@@ -203,7 +203,7 @@ func (a *API) stashSecret(w http.ResponseWriter, r *http.Request, actor store.Us
 		Value: literal, Description: strings.TrimSpace(req.Description),
 	}
 	if entry.Description == "" {
-		entry.Description = label + " · " + req.Field
+		entry.Description = label + " - " + req.Field
 	}
 	if err := a.st.SaveVaultEntry(ctx, entry); err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
@@ -223,7 +223,7 @@ func (a *API) stashSecret(w http.ResponseWriter, r *http.Request, actor store.Us
 		return
 	}
 	a.auditEvent(ctx, actor, "vault.stash", "vault", name, name, "",
-		"from "+label+" · "+req.Field)
+		"from "+label+" - "+req.Field)
 	writeJSON(w, http.StatusOK, map[string]string{
 		"name": name, "scope": h.scope, "kind": vault.KindSecret, "ref": vault.Ref(name),
 	})

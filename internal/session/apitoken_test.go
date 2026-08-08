@@ -17,7 +17,7 @@ func bearer(token string) *http.Request {
 }
 
 // mintToken stores a token whose CLEAR value is "mk_<secret>" and returns the
-// secret value — the hash matches what the resolver computes (sha256 hex).
+// secret value - the hash matches what the resolver computes (sha256 hex).
 func mintToken(t *testing.T, st *store.Store, userID, tenantID, groupID string, expiresAt int64) string {
 	t.Helper()
 	secret := "mk_" + "secret-" + userID + "-" + groupID + tenantID
@@ -55,7 +55,7 @@ func TestBearerTokenRevokedAndDisabled(t *testing.T) {
 	secret := mintToken(t, st, "alice", "t1", "", 0)
 	ctx := context.Background()
 
-	// Disabled → refused; re-enabled → works again. (id = tok-alice + "" + t1)
+	// Disabled -> refused; re-enabled -> works again. (id = tok-alice + "" + t1)
 	const id = "tok-alicet1"
 	if _, err := st.SetAPITokenEnabled(ctx, "alice", id, false); err != nil {
 		t.Fatal(err)
@@ -69,7 +69,7 @@ func TestBearerTokenRevokedAndDisabled(t *testing.T) {
 	if _, err := m.Resolve(ctx, bearer(secret)); err != nil {
 		t.Fatalf("a re-enabled token must resolve: %v", err)
 	}
-	// Revoked → gone.
+	// Revoked -> gone.
 	if _, err := st.RevokeAPIToken(ctx, "alice", id); err != nil {
 		t.Fatal(err)
 	}
@@ -119,7 +119,7 @@ func TestBearerTokenExpiredDisabledUserAndPolicy(t *testing.T) {
 		t.Fatalf("an expired token must not resolve")
 	}
 
-	// A live token, then the OWNER is disabled → tokens stop at once.
+	// A live token, then the OWNER is disabled -> tokens stop at once.
 	live := mintToken(t, st, "alice", "t2", "", 0) // different group => different id
 	if _, err := m.Resolve(ctx, bearer(live)); err != nil {
 		t.Fatalf("live token should resolve: %v", err)
@@ -131,7 +131,7 @@ func TestBearerTokenExpiredDisabledUserAndPolicy(t *testing.T) {
 		t.Fatalf("a disabled account's token must not resolve")
 	}
 
-	// Policy off → no token authenticates, even a live one.
+	// Policy off -> no token authenticates, even a live one.
 	if err := st.UpdateUser(ctx, store.User{ID: "alice", Username: "alice", Enabled: true}); err != nil {
 		t.Fatal(err)
 	}

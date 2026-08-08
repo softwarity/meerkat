@@ -1,7 +1,7 @@
 // Package gateway is Meerkat's data path: route matching and reverse
 // proxying. Routes come from the store as declarative predicate/filter specs
 // (internal/routing), compiled into an immutable snapshot swapped atomically
-// on reload — the hot path takes a read lock and nothing else.
+// on reload - the hot path takes a read lock and nothing else.
 package gateway
 
 import (
@@ -86,7 +86,7 @@ func New(st *store.Store, sm *session.Manager) *Router {
 
 // Reload compiles the enabled routes from the store and swaps them in
 // atomically. Safe to call while serving. A route that fails to compile
-// aborts the reload with a precise error — the previous snapshot keeps
+// aborts the reload with a precise error - the previous snapshot keeps
 // serving.
 func (rt *Router) Reload(ctx context.Context) error {
 	stored, err := rt.st.ListRoutes(ctx)
@@ -94,7 +94,7 @@ func (rt *Router) Reload(ctx context.Context) error {
 		return err
 	}
 	// The application locale pool feeds every route (each may exclude some).
-	// It may be EMPTY (no declared app locale) — then routes forward no locale
+	// It may be EMPTY (no declared app locale) - then routes forward no locale
 	// and the user button shows no language submenu.
 	var appLangs []string
 	_ = rt.st.GetSetting(ctx, store.SettingLanguages, &appLangs)
@@ -119,8 +119,8 @@ func (rt *Router) Reload(ctx context.Context) error {
 		}
 		if len(missing) > 0 {
 			// Left OUT rather than compiled. A route whose references do not
-			// resolve cannot serve anything — its upstream is "https://" with no
-			// host — and failing the whole reload over it would take every other
+			// resolve cannot serve anything - its upstream is "https://" with no
+			// host - and failing the whole reload over it would take every other
 			// route down with it. That is the normal state of a gateway just
 			// seeded from a file (CFG-03): the configuration is in place, the
 			// vault is not filled yet, and it has to start anyway.
@@ -169,7 +169,7 @@ func (rt *Router) Reload(ctx context.Context) error {
 // adminOrigin reports whether origin is this gateway's own admin console: the
 // same hostname the data-plane request came in on, at the control plane's
 // port. A route pinned to another hostname by a host predicate falls outside
-// this rule — its Try it out would need the application's own CORS.
+// this rule - its Try it out would need the application's own CORS.
 func (rt *Router) adminOrigin(r *http.Request, origin string) bool {
 	if rt.AdminAddr == "" {
 		return false
@@ -242,7 +242,7 @@ func (rt *Router) serveJWKS(w http.ResponseWriter) {
 // references, so a secret never lands in the database or in an export.
 //
 // It walks the route's decoded JSON, so a reference works in any string field
-// (upstream, filter arguments, header names…) without listing them one by one.
+// (upstream, filter arguments, header names...) without listing them one by one.
 func ExpandRoute(r store.Route, values map[string]string) (store.Route, []string, error) {
 	raw, err := json.Marshal(r)
 	if err != nil {
@@ -274,7 +274,7 @@ func ExpandRoute(r store.Route, values map[string]string) (store.Route, []string
 // A Go template writes $i and $r for its own loop variables; the expansion read
 // them as vault references and the route was refused for "unknown vault
 // entries: i, r". The two syntaxes share the dollar and only one of them owns
-// it here — the template's, since its body is taken verbatim.
+// it here - the template's, since its body is taken verbatim.
 func restoreLiteralArgs(original store.Route, resolved *store.Route, missing []string) []string {
 	invented := map[string]bool{}
 	for i, spec := range original.Filters {
@@ -320,7 +320,7 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	// The admin console's swagger page (Try it out) calls the routes straight
 	// on this plane, from the control plane's origin: answer CORS for THAT one
-	// sibling origin — and no other, the applications behind the gateway keep
+	// sibling origin - and no other, the applications behind the gateway keep
 	// their own policies.
 	if origin := req.Header.Get("Origin"); origin != "" && rt.adminOrigin(req, origin) {
 		h := w.Header()
@@ -375,7 +375,7 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 
 	// The language offer is the APPLICATION's; the route only adds transport
 	// mechanisms. Accept-Language is ALWAYS forwarded with the resolved
-	// locale promoted to the front — every proxied route, no opt-out.
+	// locale promoted to the front - every proxied route, no opt-out.
 	var localeCfg store.LocalesConfig
 	if r.Locales != nil {
 		localeCfg = *r.Locales
@@ -393,12 +393,12 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 	}
 
 	// A UI route with the user button enabled injects the <meerkat-user-button>
-	// web component into its HTML pages — same rewriting as inject-head.
+	// web component into its HTML pages - same rewriting as inject-head.
 	if frag := userButtonFragment(r, localeCodes); frag != "" {
 		filters.Response = append(filters.Response, filtering.InjectAfterHead(frag))
 	}
 	// Page injections (UIF): the session's effective roles and the user's
-	// identity are stamped SERVER-SIDE onto the served HTML — roles as a class
+	// identity are stamped SERVER-SIDE onto the served HTML - roles as a class
 	// or attribute on the target tag (default body) or a meta, user fields
 	// likewise. No client JS, no callback home (/meerkat/page.js stays served
 	// for by-hand use). The gate is a cheap session check so anonymous requests
@@ -479,7 +479,7 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 	return compiledRoute{id: r.ID, name: r.Name, preds: preds, handler: handler}, nil
 }
 
-// Validate checks that a route would compile — same checks as Reload, minus
+// Validate checks that a route would compile - same checks as Reload, minus
 // the session-manager wiring. The admin API uses it to refuse invalid routes
 // with the engine's precise error before anything is persisted.
 func Validate(r store.Route) error {
@@ -678,7 +678,7 @@ func validateRouteType(r store.Route) error {
 }
 
 // schemeTokenOK bounds the attribute/class/value tokens that travel into the
-// injected HTML — validated here, so the fragment never carries free text.
+// injected HTML - validated here, so the fragment never carries free text.
 var schemeTokenOK = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 // headerNameOK bounds the upstream header names a route may configure.
@@ -818,7 +818,7 @@ func userFieldValue(d identityData, field string) string {
 	return ""
 }
 
-// openTagRe matches the FIRST opening <tag …> in the document (case-insensitive,
+// openTagRe matches the FIRST opening <tag ...> in the document (case-insensitive,
 // attributes may span lines). Group 1 = "<tag", group 2 = the attributes (with
 // their leading space) or empty; the closing ">" follows. A trailing word
 // boundary keeps <body> from matching <bodyfoo>.
@@ -827,7 +827,7 @@ func openTagRe(tag string) *regexp.Regexp {
 }
 
 // stampClass merges roles into the target tag's class attribute (server-side
-// equivalent of classList.add): appends to an existing class="…", or adds one.
+// equivalent of classList.add): appends to an existing class="...", or adds one.
 func stampClass(body []byte, tag string, roles []string) []byte {
 	if len(roles) == 0 {
 		return body
@@ -864,7 +864,7 @@ func spliceOpenTag(body []byte, m []int, newAttrs string) []byte {
 
 var classAttrRe = regexp.MustCompile(`(?i)(\sclass\s*=\s*")([^"]*)(")`)
 
-// addClassTokens appends roles to a double-quoted class="…" inside attrs
+// addClassTokens appends roles to a double-quoted class="..." inside attrs
 // (skipping tokens already present), or adds a class attribute when none.
 func addClassTokens(attrs string, roles []string) string {
 	if classAttrRe.MatchString(attrs) {
@@ -882,7 +882,7 @@ func addClassTokens(attrs string, roles []string) string {
 	return attrs + ` class="` + html.EscapeString(strings.Join(roles, " ")) + `"`
 }
 
-// setAttrToken replaces a double-quoted name="…" inside attrs, or appends one.
+// setAttrToken replaces a double-quoted name="..." inside attrs, or appends one.
 func setAttrToken(attrs, name, value string) string {
 	esc := html.EscapeString(value)
 	re := regexp.MustCompile(`(?i)(\s` + regexp.QuoteMeta(name) + `\s*=\s*")[^"]*(")`)
@@ -895,7 +895,7 @@ func setAttrToken(attrs, name, value string) string {
 	return attrs + " " + name + `="` + esc + `"`
 }
 
-// metaTag builds a <meta name="…" content="…"> (both attribute-escaped).
+// metaTag builds a <meta name="..." content="..."> (both attribute-escaped).
 func metaTag(name, content string) []byte {
 	return []byte(`<meta name="` + html.EscapeString(name) + `" content="` + html.EscapeString(content) + `">`)
 }
@@ -918,7 +918,7 @@ func insertAfterHead(body, frag []byte) []byte {
 
 // localeForwardFilter carries the resolved locale to the upstream:
 // Accept-Language ALWAYS goes, rewritten with the choice first; the route's
-// extra mechanisms ride on top — a custom header, a query parameter (an
+// extra mechanisms ride on top - a custom header, a query parameter (an
 // API's natural shape), a path segment (UI only, Angular-style /fr/ builds).
 func localeForwardFilter(codes []string, lc store.LocalesConfig) routing.RequestFilter {
 	return func(pr *httputil.ProxyRequest) {
@@ -1317,7 +1317,7 @@ func identityClaims(cfg store.IdentityForward, routeName string, d identityData)
 }
 
 // mintUnsignedJWT encodes an unsigned (alg:none) JWT: header.payload with an
-// empty signature. It carries structure, not trust — the verifiable variant is
+// empty signature. It carries structure, not trust - the verifiable variant is
 // signed-jwt (Lot 2).
 func mintUnsignedJWT(claims map[string]any) (string, error) {
 	seg := func(v any) (string, error) {
@@ -1348,7 +1348,7 @@ func orDefault(v, fallback string) string {
 // userButtonFragment builds the HTML injected after <head> for a UI route with
 // the user button on. The custom element lands at the top of <body> (the HTML
 // parser closes <head> on the first non-metadata tag) and positions itself
-// fixed. Values are validated (validateRouteType) — no free text reaches HTML.
+// fixed. Values are validated (validateRouteType) - no free text reaches HTML.
 func userButtonFragment(r store.Route, localeCodes []string) string {
 	if !r.IsUI || r.UI == nil || !r.UI.UserButton.Enabled {
 		return ""
@@ -1397,10 +1397,10 @@ func userButtonFragment(r store.Route, localeCodes []string) string {
 }
 
 // upstreamTransport bounds how long an upstream may take to accept a
-// connection and start answering (ROUTE-07 — per-route/service overrides come
+// connection and start answering (ROUTE-07 - per-route/service overrides come
 // with the Service entity). Without it, a hung upstream hangs the client
 // forever; with it, the request fails fast as a 502. Body streaming is NOT
-// bounded — long downloads and websockets must live.
+// bounded - long downloads and websockets must live.
 var upstreamTransport http.RoundTripper = &http.Transport{
 	Proxy:                 http.ProxyFromEnvironment,
 	DialContext:           (&net.Dialer{Timeout: 5 * time.Second}).DialContext,
@@ -1417,7 +1417,7 @@ var upstreamTransport http.RoundTripper = &http.Transport{
 // cookieStrippingTransport removes Meerkat's own session cookies at the very
 // last moment before the wire: they are gateway-internal credentials and must
 // never reach an upstream (cookies are host-scoped, not port-scoped, so on a
-// same-host deployment the browser sends them with every data-plane request —
+// same-host deployment the browser sends them with every data-plane request -
 // identity travels through the route's Identity mechanism instead). Stripping
 // here, after every proxy hook, keeps the original request on the response so
 // ModifyResponse (pageStamp) still resolves the session.
@@ -1427,7 +1427,7 @@ func (t cookieStrippingTransport) RoundTrip(req *http.Request) (*http.Response, 
 	clone := req.Clone(req.Context())
 	stripGatewayCookies(clone)
 	// Same story for the simulation knobs: gateway-internal, already
-	// consumed — the upstream sees the resulting identity, not the knobs.
+	// consumed - the upstream sees the resulting identity, not the knobs.
 	clone.Header.Del(SimulateUserHeader)
 	clone.Header.Del(SimulateRolesHeader)
 	if strings.HasPrefix(clone.Header.Get("Authorization"), "Bearer "+SimTokenPrefix) {
@@ -1463,7 +1463,7 @@ func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error)
 		Rewrite: func(pr *httputil.ProxyRequest) {
 			pr.SetXForwarded()
 			// Request filters transform the request path/headers first, THEN
-			// the upstream base path is prepended by SetURL — so strip-prefix
+			// the upstream base path is prepended by SetURL - so strip-prefix
 			// and friends reason on the request path, never on the upstream's.
 			for _, f := range cf.Request {
 				f(pr)
@@ -1498,7 +1498,7 @@ func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error)
 // It buffers, which is the honest trade: a filter takes an *http.Response, and
 // a handler writes straight to the client. What a terminal answers is a page or
 // a small document, so holding it in memory to let a header filter see it costs
-// nothing measurable — and the alternative is telling admins that outgoing
+// nothing measurable - and the alternative is telling admins that outgoing
 // filters work everywhere except here.
 func filterOwnResponse(next http.Handler, filters []routing.ResponseFilter) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -1562,7 +1562,7 @@ func (b *bufferedResponse) Write(p []byte) (int, error) {
 
 // withIdentity resolves the caller and hands it to a terminal that answers
 // from it (the "respond" brick). No session is not an error here: the template
-// asks {{if .SignedIn}} and decides what an anonymous caller is told — which is
+// asks {{if .SignedIn}} and decides what an anonymous caller is told - which is
 // what lets one route serve both the signed-in shape and the public one.
 func (rt *Router) withIdentity(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {

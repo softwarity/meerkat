@@ -13,7 +13,7 @@ import { PasswordDialogComponent } from '../password-dialog.component';
 
 // A user's options, hosted in the users-page right drawer (opened by clicking a
 // row). Capabilities, the second-factor policy and account actions all live
-// here — nothing is edited inline on the table anymore.
+// here - nothing is edited inline on the table anymore.
 @Component({
   selector: 'app-user-editor',
   imports: [
@@ -30,7 +30,7 @@ import { PasswordDialogComponent } from '../password-dialog.component';
 })
 export class UserEditorComponent {
   readonly user = input.required<User>();
-  // Resolved global second-factor policy — what a user's "Inherited" means.
+  // Resolved global second-factor policy - what a user's "Inherited" means.
   readonly globalMfaLabel = input.required<string>();
   readonly meId = input.required<string>();
 

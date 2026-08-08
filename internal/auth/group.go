@@ -12,7 +12,7 @@ import (
 // ONE of the member's groups is active per session and only its roles apply.
 // Groups are PER TENANT, so every tenant change resets the choice and re-runs
 // this decision: none = nothing to pick, one = picked silently, several =
-// the /select-group step (same pattern as select-tenant — a redirect, not a
+// the /select-group step (same pattern as select-tenant - a redirect, not a
 // blocking pending step: an undecided session simply carries no roles).
 
 // groupForTenant decides the active group for a user entering a tenant:
@@ -92,7 +92,7 @@ func (h *Handler) showSelectGroup(w http.ResponseWriter, r *http.Request) {
 	case 0:
 		http.Redirect(w, r, next, http.StatusSeeOther)
 	case 1:
-		// Nothing to choose — stamp the only group and go.
+		// Nothing to choose - stamp the only group and go.
 		if err := h.sm.SetGroup(r.Context(), r, groups[0].ID); err != nil {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return

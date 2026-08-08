@@ -1,6 +1,6 @@
 // One-line, LOCALIZED descriptions for the add-menus (predicates and
 // modifiers): the server catalog's docs are technical English, these are what
-// a reader scans to pick the right brick. Keep them short — they render as
+// a reader scans to pick the right brick. Keep them short - they render as
 // the second line of a menu item. No curly braces here (ICU would eat them).
 
 const DOCS: Record<string, string> = {

@@ -42,7 +42,7 @@ export class ThemePageComponent {
   protected readonly themes = signal<Theme[]>([]);
   protected readonly presets = signal<Theme[]>([]);
   protected readonly selectedId = signal('');
-  protected readonly version = signal(0); // bumped on save → busts the frames
+  protected readonly version = signal(0); // bumped on save -> busts the frames
 
   // Editable copies of the selected theme and the global branding.
   protected readonly name = signal('');
@@ -54,12 +54,12 @@ export class ThemePageComponent {
   protected readonly brandLogo = signal('');
   protected readonly brandFavicon = signal('');
   // The flow pages' look. It rides on /api/settings, whose PUT takes the WHOLE
-  // payload, so the loaded object is kept to send back with one field changed —
+  // payload, so the loaded object is kept to send back with one field changed -
   // a partial body would quietly reset the rest.
   protected readonly pagesScheme = signal<'' | 'light' | 'dark'>('');
   private settings: Settings | null = null;
 
-  // Hovered token (from the palette editor) → CSS var for the preview.
+  // Hovered token (from the palette editor) -> CSS var for the preview.
   private readonly hoverKey = signal('');
   protected readonly highlightVar = computed(() => (this.hoverKey() ? CSS_VARS[this.hoverKey()] : ''));
 
@@ -158,7 +158,7 @@ export class ThemePageComponent {
     });
   }
 
-  // Branding is global — its persistence is deliberately separate from themes.
+  // Branding is global - its persistence is deliberately separate from themes.
   protected setPagesScheme(value: '' | 'light' | 'dark'): void {
     const current = this.settings;
     if (!current) return;

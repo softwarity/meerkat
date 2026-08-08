@@ -3,18 +3,18 @@
 // What travels and what does not IS the design. A Document carries the
 // infrastructure: routes, the role catalogue, the authorities people sign in
 // through, the mail relay, the themes, the gateway settings. It carries no
-// living object — users, organisations, memberships, sessions, certificates,
-// personal tokens, the audit trail — and it never carries the vault.
+// living object - users, organisations, memberships, sessions, certificates,
+// personal tokens, the audit trail - and it never carries the vault.
 //
 // The rule that makes the whole thing usable: a declared secret field travels
 // as its $name reference or not at all. An export is therefore PUBLIC by
-// construction — it goes into a ticket, a mail to support or a git repository
+// construction - it goes into a ticket, a mail to support or a git repository
 // without anyone having to wonder what is inside. The day an export may hold a
 // secret, nobody dares share one and the feature dies of its own caution.
 //
 // The counterpart is assumed: a document alone does not start an environment.
 // Its references have to exist in the vault, which is a separate file with a
-// separate life (VAULT-03) — one that is never versioned.
+// separate life (VAULT-03) - one that is never versioned.
 package config
 
 import (
@@ -66,10 +66,10 @@ func (d *Document) Empty() bool {
 // state). Deliberately absent:
 //
 //   - the mail relay, which has its own section;
-//   - the signing keys, which are private key material — like a certificate,
+//   - the signing keys, which are private key material - like a certificate,
 //     it is generated where it is used and never travels in a document that
 //     calls itself public;
-//   - the internal guards (theme presets seeded…), which only mean something
+//   - the internal guards (theme presets seeded...), which only mean something
 //     for the install that wrote them.
 var ExportedSettings = []string{
 	store.SettingBusinessAccess,
@@ -91,7 +91,7 @@ var ExportedSettings = []string{
 // noisy and every import a lie about the history of the install it lands in.
 var stampedKeys = []string{"createdAt", "updatedAt"}
 
-// Marshal renders the document as YAML — what an export downloads.
+// Marshal renders the document as YAML - what an export downloads.
 //
 // The bytes come from the JSON encoding, so the keys are exactly the ones the
 // admin API already speaks (one vocabulary, not two), and an export of the same
@@ -171,7 +171,7 @@ func node(v any) (*yaml.Node, error) {
 }
 
 // ordered lists a mapping's keys: the identifying ones first, then the rest
-// alphabetically — arbitrary, but the same from one export to the next.
+// alphabetically - arbitrary, but the same from one export to the next.
 func ordered(m map[string]any) []string {
 	rank := map[string]int{}
 	for i, k := range leadingKeys {
@@ -205,7 +205,7 @@ func ordered(m map[string]any) []string {
 // cleverness that costs someone an evening.
 //
 // Settings are left untouched: they are opaque here, and a setting whose value
-// is legitimately "" or an empty list must keep saying so — dropping the key
+// is legitimately "" or an empty list must keep saying so - dropping the key
 // would mean "this file says nothing about it", which is a different thing.
 func tidy(v any) any {
 	root, ok := v.(map[string]any)
@@ -300,7 +300,7 @@ func readable(err error) string {
 	msg := err.Error()
 	if strings.HasPrefix(msg, "json: unknown field ") {
 		return "unknown field " + strings.TrimPrefix(msg, "json: unknown field ") +
-			" — a configuration file only holds: version, settings, roles, routes, " +
+			" - a configuration file only holds: version, settings, roles, routes, " +
 			"authProviders, mailRelay, themes"
 	}
 	return msg

@@ -8,7 +8,7 @@ import { argBool, argList, argStr, patchSpec } from './args';
 import { StringListComponent } from './string-list.component';
 
 // Dedicated editors, one per predicate shape. Each takes the predicate Spec
-// through a model() signal and edits its args in place — the type is fixed at
+// through a model() signal and edits its args in place - the type is fixed at
 // add-time (chosen from the catalog menu), same pattern as the filters.
 
 const FIELDS_STYLE = `

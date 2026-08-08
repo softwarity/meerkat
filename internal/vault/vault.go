@@ -5,7 +5,7 @@
 //
 //   - secret: encrypted at rest (AES-256-GCM), never returned in plain by the
 //     admin API, substituted only when the gateway loads the configuration;
-//   - value: plain text, readable — a hostname, a header name, an account.
+//   - value: plain text, readable - a hostname, a header name, an account.
 //
 // Holding both in one place is the point: an admin has a single screen for
 // everything the configuration refers to, and can see what is actually used.
@@ -38,7 +38,7 @@ func ValidKind(k string) bool { return k == KindSecret || k == KindValue }
 
 // The scopes an entry belongs to (RBAC-05), on the model of an organisation's
 // variables and a repository's: several planes coexist, each administered by
-// its own people, and a NAME IS UNIQUE PER SCOPE — so the same "db-password"
+// its own people, and a NAME IS UNIQUE PER SCOPE - so the same "db-password"
 // can mean a different thing for two tenants.
 //
 // Resolution honours the same split, which is what stops an administrator of
@@ -51,7 +51,7 @@ const (
 	// ScopeInfra is the infrastructure plane: upstreams, filter arguments,
 	// backend credentials. Administered by the infra-admin capability.
 	ScopeInfra = "infra"
-	// ScopeApp is the application plane: SMTP, identity providers… — app-admin.
+	// ScopeApp is the application plane: SMTP, identity providers... - app-admin.
 	ScopeApp = "app"
 	// ScopeTenantPrefix + <tenant id> is one organisation's own scope.
 	ScopeTenantPrefix = "tenant:"
@@ -114,7 +114,7 @@ type Entry struct {
 
 // ── references ───────────────────────────────────────────────────────────────
 
-// refRe matches $name and ${name} — the second form lets a reference sit flush
+// refRe matches $name and ${name} - the second form lets a reference sit flush
 // against following text ("${host}:8080"). A doubled $$ escapes a literal $.
 var refRe = regexp.MustCompile(`\$\$|\$\{(` + namePattern + `)\}|\$(` + namePattern + `)`)
 
@@ -128,7 +128,7 @@ var wholeRefRe = regexp.MustCompile(`^(?:\$\{(` + namePattern + `)\}|\$(` + name
 // around its references ("http://${host}:8080"), so a fragment is normal there.
 // A password is not a fragment: it either IS what the vault holds, or it is a
 // literal sitting in the configuration. "${a}${b}" and "x-$token" are literals
-// by this rule, which is the safe way round — a value we cannot certify as a
+// by this rule, which is the safe way round - a value we cannot certify as a
 // reference is treated as a secret to protect.
 func RefName(s string) string {
 	m := wholeRefRe.FindStringSubmatch(s)

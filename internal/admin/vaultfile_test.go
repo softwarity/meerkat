@@ -63,7 +63,7 @@ func TestVaultFileRoundTrip(t *testing.T) {
 // TestVaultImportFillsReservedEntriesAndLeavesTheRestAlone is the pairing that
 // makes the two files work together: a configuration import reserves the names
 // it expects, the vault file fills them. And an entry that already holds
-// something is never overwritten behind the admin's back — importing a vault
+// something is never overwritten behind the admin's back - importing a vault
 // over a running gateway is exactly when one is least able to tell which of two
 // values is the right one.
 func TestVaultImportFillsReservedEntriesAndLeavesTheRestAlone(t *testing.T) {
@@ -142,7 +142,7 @@ func TestVaultImportRefusesTheWrongPassphrase(t *testing.T) {
 }
 
 // TestVaultFileStaysInTheCallersScopes: the vault is transverse, so an export
-// carries what the caller administers and nothing else — a tenant admin moving
+// carries what the caller administers and nothing else - a tenant admin moving
 // their own entries cannot walk off with the infrastructure's.
 func TestVaultFileStaysInTheCallersScopes(t *testing.T) {
 	f := setup(t)

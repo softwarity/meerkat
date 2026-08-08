@@ -18,13 +18,13 @@ import { PasswordDialogComponent } from '../password-dialog.component';
 import { UserDialogComponent } from '../user-dialog.component';
 import { UserEditorComponent } from '../user-editor/user-editor.component';
 
-// mfaText renders the resolved global second-factor policy — the label a user's
+// mfaText renders the resolved global second-factor policy - the label a user's
 // "Inherited" resolves to (the user record sits directly under global).
 function mfaText(required: boolean): string {
   return required ? $localize`:@@MFA_required:Required` : $localize`:@@MFA_optional:Optional`;
 }
 
-// Users administration — root scope. The table is a plain list; clicking a row
+// Users administration - root scope. The table is a plain list; clicking a row
 // opens the user's options in a right drawer (the same pattern as routes).
 @Component({
   selector: 'app-users-page',
@@ -101,7 +101,7 @@ export class UsersPageComponent {
   }
 
   // A field changed in the drawer: refresh the row. The drawer follows on its
-  // own — `editing` reads the fresh user out of the list.
+  // own - `editing` reads the fresh user out of the list.
   protected onUserSaved(fresh: User): void {
     this.users.update((list) => list.map((u) => (u.id === fresh.id ? fresh : u)));
   }
@@ -153,7 +153,7 @@ export class UsersPageComponent {
     key: 'root' | 'dev' | 'tester' | 'tenantCreator' | 'infraAdmin' | 'appAdmin',
     event: Event,
   ): void {
-    event.stopPropagation(); // the row click opens the drawer — not this
+    event.stopPropagation(); // the row click opens the drawer - not this
     this.patchUser(u, { [key]: !u[key] });
   }
 

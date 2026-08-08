@@ -43,7 +43,7 @@ func setup(t *testing.T) fixture {
 		t.Fatal(err)
 	}
 	// The data plane and the control plane have SEPARATE session managers, as in
-	// production (session.ForAdminPlane) — this is what isolates admin-plane API
+	// production (session.ForAdminPlane) - this is what isolates admin-plane API
 	// tokens from data-plane ones.
 	sm := session.NewManager(st)
 	adminSM := session.NewManager(st, session.ForAdminPlane())
@@ -165,7 +165,7 @@ func TestPutRouteAppliesImmediately(t *testing.T) {
 		t.Fatalf("put: %d %s", code, out)
 	}
 
-	// After: saving IS applying — no restart, no explicit reload call.
+	// After: saving IS applying - no restart, no explicit reload call.
 	res, err = http.Get(f.appSrv.URL + "/api/x")
 	if err != nil {
 		t.Fatal(err)

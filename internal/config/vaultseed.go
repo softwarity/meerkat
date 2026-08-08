@@ -20,14 +20,14 @@ import (
 // $names; without their values the gateway comes up with inert routes. Waiting
 // for an admin to open the console and type a passphrase works for a first
 // install with a human in front of it, and not at all for a compose that comes
-// back up at four in the morning — which is the case that matters.
+// back up at four in the morning - which is the case that matters.
 //
 // So the passphrase arrives the same way every other infrastructure secret
 // does: an environment variable, or a file mounted next to the encrypted one.
 // The console keeps its own path (a dialog, on an explicit import) for the
 // times someone IS in front of it.
 //
-// Ingested ONCE, then never read again — the digest is kept. Leaving a file and
+// Ingested ONCE, then never read again - the digest is kept. Leaving a file and
 // its passphrase side by side in the same compose forever is how encryption
 // becomes decoration; the log says the file can be removed.
 
@@ -43,7 +43,7 @@ type VaultSeedMark struct {
 //
 // Unlike the configuration seed, this one does NOT require an empty gateway: a
 // vault file only ever fills names, and an entry already holding a value is
-// left alone. What guards it is the digest — the same file is never replayed.
+// left alone. What guards it is the digest - the same file is never replayed.
 func SeedVault(ctx context.Context, st *store.Store, path, passphrase string, now int64) (bool, error) {
 	if path == "" {
 		return false, nil

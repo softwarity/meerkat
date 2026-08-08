@@ -1,7 +1,7 @@
 @if (loading()) {
   <loading-indicator withContainer />
 } @else if (scope.tenant(); as t) {
-  <!-- The tenant's name crowns the section nav — sections are child routes. -->
+  <!-- The tenant's name crowns the section nav - sections are child routes. -->
   <nav class="left">
     <h2>{{ t.name }}</h2>
     <a routerLink="general" routerLinkActive="active" class="section-link">

@@ -148,7 +148,7 @@ func scanRole(row scanner) (Role, error) {
 }
 
 // roleReaches reports whether target is on the ancestor chain of start (walking
-// parent_id upward) — used to reject hierarchy cycles.
+// parent_id upward) - used to reject hierarchy cycles.
 func (s *Store) roleReaches(ctx context.Context, start, target string) (bool, error) {
 	parents, err := s.roleParents(ctx)
 	if err != nil {
@@ -228,7 +228,7 @@ func (s *Store) GetGroup(ctx context.Context, id string) (Group, error) {
 		return Group{}, err
 	}
 	if g.RoleIDs == nil {
-		g.RoleIDs = []string{} // JSON [] — never null (the console indexes into it)
+		g.RoleIDs = []string{} // JSON [] - never null (the console indexes into it)
 	}
 	return g, nil
 }
@@ -343,7 +343,7 @@ func (s *Store) SetMemberGroups(ctx context.Context, tenantID, userID string, gr
 	return tx.Commit()
 }
 
-// MemberGroups returns the groups a user holds in a tenant WITH their names —
+// MemberGroups returns the groups a user holds in a tenant WITH their names -
 // the select-group step and the user button list them.
 func (s *Store) MemberGroups(ctx context.Context, tenantID, userID string) ([]Group, error) {
 	rows, err := s.db.QueryContext(ctx,
@@ -366,7 +366,7 @@ func (s *Store) MemberGroups(ctx context.Context, tenantID, userID string) ([]Gr
 	return out, rows.Err()
 }
 
-// SessionRoleNames resolves the role names a SESSION actually carries — the
+// SessionRoleNames resolves the role names a SESSION actually carries - the
 // single place the group mode applies (RBAC-03). Cumulative: every assigned
 // group counts. Exclusive (SINGLE): only the session's ACTIVE group counts,
 // re-validated against the memberships on every call (a user pulled from a
@@ -502,7 +502,7 @@ func (s *Store) ExpandRoleNames(ctx context.Context, names []string) ([]string, 
 
 // EffectiveRoleNames resolves the role NAMES a set of groups grants: the union
 // of the groups' roles, expanded DOWN the hierarchy (a role implies its
-// descendants). Sorted and unique — ready for the JWT (RBAC-09) and the session.
+// descendants). Sorted and unique - ready for the JWT (RBAC-09) and the session.
 func (s *Store) EffectiveRoleNames(ctx context.Context, groupIDs []string) ([]string, error) {
 	direct, err := s.groupRoleIDs(ctx, groupIDs)
 	if err != nil {

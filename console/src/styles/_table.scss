@@ -14,7 +14,7 @@
 // scrollbar outside the frame - the table appears to slide behind its own
 // outline. Here the outline is the pane, and the bar belongs to it.
 //
-//   <div class="table-wrap"><mat-table>…</mat-table></div>
+//   <div class="table-wrap"><mat-table>...</mat-table></div>
 //   .table-wrap { @include table.frame; }
 @mixin frame {
   position: relative;

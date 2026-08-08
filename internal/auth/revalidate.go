@@ -15,8 +15,8 @@ import (
 // the directory that owns the person. Left alone, that means disabling someone
 // in the annuaire would not stop them signing in here: they would keep a way in
 // that the directory believes it has closed, indefinitely, without anyone
-// noticing. A password does not have this problem — closing the account upstream
-// breaks the next sign-in — so the shortcut must ask the same question the
+// noticing. A password does not have this problem - closing the account upstream
+// breaks the next sign-in - so the shortcut must ask the same question the
 // password implicitly asks.
 //
 // Hence: whoever came in through an authority is checked against that authority
@@ -50,7 +50,7 @@ func (h *Handler) aDoorIsOpenFor(ctx context.Context, u store.User) bool {
 // A purely local account (root, an operator, a service account) has no
 // authority to ask, and answers yes: it never delegated anything. Someone
 // linked to one or more authorities has to be recognised by at least one of
-// them — accounts get moved between directories, and being gone from the old
+// them - accounts get moved between directories, and being gone from the old
 // one is not a reason to be refused.
 //
 // An authority that CANNOT be asked (a redirect one, or a directory that is
@@ -84,7 +84,7 @@ func (h *Handler) stillRecognised(ctx context.Context, u store.User) (bool, stri
 		rv, ok := driver.(idp.Revalidator)
 		if !ok {
 			// A redirect authority cannot answer without sending the browser
-			// away. Nothing to conclude — see the note above the type.
+			// away. Nothing to conclude - see the note above the type.
 			continue
 		}
 		known, err := rv.Recognises(ctx, id.ExternalID)
@@ -108,7 +108,7 @@ func (h *Handler) stillRecognised(ctx context.Context, u store.User) (bool, stri
 
 // passkeysAllowedBy reads the per-authority passkey policy (AuthProvider.
 // Passkeys). It is a tri-state: empty inherits the application setting, and an
-// authority that carries its own factors can say no — a passkey is a local
+// authority that carries its own factors can say no - a passkey is a local
 // credential, and delegating authentication means delegating it whole.
 func passkeysAllowedBy(p store.AuthProvider) bool {
 	return p.Passkeys != store.PolicyNo

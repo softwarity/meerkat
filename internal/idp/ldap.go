@@ -372,8 +372,8 @@ func entryToMap(e *ldap.Entry) map[string]any {
 //
 // It searches with the authority's OWN user filter rather than reading the
 // entry by its DN, and that is the whole trick: there is no standard way to
-// mark an account disabled — Active Directory uses a bit inside
-// userAccountControl, 389 uses nsAccountLock, OpenLDAP has nothing — so any
+// mark an account disabled - Active Directory uses a bit inside
+// userAccountControl, 389 uses nsAccountLock, OpenLDAP has nothing - so any
 // code guessing at it would be wrong somewhere. The filter that decides who may
 // SIGN IN is already written by the administrator, and it is the same question.
 // Whoever excludes disabled accounts there gets them excluded here too, with no

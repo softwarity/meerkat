@@ -12,10 +12,10 @@ import (
 
 // Sign-in history: every COMPLETED login (password, password+code, passkey)
 // is recorded and listed on /profile/history. A durable random cookie names
-// the browser — its hash rides on each event so the list can badge the rows
+// the browser - its hash rides on each event so the list can badge the rows
 // made from THIS browser, same spirit as the passkey/trusted-browser badges.
 
-// browserCookieName carries the durable browser identifier — an opaque random
+// browserCookieName carries the durable browser identifier - an opaque random
 // token with no authority whatsoever; only its hash is stored, per event.
 const browserCookieName = "MEERKAT_BROWSER"
 
@@ -101,11 +101,11 @@ type profileHistoryData struct {
 }
 
 // loginEventView is one history row, pre-formatted: the browser label, the
-// localized method chip, the IP · country line, the localized timestamp.
+// localized method chip, the IP - country line, the localized timestamp.
 type loginEventView struct {
 	Label   string
 	Method  string
-	Meta    string // "IP · country", possibly empty
+	Meta    string // "IP - country", possibly empty
 	When    string
 	Current bool
 }
@@ -136,7 +136,7 @@ const profileHistoryBody = `    <style>
       .lh-row + .lh-row { border-top: 1px solid color-mix(in srgb, var(--mk-outline) 45%, transparent); }
       .lh-lines { flex: 1; min-width: 0; display: grid; gap: 3px; text-align: left; }
       .lh-label { font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      /* the current browser needs no browser/os/ip — we ARE on it */
+      /* the current browser needs no browser/os/ip - we ARE on it */
       .lh-label.here { color: var(--mk-primary); font-weight: 500; }
       .lh-meta {
         font-family: var(--mk-mono); font-size: .66rem;
@@ -220,7 +220,7 @@ func (h *Handler) showProfileHistory(w http.ResponseWriter, r *http.Request) {
 			if e.Country != "" {
 				meta = append(meta, e.Country)
 			}
-			v.Meta = strings.Join(meta, " · ")
+			v.Meta = strings.Join(meta, " - ")
 		}
 		data.Events = append(data.Events, v)
 	}

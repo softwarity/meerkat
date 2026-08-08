@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ApiService, User } from '../api.service';
 
-// User creation — identity only; the generated one-time password comes back in
+// User creation - identity only; the generated one-time password comes back in
 // the dialog result, superpowers are toggled afterwards on the users table.
 @Component({
   selector: 'app-user-dialog',

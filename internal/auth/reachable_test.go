@@ -31,7 +31,7 @@ func uiRoute(id string, order int, authenticated bool, requiredRole string) stor
 }
 
 // TestProfileHubAndUserButtonListReachableApps: the profile hub and the
-// user-button JSON offer the UI routes THIS session may open — public and
+// user-button JSON offer the UI routes THIS session may open - public and
 // authenticated ones, never a role-gated one the user does not hold.
 func TestProfileHubAndUserButtonListReachableApps(t *testing.T) {
 	mux, _, st := mfaSetup(t)

@@ -17,7 +17,7 @@ import {
   StripPrefixFilterComponent,
 } from './filter-fields.component';
 
-// type → which dedicated editor renders it. Several types share an editor
+// type -> which dedicated editor renders it. Several types share an editor
 // (a header value is a header value, whichever verb/phase), so the map collapses
 // the 14 filter types onto the dedicated components.
 const KIND: Record<string, string> = {

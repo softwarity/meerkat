@@ -87,12 +87,12 @@ func TestMFARequiredForUser(t *testing.T) {
 		t.Fatalf("CreateUser: %v", err)
 	}
 
-	// Default: global false, user inherits → not required.
+	// Default: global false, user inherits -> not required.
 	if req, err := s.MFARequiredForUser(ctx, "u1"); err != nil || req {
 		t.Fatalf("default should be not required, got %v (err %v)", req, err)
 	}
 
-	// Global on, user inherits → required.
+	// Global on, user inherits -> required.
 	if err := s.SetSetting(ctx, SettingMFARequired, true); err != nil {
 		t.Fatal(err)
 	}

@@ -36,7 +36,7 @@
     <mat-list-option value="identity" [selected]="section() === 'identity'" i18n="@@Section_identity">Identity</mat-list-option>
     <mat-list-option value="locales" [selected]="section() === 'locales'" i18n="@@Section_locales">Locales</mat-list-option>
     <!-- UI extras (ROUTE-02): visible but DISABLED until the UI toggle in
-         General turns them on — a route is always a service, UI comes on top -->
+         General turns them on - a route is always a service, UI comes on top -->
     <div matSubheader>UI</div>
     <mat-list-option value="button" [selected]="section() === 'button'" [disabled]="!draft().isUi" i18n="@@Section_user_button">User button</mat-list-option>
     <mat-list-option value="userinfo" [selected]="section() === 'userinfo'" [disabled]="!draft().isUi" i18n="@@Section_user_info">User info</mat-list-option>
@@ -73,10 +73,10 @@
         <mat-form-field>
           <mat-label i18n="@@Mode">Mode</mat-label>
           <mat-select [value]="mode()" (selectionChange)="setMode($event.value)">
-            <mat-option value="proxy" i18n="@@Mode_proxy">Proxy — fetch from a service</mat-option>
-            <mat-option value="redirect" i18n="@@Mode_redirect">Redirect — send the browser elsewhere</mat-option>
-            <mat-option value="maintenance" i18n="@@Mode_maintenance">Maintenance — the built-in unavailable page</mat-option>
-            <mat-option value="respond" i18n="@@Mode_respond">Respond — an answer built from a template</mat-option>
+            <mat-option value="proxy" i18n="@@Mode_proxy">Proxy - fetch from a service</mat-option>
+            <mat-option value="redirect" i18n="@@Mode_redirect">Redirect - send the browser elsewhere</mat-option>
+            <mat-option value="maintenance" i18n="@@Mode_maintenance">Maintenance - the built-in unavailable page</mat-option>
+            <mat-option value="respond" i18n="@@Mode_respond">Respond - an answer built from a template</mat-option>
           </mat-select>
         </mat-form-field>
         @if (mode() === 'proxy') {

@@ -17,16 +17,16 @@ import (
 //
 // The application logo lives in the branding setting as a data URI, and it is
 // the only binary a configuration carries. Left inline it is one base64 line of
-// up to 300 000 characters in the middle of a file people read and diff — the
+// up to 300 000 characters in the middle of a file people read and diff - the
 // surest way to make them stop opening it.
 //
 // So a document with an image travels as a ZIP: the YAML, and the picture next
-// to it. What matters is that BOTH forms stay self-contained — the plain YAML
+// to it. What matters is that BOTH forms stay self-contained - the plain YAML
 // keeps its data URI, and the assets/ path only ever exists inside a package
 // that carries the file it names. A dangling reference cannot be produced by
 // either. Someone who unzips and imports the YAML alone gets the rule that
 // governs everything else here: what the file does not carry, it does not
-// destroy — the logo in place stays, and the import says so.
+// destroy - the logo in place stays, and the import says so.
 
 // BundleName is the document's name inside a package.
 const BundleName = "meerkat.yaml"

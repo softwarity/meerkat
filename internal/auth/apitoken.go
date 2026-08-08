@@ -30,7 +30,7 @@ type apiTokenView struct {
 	ID       string
 	Name     string
 	Prefix   string
-	Context  string // "acme" or "acme · Support"
+	Context  string // "acme" or "acme - Support"
 	Enabled  bool
 	Expiry   string // "" = never, else localized date, or "expired"
 	LastUsed string // "" = never used
@@ -186,7 +186,7 @@ const apiTokensBody = `    <style>
       <div class="tk">
         <div class="tk-lines">
           <span class="tk-name">{{.Name}}{{if not .Enabled}}<span class="tk-off">{{$.T.tokenDisabled}}</span>{{end}}</span>
-          <span class="tk-meta">{{.Prefix}}… · {{.Context}}{{if .Expiry}} · <span{{if .Expired}} class="tk-exp"{{end}}>{{.Expiry}}</span>{{end}}{{if .LastUsed}} · {{.LastUsed}}{{end}}</span>
+          <span class="tk-meta">{{.Prefix}}... - {{.Context}}{{if .Expiry}} - <span{{if .Expired}} class="tk-exp"{{end}}>{{.Expiry}}</span>{{end}}{{if .LastUsed}} - {{.LastUsed}}{{end}}</span>
         </div>
         <form method="post" action="/profile/tokens">
           <input type="hidden" name="id" value="{{.ID}}">
@@ -203,7 +203,7 @@ const apiTokensBody = `    <style>
     </div>
 
     <dialog id="tk-revoke-dlg" class="tk-dlg">
-      <h3>{{.T.tokenRevoke}} · <span id="tk-revoke-name"></span></h3>
+      <h3>{{.T.tokenRevoke}} - <span id="tk-revoke-name"></span></h3>
       <p class="tk-warn">{{.T.tokenRevokeConfirm}}</p>
       <form method="post" action="/profile/tokens">
         <input type="hidden" name="id" id="tk-revoke-id">
@@ -286,7 +286,7 @@ func (h *Handler) showTokens(w http.ResponseWriter, r *http.Request) {
 	h.renderTokens(w, r, sess, "", "", http.StatusOK)
 }
 
-// sessionContextLabel is the "tenant" or "tenant · group" a token would carry.
+// sessionContextLabel is the "tenant" or "tenant - group" a token would carry.
 func (h *Handler) sessionContextLabel(r *http.Request, sess store.Session) (label string, hasTenant bool) {
 	if sess.TenantID == "" {
 		return "", false
@@ -300,7 +300,7 @@ func (h *Handler) sessionContextLabel(r *http.Request, sess store.Session) (labe
 		if groups, err := h.st.MemberGroups(r.Context(), sess.TenantID, sess.UserID); err == nil {
 			for _, g := range groups {
 				if g.ID == sess.GroupID {
-					label += " · " + g.Name
+					label += " - " + g.Name
 					break
 				}
 			}
@@ -329,7 +329,7 @@ func (h *Handler) renderTokens(w http.ResponseWriter, r *http.Request, sess stor
 				v.Context = t["tokenContextNone"]
 			}
 			if tok.GroupName != "" {
-				v.Context += " · " + tok.GroupName
+				v.Context += " - " + tok.GroupName
 			}
 			if tok.ExpiresAt != 0 {
 				if now >= tok.ExpiresAt {
@@ -409,5 +409,5 @@ func (h *Handler) createToken(w http.ResponseWriter, r *http.Request, sess store
 }
 
 // apiTokenClearPrefix must match session.apiTokenPrefix (the resolver checks
-// it before hashing) — kept here so the two packages never drift.
+// it before hashing) - kept here so the two packages never drift.
 const apiTokenClearPrefix = "mk_"

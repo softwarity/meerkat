@@ -57,7 +57,7 @@ func (s *Store) SaveGroupRule(ctx context.Context, r GroupRule) error {
 		return fmt.Errorf("store: a group rule needs an id and a tenant")
 	}
 	// A rule matching every authority AND every group would hand this tenant to
-	// anyone any authority authenticates — including one added later, for
+	// anyone any authority authenticates - including one added later, for
 	// something else entirely.
 	if r.ProviderID == "" && r.External == "" {
 		return fmt.Errorf("store: a group rule must name an authority, a group, or both: " +
@@ -176,8 +176,8 @@ func (r GroupRule) matches(providerID string, reported map[string]bool) bool {
 // It is a SYNCHRONISATION, not an accumulation: memberships and groups that a
 // rule granted before and no longer grants are taken back, because someone who
 // left a team upstream must lose what that team gave them. Rows an
-// administrator placed by hand carry no source and are never touched — neither
-// added to nor removed — which is what lets the two coexist.
+// administrator placed by hand carry no source and are never touched - neither
+// added to nor removed - which is what lets the two coexist.
 func (s *Store) SyncMappedGroups(ctx context.Context, userID, providerID string, reported []string) ([]string, error) {
 	rules, err := s.AllGroupRules(ctx)
 	if err != nil {
@@ -229,7 +229,7 @@ func (s *Store) SyncMappedGroups(ctx context.Context, userID, providerID string,
 		}
 	}
 
-	// Take back what the rules no longer grant — and only that.
+	// Take back what the rules no longer grant - and only that.
 	rows, err := tx.QueryContext(ctx,
 		`SELECT tenant_id, group_id FROM member_groups WHERE user_id = ? AND source = ?`,
 		userID, SourceRule)

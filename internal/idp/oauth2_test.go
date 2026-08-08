@@ -91,7 +91,7 @@ func ghCallback(state string) *http.Request {
 }
 
 // TestGitHubSignIn: the whole exchange, and the three GitHub specifics that a
-// generic OAuth2 form could never express — the address behind its own
+// generic OAuth2 form could never express - the address behind its own
 // endpoint, the numeric id as the subject, and organisations as groups.
 //
 // With an allow-list configured, since that is what makes the organisations
@@ -197,7 +197,7 @@ func TestGitHubNeedsCredentials(t *testing.T) {
 
 // TestGitHubAsksOnlyForWhatItUses: reading someone's organisations is what
 // makes GitHub's consent screen list their employers, so it is asked for only
-// when the configuration cannot work without it — an organisation allow-list.
+// when the configuration cannot work without it - an organisation allow-list.
 // Identity alone costs the address scope and nothing more.
 func TestGitHubAsksOnlyForWhatItUses(t *testing.T) {
 	g := newFakeGitHub(t)

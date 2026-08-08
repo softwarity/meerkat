@@ -4,7 +4,7 @@ import { Tenant } from '../api.service';
 // Shared state between the tenant layout (left nav + right header) and its
 // ROUTED sections: the loaded tenant (the layout owns loading, General updates
 // it after a save) and the header search the matrices filter on. Provided by
-// TenantPageComponent — one instance per visited tenant layout.
+// TenantPageComponent - one instance per visited tenant layout.
 @Injectable()
 export class TenantScope {
   readonly tenant = signal<Tenant | null>(null);

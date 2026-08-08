@@ -2,7 +2,7 @@ package routing
 
 import "sort"
 
-// CatalogEntry is the self-description of one brick — what the admin API
+// CatalogEntry is the self-description of one brick - what the admin API
 // serves so the console can generate the route editor forms, and what the
 // documentation is derived from. One source of truth for four layers.
 type CatalogEntry struct {

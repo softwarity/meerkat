@@ -35,7 +35,7 @@ export class RoutesTableComponent {
 
   protected readonly columns = ['name', 'access', 'matching', 'upstream'];
 
-  // Row-actions toolbars self-close on row click (closeOnClick, 3.1.0) —
+  // Row-actions toolbars self-close on row click (closeOnClick, 3.1.0) -
   // nothing floats over the editor drawer this click opens.
   protected onRowClick(route: Route): void {
     this.edit.emit(route);
@@ -80,6 +80,6 @@ export class RoutesTableComponent {
         return value === '' ? p.type : `${p.type}: ${value}`;
       })
       .join(' AND ');
-    return r.filters.length ? `${preds} · ${r.filters.length} filter(s)` : preds;
+    return r.filters.length ? `${preds} - ${r.filters.length} filter(s)` : preds;
   }
 }

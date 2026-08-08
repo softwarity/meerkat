@@ -20,7 +20,7 @@ func probe(t *testing.T, f fixture, body string) gateway.ProbeResult {
 	}
 	var res gateway.ProbeResult
 	if err := json.Unmarshal([]byte(out), &res); err != nil {
-		t.Fatalf("probe payload: %v — %s", err, out)
+		t.Fatalf("probe payload: %v - %s", err, out)
 	}
 	return res
 }
@@ -117,7 +117,7 @@ func TestProbeNamesTheInterceptor(t *testing.T) {
 	if res.Outcome != "intercepted" || res.WinnerName != "catch-all" {
 		t.Fatalf("the interceptor was not named: outcome %q winner %q", res.Outcome, res.WinnerName)
 	}
-	// The target itself still matches — it was only beaten to it.
+	// The target itself still matches - it was only beaten to it.
 	var target ProbeStepAlias
 	for _, st := range res.Steps {
 		if st.RouteID == "billing" {
@@ -132,7 +132,7 @@ func TestProbeNamesTheInterceptor(t *testing.T) {
 // ProbeStepAlias keeps the assertion above readable.
 type ProbeStepAlias gateway.ProbeStep
 
-// TestProbeTakesADescribedRequest: the other direction — an admin pastes what
+// TestProbeTakesADescribedRequest: the other direction - an admin pastes what
 // their client sends and asks where it lands. No target, no synthesis.
 func TestProbeTakesADescribedRequest(t *testing.T) {
 	f := setup(t)

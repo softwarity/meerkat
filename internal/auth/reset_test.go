@@ -15,8 +15,8 @@ import (
 
 var resetLink = regexp.MustCompile(`/reset-password\?token=[A-Za-z0-9_-]+`)
 
-// TestForgotPasswordFullFlow: request → mailed one-shot link (peek on GET,
-// consume on POST) → new password works, old one dies, every session is
+// TestForgotPasswordFullFlow: request -> mailed one-shot link (peek on GET,
+// consume on POST) -> new password works, old one dies, every session is
 // revoked, the owner is notified, the link never replays.
 func TestForgotPasswordFullFlow(t *testing.T) {
 	mux, sm, st, box := registerSetup(t) // SMTP configured + recording mailbox

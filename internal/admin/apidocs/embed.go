@@ -1,12 +1,12 @@
 // Package apidocs carries the embedded API-docs page: the vendored swagger-ui
-// assets (see tools/fetch-swagger-ui.py — offline-first, nothing is ever
+// assets (see tools/fetch-swagger-ui.py - offline-first, nothing is ever
 // loaded from a CDN), the Sentinel's Watch skin posed on top of them, and the
 // OpenAPI description of Meerkat's own admin API.
 package apidocs
 
 import _ "embed"
 
-// BundleJS is the swagger-ui JavaScript bundle (vendored, Apache-2.0 — the
+// BundleJS is the swagger-ui JavaScript bundle (vendored, Apache-2.0 - the
 // LICENSE and NOTICE files live next to it in dist/).
 //
 //go:embed dist/swagger-ui-bundle.js

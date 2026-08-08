@@ -99,7 +99,7 @@ func TestLoginChallengesEnrolledUser(t *testing.T) {
 		t.Fatalf("wrong code: code=%d, want 422", bad.Code)
 	}
 
-	// The live code completes the flow → the login destination.
+	// The live code completes the flow -> the login destination.
 	code, _ := mfa.Code(secret, time.Now())
 	ok := do(t, mux, "POST", "/totp", url.Values{"code": {code}}, cookie)
 	if ok.Code != http.StatusSeeOther || ok.Header().Get("Location") != "/app" {

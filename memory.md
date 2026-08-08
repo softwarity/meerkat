@@ -1,4 +1,4 @@
-# memory.md — mémoire de travail du projet
+# memory.md - mémoire de travail du projet
 
 > **Rôle** : passer le relais entre sessions de travail (Claude Code locale sur le M5,
 > session distante, ou humain qui reprend le fil). À **mettre à jour en fin de session**
@@ -293,7 +293,7 @@ Le backend probe (commit `f17b726` du 29/07 : `internal/gateway/probe.go`,
   Header (Name+Value+remove) OK. Content sans overflow (377px). Le champ
   remoteAddr ajoute `:54321` si pas de port (le matcher attend ip:port).
 
-## Session 2026-07-30 — authentification externe (AUTH-19) + testeur de routes
+## Session 2026-07-30 - authentification externe (AUTH-19) + testeur de routes
 
 **18 commits, de `11d5d78` à `8b96609`, sur `main`.** Les cinq premiers sont l'ancienne
 branche redécoupée par sujet (renommage infra, coffre-fort, identité JWT, Access unifié,
@@ -307,8 +307,8 @@ plans de console).
 | LDAP + Active Directory, 2 dialectes, groupes imbriqués | `internal/idp/ldap.go` | **OpenLDAP + vrai contrôleur Samba 4**, 4 tests |
 | GitHub (OAuth2 sans OIDC) | `internal/idp/oauth2.go` | faux GitHub complet, 4 tests |
 | Flux de connexion + compte en attente | `internal/auth/external.go` | `external_test.go`, 5 tests |
-| API d'administration (plan infra) | `internal/admin/authproviders.go` | — (pas de test dédié) |
-| Console, section Authentification | `console/src/app/gateway/auth-providers/` | — (jamais vu en navigateur) |
+| API d'administration (plan infra) | `internal/admin/authproviders.go` | - (pas de test dédié) |
+| Console, section Authentification | `console/src/app/gateway/auth-providers/` | - (jamais vu en navigateur) |
 | Testeur de routes | `internal/gateway/probe.go`, `routing/synth.go` | `internal/admin/probe_test.go`, 3 tests |
 
 **Bancs d'essai** : `make ldap-up` monte Dex (46 Mo), OpenLDAP et un **vrai domaine AD**
@@ -322,7 +322,7 @@ jamais. Le seed AD est appliqué par `make ldap-up` (`test/ldap/samba/seed.sh`).
   auto-inscription : compte sans mot de passe local, qui n'atteint rien, admins
   notifiés, salle d'attente jusqu'à ce qu'un admin place la personne. Règle de François.
 - **Liaison par l'identifiant stable de l'autorité**, jamais par le login (renommable).
-  Ordre : lien existant → compte portant la même adresse **vérifiée** → création. Une
+  Ordre : lien existant -> compte portant la même adresse **vérifiée** -> création. Une
   adresse **non vérifiée** ne récupère jamais un compte local (prise de contrôle).
 - **GitHub est son propre type, pas un « oauth2 » générique** : le fournisseur est
   décrit en code (URLs, scopes, mapping), l'écran ne demande que clientId, secret et
@@ -338,14 +338,14 @@ jamais. Le seed AD est appliqué par `make ldap-up` (`test/ldap/samba/seed.sh`).
 
 ### Ce qui reste sur AUTH-19
 
-1. **Mapping groupes → rôles Meerkat.** Les groupes sont collectés dans
+1. **Mapping groupes -> rôles Meerkat.** Les groupes sont collectés dans
    `idp.Identity.Groups` et **journalisés à la création, mais rien ne les consomme**.
    C'est le manque le plus important : il ferait passer le flux de « l'admin place
    chacun à la main » à « l'appartenance amont décide ». Sources disponibles :
    LDAP/AD (natif, imbrication résolue), GitHub (`org` et `org/team`), OIDC (si le
-   fournisseur émet un claim — Keycloak/Entra/Okta oui, **Google Workspace non**,
+   fournisseur émet un claim - Keycloak/Entra/Okta oui, **Google Workspace non**,
    Auth0 impose un claim préfixé).
-2. **Aucun parcours navigateur** de bout en bout (login → bouton → callback → salle
+2. **Aucun parcours navigateur** de bout en bout (login -> bouton -> callback -> salle
    d'attente). Chaque maillon est testé, le parcours humain non. À faire en premier.
 3. OAuth2 pour d'autres fournisseurs (GitLab, Google) : une entrée `vendors` chacun.
 
@@ -361,14 +361,14 @@ ordre, chaque étape dépendant de la précédente :
    littéral refusable à l'écriture. **Pas de JSON Schema** : il décrit une forme, pas
    une sensibilité, il faudrait une extension maison et on aurait deux descriptions du
    même formulaire.
-   → remplace l'heuristique `isSensitiveKey` (`internal/admin/audit.go:170`), qui cherche
+   -> remplace l'heuristique `isSensitiveKey` (`internal/admin/audit.go:170`), qui cherche
    password/secret/token/hash et **rate `apiKey` ou `credential`**. L'heuristique reste
    en dernier recours pour le non déclaré.
 2. **Catalogue des providers** sur le modèle des briques de routage : aujourd'hui leur
    config est une `map[string]any` libre et les champs sont codés en dur dans le
    template. Bénéfice : l'écran cesse de dupliquer la connaissance du serveur.
 3. **Champ à trois états dans `app-form-field`** (donc partout d'un coup), pour
-   `allowVault="secret"` seulement — pas pour `values`, qui n'a pas besoin de ça :
+   `allowVault="secret"` seulement - pas pour `values`, qui n'a pas besoin de ça :
    - **vide** : grisé, « Choisir dans le coffre », la clé ouvre le menu
    - **référence** : `🔒 nom-de-l-entrée` en lecture seule (le NOM, pas juste une icône :
      savoir *laquelle* est l'information utile), boutons « ouvrir l'entrée » et
@@ -376,11 +376,11 @@ ordre, chaque étape dépendant de la précédente :
    - **littéral hérité** (venu d'un fichier ou d'avant) : « valeur enregistrée hors
      coffre », **jamais affichée**, action « Déplacer dans le coffre » exécutée
      **côté serveur** (il lit sa propre valeur, crée l'entrée, remplace par la
-     référence — la console ne voit jamais le secret, donc pas de révéler non plus)
+     référence - la console ne voit jamais le secret, donc pas de révéler non plus)
 4. **Import : création automatique** des entrées, nom **déterministe** dérivé de
    l'identifiant du provider et du champ (`acme-sso-client-secret`), sinon rejouer
    l'import crée une entrée de plus à chaque fois. Collision avec une valeur différente
-   ⇒ suffixer, jamais écraser. Même dérivation pour préremplir nom et description quand
+   => suffixer, jamais écraser. Même dérivation pour préremplir nom et description quand
    on crée une entrée depuis un champ.
 
 **Règle transverse posée** : *une référence est publique, un littéral ne l'est jamais.*
@@ -402,7 +402,7 @@ en lecture seule et désactiver la migration, au lieu de laisser croire à un su
 - **EE / OSS** : discussion demandée par François, jamais tenue. SAML et le mapping des
   groupes sont les candidats naturels à l'édition entreprise.
 - **Canal temps réel** : WS décidé (pas SSE), à faire *après*. Contrat côté client
-  inspiré de `@softwarity/archway-observable` (`subscribe(id, cb)` → objet à
+  inspiré de `@softwarity/archway-observable` (`subscribe(id, cb)` -> objet à
   désabonner ; ce paquet npm ne contient que des **types**, et visait le data plane).
   Protocole proposé : `sub`/`unsub`/`msg`/`err`, topics hiérarchiques, `seq` pour
   détecter un trou après reconnexion, **autorisation par topic** comme les endpoints.
@@ -414,14 +414,14 @@ en lecture seule et désactiver la migration, au lieu de laisser croire à un su
   Réserves dites à François : trait irrégulier hérité du PNG génératif (redessin à la
   main si ça devient la marque), et à moins de 64 px il faut une marque réduite.
 
-## Session 2026-07-28 — plans infra / app / tenant
+## Session 2026-07-28 - plans infra / app / tenant
 
 Le coffre-fort a forcé à nommer les plans, et le nom a remonté jusqu'à la capacité.
 
 - **`gateway-admin` devient `infra-admin`** (partout : colonne `infra_admin`, champ JSON
   `infraAdmin`, classe de rôle CSS, gardes `infraOnly`/`a.infraAdmin`, libellés, spec
   OpenAPI admin, scénarios e2e + doc). Raison : « gateway » nomme le **produit entier**,
-  donc « scope gateway » était tautologique ; l'échelle **infra → app → tenant** se lit
+  donc « scope gateway » était tautologique ; l'échelle **infra -> app -> tenant** se lit
   seule. Ce qui reste « gateway » : le paquet `internal/gateway`, le routeur, le moteur.
   La section du rail est devenue **Infra**.
   ⚠️ Exception assumée à design-mode-no-migrations : renommer une colonne n'est pas en
@@ -435,10 +435,10 @@ Le coffre-fort a forcé à nommer les plans, et le nom a remonté jusqu'à la ca
   les entrées `app` en lecture seule. Test : `TestVaultScopesShadowByName`.
 - **Deux objets ont changé de plan** (question de François, tranchée par « qui *sert* n'est
   pas qui *possède* ») :
-  - **Thème + branding → app** : `appName`, tagline, logo, couleurs = visage du produit.
+  - **Thème + branding -> app** : `appName`, tagline, logo, couleurs = visage du produit.
     La gateway ne fait que servir ces pages. Entrée « Built-in pages » déplacée dans le
     drawer Application.
-  - **Relais SMTP → infra** : un hôte tiers avec identifiants, même nature qu'un upstream.
+  - **Relais SMTP -> infra** : un hôte tiers avec identifiants, même nature qu'un upstream.
     Nouvelle page **Mail relay** (drawer Infra) + `GET/PUT /api/settings/mail-relay` et le
     test déplacé là. L'**expéditeur** (`from`) reste en app (page Security), avec un état
     du relais en lecture seule pour ne pas laisser l'app-admin bloqué sans savoir qui
@@ -451,14 +451,14 @@ Le coffre-fort a forcé à nommer les plans, et le nom a remonté jusqu'à la ca
 - `app-form-field` gagne `hint`, `masked` (masquage CSS pour un textarea, puisqu'un
   `<textarea>` n'est jamais candidat à l'autofill de Chrome) et `allowVault` + `vaultScope`.
 
-## Session 2026-07-27 (nuit) — coffre-fort (VAULT-01/02)
+## Session 2026-07-27 (nuit) - coffre-fort (VAULT-01/02)
 
-Décision François : avant l'import/export et les configurations versionnées (CFG-01→05),
+Décision François : avant l'import/export et les configurations versionnées (CFG-01->05),
 **faire le coffre-fort d'abord**, puisque c'est lui qui rend une configuration portable
 (références `$nom` au lieu des valeurs en dur). Idée reprise d'archway : un champ de
 formulaire qui propose, via un menu, d'utiliser une entrée du coffre ou d'en créer une.
 Extension décidée par François : le coffre ne garde pas que des **secrets** mais aussi
-des **valeurs en clair** (un nom d'hôte, un compte) — l'intérêt étant d'avoir un seul
+des **valeurs en clair** (un nom d'hôte, un compte) - l'intérêt étant d'avoir un seul
 endroit pour tout ce que la conf référence, et de savoir ce qui est utilisé.
 
 - **`internal/vault`** : deux genres d'entrée (`secret` chiffré AES-256-GCM / `value` en
@@ -480,18 +480,18 @@ endroit pour tout ce que la conf référence, et de savoir ce qui est utilisé.
   `usedBy`), `PUT/DELETE /api/vault/{name}` (gateway-admin). Supprimer une entrée encore
   référencée = **409**. L'audit trace le changement, jamais la valeur.
 - **Console** : page **Vault** (drawer Gateway) + `<app-form-field allowVault="secret/values">`
-  qui ajoute un bouton clé → menu des entrées du bon genre, insertion `${nom}` **au
+  qui ajoute un bouton clé -> menu des entrées du bon genre, insertion `${nom}` **au
   curseur**, et « Nouvelle entrée » sans quitter l'écran. Branché sur le mot de passe
   SMTP en exemple ; le reste des champs est à brancher au fil de l'eau.
-- **Test qui compte** : `TestVaultReferenceReachesTheDataPlane` (internal/admin) — une
+- **Test qui compte** : `TestVaultReferenceReachesTheDataPlane` (internal/admin) - une
   route stocke `$api-key`, la base ne contient pas le secret, et le plan data atteint
   quand même l'amont avec la valeur déchiffrée.
 
 **À reprendre** : brancher `allowVault` sur les autres champs pertinents (upstream de
-route via `app-url-input`, en-têtes de filtres…) ; rotation de clé maître (VAULT-02,
-ré-encryption globale) ; import en masse (VAULT-03). Ensuite seulement CFG-01→05.
+route via `app-url-input`, en-têtes de filtres...) ; rotation de clé maître (VAULT-02,
+ré-encryption globale) ; import en masse (VAULT-03). Ensuite seulement CFG-01->05.
 
-## Session 2026-07-27 — sécurité par endpoint (RBAC-07) + parse OpenAPI
+## Session 2026-07-27 - sécurité par endpoint (RBAC-07) + parse OpenAPI
 
 Sujet : sécuriser les opérations d'un amont dont on n'a pas le code, à partir de sa
 spec OpenAPI. Deux faces d'un même socle (décision François) : la **sécurité par
@@ -505,7 +505,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   `Fetch(ctx, client, url)` récupère la spec côté serveur (limite 12 Mo) et rend spec +
   octets bruts. `Rewrite(raw, exposedBase)` = UIF-07 (JSON) : 2.0 pose `basePath` et
   retire `host`/`schemes` ; 3.x pose un `server` relatif unique.
-- **Modèle store — accès UNIFIÉ** (revu selon François 2026-07-27, le deny-by-default
+- **Modèle store - accès UNIFIÉ** (revu selon François 2026-07-27, le deny-by-default
   l'ayant perdu) : `store.Access{Authenticated bool, Users []string, Roles []string}`,
   sémantique = **rien de posé => délégué au backend de l'API** (PAS « public » : la
   gateway ne rajoute pas de garde, le backend décide ; c'est le sens de la feature, 3 cas
@@ -524,7 +524,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   `accessGate(Access)` par surcharge + un pour le défaut de route. Par requête : ramène
   le path entrant à la coordonnée de la spec (`stripPrefixCount`), matche la surcharge,
   sinon applique le défaut de route, sinon retombe sur la garde de route. `accessGate`
-  = public → passe ; sinon `requireSession` + `Access.Grants(username, roles)`.
+  = public -> passe ; sinon `requireSession` + `Access.Grants(username, roles)`.
 - **Admin API** (`internal/admin/openapi.go`, scope GATEWAY) : `GET
   /api/routes/{id}/operations` (fetch+parse live, renvoie métadonnées + operations + la
   sécurité sauvée) et `PUT /api/routes/{id}/security` (valide via `gateway.Validate`,
@@ -541,7 +541,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   un **défaut de route** éditable via le composant réutilisable `AccessEditor` (case
   « authentifié » + chips users + chips roles, users/roles cochant/verrouillant authentifié).
   Chaque opération peut **surcharger** le défaut (toggle « Override the route default » dans
-  l'expand → le même `AccessEditor`, case + 2 selects EMPILÉS ; sinon « hérite du défaut » ;
+  l'expand -> le même `AccessEditor`, case + 2 selects EMPILÉS ; sinon « hérite du défaut » ;
   liseré override sur la 1re cellule pour survivre au hover). `AccessEditor` : options users
   = username + email, options roles = name + description ; labels « (l'un d'eux suffit) » (OU).
   **Header sticky, lignes scrollables, mat-table TRIABLE par méthode/path** (tri manuel via
@@ -551,7 +551,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   (`sessionStored`, survit au refresh pas à la session ; `provideStore()` dans app.config ;
   élagage des tags au changement de route). **AUTO-SAVE débouncé 500 ms** (plus de bouton Save : chaque
   changement PUT tout le bloc `EndpointSecurity`, petit ; statut en footer
-  Enregistrement…/Enregistré/erreur). Expand via `multiTemplateDataRows` + prédicat `when` +
+  Enregistrement.../Enregistré/erreur). Expand via `multiTemplateDataRows` + prédicat `when` +
   `table.renderRows()`. `listRoles`/`listUsers` (app-scope) chargés en tolérant le 403 (un
   gateway_admin pur aura les listes vides mais peut poser « authentifié »). Présélection via
   `?route=<id>`. Signal-first, Material sur `--mat-sys`, zéro ngModel. `api.service` :
@@ -560,7 +560,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 - **Vert** : `go test -race ./...`, `go vet`, `golangci-lint` (0 issue), build console
   (0 erreur, 0 warning i18n). **Live** : fetch+parse du VRAI httpbin sur :80 (Swagger
   2.0, 73 opérations) + rewrite, validés par un test jetable (non commité). Chaîne
-  admin→store→enforcement couverte par `internal/admin/openapi_test.go` et la matrice
+  admin->store->enforcement couverte par `internal/admin/openapi_test.go` et la matrice
   `internal/gateway/endpoint_test.go`.
 - **Branche `feat/endpoint-security-openapi`** (3 commits), PAS mergée, PAS poussée. À
   relire/merger. `requirements.md` : RBAC-07 et SVC-06 réancrés sur la route.
@@ -569,11 +569,11 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   des lectures incohérentes au début). Vérifié `main == origin/main == 625fbc8` propre
   avant de brancher.
 
-## Session 2026-07-26 — propriété découplée + audit
+## Session 2026-07-26 - propriété découplée + audit
 
 - **Propriété de tenant DÉCOUPLÉE de la membership** (store **v24**). L'owner est
   désormais un **champ du tenant** (`owner_id`), **toujours renseigné** (le créateur,
-  root inclus → plus de tenant orphelin), transférable, et **indépendant de la
+  root inclus -> plus de tenant orphelin), transférable, et **indépendant de la
   membership** (un owner peut ne pas être membre). Le type de membership **OWNER est
   retiré** (restent ADMIN/USER). Autorisations : administrer = root | owner | membre
   ADMIN ; supprimer = root | owner ; transfert via **`POST /api/tenants/{id}/owner`**
@@ -582,16 +582,16 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   la matrice, transfert en Danger zone, `member-dialog` (mort) supprimé. L'ancien
   transfert par `putMember type OWNER` (cf. ligne « Danger zone » plus bas) est
   REMPLACÉ par ce modèle.
-- **Piste d'audit — phase 2** (store **v25**, table `audit_events`). Chaque mutation
+- **Piste d'audit - phase 2** (store **v25**, table `audit_events`). Chaque mutation
   admin logge **l'acteur + le diff au niveau du champ** (avant/après), pas « objet
-  modifié » : ex. `groupMode: MULTIPLE → SINGLE`. Diff générique par comparaison JSON
+  modifié » : ex. `groupMode: MULTIPLE -> SINGLE`. Diff générique par comparaison JSON
   des clés de 1er niveau ; clés ignorées (id/timestamps/noms d'affichage) ; secrets
   (password/secret/token/hash) **rédigés**. Émis depuis tous les handlers
   (tenants, users, members, member.groups, settings, roles, groups, routes, thèmes).
   Viewer **`GET /api/audit`** scopé **par capacité, chacun son domaine** (RBAC-05,
   choix François) : root voit tout ; gateway_admin le plan routage (route, theme) ;
   app_admin l'identité (user, role, settings) ; tenant_admin ses tenants (par
-  tenant_id) ; cumul = union ; n'administre rien → 403. Page console **Audit** en
+  tenant_id) ; cumul = union ; n'administre rien -> 403. Page console **Audit** en
   **section de rail à part** (pas sous Application), guard `auditAccess`, filtres
   cible/période + recherche. Purge au ticker (`admin.AuditRetention` = 365 j).
 - **Vert** : `go test -race ./...` (dont `store/audit_test.go`, `admin/audit_test.go`),
@@ -618,7 +618,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   (`.scroll` overflow-y). Page Access tokens : icône du bloc info plus rognée
   (`flex-shrink:0`) ; `overflow:visible` sur les `mat-icon` du drawer (glyphes
   Material qui débordent du carré 24px). Alignement icône/texte « Access tokens »
-  du drawer : à confirmer par François (sinon glyphe `key` lesté vers le bas →
+  du drawer : à confirmer par François (sinon glyphe `key` lesté vers le bas ->
   passer à `vpn_key` ou nudge d'1px).
 
 ## Où en est le produit
@@ -627,7 +627,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 
 - **Gateway Go** (un binaire, deux plans) : data plane `:8080` (routes + pages du flux
   utilisateur), control plane `:9090` (API admin + console). Stockage **SQLite embarqué
-  pur Go** (`data/`), migrations versionnées (`user_version`, v0→v2 auto).
+  pur Go** (`data/`), migrations versionnées (`user_version`, v0->v2 auto).
 - **Routing déclaratif** : prédicats/filtres = briques `{type, args}` validées par schéma,
   registre auto-décrit (`GET /api/catalog`). Prédicats : path (`{var}`, `**`), host,
   method, header, cookie, query, remote-addr, weight (canary par groupes). Filtres :
@@ -641,80 +641,80 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 - **API admin** (`:9090`, session root requise) : `/api/catalog`, CRUD `/api/routes`
   avec **validation par compilation** (422 = message exact du moteur), reload auto
   (sauvegarder = appliquer). Sans console montée, `/` répond une page de statut JSON.
-- **Console embarquée dans le binaire** : `make ui` (build Angular toutes locales →
-  staging `internal/admin/ui/dist/`) puis `make build` → le binaire sert la console
-  seul sur le port admin (`/` → 302 vers la locale Accept-Language en gardant le
+- **Console embarquée dans le binaire** : `make ui` (build Angular toutes locales ->
+  staging `internal/admin/ui/dist/`) puis `make build` -> le binaire sert la console
+  seul sur le port admin (`/` -> 302 vers la locale Accept-Language en gardant le
   chemin ; fallback SPA par locale ; assets hashés cache immutable, index no-cache).
   Priorité : `--console-url` (dev) > embarqué > page statut JSON. Dockerfile
-  multi-stage Node→Go (c'est lui qui embarque la console dans l'image) ;
+  multi-stage Node->Go (c'est lui qui embarque la console dans l'image) ;
   `go build` sans `make ui` compile toujours (grâce à `dist/.gitkeep`), ce dont
   le job CI de compilation se sert pour prouver que le Go tient seul.
 - **API docs embarquées (swagger-ui, 2026-07-28)** : page servie par le port admin
-  sur **`/apidocs/`** — assets `swagger-ui-dist` vendorés dans
+  sur **`/apidocs/`** - assets `swagger-ui-dist` vendorés dans
   `internal/admin/apidocs/dist/` par `tools/fetch-swagger-ui.py` (offline, zéro
   CDN, `validatorUrl:null`), **skin Sentinel's Watch** (`skin.css` posé sur le CSS
   stock), picker de specs maison (pas la topbar swagger). Specs listées
   (`/apidocs/specs.json`) : l'**API admin de Meerkat** embarquée
   (`meerkat-admin.json`, ~36 paths, version stampée `version.Version` au service)
   pour tout utilisateur connecté, **plus une entrée par route déclarant
-  `api.openapiUrl`** (déjà dans le modèle Route) pour root/gateway-admin — spec
-  récupérée côté serveur (`/apidocs/specs/route/{id}`, même origine → zéro CORS,
-  Try it out envoie le cookie). Page anonyme → redirect `/login?next=`. Console :
+  `api.openapiUrl`** (déjà dans le modèle Route) pour root/gateway-admin - spec
+  récupérée côté serveur (`/apidocs/specs/route/{id}`, même origine -> zéro CORS,
+  Try it out envoie le cookie). Page anonyme -> redirect `/login?next=`. Console :
   entrée de rail **API** sous Tenants (`any-role root gateway-admin app-admin`,
   guard `apiDocsAccess`), route `/api`, **iframe** plein écran (CSS swagger isolé
   de Material) ; pop-out ⧉ dans le bandeau, visible seulement en iframe. Tests
   `internal/admin/apidocs_test.go` + scénarios `api-docs-specs`/
-  `api-docs-route-spec`. Validé en navigateur (login → rail API → picker
-  admin/httpbin/petstore → endpoint déplié, Execute stylé).
-  **Réécriture serveur (2026-07-29, sans option — comportement standard)** : le
+  `api-docs-route-spec`. Validé en navigateur (login -> rail API -> picker
+  admin/httpbin/petstore -> endpoint déplié, Execute stylé).
+  **Réécriture serveur (2026-07-29, sans option - comportement standard)** : le
   proxy passe chaque spec de route par `openapi.Rewrite` (1er branchement
   d'UIF-07, étendu aux bases ABSOLUES : en 2.0 host/schemes/basePath décomposés
-  — cas httpbin qui embarque son host) vers la base publique de la route =
+  - cas httpbin qui embarque son host) vers la base publique de la route =
   hostname de la requête admin + port du plan data (`API.DataAddr`, câblé par
   main) ou l'hôte littéral d'un prédicat `host`, + préfixe statique du pattern
   `path` **seulement si** un `strip-prefix` retire exactement ce préfixe
-  (`rewrite-path` → origine seule). Affichage ET Try it out traversent donc la
+  (`rewrite-path` -> origine seule). Affichage ET Try it out traversent donc la
   gateway (et son endpoint-security). `specs.json` en `no-store` (une route
   supprimée quittait le picker seulement au refresh). YAML upstream : passe
   brut (ciblage gateway perdu, à traiter si besoin).
-  **Try it out — design FINAL (2026-07-30, 3 itérations dans la journée)** :
+  **Try it out - design FINAL (2026-07-30, 3 itérations dans la journée)** :
   après (1) appel direct du plan data + CORS ciblé (NetworkError : cookies non
   envoyés cross-origin, puis « autorisations » incomprises) et (2) le même CORS
   avec `withCredentials`, François a demandé le retour du **tunnel même-origine**
-  — la 1re idée : les specs servent leurs `servers` en RELATIF
+  - la 1re idée : les specs servent leurs `servers` en RELATIF
   `/apidocs/try/<préfixe-route>`, et le port admin relaie in-process
   (`apidocsTry`, gate infra) vers `router.ServeHTTP`. Plus RIEN de cross-origin :
   cookies et Authorization voyagent seuls. Le CORS ciblé du plan data
-  (`Router.AdminAddr`, cors_test.go) reste en place — inoffensif et utile à
+  (`Router.AdminAddr`, cors_test.go) reste en place - inoffensif et utile à
   d'éventuels appels directs. Leçon : itération coûteuse, poser le schéma des
   origines AVANT de choisir.
-  **PIVOT FINAL (2026-07-31, décision François) — chaque plan documente chez
+  **PIVOT FINAL (2026-07-31, décision François) - chaque plan documente chez
   lui.** La console (port admin) ne montre plus QUE la spec **Meerkat Admin
-  API** (servers `/`, Try it out same-origin direct sur /api — le tunnel
+  API** (servers `/`, Try it out same-origin direct sur /api - le tunnel
   `/apidocs/try` et le proxy de specs de routes ont été SUPPRIMÉS du plan
   admin). Le bandeau tokens `mksim_` a finalement été RETIRÉ de la console
-  aussi (remarque François : « si je suis ici j'ai déjà les droits » — exact,
+  aussi (remarque François : « si je suis ici j'ai déjà les droits » - exact,
   et un token mksim ne sert à rien contre /api : il ne parle qu'au plan data).
   L'endpoint `POST /api/apidocs/token` reste (gaté, audité, testé) : frappe en
   curl/CI pour tester les routes, et candidat à un bouton « copier en token »
   sur la page dev si le besoin émerge. Les specs des ROUTES vivent sur le
   **plan data** :
   **`/meerkat/apidocs`** (`gateway/devdocs.go` + `apidocs/devpage.html`,
-  monté par main AVANT le fallback routeur) — session data + capacité **dev**
+  monté par main AVANT le fallback routeur) - session data + capacité **dev**
   (même famille que `/profile/dev-cert`), TOUTES les routes à `openapiUrl`
   listées (désactivées badgées : le dev voit ce qui se construit), spec
   récupérée à travers la route (in-process, `WithSpecRead`) et réécrite en
-  base RELATIVE (`/préfixe-route` — les routes vivent sur cette origine,
+  base RELATIVE (`/préfixe-route` - les routes vivent sur cette origine,
   zéro tunnel/CORS). **Bandeau profil DX-first** : « Tous les rôles » par
-  défaut (catalogue résolu au clic — les rôles futurs suivent), profil
-  personnalisé rôles+groupes de tenant (groupes → rôles effectifs résolus
-  SERVEUR via `catalog.json` : username, rôles, tenants/groupes, specs — un
+  défaut (catalogue résolu au clic - les rôles futurs suivent), profil
+  personnalisé rôles+groupes de tenant (groupes -> rôles effectifs résolus
+  SERVEUR via `catalog.json` : username, rôles, tenants/groupes, specs - un
   seul fetch), « En tant que moi » (session réelle) ; la page injecte les
   en-têtes de simulation par `requestInterceptor`, aucun Authorize à
   manipuler. `applySimulation` autorise désormais AUSSI une **session data
   dont l'user est dev** (`simulationActor` : admin root/infra/dev/tester OU
   data+dev). Toggle **Others** re-scopé : `SettingDevDocsExposed`
-  (`dev_docs_exposed`, défaut OFF → 404 sur toute la surface dev),
+  (`dev_docs_exposed`, défaut OFF -> 404 sur toute la surface dev),
   `GET/PUT /api/settings/api-docs` (infra, audité `apidocs.expose`), le seed
   e2e l'active. Assumé : « tous les rôles » = un dev appelle tout ce que
   n'importe quel rôle permet sur les routes documentées (contrat de l'écran,
@@ -723,23 +723,23 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   `TestAPIDocsConsoleIsMeerkatOnly`/`TestAPIDocsSetting`. Scénario e2e
   `api-docs-route-spec` retiré (surface disparue), `api-docs-specs` recadré.
   **Hub Developer (2026-08-02)** : `/profile/dev` n'affiche plus le cert en
-  ligne — c'est devenu un **hub** (auth.go, pages Go vanilla) listant les
+  ligne - c'est devenu un **hub** (auth.go, pages Go vanilla) listant les
   outils du dev, deux pour l'instant : **Certificat** (déplacé sur sa propre
   sous-page `/profile/dev/cert` ; POST `/profile/dev-cert` inchangé, redirige
   là ; la commande d'installation le rejoindra) et **API** (lien vers
-  `/meerkat/apidocs/`, visible seulement si `SettingDevDocsExposed` est ON —
+  `/meerkat/apidocs/`, visible seulement si `SettingDevDocsExposed` est ON -
   `Handler.devDocsExposed`). Extensible (d'autres sections viendront). Chaque
   entrée = deux lignes (quoi + pourquoi court). i18n en/fr (devCertDesc,
   devApi, devApiDesc, backToDeveloper). Test `auth/devpage_test.go`.
   **Bandeau profil dev refait (2026-08-02, retours François)** :
-  `apidocs/devpage.html`. **Hauteur du bandeau FIXE** — le popup de rôles est
+  `apidocs/devpage.html`. **Hauteur du bandeau FIXE** - le popup de rôles est
   `position:absolute`, ne pousse jamais la barre (piège précédent : `<details>`
   qui poussait / se cachait). **Tri-toggle segmenté** All roles / Custom / As
   myself + **sélecteur de rôles toujours visible** à côté (bouton + popup
   flottant, jamais caché ; seulement DISABLED en As myself). Logique : All roles
   coche tout ; Custom vide ; As myself désactive (session réelle) ; décocher un
   rôle en mode All roles bascule en Custom (préfill = tout-sauf-lui). **Plus de
-  tenants** (François : inutile) — groupes **à plat** (`catalog.groups`, label
+  tenants** (François : inutile) - groupes **à plat** (`catalog.groups`, label
   `tenant / groupe`, rôles résolus serveur) comme raccourcis qui cochent des
   rôles, + champ **Impersonate** (user particulier). Vérifié navigateur (3 modes
   OK, popup flottant, hauteur fixe).
@@ -747,15 +747,15 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   François)** : toggle passé à 4 (All roles / By groups / Custom / As myself).
   **Source de vérité UNIQUE = l'ensemble des rôles cochés** ; les groupes en
   sont DÉRIVÉS : un groupe est « on » ssi tous ses rôles (résolus, hiérarchie
-  incluse — `catalog.groups[].roles` = `EffectiveRoleNames` serveur) sont
-  cochés. Cocher un groupe coche ses rôles (mode→groups) ET cocher tous les
+  incluse - `catalog.groups[].roles` = `EffectiveRoleNames` serveur) sont
+  cochés. Cocher un groupe coche ses rôles (mode->groups) ET cocher tous les
   rôles d'un groupe rallume le groupe (`syncGroups` recalcule les cases groupe
-  à chaque refresh) — deux vues synchronisées d'un seul set. Nuance seed : des
+  à chaque refresh) - deux vues synchronisées d'un seul set. Nuance seed : des
   groupes role-équivalents s'allument ensemble (logique, pas un bug). Vérifié
-  en JS navigateur (groupe→10 rôles ; synchro inverse→case groupe cochée).
-  **REVIREMENT (2026-08-02, même jour) — binding SUPPRIMÉ** : François ne
+  en JS navigateur (groupe->10 rôles ; synchro inverse->case groupe cochée).
+  **REVIREMENT (2026-08-02, même jour) - binding SUPPRIMÉ** : François ne
   pouvait plus sélectionner un groupe (venant de All roles, tout était pré-coché
-  → cliquer un groupe le décochait ; pire, 9 groupes role-équivalents du seed
+  -> cliquer un groupe le décochait ; pire, 9 groupes role-équivalents du seed
   s'allumaient ensemble). Décision : **deux sélections INDÉPENDANTES** (cases
   groupes / cases rôles), sans dérivation. Le MODE choisit la source des rôles
   effectifs : all = tout le catalogue (au call, futurs rôles inclus) ; groups =
@@ -764,67 +764,67 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   Custom déposent leur popup ancré à `offsetLeft` du segment cliqué (re-clic =
   toggle) ; All roles / As myself agissent direct. **Nom du groupe seul** dans
   la liste (rôles en tooltip). **Bouton user** dans le header (pastille
-  initiales + username) → `/profile` (hub vers Developer/applis). Vérifié en JS
-  navigateur (popup sous By groups à 73px, badge (1), 10 rôles, nav davide→
-  /profile). Screenshots de l'extension instables sur cette page swagger —
+  initiales + username) -> `/profile` (hub vers Developer/applis). Vérifié en JS
+  navigateur (popup sous By groups à 73px, badge (1), 10 rôles, nav davide->
+  /profile). Screenshots de l'extension instables sur cette page swagger -
   validation par `javascript_tool`.
   **« As » picker + groupes tenant courant + nav (2026-08-02, suite)** :
-  (a) « As myself » remplacé par un **dropdown « As »** — input libre (username
+  (a) « As myself » remplacé par un **dropdown « As »** - input libre (username
   arbitraire type ghost) + option **Myself (real session)** + **liste des
   usernames** (catalog `users` = `ListUsers`). Deux axes séparés : **qui** (As)
   et **quels rôles** (toggle 3 segments All roles / By groups / Custom). Quand
-  As=Myself (`asUser===''`) → AUCUNE simulation (session réelle) et le toggle de
-  rôles est **désactivé** ; dès qu'un user est choisi → simulation + toggle
+  As=Myself (`asUser===''`) -> AUCUNE simulation (session réelle) et le toggle de
+  rôles est **désactivé** ; dès qu'un user est choisi -> simulation + toggle
   actif. (b) Groupes **scopés au tenant COURANT de la session** (`sess.TenantID`
-  via `devDocsSession`, plus `ListTenants` global) — label = nom du groupe seul.
+  via `devDocsSession`, plus `ListTenants` global) - label = nom du groupe seul.
   Un dev sans tenant courant voit « no group in this tenant » (correct). (c)
-  **Bouton user** (pastille initiales + username) → `/profile`. Vérifié JS
-  navigateur : Myself→toggle disabled/0 rôle ; pick alice→toggle actif, 16
+  **Bouton user** (pastille initiales + username) -> `/profile`. Vérifié JS
+  navigateur : Myself->toggle disabled/0 rôle ; pick alice->toggle actif, 16
   rôles ; liste 8 users + Myself. Tests `devdocs_test.go` (session avec tenant
   via `IssueWith`, groupes tenant-scoped, `users`).
   **Bouton natif + simplifications (2026-08-02, suite)** : (a) mon lien profil
   maison REMPLACÉ par le vrai **`<meerkat-user-button>`** injecté naturellement
   (`<script src="/meerkat/user-button.js">` + le tag, servi sur le plan data par
-  `registerUserButton`) — profil/switch tenant-groupe/apps/logout, flotte
+  `registerUserButton`) - profil/switch tenant-groupe/apps/logout, flotte
   top-right (position:fixed) ; le bandeau a un `padding-right:52px` pour ne pas
   passer dessous (vérifié : pas de chevauchement). (b) « real session vs mon
-  user » (remarque François) : redondant → **l'utilisateur courant est EXCLU de
+  user » (remarque François) : redondant -> **l'utilisateur courant est EXCLU de
   la liste d'impersonation** (ton user = « Myself »). (c) Scrollbar parasite du
   menu As corrigée (`overflow-x:hidden`, `max-height:340px` ; vérifié
   scrollHeight===clientHeight). Toggle rôles désactivé tant que « Myself » est
-  choisi — c'est voulu (as toi = tes vrais rôles), François a confirmé.
+  choisi - c'est voulu (as toi = tes vrais rôles), François a confirmé.
   **SIMPLIFICATION MAJEURE (2026-08-02, retour François « toujours pas moyen de
   select les rôles »)** : le mode « Myself = pas de simulation » désactivait le
-  toggle → frustrant. Abandonné. La page est maintenant un **forgeur pur** : on
+  toggle -> frustrant. Abandonné. La page est maintenant un **forgeur pur** : on
   choisit TOUJOURS un user (défaut = toi, « (you) » dans la liste) + des rôles,
   **toujours sélectionnables**. `requestInterceptor` envoie TOUJOURS
   Simulate-User + Simulate-Roles (plus de cas « no sim »). UI : bouton **as**
   (username), **By roles** (popup « Select all » + cases), **By groups** (chaque
   groupe = raccourci ONE-WAY qui coche ses rôles ; plus de binding inverse,
   source unique = cases rôles), + **readout de l'identité forgée** live
-  (`→ davide · all roles`). Bouton user natif aligné (`pad-y="13"` pour centrer
+  (`-> davide - all roles`). Bouton user natif aligné (`pad-y="13"` pour centrer
   dans la barre 52px). Go vert, HTML servi confirmé (grep). **NB env** : dans
   cette session, le login navigateur ne persiste plus le cookie de session
-  (souci Chrome/extension, PAS le code — curl login 303 + page 200 OK) et les
-  screenshots timeoutent sur cette page swagger → validation par curl + revue
+  (souci Chrome/extension, PAS le code - curl login 303 + page 200 OK) et les
+  screenshots timeoutent sur cette page swagger -> validation par curl + revue
   code ; à revérifier visuellement côté François.
-  **REDESIGN 3 MODES EXCLUSIFS (2026-08-03, spec précise François)** — la barre
+  **REDESIGN 3 MODES EXCLUSIFS (2026-08-03, spec précise François)** - la barre
   forge l'identité via 3 modes exclusifs (toggle-buttons, style actif) + un
-  bouton d'ÉTAT : **User** (`as <user>` — teste un user avec SES droits ; en
-  mode tenant exclusif `groupMode SINGLE` + user à plusieurs groupes → sous-menu
-  pour choisir le groupe ; sinon direct/union), **Groups** (`By groups` —
+  bouton d'ÉTAT : **User** (`as <user>` - teste un user avec SES droits ; en
+  mode tenant exclusif `groupMode SINGLE` + user à plusieurs groupes -> sous-menu
+  pour choisir le groupe ; sinon direct/union), **Groups** (`By groups` -
   exclusif=radio un seul, cumulatif=checkbox plusieurs ; l'en-tête signale le
-  mode), **Roles** (`By roles` + Select all). 4e bouton `→ user · N roles`,
+  mode), **Roles** (`By roles` + Select all). 4e bouton `-> user - N roles`,
   popup détaillant User/Group(s)/Roles. Catalogue serveur enrichi
   (`devdocs.go`) : `groupMode`, `groups` (tenant courant, rôles résolus),
   `users`=`[{name, groups:[{name,roles}]}]` (groupes de CHAQUE user via
   `MemberGroups`). Bouton user natif `height=28 pad-y=11` pour aligner. Logique
   3 modes **prouvée en Node** (8 cas) ; catalogue testé `devdocs_test.go`
-  (groupMode MULTIPLE défaut, bob→staff, devon→aucun). Session navigateur
-  toujours inétablissable dans cet env → validé Node+Go+HTML servi, rendu à
+  (groupMode MULTIPLE défaut, bob->staff, devon->aucun). Session navigateur
+  toujours inétablissable dans cet env -> validé Node+Go+HTML servi, rendu à
   confirmer par François.
   **Alignement bouton user + état propre (2026-08-03)** : le
-  `<meerkat-user-button>` ship en `:host{position:fixed}` (float coin) → jamais
+  `<meerkat-user-button>` ship en `:host{position:fixed}` (float coin) -> jamais
   alignable au pixel via `pad-y`. FIX ROBUSTE : le remettre DANS le flux de la
   barre en surchargeant depuis le light DOM
   (`.mk-bar meerkat-user-button { position:static !important; inset:auto !important; flex:none }`),
@@ -983,41 +983,41 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   4) design UI (toasts via le user-button ? centre de notifications ?).
   A rattacher au domaine NOTIF (requirements 3.10). Rien d'implemente.
   **PIÈGE VÉCU** : `air` ne surveille que les
-  `.go` → éditer `devpage.html` (embarqué `go:embed`) NE rebuild PAS ; le binaire
+  `.go` -> éditer `devpage.html` (embarqué `go:embed`) NE rebuild PAS ; le binaire
   servait l'ancien HTML (crash `catalog.tenants.find`). Forcer en touchant un
   `.go` du paquet (`apidocs/embed.go`).
-  **Marquage « test via swagger » (demande François — le log d'action doit
+  **Marquage « test via swagger » (demande François - le log d'action doit
   distinguer un test)** : toute requête simulée (headers ou token) est loggée
   côté gateway `simulated request (swagger test)` avec le VRAI acteur + `via`
   (dev-swagger | console-swagger | test-token), et l'upstream reçoit deux
   en-têtes marqueurs **`X-Meerkat-Test`** (l'outil) et **`X-Meerkat-Test-By`**
-  (le développeur réel derrière, pas l'identité incarnée) — posés dans
+  (le développeur réel derrière, pas l'identité incarnée) - posés dans
   `cookieStrippingTransport` via `simMeta` en contexte. Le backend peut donc
   écarter un test swagger de son propre journal d'actions. Vérifié en live
   (httpbin renvoie `X-Meerkat-Test: dev-swagger`, `-By: davide`). Tests
   `devdocs_test.go` (marqueurs à l'upstream) + `simulate.go`.
-  **Identité simulée (2026-07-29, choix François — « plus simple que des
+  **Identité simulée (2026-07-29, choix François - « plus simple que des
   sessions »)** : dans le swagger, Authorize permet de saisir un **user et des
   rôles arbitraires** pour Try it out. Mécanique : `openapi.InjectSimulation`
   ajoute deux apiKey headers (`X-Meerkat-Simulate-User`/`-Roles`) à chaque spec
   de route servie (2.0 ET 3.x, cadenas partout, OR avec la sécurité du backend) ;
   côté plan data, `Router.applySimulation` (simulate.go) n'honore ces en-têtes
   que si la requête porte une **session admin** root/infra-admin/dev/tester
-  (`Router.AdminSessions`, câblé par main) — sinon 403 explicite, jamais de
+  (`Router.AdminSessions`, câblé par main) - sinon 403 explicite, jamais de
   fallback silencieux. L'identité simulée remplace la session au point unique
-  `sessionIdentity` → gates d'accès, endpoint-security, page stamp et identity
+  `sessionIdentity` -> gates d'accès, endpoint-security, page stamp et identity
   forwarding la voient ; l'upstream reçoit l'identité résultante (UserID
   `simulated`), jamais les en-têtes ni les cookies (strip dans le transport).
   **Tokens de test éphémères (2026-07-30, demande François)** : bandeau en tête
-  de l'écran API console (hors iframe) — user + rôles (liste virgules) + TTL
-  (15/30/60 min) → `POST /api/apidocs/token` (root/infra/dev/tester, audité
-  `token.simulate`) → `Router.MintSimulationToken` : HMAC-SHA256 sur clé
-  **par boot** (`simTokenKey`, jamais persistée — un restart tue les tokens,
+  de l'écran API console (hors iframe) - user + rôles (liste virgules) + TTL
+  (15/30/60 min) -> `POST /api/apidocs/token` (root/infra/dev/tester, audité
+  `token.simulate`) -> `Router.MintSimulationToken` : HMAC-SHA256 sur clé
+  **par boot** (`simTokenKey`, jamais persistée - un restart tue les tokens,
   c'est voulu), format `mksim_<payload b64>.<mac b64>`. `applySimulation`
-  accepte `Authorization: Bearer mksim_…` SANS session (le token EST
+  accepte `Authorization: Bearer mksim_...` SANS session (le token EST
   l'autorisation) ; invalide/périmé = 403 explicite ; le transport le retire
-  avant l'upstream. Copie = `Bearer mksim_…` prêt pour Authorize (scheme
-  `MeerkatTestToken` injecté, apiKey header Authorization — compat 2.0).
+  avant l'upstream. Copie = `Bearer mksim_...` prêt pour Authorize (scheme
+  `MeerkatTestToken` injecté, apiKey header Authorization - compat 2.0).
   Décision François : PAS d'auto-pass root sur les routes (les gardes doivent
   se vérifier) ; la simulation/token est le moyen explicite de tester.
   Tests `simulate_test.go` (gate/rôles/expiré/trafiqué) + `TestAPIDocsShipOff`
@@ -1028,15 +1028,15 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   (une identité simulée compte) ; les listes users/roles restreignent.
   **Fuite corrigée au passage** : les cookies étant host-scoped (pas le port),
   chaque requête data d'un même host embarquait `MEERKAT_SESSION` et
-  `MEERKAT_ADMIN_SESSION`… proxifiés jusqu'aux upstreams. Désormais
+  `MEERKAT_ADMIN_SESSION`... proxifiés jusqu'aux upstreams. Désormais
   `cookieStrippingTransport` les retire AU DERNIER MOMENT (dans le transport,
-  après tous les hooks — et repose la requête originale sur la réponse pour que
+  après tous les hooks - et repose la requête originale sur la réponse pour que
   `pageStamp`/ModifyResponse résolve encore la session ; piège vécu : strip
   dans Rewrite cassait TestPageStampServerSide). Les cookies applicatifs
   passent, l'identité voyage par le mécanisme Identity de la route.
 - **Console Angular 22** (`console/`) : signal-first intégral, **Signal Forms**
   (`[formField]`), zoneless, standalone, `@Service()`, composants fins
-  (routes-page → routes-table → route-dialog → brick-list → brick-form), éditeur
+  (routes-page -> routes-table -> route-dialog -> brick-list -> brick-form), éditeur
   **généré depuis /api/catalog**. Composants maison : `rail-nav`, `row-actions`,
   `loading-indicator`. **i18n en+fr** : tokens explicites (`@@Cancel`,
   `@@Route_NAME_saved_and_applied`), `npm run extract`, `messages.fr.xlf` complet,
@@ -1047,19 +1047,19 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   avec la source en cible (jamais d'écrasement d'une traduction) **et** génère
   dans `angular.json` les configurations `build`/`serve` par locale. Piège vécu
   (2026-08-05) : déclarer une locale sous `i18n.locales` suffit à la BUILDER
-  (`localize: true` les prend toutes) mais pas à la LANCER — `ng serve
+  (`localize: true` les prend toutes) mais pas à la LANCER - `ng serve
   --configuration=<code>` exige une config serve, et polyglot lit exactement
   cette liste (18 locales « (no serve config) »). Ajouter une langue = une
   entrée sous `i18n.locales`, `npm run extract` fait le reste.
   **Éditeur de route = un seul Signal Form** : `draft` (linkedSignal) couvre scalaires
   + predicates + filters ; `PredicatesComponent`/`FiltersComponent` implémentent
   **`FormValueControl<Spec[]>`** (`value = model()`, `errors = input()`) et se bindent
-  par `[formField]` ; plus aucun couple input/output — `model()` partout où
+  par `[formField]` ; plus aucun couple input/output - `model()` partout où
   entrée = sortie (string-list, matcher-rows, chaque predicate). Le schéma du form
   reflète le contrat serveur (matcher header/cookie/query sans `name`, weight
-  incomplet → erreur affichée dans la section + Save désactivé avant le 422).
-- **La chaîne complète testée** : gateway `--console-url http://localhost:4200` →
-  polyglot → ng serve par locale ; login 303, `/api/routes` 200, `/en/` `/fr/` 200 via
+  incomplet -> erreur affichée dans la section + Save désactivé avant le 422).
+- **La chaîne complète testée** : gateway `--console-url http://localhost:4200` ->
+  polyglot -> ng serve par locale ; login 303, `/api/routes` 200, `/en/` `/fr/` 200 via
   le port admin.
 - **CI/CD verte** : lint (golangci v9) ; console buildée **une fois** (20 locales,
   artefact partagé) ; tests unitaires **découpés par domaine** (Routing,
@@ -1072,7 +1072,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   seulement si tout est vert ; release par tag gated sur CI verte
   (`softwarity/release-flow`, secret `PAT_TOKEN` requis) ; doc
   **https://softwarity.github.io/meerkat/** (Angular, déployée par push sur `docs/`).
-- **Distribution : image Docker et rien d'autre (décidé 2026-08-05)** — plus de
+- **Distribution : image Docker et rien d'autre (décidé 2026-08-05)** - plus de
   binaires natifs publiés, donc plus de matrice macOS/Windows en CI ni de
   cross-compile à cinq cibles. « Qui ferait une archi microservice sans docker
   aujourd'hui ? » La seule portabilité qui compte est amd64 vs arm64, et l'image
@@ -1081,7 +1081,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   Dependabot est **groupé par écosystème** (une PR par semaine et par
   écosystème, Angular en lockstep) : trois PR pour trois actions relançaient
   trois fois le pipeline pour déplacer un numéro de version.
-- **Ce que le premier tour de Dependabot a appris (2026-08-05)** — un groupe
+- **Ce que le premier tour de Dependabot a appris (2026-08-05)** - un groupe
   fait voyager les paquets ensemble, il ne rend pas leurs versions cohérentes
   avec ce qui les entoure. Deux dépendances suivent autre chose que npm, et
   c'est écrit dans `.github/dependabot.yml` : **TypeScript suit Angular**
@@ -1090,79 +1090,79 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   major devant le runtime décrivent une API absente). Surtout, **là où rien ne
   vérifiait, la montée cassante passait au vert** : le site de doc n'était
   construit qu'APRÈS le merge (job `Doc site` ajouté) et Playwright transpile
-  les specs sans les vérifier — 158 tests verts sur un tsconfig que
+  les specs sans les vérifier - 158 tests verts sur un tsconfig que
   `tsc --noEmit` refusait (étape `Type-check the specs` ajoutée). Enfin les
   branches `dependabot/**` ne déclenchent plus le pipeline sur push : elles
   arrivent AVEC une PR, donc tout tournait deux fois et la moitié `push`
   publiait une image `:dependabot-npm_and_yarn-...` dans GHCR.
 - **Éditions** : FSL-1.1-Apache-2.0 racine, `ee/` licence commerciale, gating par
   licence **ed25519 hors-ligne** (`internal/license`, `internal/features`).
-- **Drawer tenant (session 2026-07-24)** : layout **left/right** — nav des sections à
+- **Drawer tenant (session 2026-07-24)** : layout **left/right** - nav des sections à
   gauche pleine hauteur avec le **nom du tenant au-dessus** ; la zone droite a son
   propre header (search de la section active, **toggle enabled à persistance
-  immédiate** à côté de la croix — hors Save), contenu, footer Save (General seul).
+  immédiate** à côté de la croix - hors Save), contenu, footer Save (General seul).
   Les matrices Groups/Members reçoivent la recherche par `filter = input('')`.
   **`app-form-field`** (shared) : wrapper mat-form-field à projection (`input`/`textarea`
   matInput) avec croix clear (défaut), copy presse-papier, reveal password ; label par
-  input (les content-queries de MatFormField ne voient pas la projection →
+  input (les content-queries de MatFormField ne voient pas la projection ->
   `_control` assigné explicitement) ; @if compactés (preserveWhitespaces).
   **Working hours** : timezone d'abord (`@softwarity/timezone-select`, défaut =
   navigateur), heures locales + **miroir UTC au même gabarit**, section Working days.
   **Rôles** : description à la création/édition (`role-dialog`, name+description) et
   mise en avant dans la matrice Groups. **`messages.fr.xlf` complété** (110 unités
-  manquantes traduites — l'arriéré entier).
+  manquantes traduites - l'arriéré entier).
 - **Working hours PAR JOUR (v15)** : `BusinessAccess.days` = `[]DayRange{day,from,to}`
-  (heures locales de la timezone, plusieurs plages par jour possibles — coupure
+  (heures locales de la timezone, plusieurs plages par jour possibles - coupure
   déjeuner ; jour absent = fermé ; liste vide = sans restriction). Évaluation
   serveur : `now` UTC ramené dans la tz (tzdata embarqué), DST-correct.
-  **Pas de conversion de données** (mode conception — décision François : on
+  **Pas de conversion de données** (mode conception - décision François : on
   update modèle+schéma, bases jetables). Form en **lignes par jour** (1er jour
   selon la locale via `Info.getStartOfWeek`), From/To par plage, **hint UTC**
   sous chaque plage, +/× pour ajouter/retirer une plage, « Closed » sinon.
 - **Suite de session (même jour)** : tenants avec **description** (store **v14**,
-  colonne + API + champ General) ; l'entrée Tenants retirée du drawer Application —
+  colonne + API + champ General) ; l'entrée Tenants retirée du drawer Application -
   la création se fait par un bouton **New tenant** dans le drawer du rail Tenants
   (`any-role="root tenant-creator"`, navigue vers le tenant créé, liste du rail
-  rechargée) ; **Danger zone** dans le drawer tenant (façon GitHub : cards error) —
+  rechargée) ; **Danger zone** dans le drawer tenant (façon GitHub : cards error) -
   transfert de propriété (le backend gérait déjà : putMember type OWNER = transfert,
   l'ancien owner redescend ADMIN) + suppression type-to-confirm ; page Users :
   **badges de capacités cliquables** sur la ligne (toggle immédiat, stopPropagation,
   root verrouillé sur soi-même) ; fix global overlay : le 1er form-field d'un
   mat-dialog-content avait son label flottant tronqué (padding-top 0 après le titre)
-  → règle dans `styles/_overrides.scss` ; budget bundle 800k→1M (luxon).
+  -> règle dans `styles/_overrides.scss` ; budget bundle 800k->1M (luxon).
 - **Sections tenant = ROUTES enfants** (`/tenants/:id/general|groups|members|danger`,
-  redirect `''→general`) : `tenant-page` devient un LAYOUT (nav gauche en liens
-  `routerLinkActive` — l'état actif marche par construction ; header droit :
+  redirect `''->general`) : `tenant-page` devient un LAYOUT (nav gauche en liens
+  `routerLinkActive` - l'état actif marche par construction ; header droit :
   search + toggle enabled) avec `<router-outlet/>` ; les sections vivent dans
   `identity/tenant-sections/` et partagent l'état via **`TenantScope`**
   (service fourni par le layout : signal `tenant` + `filter`). La **page liste
   `/tenants` est supprimée** (mode embedded/drawer disparu) : la route
-  `/tenants` porte `firstTenantRedirect` → 1er tenant, sinon `no-tenant`.
+  `/tenants` porte `firstTenantRedirect` -> 1er tenant, sinon `no-tenant`.
   Perte assumée : plus de garde « unsaved changes » à la sortie de General
   (le Save est disabled quand non-dirty).
 - **Matrice Members enrichie** : badge **admin** cliquable à côté de la checkbox
-  Member (USER↔ADMIN — c'était introuvable dans l'UI avant ; OWNER lecture seule,
+  Member (USER↔ADMIN - c'était introuvable dans l'UI avant ; OWNER lecture seule,
   transfert via Danger zone) ; colonne **Last connection** stickyEnd (relative
   luxon, date complète en title) portant le **reset password tenant-scopé**
   (`POST /api/tenants/{id}/members/{userId}/reset-password`, garde : cible root
-  → 403 sauf acteur root ; `Member.lastConnectionAt` ajouté à ListMembers) ;
-  filtre tags de la matrice Groups → **mat-select multiple** au-dessus de la
+  -> 403 sauf acteur root ; `Member.lastConnectionAt` ajouté à ListMembers) ;
+  filtre tags de la matrice Groups -> **mat-select multiple** au-dessus de la
   table (chips supprimées) ; row-actions **tonal** partout (roles/routes/tenants).
 
 - **Flow pages localisées (I18N)** : catalogue Go en/fr dans `internal/auth/i18n.go`
   (`flowChrome` embarqué par toutes les data structs, `{{.T.xxx}}` dans les bodies,
   erreurs via `h.tr(r, key)`) ; préférences par cookies **`MEERKAT_LANG`** et
-  **`MEERKAT_SCHEME`** (auto/light/dark → `:root{color-scheme}` sur le CSS
+  **`MEERKAT_SCHEME`** (auto/light/dark -> `:root{color-scheme}` sur le CSS
   `light-dark()`), switchers discrets sous la carte (JS 5 lignes : cookie+reload,
   rendu serveur = zéro flash) ; **langues offertes configurables** : setting global
   `languages` (⊆ `store.SupportedLanguages` = en,fr ; seed = tout), carte
-  **Languages** dans Application → General, résolution cookie→Accept-Language
-  bornée à la liste, sélecteur masqué si une seule. Textes EN inchangés → tests verts.
+  **Languages** dans Application -> General, résolution cookie->Accept-Language
+  bornée à la liste, sélecteur masqué si une seule. Textes EN inchangés -> tests verts.
 - **Routes typées API/UI (v16, ROUTE-02)** : `Route.Type` (API défaut | UI) +
-  options par type — `api.swaggerUrl` (socle RBAC-07) ; `ui.{schemeMode
-  ''|select, staticRoles, userButton{enabled, height 16–96 (déf. 24),
+  options par type - `api.swaggerUrl` (socle RBAC-07) ; `ui.{schemeMode
+  ''|select, staticRoles, userButton{enabled, height 16-96 (déf. 24),
   position 8 ancrages}}`. **Position à 2 mots : le 1er mot = bord d'ancrage et
-  direction d'ouverture du menu** (top-left → menu vers le bas ; left-top →
+  direction d'ouverture du menu** (top-left -> menu vers le bas ; left-top ->
   vers la droite). Validation dans `gateway.Validate` ; l'éditeur de route a un
   toggle Type (General) + une section API ou UI selon le type.
 - **`<meerkat-user-button>`** (web component vanilla, shadow DOM, system colors
@@ -1172,35 +1172,35 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   par `/meerkat/user-button.json` (session data plane). Menu : username+tenant,
   profil, switch de tenant (POST /select-tenant + reload), langues (cookie
   MEERKAT_LANG), apparence auto/light/dark (cookie MEERKAT_SCHEME + attribut
-  `data-meerkat-scheme` + `color-scheme` sur `<html>` — c'est l'interaction
+  `data-meerkat-scheme` + `color-scheme` sur `<html>` - c'est l'interaction
   app), déconnexion. Groupe SINGLE : préparé (rendu si `groups` arrive dans le
   JSON). `staticRoles` : flag stocké, l'injection du CSS de rôles reste à faire.
-  **Plan ADMIN : dark only** — les pages de flux du port admin forcent
+  **Plan ADMIN : dark only** - les pages de flux du port admin forcent
   `color-scheme: dark`, aucun bouton d'apparence (`SchemeSwitch=false`), thème
   toujours par défaut ; le choix thème/apparence ne concerne QUE le data plane.
-- **Sessions séparées par plan** : cookies non scopés par port → le plan admin a
+- **Sessions séparées par plan** : cookies non scopés par port -> le plan admin a
   son cookie **`MEERKAT_ADMIN_SESSION`** + colonne `plane` sur les sessions,
   vérifiée au Resolve (un cookie copié entre plans = « no session ») ; deux
   managers dans main.go (`session.ForAdminPlane()`).
 - **user-btn enrichi** : suit le **thème actif** (le JSON embarque le CSS des
-  tokens `:root`→`:host`, le shadow style utilise `var(--mk-*, fallback système)`) ;
+  tokens `:root`->`:host`, le shadow style utilise `var(--mk-*, fallback système)`) ;
   option `showName` ; **sous-menus accordéon** (tenant, langues, apparence) ;
   **mécanisme de scheme applicatif** configurable par route (`ui.scheme` :
-  select + mechanism attribute|class + attribute name + light/dark values —
+  select + mechanism attribute|class + attribute name + light/dark values -
   tokens validés `[A-Za-z0-9_-]`, appliqués par le composant sur `<html>` en
   plus de color-scheme/data-meerkat-scheme, auto suit le système en live) ;
   **avatar** affiché si défini. **Aperçu** du bouton dans la section UI de
   l'éditeur (mock page, 8 ancrages, hauteur, nom, entrées de menu + langues).
 - **Custom CSS par route UI** (`ui.customCss`, ≤64 Ko, `</style` refusé) injecté
   en `<style>` après `<head>` ; édité dans une modale **CodeMirror 6**
-  (codemirror + @codemirror/lang-css + theme-one-dark, **lazy-import** → hors
+  (codemirror + @codemirror/lang-css + theme-one-dark, **lazy-import** -> hors
   bundle initial).
 - **Avatar profil** (colonne `users.avatar`, data URI png/jpeg/webp ≤200 Ko,
-  jamais dans les listes — `Get/SetUserAvatar` dédiés) : upload/clear depuis
+  jamais dans les listes - `Get/SetUserAvatar` dédiés) : upload/clear depuis
   `/profile` (label file auto-submit, crayon, « Retirer la photo »), affiché
   sur la page et dans le user-btn. `SanitizeAvatar` côté store.
 - **Select-tenant sans le type de membership** (côté app on ne montre pas les
-  rôles — l'admin passe par le port admin). **Rail : Gateway en premier.**
+  rôles - l'admin passe par le port admin). **Rail : Gateway en premier.**
 - **user-btn v2** : positions réduites aux **4 coins** (le menu s'ouvre à
   l'opposé du bord ancré : top-* vers le bas, bottom-* vers le haut) ;
   **forme** round|square (radius bouton+avatar proportionnels à la hauteur) ;
@@ -1208,16 +1208,16 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   l'éditeur : mock page avec skeleton, ancre flex column/column-reverse qui
   suit la vraie hauteur/forme/nom, menu fantôme en lignes grises (pas de
   détail des sous-menus, ligne rouge = sign out).
-- **Injections page unifiées (`/meerkat/page.js`)** : par route UI —
+- **Injections page unifiées (`/meerkat/page.js`)** : par route UI -
   `ui.roles{enabled, mechanism class|attribute|meta, attribute}` pose les
-  **rôles effectifs** (MemberGroupIDs→EffectiveRoleNames, filtrés
+  **rôles effectifs** (MemberGroupIDs->EffectiveRoleNames, filtrés
   `[A-Za-z0-9_-]`) en classes body / attribut / meta ; `ui.userInfo{enabled,
   mechanism attribute|meta, prefix}` expose username/fullname/email/tenant en
   attributs body préfixés (déf. `data-meerkat-*`) ou metas (déf. `meerkat-*`).
   Le JSON `/meerkat/user-button.json` porte roles+fullname+email. staticRoles
   supprimé (remplacé par RolesConfig).
 - **503 sur httpbin** : la gateway ne produit QUE des 502 (« upstream
-  unavailable ») — un 503 est RELAYÉ de l'amont (httpbin.org saturé) ; ajout
+  unavailable ») - un 503 est RELAYÉ de l'amont (httpbin.org saturé) ; ajout
   d'un `slog.Warn("upstream answered 5xx")` systématique + transport durci
   (IdleConnTimeout 55s < keep-alive ELB 60s, MaxIdleConnsPerHost 8).
 - **Éditeur de route restructuré (2026-07-25)** : nav de gauche avec entêtes
@@ -1247,9 +1247,9 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   (a) la **page de login liste les routes UI publiques** (enabled,
   !authenticated, type UI) en pills sous le formulaire (« Ou continuer sans se
   connecter », clé i18n `continueWithout`) ; le lien = préfixe littéral du 1er
-  pattern path (`routeEntryPath` : coupe à `*`/`{`, "/demo/**" → "/demo") ;
+  pattern path (`routeEntryPath` : coupe à `*`/`{`, "/demo/**" -> "/demo") ;
   test `TestLoginPageOffersPublicUIRoutes`. (b) le **user-button non loggé**
-  n'a plus de menu : le bouton EST l'action sign-in → `/login?next=<page>` ;
+  n'a plus de menu : le bouton EST l'action sign-in -> `/login?next=<page>` ;
   icône SVG login seule si `name=''` (compact), icône + label `signIn` sinon.
 - **Toggle UI au lieu du type API|UI (2026-07-25, décision François)** : une
   route est TOUJOURS un service (Identity, Locales, OpenAPI valables partout,
@@ -1258,14 +1258,14 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   débloque les extras UI (user button, user info page, injections, mécanisme
   path des locales). Console : mat-slide-toggle « UI » dans General, groupe UI
   disabled si off (linkedSignal ramène sur General). ATTENTION DB dev
-  existante : la colonne `type` est abandonnée, `is_ui` arrive à 0 → recocher
+  existante : la colonne `type` est abandonnée, `is_ui` arrive à 0 -> recocher
   le toggle sur les routes UI (demo/demo-secure). Le drag-reorder des routes
   était déjà câblé (poignée drag_indicator 1re colonne, cdkDragHandle,
   stopPropagation) : rien à ajouter, recharger la console.
 - **Prédicats : pattern AJOUTABLE + parité SCG (2026-07-25, décision François
   validée)** : les 8 blocs « au kilomètre » sont remplacés par le pattern des
   filtres (liste + menu Add + éditeur dédié par type, `predicate-item` /
-  `predicate-fields` : 12 types → 6 shapes list/method/matcher/addr/datetime/
+  `predicate-fields` : 12 types -> 6 shapes list/method/matcher/addr/datetime/
   weight ; pas de reorder, AND). Moteur : **12/12 prédicats SCG** couverts :
   ajout de after/before/between (RFC 3339, parseDatetime, bornes validées à la
   compile) et x-forwarded-remote-addr (dernière entrée XFF vs CIDR). Anciens
@@ -1273,44 +1273,44 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 - **Rôle requis par route (2026-07-25)** : `Route.RequiredRole` (colonne
   required_role, token validé) : gate le proxy derrière un rôle EFFECTIF du
   tenant actif (sessionIdentity/EffectiveRoleNames) ; IMPLIQUE authenticated
-  (requireRole enveloppe requireSession : anonyme HTML → login, API → 401 ;
-  loggé sans le rôle → 403 nommant le rôle). Console : select « Required
+  (requireRole enveloppe requireSession : anonyme HTML -> login, API -> 401 ;
+  loggé sans le rôle -> 403 nommant le rôle). Console : select « Required
   role » dans General (catalogue via listRoles), Authenticated forcé+disabled
   quand un rôle est choisi ; save force authenticated=true.
 - **BUG scheme user-btn corrigé (2026-07-25)** : le bouton ignorait le cookie
-  MEERKAT_SCHEME sans `scheme="select"` sur la route → dark malgré le choix
+  MEERKAT_SCHEME sans `scheme="select"` sur la route -> dark malgré le choix
   light au login (le thème est en light-dark(), piloté par le color-scheme du
   HOST). Fix : applyScheme pose TOUJOURS `this.style.colorScheme` (le shadow
   suit), et ne touche la PAGE (documentElement + mécanisme app) que si
-  scheme="select". Attention : user-button.js est en cache 300s → hard
+  scheme="select". Attention : user-button.js est en cache 300s -> hard
   refresh pour voir un fix.
-- **Socle SMTP + auto-inscription (store v19, AUTH-20) — FAIT, testé
+- **Socle SMTP + auto-inscription (store v19, AUTH-20) - FAIT, testé
   contre Gmail réel** : package `internal/mail` (net/smtp pur Go,
   starttls/tls/none, multipart alternative, sujets RFC 2047) ; setting
   global `smtp` (mail.Config) : le PASSWORD est WRITE-ONLY côté API
-  (GET → password:"" + passwordSet ; PUT password:"" = conserver) — le mdp
+  (GET -> password:"" + passwordSet ; PUT password:"" = conserver) - le mdp
   Gmail de test n'est QUE dans la DB locale, jamais dans le repo. Politique
   `registration` (localEnabled, fermée par défaut, PAR PROVIDER à terme) ;
   PUT settings refuse selfRegistration sans SMTP configuré. Flow :
   /register (form + rate-limit 5/15min/IP + anti-énumération « même page
   résultat »), compte créé email_verified=0 + self_registered=1 (les
   colonnes DÉFAUTENT à verified=1 : les comptes admin/tests ne changent
-  pas ; seul self_registered&&!verified est bloqué au login — avec le BON
+  pas ; seul self_registered&&!verified est bloqué au login - avec le BON
   mdp on renvoie la confirmation), token one-shot 24h en table email_tokens
-  (hash, purpose 'confirm' — 'reset' plus tard pour AUTH-21), /confirm →
+  (hash, purpose 'confirm' - 'reset' plus tard pour AUTH-21), /confirm ->
   MarkEmailVerified + mails aux app-admins/root avec email (chacun dans SA
   locale via messagesFor), /account-pending = salle d'attente (publicLinks),
   redirect post-login waitingRoom() (0 membership && 0 capability && dest
   "/"). Purges au ticker main : tokens expirés + inscriptions jamais
   confirmées >7j. Console : carte Email (SMTP) dans General (+ bouton
-  « Enregistrer et envoyer un test » → POST /api/settings/smtp/test,
+  « Enregistrer et envoyer un test » -> POST /api/settings/smtp/test,
   destinataire par défaut = email de l'acteur) ; toggle Auto-inscription
-  dans Security. Mailer injecté (Handler.Mailer / API.Mailer func) — les
+  dans Security. Mailer injecté (Handler.Mailer / API.Mailer func) - les
   tests utilisent une fakeMailbox. e2e : smtp-sink.mjs (SMTP minimal node
-  → JSON dans .tmp/mail) + flow-self-register de bout en bout (81 verts).
+  -> JSON dans .tmp/mail) + flow-self-register de bout en bout (81 verts).
   PIÈGE réglé : l'historique de connexions trie maintenant par at DESC,
   **rowid** DESC (l'id aléatoire rendait l'ordre intra-seconde instable).
-  Validé en RÉEL : smtp.gmail.com 587 STARTTLS avec app password → test
+  Validé en RÉEL : smtp.gmail.com 587 STARTTLS avec app password -> test
   + mail de confirmation (fr) reçus sur francois.achache@gmail.com.
   Cadrage validé par François (auth externes) : OIDC ensuite (auth seule,
   suite dans la gateway, MFA délégué par provider, passkey avec warning
@@ -1324,28 +1324,28 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   dessus) ; titre du panneau DANS le bloc (h2 mono, convention panels) ;
   scroll interne (max-height 52vh/46vh overflow-y auto) pour les listes
   longues. (2) Tous les panneaux (.lh-panel/.tk-panel/.tb-panel) portent le
-  LISERÉ menthe en haut (::before, même que form::before de la carte flow) —
+  LISERÉ menthe en haut (::before, même que form::before de la carte flow) -
   cohérence visuelle demandée. (3) tagline rapprochée du wordmark
-  (margin 16→8px top) + espace dessous (24px), form margin-top 34→10px pour
+  (margin 16->8px top) + espace dessous (24px), form margin-top 34->10px pour
   compenser (pages à carte inchangées). (4) Icônes des boutons ronds
   (toggle ●/○, croix révoquer, .pk-x, .tb-x, .tk-btn) passées de glyphes
-  texte (&times;/&#9679;) à des SVG — centrage net et fiable (les glyphes
+  texte (&times;/&#9679;) à des SVG - centrage net et fiable (les glyphes
   se centraient mal selon la police). (5) Création de jeton en MODALE
   (<dialog> natif, nom + validité), révélation en modale auto-ouverte avec
   bouton copie DANS la zone du token (absolute top-right) + fallback
   execCommand ; révocation avec modale de CONFIRMATION (destructif). Les
   <dialog> stylés comme la carte flow (::backdrop blur). e2e adapté (ouvrir
   la modale avant de remplir ; confirmer la révocation).
-- **Modèle de locales UNIFIÉ + réorg IA console — FAIT** : le modèle
+- **Modèle de locales UNIFIÉ + réorg IA console - FAIT** : le modèle
   final (validé François, plusieurs allers-retours) : (1) Console = locales
   compilées Angular (en/fr), indépendant. (2) Flow pages = **pool appli
-  ∩ langues embarquées Meerkat** (messages en/fr), fallback 'en' —
+  ∩ langues embarquées Meerkat** (messages en/fr), fallback 'en' -
   `offeredLanguages()` réécrit ; ajouter 'vi' au pool NE l'ajoute PAS aux
   flow pages (non embarqué). (3) Menu user-btn = langues DE LA ROUTE
-  (attribut `languages` = pool moins désactivées par la route) — vérifié,
+  (attribut `languages` = pool moins désactivées par la route) - vérifié,
   déjà correct ; nettoyé 2 fuites : `payload.languages` mort supprimé, et
   le surlignage actif résolu côté JS contre les langues de la route
-  (cookie→navigator.languages→première, comme resolveLocale serveur). (4)
+  (cookie->navigator.languages->première, comme resolveLocale serveur). (4)
   Pool appli (`SettingLanguages`) = liste maîtresse, **défaut VIDE** (seed
   `[]`). **`builtin_languages` SUPPRIMÉ** partout : setting, endpoint PUT
   /api/settings/builtin-languages + putBuiltinLanguages, champ payload,
@@ -1353,54 +1353,54 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   console, DefaultLanguages() (retiré). Routeur : plus de fallback en/fr,
   pool vide OK. RÉORG CONSOLE (demande explicite) : **Locales = sa propre
   entrée Application** (nouvelle locales-page.component.ts, hors General,
-  icône translate, autorise pool vide) ; **SMTP → Security** (déplacé de
-  General) ; **Group mode → General** (déplacé de Security). Tests : retiré
+  icône translate, autorise pool vide) ; **SMTP -> Security** (déplacé de
+  General) ; **Group mode -> General** (déplacé de Security). Tests : retiré
   le scénario e2e api-gw-builtin-languages + le probe rbac05. 81 e2e verts.
   RESTE À FAIRE (noté, pas fait ce tour) : éditeur de route « ajouter une
   locale appli » (ajouter vi depuis une route l'écrit dans SettingLanguages
   pour toutes les routes).
-- **Jetons API personnels (AUTH-16, store v22) — FAIT** : table
+- **Jetons API personnels (AUTH-16, store v22) - FAIT** : table
   `api_tokens` (hash sha256 seul, préfixe affichable, tenant_id + group_id
   CAPTURÉS du contexte de session à la création, enabled, expires_at 0=jamais,
   last_used_at ; FK ON DELETE CASCADE). Format `mk_<aléatoire>` (préfixe
   repérable/scanner-friendly), montré UNE fois. RÉSOLUTION : dans
   session.Manager.Resolve, quand PAS de cookie ET plan == data ET
-  `Authorization: Bearer mk_…` → resolveToken : vérifie policy
+  `Authorization: Bearer mk_...` -> resolveToken : vérifie policy
   APITokensAllowed + ResolveAPIToken (enabled + non expiré) + user.Enabled
-  LIVE → session synthétique {UserID,TenantID,GroupID}. NON caché (révoc/
+  LIVE -> session synthétique {UserID,TenantID,GroupID}. NON caché (révoc/
   disable immédiats), TouchAPIToken throttlé 60s. Le plan ADMIN refuse
   toujours (jeton perso n'administre pas). hashToken(session)==hashTrust(auth)
   (sha256 hex identiques) donc mint auth ↔ resolve session s'accordent.
   Tout le reste suit gratuitement (SessionRoleNames applique le mode groupe,
   transmission d'identité upstream). Page /profile/tokens (self-service,
   liée depuis Security) : contexte courant affiché, créer (nom + durée
-  30/60/90j/1an/jamais), liste lignes fines (préfixe·contexte·expiration·
+  30/60/90j/1an/jamais), liste lignes fines (préfixe-contexte-expiration-
   last-used), bascule activer/désactiver (● / ○) + croix révoquer. Policy
   globale SettingAPITokens (défaut true) : toggle console Security « API
   tokens ». Purge des expirés au ticker. Tests : session x4 (résout,
   révoqué/désactivé/réactivé, expiré/user-disabled/policy-off, admin-plane
   refuse), auth page x1 (créer montré 1×, toggle, révoque), e2e réel x1
-  (Bearer passe la garde d'auth sur /secure, révoqué → 401). 87 e2e verts.
-- **Rate limiting configurable (SEC-10) — FAIT** : setting `rate_limit`
+  (Bearer passe la garde d'auth sur /secure, révoqué -> 401). 87 e2e verts.
+- **Rate limiting configurable (SEC-10) - FAIT** : setting `rate_limit`
   (RateLimitPolicy : loginAttempts déf. 10, loginWindow ISO déf. PT15M,
   totpAttempts déf. 5 ; 0 = désactivé) édité dans la console (carte « Rate
   limiting » sur Security, fenêtre 5m/15m/1h humanisée). /login : compte les
-  ÉCHECS par clé "login|IP|username" — refuse en 429 AVANT bcrypt une fois
+  ÉCHECS par clé "login|IP|username" - refuse en 429 AVANT bcrypt une fois
   le budget brûlé, succès = reset (pardon) ; un autre compte depuis la même
   IP n'est PAS bloqué (clé composée, anti-DoS de NAT). /totp : mauvais
-  codes par compte ("totp|userID"), même fenêtre — un 6-chiffres se
+  codes par compte ("totp|userID"), même fenêtre - un 6-chiffres se
   brute-force sinon. Le rateLimiter est devenu générique
   (hit/count/reset/allow + prune), namespacé par préfixes ; /register et
   /forgot-password gardent la politique fixe 5/15min/IP (registerAllow).
-  EN MÉMOIRE PAR NŒUD — à revisiter au mode cluster. Tests Go x3 (429 après
+  EN MÉMOIRE PAR NŒUD - à revisiter au mode cluster. Tests Go x3 (429 après
   budget, autre compte libre, pardon au succès, TOTP bloqué même avec le
   BON code) + e2e 86 verts (flow-rate-limit).
-- **Forgot password (AUTH-21) — FAIT** : lien « Mot de passe oublié ? » sur
+- **Forgot password (AUTH-21) - FAIT** : lien « Mot de passe oublié ? » sur
   le login (les DEUX plans, seulement si SMTP configuré : forgotOpen) ;
   /forgot-password POST anti-énumération (réponse neutre) + rate-limit IP
   (h.regLimit partagé) ; token purpose 'reset' 1 h one-shot dans
   email_tokens ; /reset-password : le GET fait un **PeekEmailToken** (SANS
-  consommer — les scanners de mail préchargent les liens, un GET consommant
+  consommer - les scanners de mail préchargent les liens, un GET consommant
   tuerait le lien avant l'humain), le POST consomme (TakeEmailToken) puis
   SetUserPassword(mustChange=false) + **DeleteSessionsForUser** (toutes
   sessions des 2 plans révoquées : la session d'un intrus meurt avec
@@ -1409,27 +1409,27 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   pas de reset (le login renvoie la confirmation). Tests : reset_test.go
   (flux complet, GET x2 survit, rejeu mort, ancienne session tuée, ancien
   mdp 401, notification) ; e2e 85 verts (flow-forgot-password via le sink,
-  réutilise le compte newcomer du test self-register — fichier sériel).
+  réutilise le compte newcomer du test self-register - fichier sériel).
 - **Mode groupe EXCLUSIF (SINGLE) livré (store v21, RBAC-03)** : sessions
   portent group_id (reset AUTOMATIQUE dans SetSessionTenant : groupes par
   tenant, exigence explicite François) ; IssueWith(+groupID) car le cookie
-  frais est sur w pas r ; mode effectif = tri-état tenant ('' hérite) →
-  setting global → MULTIPLE (EffectiveGroupMode) ; résolution des rôles
-  UNIFIÉE dans store.SessionRoleNames(user,tenant,group) — revalide à chaque
+  frais est sur w pas r ; mode effectif = tri-état tenant ('' hérite) ->
+  setting global -> MULTIPLE (EffectiveGroupMode) ; résolution des rôles
+  UNIFIÉE dans store.SessionRoleNames(user,tenant,group) - revalide à chaque
   requête que le groupe choisi est encore détenu (retrait de groupe =
   rôles perdus à la requête suivante ; pas choisi en SINGLE = zéro rôle,
-  sûr et non bloquant) — remplace les 3 sites (router sessionIdentity,
+  sûr et non bloquant) - remplace les 3 sites (router sessionIdentity,
   userbtn, reachableLinks). Étape /select-group (pattern select-tenant :
   redirect, PAS pending) : choix auto si 1 groupe, page si >1 ; points
   d'entrée : issueAndGo (login), continueAfterStep, doSelectTenant (+form
   next pour le switch in-session), showSelectTenant. User-btn : sous-menu
   Groupe (flyout, POST /select-group) si SINGLE et >1 ; le switch tenant
-  du user-btn suit res.redirected → atterrit sur /select-group. Console :
+  du user-btn suit res.redirected -> atterrit sur /select-group. Console :
   select global (Security) + tri-état (General du tenant) ; Tenant.GroupMode
   exposé (struct+SQL+API, validation 422). Tests : group_test.go (flux
   complet + cumulatif inchangé + groupe étranger 403 + reset au switch) ;
   e2e 84 verts (flow-select-group). PIÈGE httptest APPRIS : Result() est
-  MEMOÏSÉ → bodyString UNE fois par recorder (le 2e read est vide).
+  MEMOÏSÉ -> bodyString UNE fois par recorder (le 2e read est vide).
 - **cmd/seed-demo** : outil idempotent (go run ./cmd/seed-demo -data data)
   qui peuple la DB de dev : 10 rôles hiérarchiques taggés, tenants
   acme-demo (cumulatif hérité) / globex-demo (SINGLE) / initech-demo
@@ -1438,44 +1438,44 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   /ops-app (rôle ops-write) vers httpbin. Noms suffixés -demo (collision
   UNIQUE avec l'acme existant de la DB de François). Routes seedées =
   reload requis (kill -HUP).
-- **Retour vers les applications + sous-menu Applications du user-button —
+- **Retour vers les applications + sous-menu Applications du user-button -
   FAIT** : `reachableLinks(ctx, sess)` (auth.go) = routes UI enabled avec
   entry path, filtrées par accès (publiques + authenticated + required_role
-  détenu via MemberGroupIDs→EffectiveRoleNames du tenant actif, lazy).
+  détenu via MemberGroupIDs->EffectiveRoleNames du tenant actif, lazy).
   Branché : hub /profile (bloc .apps pills sous Security/Developer),
   /account-pending (remplace publicLinks : l'utilisateur loggé voit aussi
   les routes authenticated), et user-button.json (payload.apps + label
-  applications) → sous-menu « Applications › » en tête de menu avec COCHE
+  applications) -> sous-menu « Applications › » en tête de menu avec COCHE
   sur l'app courante (match entry path). NOTE : le système de sous-menus
   accordéon existait déjà dans le user-btn (tenants si >1 memberships,
-  langues si >1 locales route, scheme 3-états) — François ne le voyait pas
+  langues si >1 locales route, scheme 3-états) - François ne le voyait pas
   car mono-tenant ; le POST /select-tenant marche en pleine session. Le
   sous-menu Groupe attend le chantier select-group SINGLE (pas de groupe
   actif en session aujourd'hui). e2e 83 verts (flow-profile-apps).
   REFAIT en FLYOUTS sur demande explicite (« je veux pas en accordeon ») :
   panneaux .has-sub > .sub en absolute, ouverture LATÉRALE côté opposé à
-  l'ancrage (align!=left → right: calc(100% - 2px), le -2px de chevauchement
+  l'ancrage (align!=left -> right: calc(100% - 2px), le -2px de chevauchement
   garde le :hover continu ; sinon left:...), croissance verticale opposée au
-  bord (edge=top → top:-6px, sinon bottom:-6px), chevron ‹/› placé CÔTÉ
+  bord (edge=top -> top:-6px, sinon bottom:-6px), chevron ‹/› placé CÔTÉ
   d'ouverture, hover=CSS pur (.has-sub:hover>.sub) + clic = épinglage tactile
   (.open, un seul à la fois), max-height 60vh scroll. user-button.js cache
-  300s → hard refresh pour voir.
-- **Captcha maison sur /register (store v20) — FAIT** : package
+  300s -> hard refresh pour voir.
+- **Captcha maison sur /register (store v20) - FAIT** : package
   `internal/captcha` 100 % stdlib (fonte bitmap 5x7 des chiffres 2-9,
   scale 7, cisaillement sinusoïdal par colonne, 3 courbes de bruit +
   speckles, palette Sentinel ; code crypto/rand, bruit math/rand/v2) ;
   PNG inline en data URI (template.URL) dans la page + bouton ↻ rond
   (POST /register/captcha JSON {id,img}). v20 : webauthn_challenges
   renommée en **challenges génériques one-shot** (Put/TakeChallenge,
-  DROP de l'ancienne) — ids namespacés "captcha:", hash sha256 du code,
+  DROP de l'ancienne) - ids namespacés "captcha:", hash sha256 du code,
   TTL 10 min, consommé bon OU mauvais (anti-rejeu). Politique :
   RegistrationPolicy.**CaptchaDisabled** (inversé exprès : le zéro d'une
   vieille clé = captcha ON) ; API selfRegisterCaptcha ; console = sous-
   toggle sous Auto-inscription. LEÇON : le rate-limiter register était un
-  GLOBAL de package → compteurs partagés entre tests du même process
-  (flake 429) → déplacé sur le Handler (h.regLimit). e2e 82 verts
+  GLOBAL de package -> compteurs partagés entre tests du même process
+  (flake 429) -> déplacé sur le Handler (h.regLimit). e2e 82 verts
   (flow-register-captcha : mauvaise copie refusée, rien créé).
-- **Séparation des admins (store v18, RBAC-05) — FAIT** : capabilities
+- **Séparation des admins (store v18, RBAC-05) - FAIT** : capabilities
   `gateway_admin` (routes, catalog, themes/branding, builtin-languages) et
   `app_admin` (users, roles, PUT settings) sur User ; root implique tout ;
   tenant-admin reste le type de membership. API : guards a.gatewayAdmin /
@@ -1485,48 +1485,48 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   **anti-escalade** : créer/promouvoir root exige root (403 sinon), testé.
   Console : classes body gateway-admin/app-admin (stamp console.go + MeService
   + _roles.scss known-roles), rail any-role="root gateway-admin"/"root
-  app-admin", guards gatewayOnly/appOnly, landing par profil (gateway→/routes,
-  app→/general, sinon /tenants), 2 badges capabilities de plus sur Users.
+  app-admin", guards gatewayOnly/appOnly, landing par profil (gateway->/routes,
+  app->/general, sinon /tenants), 2 badges capabilities de plus sur Users.
   Test Go : internal/admin/rbac05_test.go (matrice+escalade).
-- **Tests d'intégration Playwright (e2e/) — 74 verts en ~6 s** :
+- **Tests d'intégration Playwright (e2e/) - 74 verts en ~6 s** :
   `e2e/scenarios.json` = SOURCE DE VÉRITÉ partagée (profils root/gwadmin/
   appadmin/tadmin/alice + scénarios kind api/ui/flow, titres+descriptions
   en/fr) exécutée par les specs ET rendue par la doc. Harness : webServer
   Playwright = serveur statique du dist console (:14200) + binaire fraîchement
   buildé (-addr :18082 -admin-addr :19092 --console-url, DB JETABLE dans
   e2e/.tmp, MEERKAT_ADMIN_PASSWORD fixe) ; projet setup seed les profils par
-  les VRAIS flux HTTP (create API → login mdp temporaire → update-password)
+  les VRAIS flux HTTP (create API -> login mdp temporaire -> update-password)
   et sauve les storage states. PIÈGES vécus : (1) les deux plans ont des
-  cookies DIFFÉRENTS (MEERKAT_ADMIN_SESSION vs MEERKAT_SESSION) → un storage
-  state PAR PLAN (authFile/authDataFile) ; (2) seed sans enabled:true → 401
+  cookies DIFFÉRENTS (MEERKAT_ADMIN_SESSION vs MEERKAT_SESSION) -> un storage
+  state PAR PLAN (authFile/authDataFile) ; (2) seed sans enabled:true -> 401
   anti-énumération ; (3) maxRedirects:0 sur les POST login/update-password
-  (la redirection atterrit sur la trap route → 503 upstream) ; (4) p.error
-  strict-mode (le #pk-error caché matche aussi) → .first(). CI : job
+  (la redirection atterrit sur la trap route -> 503 upstream) ; (4) p.error
+  strict-mode (le #pk-error caché matche aussi) -> .first(). CI : job
   "Integration (Playwright)" dans ci.yml (build console + chromium).
 - **Doc site : page /tests « Test coverage »** : rend scenarios.json
-  (copié au build par docs/scripts/sync-scenarios.mjs — Angular refuse les
+  (copié au build par docs/scripts/sync-scenarios.mjs - Angular refuse les
   assets hors workspace), bilingue EN/FR (toggle local), chips vert/rouge
   autorisé/refusé par profil, groupé par domaine ; deploy-doc.yml se
   déclenche aussi sur e2e/scenarios.json.
 - **Fix centrage /profile/mfa** : le wrap flow centre ses ENFANTS
-  (justify-items:center, pas stretch) → un panel sans width explose sur un
+  (justify-items:center, pas stretch) -> un panel sans width explose sur un
   label nowrap long (vieux trusts au label UA brut) et déborde décentré.
   Règle : tout bloc de liste dans une flow page porte `width: 100%;
   min-width: 0`.
 - **Historique de connexions (/profile/history, store v17)** : table
   `login_events` (method password|totp|passkey, label UA, ip, country,
   browser_hash, at) pruning à 50/user à l'insert ; enregistré UNIQUEMENT
-  quand la session est réellement émise — dans `issueAndGo` (method transite
+  quand la session est réellement émise - dans `issueAndGo` (method transite
   par resolveTenantAndGo depuis doLogin/passkeyLoginFinish) et dans
-  `finishFlow` (method déduite de sess.Pending : totp/totp-enroll → « mot de
+  `finishFlow` (method déduite de sess.Pending : totp/totp-enroll -> « mot de
   passe + code »). Un login refusé (hors horaires) n'y entre PAS. Badge « Ce
   navigateur » via cookie durable **MEERKAT_BROWSER** (2 ans, HttpOnly, sans
-  autorité ; hash stocké par événement, minté au 1er login réussi — posé
+  autorité ; hash stocké par événement, minté au 1er login réussi - posé
   APRÈS le cookie session, des tests prennent Cookies()[0]). IP = rightmost
   XFF sinon RemoteAddr ; pays best-effort depuis les headers géo CDN
-  (CF-IPCountry/CloudFront-Viewer-Country/X-Geo-Country, XX/T1 ignorés) —
+  (CF-IPCountry/CloudFront-Viewer-Country/X-Geo-Country, XX/T1 ignorés) -
   gateway offline-first, jamais d'appel GeoIP (GeoLite2 embarqué = option
-  future). Page : lignes fines 2 niveaux (label+badge+date / méthode·ip·pays
+  future). Page : lignes fines 2 niveaux (label+badge+date / méthode-ip-pays
   en mono), timestamps dans la timezone du user (tzdata déjà embarqué),
   lien depuis Security. Suite de session : page restylée en **panel** (carte
   surface-container-high + lignes séparées border-top + chip méthode pill
@@ -1542,38 +1542,38 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   drawer user (users-page) + dialog depuis la matrice membres (icône history
   dans la colonne lastConn) via app-login-history (composant partagé
   identity/login-history.component.ts, input userId+tenantId, se charge seul).
-  Le badge « ce navigateur » n'a pas de sens côté admin → absent là.
+  Le badge « ce navigateur » n'a pas de sens côté admin -> absent là.
 - **Passkeys : politique GLOBALE admin (SettingPasskeys "passkeys_allowed",
   défaut true)** : décision François (jamais per-tenant : login avant choix
-  tenant, même logique que MFA global). Store.PasskeysAllowed (clé absente →
+  tenant, même logique que MFA global). Store.PasskeysAllowed (clé absente ->
   true), gardes 403 sur les 4 cérémonies (register/login start/finish ;
   delete reste permis pour nettoyer), bouton login {{if .Passkeys}}, section
   Security profil {{if .PasskeysAllowed}}, settingsPayload.passkeysAllowed
-  (full PUT), carte « Passkeys » console Application → Security. Extension
+  (full PUT), carte « Passkeys » console Application -> Security. Extension
   future notée : mode off/allowed/required (passwordless only).
 - **Trusted browsers en lignes fines (même pattern que les passkeys)** :
   label + badge « Ce navigateur » (TrustedBrowserIDByHash sur le hash du
-  cookie MEERKAT_TRUST, expirations respectées) + « jusqu'au … » + croix
+  cookie MEERKAT_TRUST, expirations respectées) + « jusqu'au ... » + croix
   ronde ; les vieux gros boutons venaient (encore) du form-carte flow non
   neutralisé. LEÇON récurrente : tout <form> inline dans une flow page DOIT
   neutraliser le style carte global (bg/border/padding/::before/animation).
 - **Badge « Ce navigateur » sur les passkeys** : cookie durable
   MEERKAT_PASSKEY (1 an, HttpOnly) posé à l'ENRÔLEMENT et à chaque LOGIN
-  passkey (store.PasskeyIDByCredential mappe credID → row id) ; la page
+  passkey (store.PasskeyIDByCredential mappe credID -> row id) ; la page
   Security badge la ligne correspondante (.pk-this pill primary). C'est un
   indice best-effort (pas d'API WebAuthn pour interroger l'authenticator).
 - **Passkeys UI Security affinée** : la ligne passkey = label + date +
   petite CROIX ronde (.pk-x, hover error ; le bouton plein-largeur héritait
   du CTA flow, moche) ; « Add a passkey » = gros bouton seulement quand ZÉRO
-  passkey, sinon petit lien discret « + Add » (.pk-add-small) — le multi-
+  passkey, sinon petit lien discret « + Add » (.pk-add-small) - le multi-
   appareils reste possible sans crier. Passkey validée sous Edge/Chrome.
 - **Passkeys × Bitwarden/Firefox (2026-07-26)** : l'intercepteur Bitwarden
-  sous Firefox casse son retour postMessage (erreur moz-extension origin) →
+  sous Firefox casse son retour postMessage (erreur moz-extension origin) ->
   enrôlement jamais fini côté gateway (passkey ORPHELINE possible dans le
   coffre). Contournements : désactiver l'interception Bitwarden, ou Chrome/
   Safari, ou héberger sous `meerkat.localhost` (entrée /etc/hosts 127.0.0.1 ;
   seul *.localhost reste un contexte sécurisé WebAuthn en HTTP ; .dev
-  interdit = HSTS préchargé). RP ID par requête → le nouveau host marche
+  interdit = HSTS préchargé). RP ID par requête -> le nouveau host marche
   sans config. **Toggle œil show/hide** injecté génériquement sur TOUT
   input[type=password] des flow pages (JS flowBottom .pw-wrap/.pw-toggle).
 - **Favicon gateway (2026-07-26)** : le suricate (silhouette de
@@ -1581,7 +1581,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   viewBox carré, servi GET /meerkat/favicon.svg sur LES DEUX plans (cache
   86400) + <link rel=icon> dans flowTop : toutes les pages built-in l'ont.
 - **PIÈGE python-replace récurrent** : gofmt réaligne les colonnes des maps
-  Go → un str.replace() avec l'ancien alignement devient un NO-OP silencieux
+  Go -> un str.replace() avec l'ancien alignement devient un NO-OP silencieux
   (les labels Security/Developer sont restés vides comme ça). Toujours
   vérifier le match (assert/count) ou insérer par regex de ligne.
 - **Profil restructuré en HUB (2026-07-26, demande François)** : /profile =
@@ -1591,7 +1591,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   dev, 403 sans capability). Les back-links des pages MFA/password pointent
   /profile/security (clé i18n `back`) ; les POST dev-cert/passkey-delete
   reviennent sur leur page. **Scroll flow pages réparé** : body avait
-  `overflow: hidden` (décor) → `overflow-x: hidden` + padding 32px 16px : le
+  `overflow: hidden` (décor) -> `overflow-x: hidden` + padding 32px 16px : le
   vertical scrolle enfin (le profil débordait).
 - **PASSKEYS livrées (2026-07-26, AUTH-15)** : cérémonies WebAuthn complètes
   sur la fondation v12, lib github.com/go-webauthn/webauthn v0.17.4.
@@ -1602,10 +1602,10 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   exigée), /profile/passkeys/delete, /login/passkey/{start,finish} (public).
   Challenges one-shot 5 min (Put/TakeWebauthnChallenge). Login passkey =
   LES DEUX FACTEURS : pas d'étape TOTP ni must-change-password, atterrit sur
-  resolveTenantAndGo ; le fetch JS suit les redirects (res.redirected →
+  resolveTenantAndGo ; le fetch JS suit les redirects (res.redirected ->
   location=res.url). Compteur/backup-state re-persisté après login
-  (UpdatePasskeyData). UI : profil section Passkeys (rows label « Chrome ·
-  macOS » + date + Remove, bouton Add → cérémonie navigator.credentials) ;
+  (UpdatePasskeyData). UI : profil section Passkeys (rows label « Chrome -
+  macOS » + date + Remove, bouton Add -> cérémonie navigator.credentials) ;
   login : bouton « Sign in with a passkey » (masqué sans WebAuthn), erreurs
   localisées ; helpers base64url inline. i18n en/fr. Test smoke endpoints
   (options + 401 + residentKey required). À VENIR : revocation admin,
@@ -1614,7 +1614,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   colonne `users.dev_cert` (PEM, jamais sur la struct User : accessors
   Set/GetUserDevCert, SanitizeDevCert = 1 bloc PEM CERTIFICATE x509 valide
   ≤16 KiB) ; self-service sur /profile (section visible si user.Dev :
-  textarea PEM → save, sinon résumé CN + empreinte sha256[:8] + expiration +
+  textarea PEM -> save, sinon résumé CN + empreinte sha256[:8] + expiration +
   remove ; POST /profile/dev-cert, 403 sans capability dev) ; i18n en/fr
   complet ; test roundtrip avec cert auto-signé. RESTE : le matching côté
   plug (quand la substitution de service arrivera). Passkeys (AUTH-15) :
@@ -1630,11 +1630,11 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   inGateway inclut /theme.
 - **Flow pages : switchers refaits (2026-07-25)** : langue = icône GLOBE
   (svg) ouvrant un menu d'endonymes (LangNames dans flowChrome) ; scheme = UN
-  bouton 3 états cyclique ◐→☀→☾ (SchemeIcon/SchemeNext server-rendered).
+  bouton 3 états cyclique ◐->☀->☾ (SchemeIcon/SchemeNext server-rendered).
   Même bouton cyclique dans le menu du user-btn (ligne label + pill,
   data-scheme-cycle) à la place des 3 pills.
-- **Trusted browsers : labels lisibles** : browserLabel() sniffe l'UA →
-  « Chrome · macOS » (Edge/Opera/Chrome/Firefox/Safari × iPhone/iPad/Android/
+- **Trusted browsers : labels lisibles** : browserLabel() sniffe l'UA ->
+  « Chrome - macOS » (Edge/Opera/Chrome/Firefox/Safari × iPhone/iPad/Android/
   macOS/Windows/ChromeOS/Linux), fallback tête d'UA ; affiché avec la date
   d'expiration dans /profile/mfa.
 - **user-btn : switch de scheme en PILLS ◐ ☀ ☾** (même visuel que les flow
@@ -1645,7 +1645,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   identityMechanism, save le transmet.
 - **Locales désactivables par route (2026-07-25)** : `LocalesConfig.Disabled
   []string` : exclut de CETTE route les locales app que son UI ne supporte
-  pas ; compile filtre appLangs (EqualFold) → menu du bouton + résolution/
+  pas ; compile filtre appLangs (EqualFold) -> menu du bouton + résolution/
   forwarding suivent ; console : checkbox par ligne dans la section Locales
   (ligne grisée si off) ; tout désactivé = plus de réécriture Accept-Language
   sur la route.
@@ -1657,7 +1657,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   LUI-MÊME (username:username ; pageInfoScript orDefault(name, field) ;
   data-*/meerkat-* abandonnés pour les champs user). Label du nom par champ =
   Attribute name / Meta name selon le mode. Modales CSS/JS : bouton « Save »
-  (plus Apply) qui SAUVE la route immédiatement (editCode → draft.update +
+  (plus Apply) qui SAUVE la route immédiatement (editCode -> draft.update +
   save()), pas besoin du Save du drawer.
 - **Retouches UX (2026-07-25)** : Identity : inputs PRÉ-REMPLIS avec les
   défauts (= mapping des noms pour headers ET futurs claims JWT, hint
@@ -1680,7 +1680,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   source de vérité ; le linkedSignal section combine {isUi, initialSection}).
   Section ACTIVE stylée (secondary-container, radius pill à droite) : la
   sélection se voit enfin.
-- **Terminologie console : Filters → « Modifiers » (2026-07-25, François)** :
+- **Terminologie console : Filters -> « Modifiers » (2026-07-25, François)** :
   nav + intro + bouton « Add modifier » ; menu groupé « Incoming request » /
   « Outgoing response » / « Terminal (answers instead of proxying) » ; chips
   d'item incoming/outgoing/terminal localisés. Le modèle serveur GARDE
@@ -1696,7 +1696,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   nom + explication par entrée, PLUS les briques « Planned (not available
   yet) » grisées (PLANNED_MODIFIERS dans brick-docs.ts = la roadmap SCG
   visible in-app) ; clic = ajout + fermeture ; single-instance grisés.
-  **Nav Modifiers éclatée** (comme le groupe UI) : subheader Modifiers →
+  **Nav Modifiers éclatée** (comme le groupe UI) : subheader Modifiers ->
   Incoming / Outgoing / Redirect ; chaque section n'édite QUE sa phase
   (FiltersComponent [phase] : la value reste la liste complète, indices
   globaux, reorder intra-phase) ; compteurs par phase ; terminal : bouton Add
@@ -1705,7 +1705,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   300 + page sombre self-contained, param message (échappé) ; éditeur console
   dédié ; autres built-ins (respond fixe) en Planned.
 - **Filtre inject-head SUPPRIMÉ du catalogue** (François : l'injection de
-  script est propre aux UI → sections Injections) ; filters.InjectAfterHead
+  script est propre aux UI -> sections Injections) ; filters.InjectAfterHead
   reste le moteur interne ; la migration skeleton v1 DROPPE inject_head.
 - **Inventaire filtres vs SCG (à implémenter plus tard, regroupés incoming/
   outgoing, demande François)** : COUVERT (15 factories) : Add/Set/Remove
@@ -1736,7 +1736,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 - **Drag routes : rien à coder** : colonne poignée présente, chunk servi
   vérifié (drag-col + drag_indicator dans le chunk chargé), glyphe présent
   dans material-symbols-outlined-400.woff2 (fontTools) ; si François ne la
-  voit pas → inspecter en live (login onglet MCP).
+  voit pas -> inspecter en live (login onglet MCP).
 - **Locales : REFONTE FINALE (2026-07-25, clarification François)** : l'offre
   de locales vit au niveau APPLICATION uniquement (SettingLanguages, codes
   BCP 47 LIBRES validés/canonicalisés par x/text dans putSettings ; CRUD dans
@@ -1747,8 +1747,8 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   **Accept-Language est TOUJOURS envoyé sur toute route proxifiée** :
   promoteLocale() place la locale résolue en 1re position et garde les autres
   préférences du client (q-values intactes, doublon retiré) ; résolution
-  cookie MEERKAT_LANG → match A-L → 1re langue app. Les flow pages matchent
-  par LANGUE DE BASE (fr-CA → catalogue fr, offeredLanguages dédupliqué).
+  cookie MEERKAT_LANG -> match A-L -> 1re langue app. Les flow pages matchent
+  par LANGUE DE BASE (fr-CA -> catalogue fr, offeredLanguages dédupliqué).
   Section route Locales : liste read-only + « Extra mechanisms ».
   Subheaders nav (Modifiers/UI) colorisés --mat-sys-secondary + séparateur.
   Drawers palette pleine hauteur (:host height 100%).
@@ -1790,7 +1790,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 ### Vécus le 2026-07-30 (session auth externe)
 
 - **Samba AD en conteneur, sous Docker Desktop** : l'image détecte la mauvaise interface
-  (`gretap0`) et n'écoute que sur la boucle locale ⇒ les ports publiés ne répondent à
+  (`gretap0`) et n'écoute que sur la boucle locale => les ports publiés ne répondent à
   rien. `BIND_NETWORK_INTERFACES=false` (le compose le pose déjà). Et un contrôleur
   refuse le bind simple en clair : se connecter en **LDAPS**.
 - **Morphologie sur une sous-fenêtre numpy** : les bords de la fenêtre sont vus comme du
@@ -1799,7 +1799,7 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
 - **`int16` pour une distance RGB** : `255² × 3 = 195075` déborde silencieusement et les
   distances passent en négatif. `int32`.
 - **Flex column à hauteur bornée** : les enfants sont comprimés jusqu'à `min-content`, et
-  un `mat-button-toggle-group` n'a pas de texte pour résister — il s'écrase à deux
+  un `mat-button-toggle-group` n'a pas de texte pour résister - il s'écrase à deux
   pixels. `.body > * { flex: none }`.
 - **Drawer Material** : il enveloppe son contenu dans son propre conteneur de défilement.
   Un éditeur qui gère déjà son scroll (en-tête fixe, corps, pied) en obtient deux
@@ -1816,24 +1816,24 @@ Le partagé, c'est le **parse serveur** ; la console ne voit jamais l'OpenAPI br
   Pour replier une branche sans rien perdre : `git checkout -B main` depuis son sommet,
   puis `git branch -d`. (Voir aussi : **jamais de branche** dans ce repo.)
 - **plug** : ne JAMAIS lancer un binaire `plug` compilé sans `-p` pendant que des
-  sessions de François tournent — le daemon est partagé et gère l'override DNS système.
+  sessions de François tournent - le daemon est partagé et gère l'override DNS système.
   Ça a fait tomber ses deux sessions `-p neo` le 30/07.
 
 
-- `make dev` sans env ⇒ ports par défaut `:8080/:9090` ; **si un bind échoue, le process
+- `make dev` sans env => ports par défaut `:8080/:9090` ; **si un bind échoue, le process
   sort entièrement** (rien ne répond nulle part). Recette complète dans README
-  « Development ». Chez François, `:9090` est pris par une autre gateway → toujours
+  « Development ». Chez François, `:9090` est pris par une autre gateway -> toujours
   passer `MEERKAT_ADMIN_ADDR`.
 - Après un pull qui touche `console/package.json` : `cd console && npm i` (sinon pas de
   binaire `polyglot`).
 - Node : `.node-version` = 24 (le CLI Angular 22 refuse < 22.22.3). fnm bascule seul.
-- Le harness distant réécrit `~/.gitconfig` → identité git posée **en local par repo**
+- Le harness distant réécrit `~/.gitconfig` -> identité git posée **en local par repo**
   (François Achache <francois.achache@gmail.com>).
 - npm : les noms de paquets se vérifient dans le README du repo de l'org
   (`@softwarity/polyglot`, sans « e »).
 - Angular : vérifier `npm view @angular/core dist-tags` avant toute montée de version ;
   `@angular/animations` est mort (v20.2+).
-- Sandbox distant : pas d'accès entrant, egress filtré (angular.dev/httpbin bloqués) —
+- Sandbox distant : pas d'accès entrant, egress filtré (angular.dev/httpbin bloqués) -
   tester avec des upstreams locaux (`httptest`) ; GitHub/npm registry passent.
 
 ## Session 2026-08-05/06 - CI docker-only, schema unique, unification des tables
@@ -1947,37 +1947,37 @@ push et l'annonce plutot que de rougir la CI. GHCR n'est plus une cible.
 ## En attente de validation François
 
 - Rendu visuel de la console multi-langue sur son M5 (stack locale : cf. README).
-- Diagnostic final de ses ports morts (probable : bind :9090 occupé → fatal).
-- **Rendu visuel du flux TOTP** (login → `/totp` challenge, `/totp-enroll` QR +
-  scratch codes, `/profile/mfa` renew/disable) dans son instance dev — validé par
+- Diagnostic final de ses ports morts (probable : bind :9090 occupé -> fatal).
+- **Rendu visuel du flux TOTP** (login -> `/totp` challenge, `/totp-enroll` QR +
+  scratch codes, `/profile/mfa` renew/disable) dans son instance dev - validé par
   httptest, pas encore vu en navigateur.
 
 ## Prochains chantiers (ordre suggéré)
 
 0. **Séparer les rôles d'admin gateway / appli / tenant** (question François
-   2026-07-26, avis donné : OUI via le catalogue de rôles système —
+   2026-07-26, avis donné : OUI via le catalogue de rôles système -
    `gateway-admin` (routes, built-in pages) et `app-admin` (users, roles,
    settings identité) sous `root` dans la hiérarchie RBAC-01 ; tenant-admin
    existe déjà (type de membership). Colle à l'IA de la console (3 scopes de
-   rail). Chantier transversal : re-garder chaque endpoint admin (rootOnly →
+   rail). Chantier transversal : re-garder chaque endpoint admin (rootOnly ->
    garde par rôle) + any-role du rail. À faire seul, pas mélangé à une passe
    features. En attente du GO explicite.
-1. **TRAP/catch-all** (ROUTE-10) : `/` du data plane → redirection configurable.
-2. **Identity core** (séquence : SMTP → forgot password AUTH-21 → vérif e-mail AUTH-22 →
-   ~~TOTP MFA-01~~ **fait** → passkeys AUTH-15 → TTL par user TENANT-05 → profil + timezone
+1. **TRAP/catch-all** (ROUTE-10) : `/` du data plane -> redirection configurable.
+2. **Identity core** (séquence : SMTP -> forgot password AUTH-21 -> vérif e-mail AUTH-22 ->
+   ~~TOTP MFA-01~~ **fait** -> passkeys AUTH-15 -> TTL par user TENANT-05 -> profil + timezone
    CONSOLE-09, composant `timezone-select` de l'org).
    - **TOTP MFA-01 livré** (paquet `internal/mfa` : RFC 6238 stdlib pur + QR offline
      `rsc.io/qr`, scratch codes ; store schema **v10** colonnes `totp_secret/pending/scratch`
      + tri-état `mfa_required` sur tenants/memberships + setting global + resolver
-     G→T→M `ResolveMFARequired`/`MFARequiredForUser` ; flow d'auth : étape `totp`
+     G->T->M `ResolveMFARequired`/`MFARequiredForUser` ; flow d'auth : étape `totp`
      (challenge) et `totp-enroll` (enrôlement forcé si obligatoire) entre password et
      tenant ; self-service `/profile/mfa` renew/regen/disable). Testé par httptest de bout
      en bout. **Reste** : (a) toggle admin `mfa_required` par org/membre (colonnes prêtes,
-     pas d'UI ni de setter métier — les tests écrivent la colonne en direct) ; (b) secret
-     TOTP stocké **en clair** en base (pas de master key → chiffrement au repos à faire) ;
+     pas d'UI ni de setter métier - les tests écrivent la colonne en direct) ; (b) secret
+     TOTP stocké **en clair** en base (pas de master key -> chiffrement au repos à faire) ;
      (c) reste du chantier « enrichir profil » (Phase A : identité/locale/fuseau/photo/cert
      dev/plages d'accès en lecture/chrome dégonflé) non commencé.
-3. ~~Services UI~~ **décision François (2026-07-24) : PAS d'entité Service** —
+3. ~~Services UI~~ **décision François (2026-07-24) : PAS d'entité Service** -
    tout vit sur la route (« on déclare des routes, le matcher fait son boulot »).
    Type UI/locales/dispatch = attributs de route ; la découverte cluster devient
    une source de suggestions pour l'upstream. `requirements.md` §SVC + ROUTE-02
@@ -1992,22 +1992,22 @@ push et l'annonce plutot que de rougir la CI. GHCR n'est plus une cible.
    select-group (mode SINGLE) + rôles effectifs dans le JWT ; passkeys (store v12
    prêt, cérémonies+UI à faire) ; « Mes connexions » ; avatar profil ; discovery
    services via socket cluster. ~~Écran global Working hours~~ **fait** : page
-   **Application → General** (`/general`, rootOnly, 1re entrée du drawer — le rail
+   **Application -> General** (`/general`, rootOnly, 1re entrée du drawer - le rail
    Application y atterrit) : working hours/days globaux (topLevel) + Session TTL
    (select **humanisé luxon**, comme Trust duration côté Security) ; full PUT
    /api/settings. **`defaultRoute` supprimé partout** (setting, API, redirect du
    router, console) : la trap « / » est une **route catch-all `/**` ordonnée en
-   dernier** — le seed démo crée `trap` → httpbin (décision François, ROUTE-10).
+   dernier** - le seed démo crée `trap` -> httpbin (décision François, ROUTE-10).
 5. ~~timezone-select 2.0~~ **fait et intégré** : lib releasée en 2.0.0
    (`value = model()` / FormValueControl, CVA retiré, CI release-flow@v1,
    Vitest/Playwright, démo depuis la source) ; meerkat consomme la 2.0.0 en
    binding direct `[value]`/`(valueChange)` (pont `writeValue()` supprimé).
    La console utilise **luxon** (dep voulue par François) : conversion du
    miroir UTC + noms de jours localisés (`Info.weekdays`) dans
-   business-access-form — s'en servir pour tout besoin date/heure futur.
-6. **Pilotage programmatique (CLI et/ou MCP) — idée François 2026-07-26.**
+   business-access-form - s'en servir pour tout besoin date/heure futur.
+6. **Pilotage programmatique (CLI et/ou MCP) - idée François 2026-07-26.**
    Rendre Meerkat gérable par une IA/un script sans navigateur. Deux véhicules,
-   même cœur : **CLI** (`meerkat routes list`, `meerkat tenant create …` — sous-
+   même cœur : **CLI** (`meerkat routes list`, `meerkat tenant create ...` - sous-
    commandes greffées sur `cmd/meerkat/`, sorties JSON, scriptable) pour scripts/
    CI/humains ; **serveur MCP** (tools typés) pour les agents conversationnels,
    probablement le meilleur véhicule vu la cible « IA ». **Conception validée** :
@@ -2016,7 +2016,7 @@ push et l'annonce plutot que de rougir la CI. GHCR n'est plus une cible.
    **l'audit** (une action est tracée avec l'acteur du token, gratuitement).
    - **Prérequis LIVRÉ (2026-07-26, store v26) : tokens control-plane.** Les API
      tokens portent un **plane** (`data`|`admin`) ; un token admin authentifie
-     **uniquement** sur le port admin via `Authorization: Bearer mk_…` (isolation
+     **uniquement** sur le port admin via `Authorization: Bearer mk_...` (isolation
      dans `session.Resolve` : un token data n'ouvre jamais l'admin, et inversement,
      testé). Création **root-only** : `POST /api/admin-tokens` (endpoints dans
      `internal/admin/apitoken.go`), audité (`token.create/revoke`). Console : page
@@ -2045,4 +2045,4 @@ push et l'annonce plutot que de rougir la CI. GHCR n'est plus une cible.
 - Produit/décisions : `requirements.md` (§7 = questions tranchées/ouvertes).
 - Conventions : `CLAUDE.md`. Historique documenté par les messages de commit.
 - Org GitHub `softwarity` = catalogue de briques maison (vérifier avant de créer).
-- V1 (Archway) : repo `softwarity/archway`, branche `oss` — la référence de comportement.
+- V1 (Archway) : repo `softwarity/archway`, branche `oss` - la référence de comportement.

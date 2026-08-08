@@ -56,13 +56,13 @@ clean:
 # depends on Docker.
 ldap-up:
 	cd test/ldap && docker compose up -d
-	@echo "waiting for the domain controller to provision (about a minute on a cold start)…"
+	@echo "waiting for the domain controller to provision (about a minute on a cold start)..."
 	@cd test/ldap && for i in $$(seq 1 60); do \
 		[ "$$(docker inspect meerkat-samba-ad --format '{{.State.Health.Status}}' 2>/dev/null)" = healthy ] && break; \
 		sleep 5; \
 	done
 	docker exec meerkat-samba-ad sh /seed.sh
-	@echo "dex http://localhost:5556/dex · openldap ldap://localhost:3389 · active directory ldaps://localhost:3636"
+	@echo "dex http://localhost:5556/dex - openldap ldap://localhost:3389 - active directory ldaps://localhost:3636"
 
 ldap-down:
 	cd test/ldap && docker compose down -v

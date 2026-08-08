@@ -12,7 +12,7 @@ import {
   WeightPredicateComponent,
 } from './predicate-fields.component';
 
-// type → which dedicated editor renders it: the 12 predicate types collapse
+// type -> which dedicated editor renders it: the 12 predicate types collapse
 // onto 6 shapes (a matcher is a matcher, whatever it reads).
 const KIND: Record<string, string> = {
   path: 'list',

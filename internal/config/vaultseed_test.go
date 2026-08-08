@@ -32,7 +32,7 @@ func vaultFile(t *testing.T, entries ...vault.PortableEntry) string {
 }
 
 // TestSeedVaultFillsAndDoesNotReplay: this is what makes an unattended start
-// work — file plus passphrase, the gateway comes up complete. And the same file
+// work - file plus passphrase, the gateway comes up complete. And the same file
 // at the next restart changes nothing, so a compose that keeps it around cannot
 // resurrect a secret someone rotated in the console.
 func TestSeedVaultFillsAndDoesNotReplay(t *testing.T) {

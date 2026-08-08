@@ -9,7 +9,7 @@ import (
 
 // PasskeysAllowed reads the gateway-wide passkey policy (SettingPasskeys):
 // whether users may register passkeys and sign in with them. A missing or
-// unreadable key means allowed — the feature ships on; disabling is an
+// unreadable key means allowed - the feature ships on; disabling is an
 // explicit admin act.
 func (s *Store) PasskeysAllowed(ctx context.Context) bool {
 	var allowed bool
@@ -64,7 +64,7 @@ func (s *Store) ListPasskeys(ctx context.Context, userID string) ([]Passkey, err
 }
 
 // PasskeyIDByCredential maps a raw credential id (base64url) back to the
-// row id — the auth layer badges "this browser" through it.
+// row id - the auth layer badges "this browser" through it.
 func (s *Store) PasskeyIDByCredential(ctx context.Context, userID, credID string) (string, error) {
 	var id string
 	err := s.db.QueryRowContext(ctx,
@@ -76,7 +76,7 @@ func (s *Store) PasskeyIDByCredential(ctx context.Context, userID, credID string
 	return id, nil
 }
 
-// PasskeyBlobs returns the raw credential JSON blobs for a user — the auth layer
+// PasskeyBlobs returns the raw credential JSON blobs for a user - the auth layer
 // decodes them into go-webauthn Credentials to build the WebAuthn user.
 func (s *Store) PasskeyBlobs(ctx context.Context, userID string) ([]string, error) {
 	rows, err := s.db.QueryContext(ctx,
@@ -147,7 +147,7 @@ func (s *Store) PutChallenge(ctx context.Context, id, data string, expiresAt int
 	return nil
 }
 
-// TakeChallenge returns and deletes the state for id — one shot, so a
+// TakeChallenge returns and deletes the state for id - one shot, so a
 // challenge can never be replayed. Returns sql.ErrNoRows if absent or
 // already consumed.
 func (s *Store) TakeChallenge(ctx context.Context, id string, now int64) (string, error) {

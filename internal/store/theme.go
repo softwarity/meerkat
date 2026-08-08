@@ -10,8 +10,8 @@ import (
 )
 
 // Theme styles the SHARED flow pages only (login, select-tenant, OTP, password
-// pages — THEME-01/04): global level, never per tenant, and the admin console
-// keeps its own look. Several themes coexist and exactly one is active —
+// pages - THEME-01/04): global level, never per tenant, and the admin console
+// keeps its own look. Several themes coexist and exactly one is active -
 // duplicate, tweak, preview, activate, roll back (the CFG-02 philosophy).
 // Dark and light palettes are independent; the pages emit one token block
 // using CSS light-dark(), so the visitor's scheme (later: their THEME-05
@@ -23,7 +23,7 @@ type Theme struct {
 	// Flat turns off the decorative "Sentinel's Watch" effects on the flow
 	// pages (THEME-04): the logo/button/status glows, the ambient primary
 	// radial, and the app-name gradient. One switch drives them all through the
-	// --mk-glow token (1 = full effects, 0 = flat) — see CSS() and auth.flowTop.
+	// --mk-glow token (1 = full effects, 0 = flat) - see CSS() and auth.flowTop.
 	Flat      bool              `json:"flat"`
 	Dark      map[string]string `json:"dark"`
 	Light     map[string]string `json:"light"`
@@ -47,14 +47,14 @@ var themeTokens = []struct{ Key, CSSVar string }{
 }
 
 // Branding is the application identity shown on the flow pages (THEME-02):
-// ONE per gateway (global), whatever theme is active — themes are color
+// ONE per gateway (global), whatever theme is active - themes are color
 // trials, the identity does not fork with them. Logo is a data URI ("" = the
 // built-in meerkat mark).
 //
 // Favicon is the browser-tab icon and is OPTIONAL on purpose: left empty, the
 // logo serves as the icon. A logo is nearly always usable as one, and asking
 // for a second image to see one's own mark in the tab is a step most people
-// skip — after which the sign-in page of their application wears Meerkat's
+// skip - after which the sign-in page of their application wears Meerkat's
 // sentinel, which is the one place it must not.
 type Branding struct {
 	AppName string `json:"appName"`
@@ -64,7 +64,7 @@ type Branding struct {
 }
 
 // TabIcon is what a browser tab must show: the favicon when one was set, the
-// logo otherwise, and "" when neither exists — the caller then falls back to
+// logo otherwise, and "" when neither exists - the caller then falls back to
 // Meerkat's own mark.
 func (b Branding) TabIcon() string {
 	if b.Favicon != "" {
@@ -73,21 +73,21 @@ func (b Branding) TabIcon() string {
 	return b.Logo
 }
 
-// MeerkatBranding is Meerkat's own identity — the ADMIN plane wears it,
+// MeerkatBranding is Meerkat's own identity - the ADMIN plane wears it,
 // immutably.
 func MeerkatBranding() Branding {
 	return Branding{AppName: "MEERKAT", Tagline: "The sentinel at your application's door"}
 }
 
-// DefaultBranding is the DATA plane's seed: obvious placeholders — name AND
-// description — so the integrator understands both are theirs to set (the
+// DefaultBranding is the DATA plane's seed: obvious placeholders - name AND
+// description - so the integrator understands both are theirs to set (the
 // generic logo placeholder is built into the pages).
 func DefaultBranding() Branding {
 	return Branding{AppName: "MY APP", Tagline: "My application description"}
 }
 
 // SanitizeBranding normalizes and validates: an image must be a data URI of
-// reasonable size — it lands in a src attribute, nothing else may.
+// reasonable size - it lands in a src attribute, nothing else may.
 func SanitizeBranding(b *Branding) error {
 	b.AppName = strings.TrimSpace(b.AppName)
 	b.Tagline = strings.TrimSpace(b.Tagline)
@@ -139,8 +139,8 @@ func ThemeTokenKeys() []string {
 	return keys
 }
 
-// The presets share one surface/text system — Catppuccin Macchiato for dark,
-// its Latte counterpart for light — so only the ACCENT changes between them.
+// The presets share one surface/text system - Catppuccin Macchiato for dark,
+// its Latte counterpart for light - so only the ACCENT changes between them.
 // That is exactly what "different base themes, by main colour" means: pick a
 // hue, everything else stays coherent.
 var baseDark = map[string]string{
@@ -190,7 +190,7 @@ func (a themeAccent) theme() Theme {
 	return Theme{ID: a.id, Name: a.name, Dark: dark, Light: light}
 }
 
-// PresetThemes returns the built-in starting palettes (inactive copies — the
+// PresetThemes returns the built-in starting palettes (inactive copies - the
 // caller decides activation). The console lists them under the "+" button.
 func PresetThemes() []Theme {
 	out := make([]Theme, len(themeAccents))
@@ -200,7 +200,7 @@ func PresetThemes() []Theme {
 	return out
 }
 
-// DefaultTheme is "The Sentinel's Watch" (the first preset), marked active — the
+// DefaultTheme is "The Sentinel's Watch" (the first preset), marked active - the
 // fallback whenever no stored theme is available and the admin plane's own skin.
 func DefaultTheme() Theme {
 	t := themeAccents[0].theme()
@@ -210,7 +210,7 @@ func DefaultTheme() Theme {
 
 // CSS renders the theme as the flow pages' token block: one declaration per
 // token via light-dark(), plus the structural tokens. This block is exactly
-// what the theme editor manages (THEME-04) — pages never hard-code colors.
+// what the theme editor manages (THEME-04) - pages never hard-code colors.
 func (t Theme) CSS() string {
 	var b strings.Builder
 	b.WriteString(":root {\n      color-scheme: light dark;\n")
@@ -226,7 +226,7 @@ func (t Theme) CSS() string {
 	}
 	// --mk-glow scales every decorative effect at once: 1 = full glow, 0 = flat
 	// design (the rules in auth.flowTop multiply their blur and color-mix amount
-	// by it). Structural, not a color — the flow pages read it, the admin plane
+	// by it). Structural, not a color - the flow pages read it, the admin plane
 	// (DefaultTheme, Flat=false) always glows.
 	glow := "1"
 	if t.Flat {
@@ -242,7 +242,7 @@ func (t Theme) CSS() string {
 }
 
 // sanitizeThemeColors keeps only known tokens with plausible CSS color values
-// (hex forms) — the block is emitted into a <style>, nothing else may pass.
+// (hex forms) - the block is emitted into a <style>, nothing else may pass.
 func sanitizeThemeColors(in map[string]string) (map[string]string, error) {
 	out := map[string]string{}
 	for _, tok := range themeTokens {
@@ -277,7 +277,7 @@ func isHexColor(v string) bool {
 
 // seedThemes installs the built-in presets. A fresh table gets every preset,
 // the first one active. An already-populated table is topped up ONCE with any
-// preset it is missing (so upgrades gain the new palettes) — guarded by a
+// preset it is missing (so upgrades gain the new palettes) - guarded by a
 // setting so a preset the admin later deletes is never resurrected.
 func (s *Store) seedThemes() error {
 	ctx := context.Background()
@@ -301,7 +301,7 @@ func (s *Store) seedThemes() error {
 	}
 	for _, t := range presets {
 		if _, err := s.GetTheme(ctx, t.ID); err == nil {
-			continue // already present — leave it (and its active flag) alone
+			continue // already present - leave it (and its active flag) alone
 		}
 		t.Active = false
 		if err := s.SaveTheme(ctx, t); err != nil {
@@ -325,7 +325,7 @@ func (s *Store) SaveTheme(ctx context.Context, t Theme) error {
 	lj, _ := json.Marshal(light)
 	now := time.Now().Unix()
 	// A caller may pin created_at (a duplicate inherits its source's, so it sorts
-	// right next to it — ListThemes orders by created_at then name); otherwise
+	// right next to it - ListThemes orders by created_at then name); otherwise
 	// stamp now. Never overwritten on update (created_at isn't in the SET).
 	created := t.CreatedAt
 	if created <= 0 {
@@ -381,7 +381,7 @@ func (s *Store) GetActiveTheme(ctx context.Context) (Theme, error) {
 }
 
 // completePalettes materializes the default value of every missing token so a
-// theme always leaves the store COMPLETE — the editor, the live preview and
+// theme always leaves the store COMPLETE - the editor, the live preview and
 // the emitted CSS all see the same full palettes (a partially-defined theme
 // otherwise renders differently in each).
 func completePalettes(t *Theme) {
@@ -466,7 +466,7 @@ func (s *Store) DeleteTheme(ctx context.Context, id string) (bool, error) {
 		return false, nil //nolint:nilerr // absent = nothing to delete
 	}
 	if t.Active {
-		return false, fmt.Errorf("store: theme %q is active — activate another theme first", t.Name)
+		return false, fmt.Errorf("store: theme %q is active - activate another theme first", t.Name)
 	}
 	res, err := s.db.ExecContext(ctx, `DELETE FROM themes WHERE id = ?`, id)
 	if err != nil {

@@ -30,11 +30,11 @@ interface UserRow {
 }
 
 // The per-tenant members matrix (RBAC-02): rows are the available users, a
-// first column marks membership OF this tenant — the checkbox joins/leaves,
+// first column marks membership OF this tenant - the checkbox joins/leaves,
 // the "admin" badge beside it promotes a member to ADMIN (tenant
 // administration is the membership type, TENANT-02). The tenant's owner
 // (ownerId, transferred in the Danger zone) shows a read-only "owner" badge
-// there instead. Then this tenant's groups are columns — a member is
+// there instead. Then this tenant's groups are columns - a member is
 // ticked into the groups they belong to; group columns are disabled for
 // non-members. The last column shows the user's last connection and carries
 // the tenant-scoped password reset. Everything persists immediately. Same
@@ -61,7 +61,7 @@ export class MembersMatrixComponent {
   // The tenant's owner (ownerId): shown as a read-only badge, may be a
   // non-member. Ownership is transferred in the Danger zone, not here.
   readonly ownerId = input('');
-  // Username/fullname search — typed in the drawer's right-zone header.
+  // Username/fullname search - typed in the drawer's right-zone header.
   readonly filter = input('');
   readonly changed = output<void>();
 
@@ -74,9 +74,9 @@ export class MembersMatrixComponent {
   protected readonly loading = signal(true);
   protected readonly rows = signal<UserRow[]>([]);
   protected readonly groups = signal<Group[]>([]);
-  // userId → their full membership (type, overrides) when a member.
+  // userId -> their full membership (type, overrides) when a member.
   protected readonly memberships = signal<Map<string, Member>>(new Map());
-  // userId → the group ids they are assigned.
+  // userId -> the group ids they are assigned.
   protected readonly memberGroups = signal<Record<string, string[]>>({});
 
   protected readonly filteredRows = computed(() => {
@@ -183,7 +183,7 @@ export class MembersMatrixComponent {
   }
 
   // Tenant administration IS the membership type (TENANT-02): the badge flips
-  // USER ↔ ADMIN. The owner has no toggle here — ownership is a tenant field,
+  // USER ↔ ADMIN. The owner has no toggle here - ownership is a tenant field,
   // transferred in the Danger zone.
   protected toggleAdmin(u: UserRow): void {
     const m = this.memberships().get(u.id);
@@ -207,7 +207,7 @@ export class MembersMatrixComponent {
   // ── the whole column ───────────────────────────────────────────────────────
   //
   // It acts on the members ON SCREEN, filter included: what one sees is what
-  // one ticks. And only on MEMBERS — a group cannot be given to somebody who
+  // one ticks. And only on MEMBERS - a group cannot be given to somebody who
   // does not belong to the organisation, so the box skips them rather than
   // failing halfway through.
   protected columnState(groupId: string): { checked: boolean; some: boolean } {
@@ -251,7 +251,7 @@ export class MembersMatrixComponent {
   // That order was unusable in single-organisation mode: the column that
   // creates a membership is a multi-organisation notion and is hidden there,
   // so every checkbox stayed disabled with nothing on screen to explain it.
-  // And it matches what the tick means anyway — giving someone a group in an
+  // And it matches what the tick means anyway - giving someone a group in an
   // organisation IS putting them in it.
   protected toggleMemberGroup(user: UserRow, groupId: string, checked: boolean): void {
     const userId = user.id;
@@ -303,8 +303,8 @@ export class MembersMatrixComponent {
   // ── last connection + tenant-scoped password reset ────────────────────────
 
   protected lastSeen(ts: number): string {
-    if (!ts) return '—';
-    return DateTime.fromSeconds(ts).reconfigure({ locale: this.locale }).toRelative() ?? '—';
+    if (!ts) return '-';
+    return DateTime.fromSeconds(ts).reconfigure({ locale: this.locale }).toRelative() ?? '-';
   }
 
   protected lastSeenFull(ts: number): string {

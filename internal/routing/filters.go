@@ -93,14 +93,14 @@ func CompileFilters(specs []Spec) (CompiledFilters, error) {
 		}
 	}
 	// A terminal answers the route itself. INCOMING filters then have nothing
-	// to modify — the request is never proxied — so they are dropped. OUTGOING
+	// to modify - the request is never proxied - so they are dropped. OUTGOING
 	// ones still apply: the answer is a response like any other, and putting a
 	// CORS or a Cache-Control header on it is exactly as legitimate as on a
 	// proxied one.
 	//
 	// Both used to be an error, which meant an existing route could not be
 	// switched to an answering mode without first hunting down its modifiers in
-	// two other sections — and the refusal named "redirect" whatever the
+	// two other sections - and the refusal named "redirect" whatever the
 	// terminal actually was.
 	if out.Terminal != nil && len(out.Request) > 0 {
 		out.IgnoredFilters = len(out.Request)
@@ -177,7 +177,7 @@ func init() {
 
 	registerFilter(filterDef{
 		Type: "rewrite-path", Phase: phaseRequest,
-		Doc: "Rewrites the path with a regexp replacement (capture groups as $1, $2…).",
+		Doc: "Rewrites the path with a regexp replacement (capture groups as $1, $2...).",
 		Params: []Param{
 			{Name: "pattern", Kind: KindString, Required: true},
 			{Name: "replacement", Kind: KindString, Required: true},
@@ -333,7 +333,7 @@ func init() {
 		},
 	})
 
-	// NOTE: the old generic "inject-head" filter is gone — page injections are
+	// NOTE: the old generic "inject-head" filter is gone - page injections are
 	// a UI-route affair (Injections section: custom CSS/JS, user button, page
 	// stamps), all riding filters.InjectAfterHead internally.
 

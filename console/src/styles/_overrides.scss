@@ -1,4 +1,4 @@
-// Always-visible, themed scrollbars — macOS hides overlay scrollbars until you
+// Always-visible, themed scrollbars - macOS hides overlay scrollbars until you
 // scroll, which reads as "there is no scrollbar". Make scroll affordances plain.
 * {
   scrollbar-width: thin;
@@ -35,9 +35,9 @@
   font-style: normal;
   // font-size drives the GLYPH size for a ligature icon font. Google's helper
   // ships this 24px default; omitting it made icons render at the inherited
-  // font-size in contexts that only size the box (e.g. mat-menu-item → tiny
+  // font-size in contexts that only size the box (e.g. mat-menu-item -> tiny
   // glyph in a 24px box). Icon buttons force their own size; inline icons
-  // (.mat-icon-inline) override to inherit — both win on specificity.
+  // (.mat-icon-inline) override to inherit - both win on specificity.
   font-size: 24px;
   line-height: 1;
   letter-spacing: normal;

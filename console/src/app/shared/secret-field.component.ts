@@ -14,19 +14,19 @@ export type SecretState = 'empty' | 'reference' | 'typed' | 'held';
 // way to the vault: what stays in the configuration is ${name}.
 //
 // Typing is allowed on purpose. A client secret is generated at the provider,
-// lands in the clipboard and is never shown again — sending the admin to the
+// lands in the clipboard and is never shown again - sending the admin to the
 // vault first to create an entry, then back here to pick it, loses exactly that
 // clipboard. So: paste, then move it in. One gesture.
 //
 // The validator is what makes it stick, and it applies to WHAT THE ADMIN
 // TYPED, never to what they inherited:
 //
-//   empty      nothing set               — ordinary field
-//   reference  ${name}                   — valid, shows WHICH entry
-//   typed      a literal, just entered   — BLOCKING: they hold it, they can
+//   empty      nothing set               - ordinary field
+//   reference  ${name}                   - valid, shows WHICH entry
+//   typed      a literal, just entered   - BLOCKING: they hold it, they can
 //                                          move it, and the action is in the
 //                                          error itself
-//   held       a literal stored server-side, never received here — a warning,
+//   held       a literal stored server-side, never received here - a warning,
 //              not an error: blocking it would strand someone on a field they
 //              cannot fill, for an edit that has nothing to do with it. One
 //              click moves it, server-side.
@@ -43,7 +43,7 @@ export class SecretFieldComponent {
   readonly hint = input('');
   readonly placeholder = input('');
   // Classes for the field itself. The host is display:contents, so a class put
-  // on <app-secret-field> would reach no box — the layout ones (a grid span)
+  // on <app-secret-field> would reach no box - the layout ones (a grid span)
   // have to land on the field that is actually laid out.
   readonly fieldClass = input('');
   // The field's value: a ${name} reference, a literal being typed, or ''.

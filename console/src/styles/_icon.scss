@@ -1,24 +1,24 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // mat-icon animation hooks
 //
-// Adapted from FontAwesome's `fa-icon` animations (shake / beat / fade / …) to
+// Adapted from FontAwesome's `fa-icon` animations (shake / beat / fade / ...) to
 // Angular Material's <mat-icon>. Each animation can be triggered EITHER by:
 //
 //   1. an attribute, e.g.  <mat-icon spin>autorenew</mat-icon>
 //   2. a class,     e.g.   <mat-icon class="spin">autorenew</mat-icon>
 //
 // Selectors use the `.mat-icon` class (which Material applies on every
-// `<mat-icon>` host) to bump specificity to 0-2-0 — strong enough to override
+// `<mat-icon>` host) to bump specificity to 0-2-0 - strong enough to override
 // Material's own component-scoped rules at 0-1-1 (`mat-icon`).
 //
 // `animation:` is written as a single shorthand declaration on purpose: using
-// long-hand `animation-name` / `animation-duration` / … leaves the unspecified
+// long-hand `animation-name` / `animation-duration` / ... leaves the unspecified
 // properties at their defaults, but several Material themes reset `animation:`
 // shorthand on `mat-icon`, which wipes the whole thing. Writing the shorthand
 // ourselves guarantees the cascade order keeps our animation alive.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Shared base — transforms on inline layout collapse, so force inline-block.
+// Shared base - transforms on inline layout collapse, so force inline-block.
 .mat-icon.spin,
 .mat-icon.pulse,
 .mat-icon.shake,
@@ -43,7 +43,7 @@
   transform-origin: center;
 }
 
-// ── spin — continuous rotation (e.g. autorenew on `processing`)
+// ── spin - continuous rotation (e.g. autorenew on `processing`)
 .mat-icon.spin,
 .mat-icon[spin]:not([spin='false']) {
   animation: mat-icon-spin 2s linear infinite;
@@ -58,7 +58,7 @@
   }
 }
 
-// ── pulse — rotation by 8 discrete steps
+// ── pulse - rotation by 8 discrete steps
 .mat-icon.pulse,
 .mat-icon[pulse]:not([pulse='false']) {
   animation: mat-icon-pulse 1s steps(8) infinite;
@@ -73,7 +73,7 @@
   }
 }
 
-// ── shake — alternating rotation, attention-grabber
+// ── shake - alternating rotation, attention-grabber
 .mat-icon.shake,
 .mat-icon[shake]:not([shake='false']) {
   animation: mat-icon-shake 1s linear infinite;
@@ -110,7 +110,7 @@
   }
 }
 
-// ── beat — heartbeat scale (signal a periodic event)
+// ── beat - heartbeat scale (signal a periodic event)
 .mat-icon.beat,
 .mat-icon[beat]:not([beat='false']) {
   animation: mat-icon-beat 1s ease-in-out infinite;
@@ -126,7 +126,7 @@
   }
 }
 
-// ── fade — opacity pulse (subtle "alive" hint)
+// ── fade - opacity pulse (subtle "alive" hint)
 .mat-icon.fade,
 .mat-icon[fade]:not([fade='false']) {
   animation: mat-icon-fade 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -138,7 +138,7 @@
   }
 }
 
-// ── beat-fade — combined beat + fade
+// ── beat-fade - combined beat + fade
 .mat-icon.beat-fade,
 .mat-icon[beat-fade]:not([beat-fade='false']) {
   animation: mat-icon-beat-fade 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -156,7 +156,7 @@
   }
 }
 
-// ── flip-h1 / flip-h2 — horizontal flip (rotation around the Y axis) on hover.
+// ── flip-h1 / flip-h2 - horizontal flip (rotation around the Y axis) on hover.
 //     `flip-h1` does one full turn, `flip-h2` does two. `perspective(200px)`
 //     gives the rotation a visible 3D depth on small (~24px) icons.
 .mat-icon.flip-h1:hover,
@@ -179,7 +179,7 @@
   to { transform: perspective(200px) rotateY(720deg); }
 }
 
-// ── flip-v1 / flip-v2 — vertical flip (rotation around the X axis) on hover.
+// ── flip-v1 / flip-v2 - vertical flip (rotation around the X axis) on hover.
 .mat-icon.flip-v1:hover,
 .mat-icon[flip-v1]:not([flip-v1='false']):hover {
   animation: mat-icon-flip-v1 0.6s ease-in-out;

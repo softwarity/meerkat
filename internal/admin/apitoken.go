@@ -12,7 +12,7 @@ import (
 	"github.com/softwarity/meerkat/internal/store"
 )
 
-// Control-plane API tokens (foundation for headless management — a CLI or an
+// Control-plane API tokens (foundation for headless management - a CLI or an
 // MCP server driving Meerkat, PLANNED). A control-plane token authenticates its
 // owner on the ADMIN port only (the plane isolation lives in session.Resolve),
 // so it carries no tenant/group context. Minting is root-only: the token acts
@@ -131,7 +131,7 @@ func adminTokenName(a *API, r *http.Request, userID, id string) string {
 	return ""
 }
 
-// mintToken generates a fresh "mk_…" secret and returns its clear value, its
+// mintToken generates a fresh "mk_..." secret and returns its clear value, its
 // hash (sha256 hex, matching session.hashToken), and a display prefix.
 func mintToken() (secret, hash, prefix string, err error) {
 	b := make([]byte, 32)

@@ -6,7 +6,7 @@ import { MeService } from './me.service';
 
 // Where a user lands and falls back to (CONSOLE-02): an infra admin starts on
 // the routing plane, an app admin on the application, everyone else on Tenants
-// (any authenticated console user may open it — the API scopes the content).
+// (any authenticated console user may open it - the API scopes the content).
 // These guards are navigation comfort; the admin API enforces the same scopes
 // server-side (RBAC-05).
 function landing(me: MeService): string {
@@ -22,12 +22,12 @@ function landing(me: MeService): string {
 // where they already are.
 //
 // A guard that returns a UrlTree pointing at its own route makes the router
-// re-run it, decide the same thing, and navigate again — a synchronous loop
+// re-run it, decide the same thing, and navigate again - a synchronous loop
 // that freezes the tab with a blank page and nothing in the console. It is not
 // hypothetical: with no session nobody holds a capability, so landing() said
 // "/tenants", and single-organisation mode closes /tenants and sent them back
 // to landing(). Refusing outright leaves the browser where it is, which is
-// exactly right — the 401 that caused it is already taking it to sign in.
+// exactly right - the 401 that caused it is already taking it to sign in.
 function bounce(router: Router, state: RouterStateSnapshot, to: string): UrlTree | boolean {
   return state.url === to ? false : router.parseUrl(to);
 }
@@ -106,7 +106,7 @@ export const issuesAccess: CanActivateFn = async (_route, state) => {
 
 // apiDocsAccess gates the API-docs screen: the capabilities that consume the
 // control plane (root, infra-admin, app-admin). The spec LIST is scoped
-// again server-side — route-declared specs need the routing plane.
+// again server-side - route-declared specs need the routing plane.
 export const apiDocsAccess: CanActivateFn = async (_route, state) => {
   const me = inject(MeService);
   const router = inject(Router);
@@ -124,7 +124,7 @@ export const landingRedirect: CanActivateFn = async (_route, state) => {
   return bounce(router, state, landing(me));
 };
 
-// firstTenantRedirect: "/tenants" is not a page — it forwards to the first
+// firstTenantRedirect: "/tenants" is not a page - it forwards to the first
 // tenant the user may administer (sections are child routes of the tenant).
 // With no tenant at all, the bare component under this route says so.
 export const firstTenantRedirect: CanActivateFn = async () => {

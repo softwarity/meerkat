@@ -121,7 +121,7 @@ export class MeService {
     if (me.user.infraAdmin) roles.push('infra-admin');
     if (me.user.appAdmin) roles.push('app-admin');
     // Ownership is decoupled from membership, so the server computes this
-    // (owner-or-admin of any tenant) — the memberships list alone can miss a
+    // (owner-or-admin of any tenant) - the memberships list alone can miss a
     // non-member owner.
     if (me.tenantAdmin) roles.push('tenant-admin');
     document.body.classList.remove(

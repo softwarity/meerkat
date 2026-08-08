@@ -55,7 +55,7 @@ func registerSetup(t *testing.T) (*http.ServeMux, *session.Manager, *store.Store
 	if err := st.SetSetting(ctx, store.SettingSMTP, mail.Config{Host: "smtp.test", From: "meerkat@test"}); err != nil {
 		t.Fatal(err)
 	}
-	// Captcha off for the flow tests — TestRegisterCaptcha covers it on.
+	// Captcha off for the flow tests - TestRegisterCaptcha covers it on.
 	if err := st.SetSetting(ctx, store.SettingRegistration,
 		store.RegistrationPolicy{LocalEnabled: true, CaptchaDisabled: true}); err != nil {
 		t.Fatal(err)

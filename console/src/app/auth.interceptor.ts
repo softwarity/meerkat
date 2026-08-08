@@ -5,7 +5,7 @@ import { catchError, throwError } from 'rxjs';
 // (served on this same origin) with a return path back into the console.
 //
 // ONCE, and that "once" is the whole point. A cold start fires several calls at
-// the same time (/api/me, /api/tenants…) and they all come back 401 together.
+// the same time (/api/me, /api/tenants...) and they all come back 401 together.
 // Assigning location.href per failure does not redirect harder: each assignment
 // CANCELS the navigation the previous one started, so the browser keeps
 // restarting it, never leaves the page, and shows a blank screen with nothing

@@ -59,14 +59,14 @@ type userButtonPayload struct {
 	// the component's own `languages` attribute (a different level from the
 	// flow-page languages that translate the menu LABELS below).
 	// Apps: the UI routes this session may open (public + authenticated +
-	// granted role-gated ones) — navigation between the fronted applications.
+	// granted role-gated ones) - navigation between the fronted applications.
 	Apps []userButtonLink `json:"apps,omitempty"`
-	// Groups: exclusive mode (RBAC-03) with a real choice — the Group
+	// Groups: exclusive mode (RBAC-03) with a real choice - the Group
 	// submenu; GroupID is the active one.
 	Groups  []userButtonTenant `json:"groups,omitempty"`
 	GroupID string             `json:"groupId,omitempty"`
 	// Roles are the session's EFFECTIVE role names in the active tenant,
-	// filtered to class-safe tokens — what roles.js stamps on <body>.
+	// filtered to class-safe tokens - what roles.js stamps on <body>.
 	Roles  []string `json:"roles,omitempty"`
 	Scheme string   `json:"scheme"`
 	// Issues turns the "Report an issue" panel on (ISSUE-01): the tracker
@@ -78,14 +78,14 @@ type userButtonPayload struct {
 	// riding here: the JS is cached, this payload is not.
 	DevDocs bool              `json:"devDocs,omitempty"`
 	Labels  map[string]string `json:"labels"`
-	// ThemeCSS carries the ACTIVE theme's tokens rescoped to :host — the
+	// ThemeCSS carries the ACTIVE theme's tokens rescoped to :host - the
 	// button wears the selected theme inside its shadow root, falling back to
 	// system colors when a token is missing.
 	ThemeCSS string `json:"themeCss"`
 }
 
 // userButtonJSON answers the component's data: who is signed in, which tenants
-// they may switch to, the offered languages and the menu labels — all in the
+// they may switch to, the offered languages and the menu labels - all in the
 // request's locale.
 func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 	offered := h.offeredLanguages()
@@ -117,7 +117,7 @@ func (h *Handler) userButtonJSON(w http.ResponseWriter, r *http.Request) {
 	}
 	css, _ := h.chrome()
 	// Lang/Labels are Meerkat's OWN strings, in a flow-page (embedded)
-	// language — a different level from the route's forwarded locales, which
+	// language - a different level from the route's forwarded locales, which
 	// the component resolves itself from its `languages` attribute.
 	payload := userButtonPayload{
 		Scheme: p.Scheme, Labels: labels,
@@ -242,10 +242,10 @@ const userButtonJS = `(() => {
         .catch(() => {});
     }
 
-    // Own shadow first — always; then, when the route offers the switch,
+    // Own shadow first - always; then, when the route offers the switch,
     // reflect the choice for the target application: the CSS color-scheme +
-    // data-meerkat-scheme, plus the app's own mechanism — an attribute
-    // (light/dark values) or a class pair — as configured on the route.
+    // data-meerkat-scheme, plus the app's own mechanism - an attribute
+    // (light/dark values) or a class pair - as configured on the route.
     applyScheme(v) {
       this.style.colorScheme = (v === 'light' || v === 'dark') ? v : '';
       if (this.getAttribute('scheme') !== 'select') return;
@@ -373,7 +373,7 @@ const userButtonJS = `(() => {
             (g.id === data.groupId ? mark() : '') + '</button>').join('')));
         }
         // The language submenu offers this ROUTE's locales (the languages
-        // attribute) — the application's own languages, not the gateway's.
+        // attribute) - the application's own languages, not the gateway's.
         const langCodes = (this.getAttribute('languages') || '').split(',').filter(Boolean);
         // The active locale is resolved against THIS ROUTE's languages, the
         // same order the gateway uses server-side (cookie, then the browser's
@@ -566,7 +566,7 @@ const userButtonJS = `(() => {
         (namePos === 'before' && auth ? '<span class="name">' + esc(data.username) + '</span>' : '') +
         (auth && data.avatar
           ? '<img class="avatar" src="' + esc(data.avatar) + '" alt="">'
-          : '<span class="avatar">' + esc(auth ? (data.initials || '?') : '·') + '</span>') +
+          : '<span class="avatar">' + esc(auth ? (data.initials || '?') : '-') + '</span>') +
         (namePos === 'after' && auth ? '<span class="name">' + esc(data.username) + '</span>' : '') +
         '</button>' +
         '<div class="menu" id="menu" role="menu">' + items.join('') + '</div>' +
@@ -585,7 +585,7 @@ const userButtonJS = `(() => {
       menu.addEventListener('click', (e) => e.stopPropagation());
 
       // Flyout submenus: hover opens them (pure CSS); a click PINS them for
-      // touch screens. Opening one — by hover or click — closes every other:
+      // touch screens. Opening one - by hover or click - closes every other:
       // a single panel is ever visible.
       for (const box of this.shadowRoot.querySelectorAll('.has-sub')) {
         box.addEventListener('mouseenter', () => {
@@ -620,7 +620,7 @@ const userButtonJS = `(() => {
       for (const b of this.shadowRoot.querySelectorAll('[data-lang]')) {
         b.addEventListener('click', () => { setCookie(COOKIE_LANG, b.dataset.lang); location.reload(); });
       }
-      // The scheme cycles IN PLACE — no re-render, the menu stays open.
+      // The scheme cycles IN PLACE - no re-render, the menu stays open.
       const cyc = this.shadowRoot.querySelector('[data-scheme-cycle]');
       if (cyc) cyc.addEventListener('click', () => {
         const v = cyc.dataset.schemeCycle;
@@ -1089,13 +1089,13 @@ const userButtonJS = `(() => {
 })();
 `
 
-// classToken keeps role names usable as CSS classes/attribute values — a role
+// classToken keeps role names usable as CSS classes/attribute values - a role
 // with spaces or punctuation is silently left out of the page.
 var classToken = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 // pageJS stamps the session onto the page as this route configures: the
 // EFFECTIVE roles (body classes, one body attribute, or a <meta>) and the
-// user's identity (prefixed body attributes or <meta> tags) — so the
+// user's identity (prefixed body attributes or <meta> tags) - so the
 // application reads them with pure CSS/DOM, no SDK.
 const pageJS = `(() => {
   const s = document.currentScript;

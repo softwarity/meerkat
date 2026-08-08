@@ -10,7 +10,7 @@ import (
 )
 
 // rfcSecret is the RFC 6238 Appendix B test seed ("12345678901234567890")
-// encoded as base32 — the well-known "GEZDGNBVGY3TQOJQ…" secret.
+// encoded as base32 - the well-known "GEZDGNBVGY3TQOJQ..." secret.
 var rfcSecret = secretEnc.EncodeToString([]byte("12345678901234567890"))
 
 // TestCodeRFC6238Vectors checks our TOTP against the RFC 6238 Appendix B
@@ -154,6 +154,6 @@ func TestQRDataURI(t *testing.T) {
 		}
 	}
 	if !rightHalf || !bottomHalf {
-		t.Fatalf("QR modules only in a corner (right=%v bottom=%v) — Scale not applied", rightHalf, bottomHalf)
+		t.Fatalf("QR modules only in a corner (right=%v bottom=%v) - Scale not applied", rightHalf, bottomHalf)
 	}
 }

@@ -23,15 +23,15 @@ import (
 // RegisterConsole mounts the console UI on the admin mux fallback.
 //
 // Priority: an explicit target (--console-url, dev) proxies everything that
-// is not the API or an auth page to the Angular dev server — the gateway is
+// is not the API or an auth page to the Angular dev server - the gateway is
 // a proxy, so it proxies its own console too, WebSocket/HMR included. With
 // no target, the console embedded at build time (`make ui`) is served. With
 // neither, the fallback answers an explicit status page instead of a naked
-// 404 — the admin port must never look dead.
+// 404 - the admin port must never look dead.
 //
 // The proxied console's HTML gets the signed-in identity STAMPED on its
 // <body> (same mechanism as UI routes, hard-wired here): capability roles as
-// classes and data-meerkat-* attributes — the console boots without calling
+// classes and data-meerkat-* attributes - the console boots without calling
 // /api/me, and the role-CSS visibility applies from the first paint.
 func RegisterConsole(mux *http.ServeMux, target string, st *store.Store, sm *session.Manager) error {
 	if target != "" {
@@ -53,7 +53,7 @@ func RegisterConsole(mux *http.ServeMux, target string, st *store.Store, sm *ses
 			},
 			ErrorHandler: func(w http.ResponseWriter, _ *http.Request, err error) {
 				slog.Warn("console dev server unreachable", "target", target, "err", err)
-				http.Error(w, "console dev server unreachable — is `npm start` running in console/ ?",
+				http.Error(w, "console dev server unreachable - is `npm start` running in console/ ?",
 					http.StatusBadGateway)
 			},
 		}
@@ -79,12 +79,12 @@ func RegisterConsole(mux *http.ServeMux, target string, st *store.Store, sm *ses
 }
 
 // consoleHandler serves the SPA at the root. A path that is not a build file
-// falls back to index.html — deep links are the SPA router's business, exactly
+// falls back to index.html - deep links are the SPA router's business, exactly
 // what ng serve does in dev.
 //
 // There is no locale segment and no language negotiation: the console speaks
-// English (see the ui package). What used to live here — redirecting "/" into
-// "/fr/", picking a locale from Accept-Language — was the one thing an
+// English (see the ui package). What used to live here - redirecting "/" into
+// "/fr/", picking a locale from Accept-Language - was the one thing an
 // operator hit before anything else, and it could send them to a language
 // they never asked for when the header listed one we happened to build.
 func consoleHandler(fsys fs.FS, st *store.Store, sm *session.Manager) http.Handler {
@@ -92,7 +92,7 @@ func consoleHandler(fsys fs.FS, st *store.Store, sm *session.Manager) http.Handl
 		if name := strings.TrimPrefix(path.Clean(r.URL.Path), "/"); name != "" {
 			if info, err := fs.Stat(fsys, name); err == nil && !info.IsDir() {
 				// Angular hashes every file name except index.html: safe to
-				// cache forever — a new build means new names.
+				// cache forever - a new build means new names.
 				w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 				http.ServeFileFS(w, r, fsys, name)
 				return
@@ -100,7 +100,7 @@ func consoleHandler(fsys fs.FS, st *store.Store, sm *session.Manager) http.Handl
 			// A missing FILE is a 404, never the shell. Answering HTML to a
 			// request for main-ABC123.js hands the browser a script that is
 			// not one: it throws a syntax error and the application never
-			// boots — a blank page whose cause is nowhere near it. This is
+			// boots - a blank page whose cause is nowhere near it. This is
 			// exactly what a browser holding a previous build's index.html
 			// asks for, and it cost an hour of looking in the wrong place.
 			if path.Ext(name) != "" {
@@ -207,7 +207,7 @@ func consoleBodyAttrs(r *http.Request, st *store.Store, sm *session.Manager) str
 	if user.AppAdmin {
 		roles = append(roles, "app-admin")
 	}
-	// tenant-admin: administers at least one tenant — as its owner (owner_id,
+	// tenant-admin: administers at least one tenant - as its owner (owner_id,
 	// member or not) or an ADMIN member. Ownership is decoupled from membership.
 	if administered, err := st.ListTenantsAdministeredBy(r.Context(), user.ID); err == nil && len(administered) > 0 {
 		roles = append(roles, "tenant-admin")

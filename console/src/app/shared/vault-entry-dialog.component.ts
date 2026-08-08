@@ -8,7 +8,7 @@ import { ApiService, SecretLocation, VaultEntry } from '../api.service';
 import { VaultService } from './vault.service';
 
 // Create or edit one vault entry. Opened from the vault page and, in one click,
-// from any field offering the vault picker — so declaring a value never means
+// from any field offering the vault picker - so declaring a value never means
 // leaving the screen you are configuring.
 export interface VaultEntryDialogData {
   // The entry to edit; absent creates one.

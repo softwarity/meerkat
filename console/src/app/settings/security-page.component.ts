@@ -17,7 +17,7 @@ const SESSION_TTL_CHOICES = ['PT15M', 'PT30M', 'PT1H', 'PT2H', 'PT4H', 'PT8H', '
 // Application-wide security policy (root only): how long a session lives, second
 // factor (MFA-04), passkeys (AUTH-15), API tokens (AUTH-16), self-registration
 // (AUTH-20), rate limiting (SEC-10), trusted browsers (MFA-03), and the outbound
-// e-mail sender the account flows use. A full PUT of /api/settings — the other
+// e-mail sender the account flows use. A full PUT of /api/settings - the other
 // fields ride along untouched.
 //
 // The session TTL sits here, not on General: how long one stays signed in is a

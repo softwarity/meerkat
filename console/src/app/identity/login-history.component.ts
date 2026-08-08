@@ -5,7 +5,7 @@ import { catchError, of } from 'rxjs';
 import { ApiService, LoginEvent } from '../api.service';
 
 // A user's sign-in history, read-only: the same data the user sees on
-// /profile/history. Loads itself — with a tenantId the tenant-scoped endpoint
+// /profile/history. Loads itself - with a tenantId the tenant-scoped endpoint
 // answers (OWNER/ADMIN), otherwise the root one.
 @Component({
   selector: 'app-login-history',
@@ -70,7 +70,7 @@ import { ApiService, LoginEvent } from '../api.service';
           <div class="lines">
             <span class="label">{{ e.label }}</span>
             @if (e.ip || e.country) {
-              <span class="meta">{{ e.ip }}{{ e.country ? ' · ' + e.country : '' }}</span>
+              <span class="meta">{{ e.ip }}{{ e.country ? ' - ' + e.country : '' }}</span>
             }
           </div>
           <span class="method">{{ methodLabel(e.method) }}</span>

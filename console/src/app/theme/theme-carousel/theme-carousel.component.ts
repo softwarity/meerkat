@@ -6,7 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Theme } from '../../api.service';
 
-// Distance between two adjacent pills, as a % of the rail width — enough to
+// Distance between two adjacent pills, as a % of the rail width - enough to
 // spread across the width without cropping, but kept tight.
 const STEP = 8;
 
@@ -20,8 +20,8 @@ const NAV_CLEAR = 112;
 // distance from the selected theme (as a % of the width), so stepping past the
 // end wraps around. The nav block straddles both panes, vertically centred on
 // the pills; the selected theme's palette rides on top of it as a clickable
-// pill — clicking it makes that theme live. Between the arrows: "+" (duplicate
-// + start-from-a-preset) and delete. Pure positioning — never touches the
+// pill - clicking it makes that theme live. Between the arrows: "+" (duplicate
+// + start-from-a-preset) and delete. Pure positioning - never touches the
 // preview width that drives the scale.
 @Component({
   selector: 'app-theme-carousel',

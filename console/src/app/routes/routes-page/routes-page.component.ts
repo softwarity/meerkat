@@ -120,7 +120,7 @@ export class RoutesPageComponent {
   }
 
   // Persist a drag-reorder: apply optimistically, then save (order is
-  // significant — first-match-wins). On failure, reload server truth.
+  // significant - first-match-wins). On failure, reload server truth.
   onReorder(ids: string[]): void {
     const byId = new Map(this.routes().map((r) => [r.id, r]));
     this.routes.set(ids.map((id) => byId.get(id)!).filter(Boolean));

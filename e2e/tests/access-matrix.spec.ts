@@ -4,7 +4,7 @@ import { authFile, profiles, resolvePath, scenarios } from '../lib/fixtures';
 
 // The heart of the suite: every kind=api scenario of scenarios.json is fired
 // AS EVERY PROFILE. Allowed profiles must succeed (2xx), every other profile
-// must be REFUSED with 403 — proving both that it works and that it is only
+// must be REFUSED with 403 - proving both that it works and that it is only
 // reachable by the legitimate users.
 
 for (const sc of scenarios.filter((s) => s.kind === 'api')) {

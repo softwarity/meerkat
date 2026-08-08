@@ -13,7 +13,7 @@ export interface TenantDialogResult {
 }
 
 // New tenant: its name, the human description shown in the rail drawer, and the
-// group mode (RBAC-03). The mode is offered here on purpose — it is a founding
+// group mode (RBAC-03). The mode is offered here on purpose - it is a founding
 // choice for how the tenant's groups combine, and burying it in the edit page
 // would leave the feature undiscovered. Resolves to the values on confirm,
 // undefined on cancel.

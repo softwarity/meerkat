@@ -26,7 +26,7 @@
       </mat-form-field>
       <mat-autocomplete #auto (optionSelected)="pick($event.option.value); $any($event.source).options.first?.deselect()">
         @for (o of localeOptions(); track o) {
-          <mat-option [value]="o">{{ o }} · {{ localeName(o) }}</mat-option>
+          <mat-option [value]="o">{{ o }} - {{ localeName(o) }}</mat-option>
         }
       </mat-autocomplete>
       @if (localeError()) {

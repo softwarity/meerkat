@@ -1,6 +1,6 @@
 // Package mfa implements the second factor Meerkat offers on the auth flow
 // (MFA-01): time-based one-time passwords (TOTP, RFC 6238) plus single-use
-// scratch codes. It is deliberately self-contained and offline — the whole
+// scratch codes. It is deliberately self-contained and offline - the whole
 // gateway must run without reaching the internet, so the algorithm is pure
 // standard library and the enrolment QR code is rendered locally (see qr.go).
 package mfa
@@ -45,7 +45,7 @@ func NewSecret() (string, error) {
 }
 
 // Code returns the TOTP for secret at time t (mainly for tests and for showing
-// nothing to the user — the server only ever validates).
+// nothing to the user - the server only ever validates).
 func Code(secret string, t time.Time) (string, error) {
 	return hotp(secret, uint64(t.Unix())/period)
 }
@@ -121,7 +121,7 @@ func NewScratchCodes(n int) (plain, hashed []string, err error) {
 }
 
 // HashScratch normalises a scratch code (lower-case, dashes stripped) and
-// returns its SHA-256 hex digest — the form stored and compared. Codes are
+// returns its SHA-256 hex digest - the form stored and compared. Codes are
 // high-entropy random strings, so a fast hash is adequate (no bcrypt needed).
 func HashScratch(code string) string {
 	norm := strings.ToLower(strings.ReplaceAll(strings.TrimSpace(code), "-", ""))

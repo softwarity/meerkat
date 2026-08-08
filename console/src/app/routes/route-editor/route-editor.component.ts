@@ -39,9 +39,20 @@ type Section =
   | 'userinfo'
   | 'inject';
 
-// Sections that only make sense for one route type — they show disabled (not
+// Sections that only make sense for one route type - they show disabled (not
 // hidden) when the other type is selected.
 const UI_SECTIONS: Section[] = ['button', 'userinfo', 'inject'];
+
+// The blank lines a respond template carries for comfort in the editor are
+// not content: trailing whitespace would ride into the answer an application
+// receives, so it is cut on the way out.
+function trimTemplates(specs: Spec[]): Spec[] {
+  return specs.map((s) =>
+    s.type === 'respond' && typeof s.args?.['body'] === 'string'
+      ? { ...s, args: { ...s.args, body: (s.args['body'] as string).trimEnd() } }
+      : s,
+  );
+}
 
 // What a new respond template starts as: the identity answer most applications
 // expect, laid out over several lines so the shape is readable. JSON ignores
@@ -49,7 +60,10 @@ const UI_SECTIONS: Section[] = ['button', 'userinfo', 'inject'];
 const RESPOND_EXAMPLE = `{
   "name": {{json .Username}},
   "roles": {{json .Roles}}
-}`;
+}
+
+
+`;
 
 // Predicate types whose server contract requires a \`name\` arg.
 const MATCHER_TYPES = ['header', 'cookie', 'query'];
@@ -64,13 +78,13 @@ function toAccessState(a: Access | undefined): AccessState {
     : emptyAccess();
 }
 
-// Route editor — a side-drawer inspector (not a modal). Sections down the left,
+// Route editor - a side-drawer inspector (not a modal). Sections down the left,
 // one panel each. One signal form over the whole draft: scalars bind field by
 // field, predicates/filters bind as FormValueControl sections. The schema
 // mirrors the server's required predicate args so Save disables before the API
 // would 422. Editable state is a linkedSignal off the `route` input so
 // re-opening the drawer on another route reseeds it. Saving PUTs to the admin
-// API (validates by compiling — its 422 is surfaced verbatim) then emits `saved`.
+// API (validates by compiling - its 422 is surfaced verbatim) then emits `saved`.
 @Component({
   selector: 'app-route-editor',
   imports: [
@@ -328,7 +342,7 @@ export class RouteEditorComponent {
 
   // A live example of the forwarded value, from the editor's OWN session. The
   // facts the console cannot see here (tenant, tenantid, timezone, roles) show
-  // an illustrative placeholder — the mapping and the list format are what the
+  // an illustrative placeholder - the mapping and the list format are what the
   // preview is really about.
   protected mappedExample(field: string, asJson: boolean): string {
     if (field === 'roles') return asJson ? '["role-a","role-b"]' : 'role-a,role-b';
@@ -549,7 +563,7 @@ export class RouteEditorComponent {
       isUi: d.isUi,
       upstream: d.upstream.trim(),
       predicates: cleanSpecs(d.predicates),
-      filters: cleanSpecs(d.filters),
+      filters: trimTemplates(cleanSpecs(d.filters)),
     };
     if (d.openapiUrl.trim()) {
       route.api = { openapiUrl: d.openapiUrl.trim() };

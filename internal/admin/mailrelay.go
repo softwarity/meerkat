@@ -27,7 +27,7 @@ func (a *API) registerMailRelay(mux *http.ServeMux) {
 
 // mailRelayPayload is the transport as the console sees it. Same rule as
 // everywhere else: a REFERENCE is public and comes back as itself, a LITERAL
-// password never leaves — it is accepted on PUT ("" keeps the stored one) and
+// password never leaves - it is accepted on PUT ("" keeps the stored one) and
 // only reported as being set.
 type mailRelayPayload struct {
 	Host     string `json:"host"`
@@ -40,7 +40,7 @@ type mailRelayPayload struct {
 	Password string `json:"password"`
 	// PasswordSet says a LITERAL password is stored: something is configured
 	// that this payload does not carry. A reference is carried, so it does not
-	// raise this flag — the console tells the two states apart by that.
+	// raise this flag - the console tells the two states apart by that.
 	PasswordSet bool `json:"passwordSet"`
 	// From is the sender ADDRESS, editable here. Empty means "the account", as
 	// long as Username is itself an address.

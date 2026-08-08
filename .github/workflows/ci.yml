@@ -281,7 +281,7 @@ jobs:
           done
 
   # Publish only once everything is green. main publishes `latest` (+ `main`);
-  # any other branch publishes only its own `:<branch>` tag — a throwaway image
+  # any other branch publishes only its own `:<branch>` tag - a throwaway image
   # to test that branch on a real cluster, never latest. Off PRs.
   image:
     name: Build & publish image

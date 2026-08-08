@@ -3,7 +3,7 @@
   "info": {
     "title": "Meerkat Admin API",
     "version": "dev",
-    "description": "Meerkat's control plane, served on the dedicated admin port. Authenticate with the admin session cookie (sign in on this port) or a control-plane API token (`Authorization: Bearer mk_…`, minted on the Access tokens screen). Every mutation is validated by compiling the result, applied hot, and recorded in the audit trail with the acting user."
+    "description": "Meerkat's control plane, served on the dedicated admin port. Authenticate with the admin session cookie (sign in on this port) or a control-plane API token (`Authorization: Bearer mk_...`, minted on the Access tokens screen). Every mutation is validated by compiling the result, applied hot, and recorded in the audit trail with the acting user."
   },
   "servers": [{ "url": "/" }],
   "security": [{ "session": [] }, { "adminToken": [] }],
@@ -62,7 +62,7 @@
       "put": {
         "tags": ["Routing"],
         "summary": "Create or replace a route (saving is applying)",
-        "description": "The route is validated by compiling it — predicates, filters and endpoint security included. A 422 carries the engine's exact error. On success the router hot-reloads.",
+        "description": "The route is validated by compiling it - predicates, filters and endpoint security included. A 422 carries the engine's exact error. On success the router hot-reloads.",
         "parameters": [{ "$ref": "#/components/parameters/id" }],
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } } },
         "responses": {
@@ -185,7 +185,7 @@
       },
       "put": {
         "tags": ["Identity"],
-        "summary": "Update a tenant (never touches the owner — see /owner)",
+        "summary": "Update a tenant (never touches the owner - see /owner)",
         "parameters": [{ "$ref": "#/components/parameters/id" }],
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tenant" } } } },
         "responses": { "200": { "description": "Updated tenant" } }
@@ -365,7 +365,7 @@
         "summary": "The audit trail, scoped to the domains the actor administers",
         "description": "root sees everything; infra-admin the routing plane; app-admin the identity domain; a tenant admin their tenants. Cumulative capabilities see the union.",
         "parameters": [
-          { "name": "target", "in": "query", "schema": { "type": "string" }, "description": "Filter by target kind (route, user, tenant, …)" },
+          { "name": "target", "in": "query", "schema": { "type": "string" }, "description": "Filter by target kind (route, user, tenant, ...)" },
           { "name": "from", "in": "query", "schema": { "type": "integer" }, "description": "Unix seconds lower bound" },
           { "name": "to", "in": "query", "schema": { "type": "integer" }, "description": "Unix seconds upper bound" },
           { "name": "q", "in": "query", "schema": { "type": "string" }, "description": "Free-text search" }
@@ -379,7 +379,7 @@
         "tags": ["Tokens"],
         "summary": "Mint a control-plane API token (secret shown once)",
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" }, "days": { "type": "integer", "description": "Validity in days; 0 = no expiry" } }, "required": ["name"] } } } },
-        "responses": { "201": { "description": "The token — its clear value travels exactly once, here", "content": { "application/json": { "schema": { "type": "object", "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "prefix": { "type": "string" }, "token": { "type": "string" }, "expiresAt": { "type": "integer" } } } } } } }
+        "responses": { "201": { "description": "The token - its clear value travels exactly once, here", "content": { "application/json": { "schema": { "type": "object", "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "prefix": { "type": "string" }, "token": { "type": "string" }, "expiresAt": { "type": "integer" } } } } } } }
       }
     },
     "/api/admin-tokens/{id}": {
@@ -456,8 +456,8 @@
   },
   "components": {
     "securitySchemes": {
-      "session": { "type": "apiKey", "in": "cookie", "name": "MEERKAT_SESSION", "description": "The admin session cookie — sign in on this port and Try it out just works." },
-      "adminToken": { "type": "http", "scheme": "bearer", "description": "A control-plane API token (`mk_…`). Data-plane tokens never open the admin port." }
+      "session": { "type": "apiKey", "in": "cookie", "name": "MEERKAT_SESSION", "description": "The admin session cookie - sign in on this port and Try it out just works." },
+      "adminToken": { "type": "http", "scheme": "bearer", "description": "A control-plane API token (`mk_...`). Data-plane tokens never open the admin port." }
     },
     "parameters": {
       "id": { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
@@ -491,7 +491,7 @@
           "predicates": { "type": "array", "items": { "$ref": "#/components/schemas/Spec" } },
           "filters": { "type": "array", "items": { "$ref": "#/components/schemas/Spec" } },
           "api": { "$ref": "#/components/schemas/RouteAPI" },
-          "ui": { "type": "object", "additionalProperties": true, "description": "UI-route options (identity forward, locales, user button…)" }
+          "ui": { "type": "object", "additionalProperties": true, "description": "UI-route options (identity forward, locales, user button...)" }
         },
         "required": ["name", "predicates"]
       },
@@ -590,11 +590,11 @@
       },
       "DayRange": {
         "type": "object",
-        "properties": { "day": { "type": "integer", "minimum": 1, "maximum": 7, "description": "1=Monday … 7=Sunday" }, "from": { "type": "string", "example": "09:00" }, "to": { "type": "string", "example": "18:00" } }
+        "properties": { "day": { "type": "integer", "minimum": 1, "maximum": 7, "description": "1=Monday ... 7=Sunday" }, "from": { "type": "string", "example": "09:00" }, "to": { "type": "string", "example": "18:00" } }
       },
       "BusinessAccess": {
         "type": "object",
-        "description": "Working-hours restriction; inherited G→T→M when unset.",
+        "description": "Working-hours restriction; inherited G->T->M when unset.",
         "properties": {
           "inherited": { "type": "boolean" },
           "timezone": { "type": "string" },
@@ -660,7 +660,7 @@
       },
       "Settings": {
         "type": "object",
-        "description": "Application-wide configuration; see the Settings screens for the exact keys (working hours, session TTL, SMTP, security, group mode…).",
+        "description": "Application-wide configuration; see the Settings screens for the exact keys (working hours, session TTL, SMTP, security, group mode...).",
         "additionalProperties": true
       },
       "Theme": {

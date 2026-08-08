@@ -8,7 +8,7 @@ import { Spec } from '../../api.service';
 import { argBool, argStr, patchSpec } from '../predicates/args';
 
 // Dedicated editors, one per filter shape. Each takes the filter Spec through a
-// model() signal and edits its args in place — no generic type picker, no param
+// model() signal and edits its args in place - no generic type picker, no param
 // loop. The type is fixed at add-time (chosen from the phase-grouped menu).
 
 const FIELDS_STYLE = `
@@ -45,7 +45,7 @@ export class HeaderFilterComponent {
   }
 }
 
-// name only — remove request/response header.
+// name only - remove request/response header.
 @Component({
   selector: 'app-remove-header-filter',
   imports: [MatFormFieldModule, MatInputModule],
@@ -67,7 +67,7 @@ export class RemoveHeaderFilterComponent {
   }
 }
 
-// name + value — set query parameter.
+// name + value - set query parameter.
 @Component({
   selector: 'app-set-query-param-filter',
   imports: [MatFormFieldModule, MatInputModule],
@@ -94,7 +94,7 @@ export class SetQueryParamFilterComponent {
   }
 }
 
-// name only — remove query parameter.
+// name only - remove query parameter.
 @Component({
   selector: 'app-remove-query-param-filter',
   imports: [MatFormFieldModule, MatInputModule],
@@ -116,7 +116,7 @@ export class RemoveQueryParamFilterComponent {
   }
 }
 
-// integer count — strip N leading path segments.
+// integer count - strip N leading path segments.
 @Component({
   selector: 'app-strip-prefix-filter',
   imports: [MatFormFieldModule, MatInputModule],
@@ -138,7 +138,7 @@ export class StripPrefixFilterComponent {
   }
 }
 
-// single string — prepend a path prefix.
+// single string - prepend a path prefix.
 @Component({
   selector: 'app-prefix-path-filter',
   imports: [MatFormFieldModule, MatInputModule],
@@ -160,7 +160,7 @@ export class PrefixPathFilterComponent {
   }
 }
 
-// regexp + replacement — rewrite the request path.
+// regexp + replacement - rewrite the request path.
 @Component({
   selector: 'app-rewrite-path-filter',
   imports: [MatFormFieldModule, MatInputModule],
@@ -188,7 +188,7 @@ export class RewritePathFilterComponent {
 }
 
 
-// integer — force a response status.
+// integer - force a response status.
 @Component({
   selector: 'app-set-status-filter',
   imports: [MatFormFieldModule, MatInputModule],
@@ -210,7 +210,7 @@ export class SetStatusFilterComponent {
   }
 }
 
-// location + optional status — terminal redirect.
+// location + optional status - terminal redirect.
 @Component({
   selector: 'app-redirect-filter',
   imports: [MatFormFieldModule, MatInputModule],
@@ -269,7 +269,7 @@ export class MaintenanceFilterComponent {
 }
 
 // What an answer is usually made of. Offered rather than imposed: the list
-// covers what people actually write, and anything else can still be typed —
+// covers what people actually write, and anything else can still be typed -
 // a gateway that only knows six content types would be wrong the first time
 // someone answers a protobuf.
 // Value first, meaning UNDER it. Side by side, in a field this narrow, both
@@ -287,21 +287,21 @@ const CONTENT_TYPES: { value: string; what: string }[] = [
 ];
 
 const STATUS_CODES: { value: string; what: string }[] = [
-  { value: '200', what: 'OK — here is the answer' },
+  { value: '200', what: 'OK - here is the answer' },
   { value: '201', what: 'Created' },
-  { value: '202', what: 'Accepted — handled later' },
-  { value: '204', what: 'No Content — nothing to send back' },
+  { value: '202', what: 'Accepted - handled later' },
+  { value: '204', what: 'No Content - nothing to send back' },
   { value: '400', what: 'Bad Request' },
-  { value: '401', what: 'Unauthorized — sign in first' },
-  { value: '403', what: 'Forbidden — signed in, not allowed' },
+  { value: '401', what: 'Unauthorized - sign in first' },
+  { value: '403', what: 'Forbidden - signed in, not allowed' },
   { value: '404', what: 'Not Found' },
-  { value: '410', what: 'Gone — it existed, it will not come back' },
+  { value: '410', what: 'Gone - it existed, it will not come back' },
   { value: '429', what: 'Too Many Requests' },
   { value: '500', what: 'Internal Server Error' },
   { value: '503', what: 'Service Unavailable' },
 ];
 
-// Respond: the template IS the filter, so it gets the room a template needs —
+// Respond: the template IS the filter, so it gets the room a template needs -
 // a full-width monospace box rather than a one-line input squeezed beside the
 // content type.
 //
@@ -419,7 +419,7 @@ const STATUS_CODES: { value: string; what: string }[] = [
             <dt><code>{{ GOOD }}</code></dt>
             <dd>
               the caller's name, <strong>with its quotes and escaping</strong>. Always through
-              <code>json</code> — <code>{{ BAD }}</code> looks equivalent and breaks the day a name holds a
+              <code>json</code> - <code>{{ BAD }}</code> looks equivalent and breaks the day a name holds a
               quote, which is a name that comes from a directory, not from you.
             </dd>
             <dt><code>{{ WRAP }}</code></dt>
@@ -432,8 +432,8 @@ const STATUS_CODES: { value: string; what: string }[] = [
           <p class="also">
             Also available: <code>.UserID</code> <code>.Fullname</code> <code>.Email</code> <code>.Tenant</code>
             <code>.TenantID</code> <code>.Timezone</code> <code>.Roles</code>. For a shape none of the above
-            covers, loop: <code>{{ LOOP }}</code> — where <code>{{ COMMA }}</code> writes the separating comma
-            (<code>$i</code> is the index, zero is false, so the first element gets none — JSON forbids a
+            covers, loop: <code>{{ LOOP }}</code> - where <code>{{ COMMA }}</code> writes the separating comma
+            (<code>$i</code> is the index, zero is false, so the first element gets none - JSON forbids a
             trailing one).
           </p>
         </div>
@@ -451,9 +451,9 @@ export class RespondFilterComponent {
   protected readonly JOIN = '{{join "," .Roles}}';
   protected readonly WRAP = '{{json (wrap "authority" .Roles)}}';
   protected readonly WRAP_OUT = '[{"authority":"ROLE_A"},{"authority":"ROLE_B"}]';
-  protected readonly IFELSE = '{{if .SignedIn}}…{{else}}…{{end}}';
+  protected readonly IFELSE = '{{if .SignedIn}}...{{else}}...{{end}}';
   protected readonly COMMA = '{{if $i}},{{end}}';
-  protected readonly LOOP = '{{range $i, $r := .Roles}}…{{end}}';
+  protected readonly LOOP = '{{range $i, $r := .Roles}}...{{end}}';
   protected readonly body = computed(() => argStr(this.spec(), 'body'));
   protected readonly contentType = computed(() => argStr(this.spec(), 'contentType'));
   protected readonly status = computed(() => argStr(this.spec(), 'status'));

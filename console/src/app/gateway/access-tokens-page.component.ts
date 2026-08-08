@@ -20,9 +20,9 @@ import { DialogsService } from '../shared/dialogs.service';
 
 // Control-plane access tokens (root only, Gateway perimeter): headless access
 // to the admin port. These are the FOUNDATION for a future CLI and MCP server
-// driving Meerkat (PLANNED — the tooling that consumes them comes later). A
+// driving Meerkat (PLANNED - the tooling that consumes them comes later). A
 // token is minted here, shown once, and authenticates on the admin port via
-// `Authorization: Bearer mk_…` with the same powers as its owner (root).
+// `Authorization: Bearer mk_...` with the same powers as its owner (root).
 @Component({
   selector: 'app-access-tokens-page',
   imports: [MatButtonModule, MatIconModule, MatSlideToggleModule, LoadingIndicatorComponent],

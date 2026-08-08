@@ -83,7 +83,7 @@ func (a *API) deleteRole(w http.ResponseWriter, r *http.Request, actor store.Use
 	role, _ := a.st.GetRole(r.Context(), id) // capture the name before it is gone
 	ok, err := a.st.DeleteRole(r.Context(), id)
 	if err != nil {
-		// A system role is protected — the store reports why.
+		// A system role is protected - the store reports why.
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}

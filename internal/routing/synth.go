@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Synthesis is a request built to satisfy one route's predicates — the seed of
+// Synthesis is a request built to satisfy one route's predicates - the seed of
 // a route probe: "give me a request that SHOULD land on this route, then show
 // me where it actually lands".
 //
@@ -144,7 +144,7 @@ func exampleFor(s *Synthesis, kind string, args map[string]any) string {
 
 // ExampleMatching returns one string the (full-match) regexp accepts. RE2 has
 // no back-references and no lookaround, so the language is regular and a word
-// can always be read off the syntax tree — the shortest one, which keeps the
+// can always be read off the syntax tree - the shortest one, which keeps the
 // probe legible.
 func ExampleMatching(expr string) (string, error) {
 	re, err := syntax.Parse(expr, syntax.Perl)

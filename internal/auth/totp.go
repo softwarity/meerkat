@@ -17,7 +17,7 @@ import (
 	"github.com/softwarity/meerkat/internal/store"
 )
 
-// trustCookieName carries the opaque trusted-browser token (MFA-03) — a factor
+// trustCookieName carries the opaque trusted-browser token (MFA-03) - a factor
 // entirely separate from the session cookie; only its hash is stored.
 const trustCookieName = "MEERKAT_TRUST"
 
@@ -89,8 +89,8 @@ func (h *Handler) issueTrust(w http.ResponseWriter, r *http.Request, userID stri
 	})
 }
 
-// browserLabel is a human hint for the trusted-browser list: "Chrome · macOS"
-// style, derived from the User-Agent with a light sniff — no parsing library
+// browserLabel is a human hint for the trusted-browser list: "Chrome - macOS"
+// style, derived from the User-Agent with a light sniff - no parsing library
 // (offline-first); an unrecognized UA falls back to its head, trimmed.
 func browserLabel(r *http.Request) string {
 	ua := strings.TrimSpace(r.UserAgent())
@@ -129,7 +129,7 @@ func browserLabel(r *http.Request) string {
 	}
 	switch {
 	case browser != "" && osName != "":
-		return browser + " · " + osName
+		return browser + " - " + osName
 	case browser != "":
 		return browser
 	case osName != "":
@@ -158,13 +158,13 @@ func ttlDays(iso string) int {
 // The second factor (MFA-01) as flow pages: a login-time challenge for an
 // enrolled user, forced enrolment when MFA is mandatory, and self-service
 // management from the profile. Everything renders through the shared chrome and
-// the enrolment QR is produced locally (internal/mfa) — no external request, so
+// the enrolment QR is produced locally (internal/mfa) - no external request, so
 // it works on an air-gapped gateway.
 
 var (
-	totpChallengePage    = flowPage("Two-factor · Meerkat", totpChallengeBody)
-	totpEnrollPage       = flowPage("Set up two-factor · Meerkat", totpEnrollBody)
-	profileMFAManagePage = flowPage("Two-factor · Meerkat", profileMFAManageBody)
+	totpChallengePage    = flowPage("Two-factor - Meerkat", totpChallengeBody)
+	totpEnrollPage       = flowPage("Set up two-factor - Meerkat", totpEnrollBody)
+	profileMFAManagePage = flowPage("Two-factor - Meerkat", profileMFAManageBody)
 )
 
 // scratchCodeCount is how many single-use backup codes an enrolment mints.
@@ -180,25 +180,25 @@ type totpChallengeData struct {
 type totpEnrollData struct {
 	flowChrome
 	Error     string
-	QR        template.URL // data: URI of the enrolment QR (empty → manual entry only)
+	QR        template.URL // data: URI of the enrolment QR (empty -> manual entry only)
 	Secret    string       // base32, for manual key entry
-	Scratch   []string     // set → show the backup-codes view (shown once)
+	Scratch   []string     // set -> show the backup-codes view (shown once)
 	Mandatory bool         // forced enrolment (no way out) vs opt-in
 	Action    string       // absolute path the forms post to
-	Cancel    string       // absolute path for the cancel link ("" → no cancel)
+	Cancel    string       // absolute path for the cancel link ("" -> no cancel)
 }
 
 type profileMFAManageData struct {
 	flowChrome
 	Error       string
-	Required    bool   // mandatory here → cannot be turned off
-	StatusLine  string // localized "Enabled · N backup codes left"
+	Required    bool   // mandatory here -> cannot be turned off
+	StatusLine  string // localized "Enabled - N backup codes left"
 	ScratchLeft int
 	AllowTrust  bool          // trusted browsers permitted by policy
 	Trusted     []trustedView // the user's remembered browsers
 }
 
-// trustedView is a trusted browser prepared for display (date pre-formatted —
+// trustedView is a trusted browser prepared for display (date pre-formatted -
 // html/template has no date helper).
 type trustedView struct {
 	ID         string
@@ -255,7 +255,7 @@ func (h *Handler) doTOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.regLimit.reset(totpKey)
-	// "Remember this browser" (MFA-03) — best-effort; issueTrust re-checks policy.
+	// "Remember this browser" (MFA-03) - best-effort; issueTrust re-checks policy.
 	if r.PostFormValue("trust") != "" {
 		h.issueTrust(w, r, sess.UserID)
 	}
@@ -263,7 +263,7 @@ func (h *Handler) doTOTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // verifySecondFactor accepts either a live TOTP or a single-use backup code
-// (the latter is burned on success — MFA-01).
+// (the latter is burned on success - MFA-01).
 func (h *Handler) verifySecondFactor(r *http.Request, userID, code string) bool {
 	totp, err := h.st.GetUserTOTP(r.Context(), userID)
 	if err != nil {
@@ -298,7 +298,7 @@ func (h *Handler) showTOTPEnroll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Reload after a completed enrolment (backup codes already shown): just move
-	// on — the codes are never re-displayed.
+	// on - the codes are never re-displayed.
 	if totp, err := h.st.GetUserTOTP(r.Context(), sess.UserID); err == nil && totp.Enrolled {
 		h.finishFlow(w, r, sess)
 		return
@@ -322,7 +322,7 @@ func (h *Handler) doTOTPEnroll(w http.ResponseWriter, r *http.Request) {
 	}
 	switch r.PostFormValue("step") {
 	case "ack":
-		// The user acknowledged their backup codes → the flow may proceed.
+		// The user acknowledged their backup codes -> the flow may proceed.
 		if totp, err := h.st.GetUserTOTP(r.Context(), sess.UserID); err != nil || !totp.Enrolled {
 			http.Redirect(w, r, "/totp-enroll", http.StatusSeeOther)
 			return
@@ -479,7 +479,7 @@ func (h *Handler) doProfileMFA(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.Redirect(w, r, "/profile/mfa", http.StatusSeeOther)
-	default: // "ack" or unknown → back to the profile
+	default: // "ack" or unknown -> back to the profile
 		http.Redirect(w, r, "/profile", http.StatusSeeOther)
 	}
 }
@@ -549,7 +549,7 @@ func (h *Handler) confirmEnrolment(w http.ResponseWriter, r *http.Request, userI
 
 func (h *Handler) renderMFAManage(w http.ResponseWriter, r *http.Request, data profileMFAManageData, status int) {
 	data.flowChrome = h.flowData(r, "titleTwoFactor")
-	// Spell the backup-code count out against its total ("7 of 10") — a bare
+	// Spell the backup-code count out against its total ("7 of 10") - a bare
 	// "10 left" reads like noise when you never knew there were 10.
 	data.StatusLine = fmt.Sprintf(data.T["mfaStatus"], data.ScratchLeft, scratchCodeCount)
 	writeFlow(w, profileMFAManagePage, data, status)

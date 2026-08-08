@@ -12,7 +12,7 @@ import (
 
 // Flow-page localization (I18N): the language and the color scheme are USER
 // preferences, persisted in cookies and applied server-side on every page of
-// the flow — no flash, no JS framework. The language falls back to
+// the flow - no flash, no JS framework. The language falls back to
 // Accept-Language, the scheme to the system (CSS light-dark()).
 const (
 	langCookie   = "MEERKAT_LANG"   // "en" | "fr"
@@ -27,7 +27,7 @@ type prefs struct {
 
 // prefsOf resolves the request's preferences WITHIN the languages the
 // integrator offers (I18N: the entry pages must match the target
-// application's languages — configured in Application → General).
+// application's languages - configured in Application -> General).
 func prefsOf(r *http.Request, offered []string) prefs {
 	p := prefs{Lang: "", Scheme: "auto"}
 	if c, err := r.Cookie(langCookie); err == nil && contains(offered, c.Value) {
@@ -54,8 +54,8 @@ func contains(list []string, v string) bool {
 	return false
 }
 
-// matchAcceptLanguage picks the first OFFERED language of the header — enough
-// for a small catalogue, no full RFC 4647 machinery. Nothing matches → the
+// matchAcceptLanguage picks the first OFFERED language of the header - enough
+// for a small catalogue, no full RFC 4647 machinery. Nothing matches -> the
 // integrator's first language.
 func matchAcceptLanguage(header string, offered []string) string {
 	for _, part := range strings.Split(header, ",") {
@@ -133,12 +133,12 @@ type flowChrome struct {
 	Lang     string   // <html lang>
 	Langs    []string // the offered languages (switcher hidden when 1)
 	// Scheme drives the CSS (:root color-scheme); SchemeSwitch shows the
-	// buttons. The ADMIN plane is Meerkat's console: dark only, no choice —
+	// buttons. The ADMIN plane is Meerkat's console: dark only, no choice -
 	// the theme/scheme options only ever concern the DATA plane's pages.
 	Scheme       string
 	SchemeSwitch bool
 	// LangNames maps codes to endonyms for the language menu; SchemeIcon /
-	// SchemeNext drive the single 3-state scheme button (auto→light→dark).
+	// SchemeNext drive the single 3-state scheme button (auto->light->dark).
 	LangNames  map[string]string
 	SchemeIcon string
 	SchemeNext string
@@ -188,20 +188,20 @@ var langNames = map[string]string{
 	"fr": "Français",
 }
 
-// messages is the flow pages' catalogue. Two locales, kept complete in both —
+// messages is the flow pages' catalogue. Two locales, kept complete in both -
 // a missing key would render empty, so the tests compare the maps' key sets.
 // ADDING A LANGUAGE: add its map here, its endonym to langNames, and its code
-// to store.SupportedLanguages — nothing else.
+// to store.SupportedLanguages - nothing else.
 var messages = map[string]map[string]string{
 	"en": {
 		// titles
-		"titleSignIn":         "Sign in · Meerkat",
-		"titleChooseTenant":   "Choose your tenant · Meerkat",
-		"titleUpdatePassword": "Update your password · Meerkat",
-		"titleProfile":        "Profile · Meerkat",
-		"titleChangePassword": "Change your password · Meerkat",
-		"titleTwoFactor":      "Two-factor · Meerkat",
-		"titleSetupTwoFactor": "Set up two-factor · Meerkat",
+		"titleSignIn":         "Sign in - Meerkat",
+		"titleChooseTenant":   "Choose your tenant - Meerkat",
+		"titleUpdatePassword": "Update your password - Meerkat",
+		"titleProfile":        "Profile - Meerkat",
+		"titleChangePassword": "Change your password - Meerkat",
+		"titleTwoFactor":      "Two-factor - Meerkat",
+		"titleSetupTwoFactor": "Set up two-factor - Meerkat",
 
 		// login
 		"username":             "Username",
@@ -234,7 +234,7 @@ var messages = map[string]map[string]string{
 		"chooseTenantLead": "Choose the tenant to work in",
 
 		// group selection (exclusive mode, RBAC-03)
-		"titleChooseGroup":  "Choose your group · Meerkat",
+		"titleChooseGroup":  "Choose your group - Meerkat",
 		"chooseGroupLead":   "Choose the group to work as",
 		"errGroupForbidden": "That group is not yours to choose.",
 		"group":             "Group",
@@ -253,8 +253,8 @@ var messages = map[string]map[string]string{
 		"security":              "Security",
 		"developer":             "Developer",
 		"back":                  "Back",
-		"titleSecurity":         "Security · Meerkat",
-		"titleDeveloper":        "Developer · Meerkat",
+		"titleSecurity":         "Security - Meerkat",
+		"titleDeveloper":        "Developer - Meerkat",
 		"thisBrowser":           "This browser",
 		"passkeys":              "Passkeys",
 		"addPasskey":            "Add a passkey",
@@ -275,9 +275,9 @@ var messages = map[string]map[string]string{
 		"backToDeveloper":       "Back to developer",
 		"errBadCert":            "This is not a valid PEM certificate.",
 		"signinHistory":         "Sign-in history",
-		"titleRegister":         "Create your account · Meerkat",
-		"titleConfirmed":        "Account confirmed · Meerkat",
-		"titlePending":          "Awaiting access · Meerkat",
+		"titleRegister":         "Create your account - Meerkat",
+		"titleConfirmed":        "Account confirmed - Meerkat",
+		"titlePending":          "Awaiting access - Meerkat",
 		"email":                 "Email",
 		"fullname":              "Full name",
 		"registerLead":          "Create your account",
@@ -294,7 +294,7 @@ var messages = map[string]map[string]string{
 		"errBadEmail":           "This is not a valid email address.",
 		"errTooManyAttempts":    "Too many attempts: try again later.",
 		"errConfirmExpired":     "This confirmation link is invalid or expired: sign in to receive a fresh one.",
-		"titleTokens":           "API tokens · Meerkat",
+		"titleTokens":           "API tokens - Meerkat",
 		"apiTokens":             "API tokens",
 		"copy":                  "Copy",
 		"tokenContext":          "New tokens act in this context:",
@@ -322,8 +322,8 @@ var messages = map[string]map[string]string{
 		"expired":               "expired",
 		"until":                 "until",
 		"lastUsed":              "last used",
-		"titleForgot":           "Forgot password · Meerkat",
-		"titleReset":            "New password · Meerkat",
+		"titleForgot":           "Forgot password - Meerkat",
+		"titleReset":            "New password - Meerkat",
 		"forgotLink":            "Forgot your password?",
 		"forgotLead":            "Forgot your password?",
 		"forgotHint":            "Enter your account's email address: a reset link will be sent to it (valid 1 hour).",
@@ -350,7 +350,7 @@ var messages = map[string]map[string]string{
 		"mailConfirmCta":        "Confirm my address",
 		"mailNewAccountSubject": "%s: a new account awaits access",
 		"mailNewAccountBody":    "The account %q (%s) confirmed its address on %s and awaits access.\n\nGrant it roles or a tenant in the console, Users section.",
-		"titleHistory":          "Sign-in history · Meerkat",
+		"titleHistory":          "Sign-in history - Meerkat",
 		"historyEmpty":          "No sign-in recorded yet.",
 		"methodPassword":        "password",
 		"methodTotp":            "password + code",
@@ -439,13 +439,13 @@ var messages = map[string]map[string]string{
 	},
 	"fr": {
 		// titles
-		"titleSignIn":         "Connexion · Meerkat",
-		"titleChooseTenant":   "Choisissez votre tenant · Meerkat",
-		"titleUpdatePassword": "Changez votre mot de passe · Meerkat",
-		"titleProfile":        "Profil · Meerkat",
-		"titleChangePassword": "Changer votre mot de passe · Meerkat",
-		"titleTwoFactor":      "Double authentification · Meerkat",
-		"titleSetupTwoFactor": "Activer la double authentification · Meerkat",
+		"titleSignIn":         "Connexion - Meerkat",
+		"titleChooseTenant":   "Choisissez votre tenant - Meerkat",
+		"titleUpdatePassword": "Changez votre mot de passe - Meerkat",
+		"titleProfile":        "Profil - Meerkat",
+		"titleChangePassword": "Changer votre mot de passe - Meerkat",
+		"titleTwoFactor":      "Double authentification - Meerkat",
+		"titleSetupTwoFactor": "Activer la double authentification - Meerkat",
 
 		// login
 		"username":             "Identifiant",
@@ -478,7 +478,7 @@ var messages = map[string]map[string]string{
 		"chooseTenantLead": "Choisissez le tenant de travail",
 
 		// group selection (exclusive mode, RBAC-03)
-		"titleChooseGroup":  "Choisissez votre groupe · Meerkat",
+		"titleChooseGroup":  "Choisissez votre groupe - Meerkat",
 		"chooseGroupLead":   "Choisissez le groupe avec lequel travailler",
 		"errGroupForbidden": "Ce groupe ne vous appartient pas.",
 		"group":             "Groupe",
@@ -497,8 +497,8 @@ var messages = map[string]map[string]string{
 		"security":              "Sécurité",
 		"developer":             "Développeur",
 		"back":                  "Retour",
-		"titleSecurity":         "Sécurité · Meerkat",
-		"titleDeveloper":        "Développeur · Meerkat",
+		"titleSecurity":         "Sécurité - Meerkat",
+		"titleDeveloper":        "Développeur - Meerkat",
 		"thisBrowser":           "Ce navigateur",
 		"passkeys":              "Passkeys",
 		"addPasskey":            "Ajouter une passkey",
@@ -519,9 +519,9 @@ var messages = map[string]map[string]string{
 		"backToDeveloper":       "Retour développeur",
 		"errBadCert":            "Ce n'est pas un certificat PEM valide.",
 		"signinHistory":         "Historique de connexions",
-		"titleRegister":         "Créez votre compte · Meerkat",
-		"titleConfirmed":        "Compte confirmé · Meerkat",
-		"titlePending":          "En attente d'accès · Meerkat",
+		"titleRegister":         "Créez votre compte - Meerkat",
+		"titleConfirmed":        "Compte confirmé - Meerkat",
+		"titlePending":          "En attente d'accès - Meerkat",
 		"email":                 "E-mail",
 		"fullname":              "Nom complet",
 		"registerLead":          "Créez votre compte",
@@ -538,7 +538,7 @@ var messages = map[string]map[string]string{
 		"errBadEmail":           "Cette adresse e-mail n'est pas valide.",
 		"errTooManyAttempts":    "Trop de tentatives : réessayez plus tard.",
 		"errConfirmExpired":     "Ce lien de confirmation est invalide ou expiré : connectez-vous pour en recevoir un nouveau.",
-		"titleTokens":           "Jetons API · Meerkat",
+		"titleTokens":           "Jetons API - Meerkat",
 		"apiTokens":             "Jetons API",
 		"copy":                  "Copier",
 		"tokenContext":          "Les nouveaux jetons agissent dans ce contexte :",
@@ -566,8 +566,8 @@ var messages = map[string]map[string]string{
 		"expired":               "expiré",
 		"until":                 "jusqu'au",
 		"lastUsed":              "dernière utilisation",
-		"titleForgot":           "Mot de passe oublié · Meerkat",
-		"titleReset":            "Nouveau mot de passe · Meerkat",
+		"titleForgot":           "Mot de passe oublié - Meerkat",
+		"titleReset":            "Nouveau mot de passe - Meerkat",
 		"forgotLink":            "Mot de passe oublié ?",
 		"forgotLead":            "Mot de passe oublié ?",
 		"forgotHint":            "Saisissez l'adresse e-mail de votre compte : un lien de réinitialisation y sera envoyé (valable 1 heure).",
@@ -594,7 +594,7 @@ var messages = map[string]map[string]string{
 		"mailConfirmCta":        "Confirmer mon adresse",
 		"mailNewAccountSubject": "%s : un nouveau compte attend ses accès",
 		"mailNewAccountBody":    "Le compte %q (%s) a confirmé son adresse sur %s et attend ses accès.\n\nAccordez-lui des rôles ou un tenant dans la console, section Users.",
-		"titleHistory":          "Historique de connexions · Meerkat",
+		"titleHistory":          "Historique de connexions - Meerkat",
 		"historyEmpty":          "Aucune connexion enregistrée pour l'instant.",
 		"methodPassword":        "mot de passe",
 		"methodTotp":            "mot de passe + code",

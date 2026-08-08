@@ -19,7 +19,7 @@ const ACCEPTED_ICON = [
 
 // Global application identity (THEME-02): name, tagline, and the logo as a
 // drop zone whose empty state IS the flow pages' generic placeholder mark.
-// Two-way model signals — the page owns persistence.
+// Two-way model signals - the page owns persistence.
 @Component({
   selector: 'app-branding-card',
   imports: [
@@ -42,7 +42,7 @@ export class BrandingCardComponent {
 
   protected readonly dragging = signal(false);
   // What the tab will actually show, which is the cascade the gateway applies
-  // when it serves /meerkat/favicon: the icon, else the logo, else nothing —
+  // when it serves /meerkat/favicon: the icon, else the logo, else nothing -
   // and "nothing" is where Meerkat's own mark takes over.
   protected readonly tabIcon = computed(() => this.favicon() || this.logo());
 

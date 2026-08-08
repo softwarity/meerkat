@@ -30,7 +30,7 @@ export function vaultRef(name: string): string {
 export const VAULT_NAME_RE = new RegExp(`^${NAME}$`);
 
 // The name a secret lands under by default: the object it belongs to, then the
-// field. Mirrors SuggestEntryName in internal/admin/secrets.go — the server
+// field. Mirrors SuggestEntryName in internal/admin/secrets.go - the server
 // derives the same name when none is given, so the two must not drift.
 export function suggestEntryName(id: string, field: string): string {
   const kebab = field.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();

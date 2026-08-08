@@ -4,7 +4,7 @@ import "context"
 
 // Identity is what a route's own answer may say about its caller (the
 // "respond" filter). It is a COPY of the resolved session, not a handle on the
-// store: a template sees the person making this request and nothing else — no
+// store: a template sees the person making this request and nothing else - no
 // other account, no configuration, no way to reach the database.
 //
 // It lives here rather than in the gateway package because bricks are compiled
@@ -32,7 +32,7 @@ func WithIdentity(ctx context.Context, id Identity) context.Context {
 	return context.WithValue(ctx, identityKey{}, id)
 }
 
-// IdentityFrom returns the caller carried by ctx, or the zero Identity — which
+// IdentityFrom returns the caller carried by ctx, or the zero Identity - which
 // is an anonymous one, and reads as such in a template.
 func IdentityFrom(ctx context.Context) Identity {
 	id, _ := ctx.Value(identityKey{}).(Identity)

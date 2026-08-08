@@ -11,7 +11,7 @@ import (
 //	/api/users/{id}     {name} matches exactly one segment
 //	/static/**          ** (last segment only) matches zero or more segments
 //
-// Matching is on segment boundaries — /demo/** matches /demo and /demo/x,
+// Matching is on segment boundaries - /demo/** matches /demo and /demo/x,
 // never /demolition.
 type pathPattern struct {
 	raw      string
@@ -90,7 +90,7 @@ func CompilePath(raw string) (CompiledPath, error) {
 // Match reports whether a concrete request path satisfies the template.
 func (c CompiledPath) Match(path string) bool { return c.p.match(path) }
 
-// StripSegments removes the first n segments of a path — the strip-prefix
+// StripSegments removes the first n segments of a path - the strip-prefix
 // filter. Stripping more segments than the path has yields "/".
 func StripSegments(path string, n int) string {
 	segs := splitPath(path)

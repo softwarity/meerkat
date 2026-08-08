@@ -122,7 +122,7 @@ func TestRewriteSwagger2(t *testing.T) {
 	}
 }
 
-// An absolute base crosses origins (admin plane → data plane): 2.0 gets it
+// An absolute base crosses origins (admin plane -> data plane): 2.0 gets it
 // decomposed, so a spec shipping its own host (httpbin does) is fully retargeted.
 func TestRewriteSwagger2AbsoluteBase(t *testing.T) {
 	in := []byte(`{"swagger":"2.0","host":"httpbin.org","basePath":"/","schemes":["https"],"paths":{}}`)

@@ -4,7 +4,7 @@
 
 | Path | License | Content |
 |---|---|---|
-| `/` (everything except `ee/`) | [FSL-1.1-Apache-2.0](./LICENSE.md) | The Meerkat gateway — community core |
+| `/` (everything except `ee/`) | [FSL-1.1-Apache-2.0](./LICENSE.md) | The Meerkat gateway - community core |
 | `ee/` | [Softwarity Commercial](./ee/LICENSE.md) | Enterprise features, source-visible, unlocked by license key |
 | `cmd/meerkat/` | FSL | The single binary entry point |
 | `internal/` | FSL | Core packages (not importable from outside the module) |
@@ -21,7 +21,7 @@ Never gate features by build tags or separate artifacts.
 - **Go**: version pinned in `go.mod`. Run `make fmt lint test` before pushing.
 - **Commits**: imperative subject line ("Add route matcher"), body explains
   *why* when it is not obvious.
-- **Secrets**: never commit credentials, keys or license files — no
+- **Secrets**: never commit credentials, keys or license files - no
   exceptions (lesson learned from V1).
 
 ## Development

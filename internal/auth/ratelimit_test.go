@@ -12,7 +12,7 @@ import (
 )
 
 // TestLoginRateLimit: after N failed attempts for the same IP+account the
-// endpoint answers 429 WITHOUT verifying — even the right password waits for
+// endpoint answers 429 WITHOUT verifying - even the right password waits for
 // the window; a success within the budget clears the counter.
 func TestLoginRateLimit(t *testing.T) {
 	mux, _, st := mfaSetup(t)

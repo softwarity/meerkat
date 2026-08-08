@@ -17,19 +17,19 @@ import { RoleEditorComponent } from '../role-editor/role-editor.component';
 
 // One row of the flattened tree: the role plus the guide glyphs materializing
 // its position in the hierarchy. A NULL role is the catalogue root, the one row
-// that stands for no stored role — every top-level role hangs under it.
+// that stands for no stored role - every top-level role hangs under it.
 interface RoleNode {
   role: Role | null;
   guides: TreeGuide[];
 }
 
-// The GLOBAL role catalogue (RBAC-01), root only — archway's roles tree: a
+// The GLOBAL role catalogue (RBAC-01), root only - archway's roles tree: a
 // flat mat-table ordered as a depth-first walk of the parentId hierarchy,
 // with SVG guide lines materializing the branches.
 //
 // The table opens on a ROOT row standing for the catalogue itself. It is not a
 // stored role: it cannot be opened, dragged or deleted, it only receives what
-// belongs at the top level. Every creation is therefore the same gesture — the
+// belongs at the top level. Every creation is therefore the same gesture - the
 // + of the row one wants to hang under, the root row included.
 //
 // TWO gestures, two meanings. Clicking a row opens it in the right drawer (the
@@ -66,7 +66,7 @@ export class RolesPageComponent {
   protected readonly roles = signal<Role[]>([]);
   protected readonly columns = ['role', 'description', 'tags'];
 
-  // Depth-first walk of the parentId hierarchy — the table shows the TREE,
+  // Depth-first walk of the parentId hierarchy - the table shows the TREE,
   // the catalogue root included as its first row.
   // The catalogue root opens the list; the top-level roles branch off it like
   // any other children.
@@ -97,7 +97,7 @@ export class RolesPageComponent {
     const e = this.editing();
     return e === null || e === 'new' ? null : e;
   });
-  // roles/new?parent=<id> — the + on a row creates UNDER that role, and the
+  // roles/new?parent=<id> - the + on a row creates UNDER that role, and the
   // query param survives an F5 like the rest of the drawer. An id that no
   // longer exists degrades to a top-level creation.
   protected readonly newParent = computed(() => {
@@ -162,7 +162,7 @@ export class RolesPageComponent {
   }
 
   // Save keeps the drawer open on the role it just wrote. A CREATION stays on
-  // roles/new with an emptied form, ready for the next role — the URL must NOT
+  // roles/new with an emptied form, ready for the next role - the URL must NOT
   // switch to the fresh id, or rebinding that role under the empty form would
   // turn the next save into an edit. The snackbar is what says it landed.
   protected onSaved(saved: Role): void {
@@ -206,7 +206,7 @@ export class RolesPageComponent {
   }
 
   // The CDK preview under the pointer is pointer-events:none, so the row under
-  // the cursor receives mouseover — that row is the drop candidate.
+  // the cursor receives mouseover - that row is the drop candidate.
   protected hoverRow(role: Role): void {
     const d = this.dragged();
     if (!d) return;

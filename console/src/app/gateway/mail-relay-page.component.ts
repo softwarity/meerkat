@@ -19,7 +19,7 @@ import { isRef } from '../shared/vault-ref';
 // judge, and the point here is only to stop a pointless round-trip.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// The mail relay (AUTH-20) — INFRA plane. A third-party service reached by host
+// The mail relay (AUTH-20) - INFRA plane. A third-party service reached by host
 // and port, with credentials: the same nature as a route's upstream, and the
 // reason it does not sit with the application settings. What the recipient
 // sees, the sender address, belongs to the application (Security page).
@@ -148,7 +148,7 @@ export class MailRelayPageComponent {
     this.scope.set(r.oauth2?.scope ?? '');
   }
 
-  // The relay as the form has it right now — what both Save and Test act on.
+  // The relay as the form has it right now - what both Save and Test act on.
   private current(): MailRelay {
     return {
       host: this.host().trim(),

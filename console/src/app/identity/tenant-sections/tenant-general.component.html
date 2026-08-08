@@ -13,9 +13,9 @@
       <span i18n="@@by">by</span> <span class="who">{{ t.createdByName }}</span>
     }
     @if (t.ownerName) {
-      · <span i18n="@@Owner">Owner</span>: <span class="who">{{ t.ownerName }}</span>
+      - <span i18n="@@Owner">Owner</span>: <span class="who">{{ t.ownerName }}</span>
     } @else {
-      · <span class="muted" i18n="@@no_owner">no owner</span>
+      - <span class="muted" i18n="@@no_owner">no owner</span>
     }
   </p>
 }

@@ -13,7 +13,7 @@ import (
 
 // TestMailRelayTestDoesNotSave is the point of splitting Test from Save: the
 // test tries the relay ON SCREEN, so an admin can check a host before
-// committing to it — and a failed attempt leaves the stored relay untouched.
+// committing to it - and a failed attempt leaves the stored relay untouched.
 // The sender ADDRESS is part of that relay (a provider only accepts the account
 // it authenticated), so it is tried from the payload too; only the display NAME
 // comes from the application.
@@ -77,7 +77,7 @@ func TestMailRelayTestDoesNotSave(t *testing.T) {
 
 // TestMailRelayAddressDefaultsToTheAccount: most providers refuse a sender that
 // is not the authenticated account, so leaving the address empty means "send as
-// the account" whenever the account is itself an address — no second field to
+// the account" whenever the account is itself an address - no second field to
 // keep in sync, and no silent failure at the provider.
 func TestMailRelayAddressDefaultsToTheAccount(t *testing.T) {
 	f := setup(t)
@@ -107,7 +107,7 @@ func TestMailRelayAddressDefaultsToTheAccount(t *testing.T) {
 
 // TestMailRelayTestResolvesVaultRefs: the form may hold "${smtp-password}"
 // rather than the secret itself, so the test must resolve it before connecting
-// — otherwise it would authenticate with the literal text and fail for the
+// - otherwise it would authenticate with the literal text and fail for the
 // wrong reason. Every relay field, the sender address included, resolves in the
 // INFRA scope: an app admin cannot decide what the relay authenticates with.
 func TestMailRelayTestResolvesVaultRefs(t *testing.T) {

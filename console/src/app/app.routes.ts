@@ -52,7 +52,7 @@ function authProvidersMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   return { consumed: segments, posParams };
 }
 
-// roles, roles/new and roles/:id — same one-config trick.
+// roles, roles/new and roles/:id - same one-config trick.
 function rolesMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   if (segments.length === 0 || segments[0].path !== 'roles' || segments.length > 2) return null;
   const posParams: Record<string, UrlSegment> = {};
@@ -61,8 +61,8 @@ function rolesMatcher(segments: UrlSegment[]): UrlMatchResult | null {
 }
 
 export const routes: Routes = [
-  // "/" resolves to the first section the user may use (infra admin →
-  // routes, app admin → general, others → tenants).
+  // "/" resolves to the first section the user may use (infra admin ->
+  // routes, app admin -> general, others -> tenants).
   { path: '', pathMatch: 'full', canActivate: [landingRedirect], children: [] },
 
   // ── the infra plane ────────────────────────────────────────────────────────
@@ -175,7 +175,7 @@ export const routes: Routes = [
       {
         // Same one-config trick as routes: users and users/:id share ONE
         // component instance, so opening the drawer never re-creates (nor
-        // re-fetches) the page — only the params change.
+        // re-fetches) the page - only the params change.
         matcher: usersMatcher,
         canActivate: [appOnly],
         loadComponent: () =>

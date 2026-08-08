@@ -8,7 +8,7 @@ import (
 
 // The flat-design switch (THEME-04) rides on a single CSS token, --mk-glow: the
 // flow-page rules multiply every decorative effect by it. Full effects emit 1,
-// flat emits 0 — assert both, since the whole feature hangs on this one line.
+// flat emits 0 - assert both, since the whole feature hangs on this one line.
 func TestThemeCSSGlowToken(t *testing.T) {
 	glowing := DefaultTheme() // Flat defaults false
 	if css := glowing.CSS(); !strings.Contains(css, "--mk-glow: 1;") {
@@ -79,7 +79,7 @@ func TestSeedThemesInstallsPresets(t *testing.T) {
 	}
 }
 
-// The flat flag must survive a save/read round-trip — it is a real column, not
+// The flat flag must survive a save/read round-trip - it is a real column, not
 // a transient view concern.
 func TestThemeFlatRoundTrips(t *testing.T) {
 	s, err := Open(t.TempDir())

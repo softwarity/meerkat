@@ -14,12 +14,12 @@ import (
 // The authorities (AUTH-19), INFRA plane. A directory or an identity provider
 // is a third-party service reached by URL, with credentials and certificates,
 // exactly like a route's upstream or the mail relay. What it grants once
-// someone is in — tenants, roles — stays the application's.
+// someone is in - tenants, roles - stays the application's.
 //
 // The accounts held HERE are in that same list (AUTH-24, kind "local"): one
 // screen answers "by which door does one come in", and closing the local
 // password is disabling that entry, like any other. It is seeded, unique and
-// never deleted — and it never governs the ADMIN plane, which always keeps its
+// never deleted - and it never governs the ADMIN plane, which always keeps its
 // password sign-in so a broken authority stays repairable. Disabling every
 // authority is allowed: it means nobody signs in to the DATA plane, which is a
 // legitimate state for a gateway serving public routes only.
@@ -33,7 +33,7 @@ func (a *API) registerAuthProviders(mux *http.ServeMux) {
 
 // providerView is the transport, and it obeys the rule the whole configuration
 // obeys: A REFERENCE IS PUBLIC, A LITERAL NEVER IS. A ${name} comes back as
-// itself — it names an entry, not a value, and the console needs it to show
+// itself - it names an entry, not a value, and the console needs it to show
 // which one. A literal secret is stripped out entirely and only named in
 // SecretsSet, so it never travels through a response, a browser, a cache or an
 // export, whoever is entitled to read it.
@@ -88,7 +88,7 @@ func (a *API) providerView(r *http.Request, p store.AuthProvider) providerView {
 
 // carrySecretsForward fills back the secrets the console could not send. It
 // never received the literal, so a blank field means "leave it alone", not
-// "erase it" — without this, opening an authority and renaming it would wipe
+// "erase it" - without this, opening an authority and renaming it would wipe
 // its client secret.
 func carrySecretsForward(incoming *store.AuthProvider, stored store.AuthProvider) {
 	for _, field := range idp.SecretFields(incoming.Kind) {
@@ -132,7 +132,7 @@ func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor stor
 	// Decoded as the VIEW, saved as the model: the console sends back the
 	// object it was given, and an endpoint that refuses a field it emitted
 	// itself (linked, callbackUrl, secretsSet) breaks the plainest gesture
-	// there is — flipping the switch on a row. They are read-only, so they are
+	// there is - flipping the switch on a row. They are read-only, so they are
 	// accepted and dropped here.
 	var in providerView
 	if err := decodeStrict(r, &in); err != nil {
@@ -185,8 +185,8 @@ func (a *API) putAuthProvider(w http.ResponseWriter, r *http.Request, actor stor
 
 	// Build the driver before storing: a configuration that cannot even be
 	// compiled must be refused at save time, not discovered by the first
-	// person trying to sign in. The local accounts have no driver — there is
-	// no third party to reach — so there is nothing to compile.
+	// person trying to sign in. The local accounts have no driver - there is
+	// no third party to reach - so there is nothing to compile.
 	if p.Kind != store.ProviderLocal {
 		if _, err := idp.New(p); err != nil {
 			writeErr(w, http.StatusUnprocessableEntity, err.Error())
@@ -277,8 +277,8 @@ func (a *API) callbackURL(r *http.Request, providerID string) string {
 // callbackBase is that same address minus the identifier, and it exists for
 // the moment the identifier does not: while CREATING an authority, the admin
 // is filling in the vendor's form in another tab and needs the callback then,
-// not after a first save. Only the server can build it — the console is served
-// by the admin port and has no idea what the data plane listens on — so it
+// not after a first save. Only the server can build it - the console is served
+// by the admin port and has no idea what the data plane listens on - so it
 // hands over the base and the console completes it.
 func (a *API) callbackBase(r *http.Request) string {
 	return a.dataOrigin(r) + "/login/"

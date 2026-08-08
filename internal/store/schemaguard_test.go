@@ -9,7 +9,7 @@ import (
 
 // TestAnOlderDatabaseCatchesUp reproduces what actually happened: a database
 // created before a column existed. CREATE TABLE IF NOT EXISTS says nothing to
-// a table that is already there, so the column has to be added on the way in —
+// a table that is already there, so the column has to be added on the way in -
 // otherwise the first INSERT naming it fails, three layers up, in the middle
 // of a sign-in.
 func TestAnOlderDatabaseCatchesUp(t *testing.T) {

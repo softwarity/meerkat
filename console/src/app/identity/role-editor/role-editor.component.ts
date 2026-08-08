@@ -19,11 +19,11 @@ import { FormFieldComponent } from '../../shared/form-field.component';
 // One catalogue role, hosted in the roles-page right drawer (opened by clicking
 // a row, like a route or a user). Its technical name, the human description the
 // tenant screens put forward, the tags the groups matrix filters on, and the
-// deletion — the table itself carries no action anymore.
+// deletion - the table itself carries no action anymore.
 //
 // The PARENT is not edited here: MOVING a role is what drag and drop is for,
 // and having two ways to move one would only invite them to disagree. A
-// creation may still be born under a parent — the + on a row hands it over.
+// creation may still be born under a parent - the + on a row hands it over.
 @Component({
   selector: 'app-role-editor',
   imports: [

@@ -4,7 +4,7 @@ import { authFile, profiles, scenarios, seeded } from '../lib/fixtures';
 
 // Console navigation: the rail entries only show for the profiles that may
 // use them (kind=ui scenarios), and "/" lands each profile on its own first
-// screen. The role classes come from the gateway's body stamp — this suite
+// screen. The role classes come from the gateway's body stamp - this suite
 // exercises the real proxy + stamp chain, not a mocked identity.
 
 for (const sc of scenarios.filter((s) => s.kind === 'ui')) {

@@ -1,12 +1,12 @@
-// Base layer — "The Sentinel's Watch" atmosphere. Consumes M3 tokens only.
+// Base layer - "The Sentinel's Watch" atmosphere. Consumes M3 tokens only.
 html,
 body {
   height: 100%;
   margin: 0;
   font-family: 'Roboto', system-ui, sans-serif;
   color: var(--mat-sys-on-surface);
-  // Two faint glows — a night-blue watch light top-right, a mint signal bleeding
-  // up from the burrow bottom-left — over the base surface.
+  // Two faint glows - a night-blue watch light top-right, a mint signal bleeding
+  // up from the burrow bottom-left - over the base surface.
   background:
     radial-gradient(
       1100px 620px at 82% -12%,
@@ -22,7 +22,7 @@ body {
   background-attachment: fixed;
 }
 
-// A whisper of grain over everything — desert dusk, not a flat screen.
+// A whisper of grain over everything - desert dusk, not a flat screen.
 body::before {
   content: '';
   position: fixed;

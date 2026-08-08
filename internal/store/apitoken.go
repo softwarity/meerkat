@@ -9,8 +9,8 @@ import (
 
 // API tokens (AUTH-16): a personal access token authenticates its owner on
 // the DATA plane's API routes without a browser session. It CAPTURES the
-// session context it was born in — the active tenant and (in exclusive mode)
-// the active group — so an API call needs no interactive tenant/group choice.
+// session context it was born in - the active tenant and (in exclusive mode)
+// the active group - so an API call needs no interactive tenant/group choice.
 // Only the token HASH is stored; the clear value is shown once at creation.
 
 // APITokensAllowed reads the gateway-wide policy (SettingAPITokens): whether
@@ -67,7 +67,7 @@ func (s *Store) AddAPIToken(ctx context.Context, id, userID, name, tokenHash, pr
 
 // ResolveAPIToken maps a token hash to its live context (AUTH-16): present,
 // enabled, unexpired. The caller still checks the user is enabled. Returns
-// sql.ErrNoRows when absent/disabled/expired — all "no token".
+// sql.ErrNoRows when absent/disabled/expired - all "no token".
 func (s *Store) ResolveAPIToken(ctx context.Context, tokenHash string, now int64) (ResolvedToken, error) {
 	var t ResolvedToken
 	var enabled bool

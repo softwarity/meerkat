@@ -35,7 +35,7 @@ func TestVaultReferenceReachesTheDataPlane(t *testing.T) {
 		t.Fatalf("put secret: %d %s", code, out)
 	}
 
-	// A route referencing both — the upstream by ${name} flush against a scheme,
+	// A route referencing both - the upstream by ${name} flush against a scheme,
 	// the secret inside a filter argument.
 	route := `{
 	  "name":"api","order":1,"enabled":true,"upstream":"http://${api-host}",

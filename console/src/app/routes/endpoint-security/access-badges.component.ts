@@ -7,7 +7,7 @@ import { ACCESS_LEVELS, AccessState, isEmpty } from './access-editor.component';
 // The rule at a glance. The LEVEL is written, not drawn: a lit padlock said
 // "some rule" and left "signed in", "in an organisation" and "in one of these
 // two" looking identical, which is the one thing a list of routes has to make
-// obvious. So it is a short word - AUTH, ORG, ORG·2 - and only the two lists
+// obvious. So it is a short word - AUTH, ORG, ORG-2 - and only the two lists
 // and the endpoint count stay as icons, where a number IS the information.
 //
 // The counts sit in a FIXED-WIDTH slot right of their icon, so a number
@@ -183,7 +183,7 @@ export class AccessBadgesComponent {
     if (this.empty()) return this.delegatedTip;
     return ACCESS_LEVELS.find((l) => l.value === this.access().level)?.label ?? '';
   });
-  protected readonly delegatedTip = $localize`:@@Delegated_to_backend:No gateway rule — delegated to the API backend`;
+  protected readonly delegatedTip = $localize`:@@Delegated_to_backend:No gateway rule - delegated to the API backend`;
   protected readonly unguardedTip = $localize`:@@Nothing_gated_here:Meerkat gates nothing here, on the route or on any endpoint: the service decides alone.`;
   protected readonly endpointsTip = computed(() => {
     const n = this.endpoints() ?? 0;

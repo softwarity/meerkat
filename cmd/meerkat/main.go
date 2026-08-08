@@ -92,7 +92,7 @@ func run(addr, adminAddr, consoleURL, dataDir, configFile, vaultFile, licenseFil
 	}
 	// Then the configuration file (CFG-03): it seeds an empty gateway and is
 	// ignored by a configured one. When it does seed, the demo routes stay
-	// away — the operator has said what this gateway serves.
+	// away - the operator has said what this gateway serves.
 	seeded, err := config.Seed(ctx, st, configFile, time.Now().Unix())
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func run(addr, adminAddr, consoleURL, dataDir, configFile, vaultFile, licenseFil
 	}
 
 	// One session manager PER PLANE: distinct cookie names and a plane stamp
-	// on every stored session — the two ports never share a browser session.
+	// on every stored session - the two ports never share a browser session.
 	sessions := session.NewManager(st)
 	adminSessions := session.NewManager(st, session.ForAdminPlane())
 	router := gateway.New(st, sessions)
@@ -130,8 +130,8 @@ func run(addr, adminAddr, consoleURL, dataDir, configFile, vaultFile, licenseFil
 	authHandler := auth.New(st, sessions)
 	authHandler.Mailer = mailer
 	authHandler.Register(mux)
-	router.RegisterDevDocs(mux) // /meerkat/apidocs — developer docs (dev capability)
-	router.RegisterUISim(mux)   // /meerkat/dev-sim — UI test mode (dev capability)
+	router.RegisterDevDocs(mux) // /meerkat/apidocs - developer docs (dev capability)
+	router.RegisterUISim(mux)   // /meerkat/dev-sim - UI test mode (dev capability)
 	mux.Handle("/", router)
 
 	// Control plane (:9090): admin API and the console. Keep this port off
@@ -190,7 +190,7 @@ func run(addr, adminAddr, consoleURL, dataDir, configFile, vaultFile, licenseFil
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
-	// SIGHUP → hot reload of the routes; SIGINT/SIGTERM → graceful stop.
+	// SIGHUP -> hot reload of the routes; SIGINT/SIGTERM -> graceful stop.
 	reload := make(chan os.Signal, 1)
 	signal.Notify(reload, syscall.SIGHUP)
 	go func() {
@@ -289,7 +289,7 @@ func seedDemoRoute(ctx context.Context, st *store.Store) error {
 		return err
 	}
 	// The TRAP (ROUTE-10) is an ordinary route: a "/**" catch-all ordered LAST,
-	// so whatever the routes above did not match — "/" included — lands there.
+	// so whatever the routes above did not match - "/" included - lands there.
 	return st.SaveRoute(ctx, store.Route{
 		ID:       "trap",
 		Name:     "trap",

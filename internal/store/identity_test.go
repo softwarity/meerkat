@@ -107,7 +107,7 @@ func TestTenantAndMembershipLifecycle(t *testing.T) {
 	}
 
 	// Type validation names the offender and lists what is allowed (OWNER is no
-	// longer a membership type — ownership lives on the tenant).
+	// longer a membership type - ownership lives on the tenant).
 	err := s.SaveMembership(ctx, Membership{UserID: "u2", TenantID: "t1", Type: "OWNER"})
 	if err == nil || !strings.Contains(err.Error(), "ADMIN, USER") {
 		t.Fatalf("invalid type error = %v", err)
@@ -206,7 +206,7 @@ func TestResolveInheritance(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Everything inherited → the global values apply.
+	// Everything inherited -> the global values apply.
 	ba, err := s.ResolveBusinessAccess(ctx, "u1", "t1")
 	if err != nil || len(ba.Days) != 7 || ba.Days[0].From != "00:00" {
 		t.Fatalf("global fallback: %+v, %v", ba, err)
@@ -240,7 +240,7 @@ func TestResolveInheritance(t *testing.T) {
 		t.Fatalf("membership ttl override")
 	}
 
-	// No tenant → straight to global.
+	// No tenant -> straight to global.
 	if ttl, _ := s.ResolveSessionTTL(ctx, "u1", ""); ttl != "PT30M" {
 		t.Fatalf("no-tenant ttl")
 	}
@@ -253,7 +253,7 @@ func TestWithinBusinessAccess(t *testing.T) {
 	if ok, err := WithinBusinessAccess(in, now); err != nil || !ok {
 		t.Fatalf("inside window: %v %v", ok, err)
 	}
-	// Same instant is 23:30 in Tokyo → outside.
+	// Same instant is 23:30 in Tokyo -> outside.
 	tokyo := in
 	tokyo.Timezone = "Asia/Tokyo"
 	if ok, _ := WithinBusinessAccess(tokyo, now); ok {

@@ -96,7 +96,7 @@ func TestPlainYAMLStaysSelfContained(t *testing.T) {
 }
 
 // TestBundleRefusesAMissingPicture: a document naming a file the package does
-// not hold is refused, not quietly stripped — an import that loses the logo in
+// not hold is refused, not quietly stripped - an import that loses the logo in
 // silence is one nobody notices until a user does.
 func TestBundleRefusesAMissingPicture(t *testing.T) {
 	ctx := context.Background()

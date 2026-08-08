@@ -13,7 +13,7 @@ import (
 // evaluation time, so DST never shifts the human's window. A day may appear
 // several times (split days, e.g. around lunch); an absent day is closed.
 type DayRange struct {
-	Day  int    `json:"day"`  // 1=Monday … 7=Sunday
+	Day  int    `json:"day"`  // 1=Monday ... 7=Sunday
 	From string `json:"from"` // "09:00"
 	To   string `json:"to"`   // "18:00"
 }
@@ -31,7 +31,7 @@ type BusinessAccess struct {
 	DateTo    string     `json:"dateTo,omitempty"`
 }
 
-// Tenant is an isolation space (an organization — TENANT-01). Its settings
+// Tenant is an isolation space (an organization - TENANT-01). Its settings
 // inherit from the global ones unless overridden; SessionTTL "" means
 // inherited (TENANT-05).
 type Tenant struct {
@@ -47,7 +47,7 @@ type Tenant struct {
 	// CreatedBy is the id of the user who created the tenant (audit), set once
 	// and never changed. OwnerID is the current owner (TENANT-02): always set,
 	// the creator by default, transferable in the Danger zone, and INDEPENDENT
-	// of membership — an owner need not be a member. CreatedByName/OwnerName are
+	// of membership - an owner need not be a member. CreatedByName/OwnerName are
 	// DISPLAY-only, computed by the admin GET (never persisted, harmless on a
 	// round-trip).
 	CreatedBy     string `json:"createdBy"`
@@ -75,7 +75,7 @@ const (
 )
 
 // Membership types (TENANT-02 revised): ADMINs administer the tenant, USERs
-// belong to it. Ownership is NOT a membership type — it lives on the tenant
+// belong to it. Ownership is NOT a membership type - it lives on the tenant
 // (Tenant.OwnerID), decoupled so an owner need not be a member. Tenant
 // administration is either this relation (ADMIN) or ownership.
 const (
@@ -115,7 +115,7 @@ type Membership struct {
 	UpdatedAt      int64          `json:"updatedAt"`
 }
 
-// Member is a membership joined with the user's identity — what the tenant
+// Member is a membership joined with the user's identity - what the tenant
 // administration screen lists.
 type Member struct {
 	Membership
@@ -125,7 +125,7 @@ type Member struct {
 	LastConnectionAt int64  `json:"lastConnectionAt"`
 }
 
-// UserTenant is a membership joined with the tenant — what /api/me reports
+// UserTenant is a membership joined with the tenant - what /api/me reports
 // (drives the console's role classes and the tenant switcher).
 type UserTenant struct {
 	TenantID   string `json:"tenantId"`
@@ -141,7 +141,7 @@ func (s *Store) SaveTenant(ctx context.Context, t Tenant) error {
 		return fmt.Errorf("store: tenant %q: encode business access: %w", t.Name, err)
 	}
 	now := time.Now().Unix()
-	// created_by is set on INSERT only — an update NEVER rewrites who created
+	// created_by is set on INSERT only - an update NEVER rewrites who created
 	// the tenant (it is stamped once at creation). owner_id IS updatable (the
 	// caller carries it forward on a plain update, or changes it on transfer).
 	_, err = s.db.ExecContext(ctx,
@@ -184,7 +184,7 @@ func (s *Store) ListTenants(ctx context.Context) ([]Tenant, error) {
 }
 
 // ListTenantsAdministeredBy returns the tenants the user administers, ordered
-// by name — those they OWN (owner_id) or ADMIN (membership). A tenant admin
+// by name - those they OWN (owner_id) or ADMIN (membership). A tenant admin
 // sees exactly these; root uses ListTenants instead.
 func (s *Store) ListTenantsAdministeredBy(ctx context.Context, userID string) ([]Tenant, error) {
 	return s.listTenants(ctx,
@@ -299,7 +299,7 @@ func (s *Store) GetMembership(ctx context.Context, userID, tenantID string) (Mem
 
 // ListMembers returns the members of a tenant (membership + identity), admins
 // first, then users, alphabetically inside each type. Ownership is not a
-// membership type (Tenant.OwnerID) — an owner appears here only if also a member.
+// membership type (Tenant.OwnerID) - an owner appears here only if also a member.
 func (s *Store) ListMembers(ctx context.Context, tenantID string) ([]Member, error) {
 	rows, err := s.db.QueryContext(ctx,
 		`SELECT m.user_id, m.tenant_id, m.type, m.enabled, m.business_access, m.session_ttl,
@@ -333,7 +333,7 @@ func (s *Store) ListMembers(ctx context.Context, tenantID string) ([]Member, err
 }
 
 // ListUserTenants returns the tenants a user belongs to, with the membership
-// type — the /api/me shape.
+// type - the /api/me shape.
 func (s *Store) ListUserTenants(ctx context.Context, userID string) ([]UserTenant, error) {
 	rows, err := s.db.QueryContext(ctx,
 		`SELECT t.id, t.name, m.type, m.enabled AND t.enabled
@@ -361,13 +361,13 @@ func (s *Store) ListUserTenants(ctx context.Context, userID string) ([]UserTenan
 
 // Global setting keys. Every level below (tenant, membership) inherits from
 // these unless it overrides (TENANT-04/05). The data plane's "/" trap is NOT a
-// setting — it is an ordinary catch-all route ordered last (ROUTE-10).
+// setting - it is an ordinary catch-all route ordered last (ROUTE-10).
 const (
 	SettingBusinessAccess = "business_access"
 	SettingSessionTTL     = "session_ttl"
 	SettingBranding       = "branding"
 	// SettingLanguages is the APPLICATION's locale pool (I18N): free BCP 47
-	// tags. It is the master list — routes pick from it, and the flow pages
+	// tags. It is the master list - routes pick from it, and the flow pages
 	// speak its intersection with the languages Meerkat embeds (fallback
 	// English). Empty by default: the integrator declares their app's locales.
 	SettingLanguages = "languages"
@@ -433,11 +433,11 @@ const (
 	SettingVaultSeed = "vault_seed"
 )
 
-// SupportedLanguages is every language the flow pages can speak — the
+// SupportedLanguages is every language the flow pages can speak - the
 // catalogue lives in internal/auth; keep both in sync when adding one.
 var SupportedLanguages = []string{"en", "fr"}
 
-// defaultBusinessAccess opens every day around the clock — restricting is an
+// defaultBusinessAccess opens every day around the clock - restricting is an
 // explicit admin act, never a default.
 func defaultBusinessAccess() BusinessAccess {
 	days := make([]DayRange, 7)
@@ -448,7 +448,7 @@ func defaultBusinessAccess() BusinessAccess {
 }
 
 // seedDefaultSettings writes the global defaults on first start (missing keys
-// only — an existing value is never overwritten).
+// only - an existing value is never overwritten).
 func (s *Store) seedDefaultSettings() error {
 	ba, err := json.Marshal(defaultBusinessAccess())
 	if err != nil {
@@ -469,7 +469,7 @@ func (s *Store) seedDefaultSettings() error {
 		SettingMFARequired:    `false`,
 		SettingPasskeys:       `true`,
 		SettingTrustedBrowser: string(trusted),
-		// The application locale pool ships EMPTY — the integrator declares
+		// The application locale pool ships EMPTY - the integrator declares
 		// their app's languages (flow pages then fall back to English).
 		SettingLanguages: `[]`,
 		// Empty: the visitor decides, which is right until an integrator tells

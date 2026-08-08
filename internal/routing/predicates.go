@@ -98,7 +98,7 @@ func CompilePredicates(specs []Spec) (CompiledPredicates, error) {
 // ---- weight groups ---------------------------------------------------------
 //
 // Weight predicates split traffic between routes of a group (canary). Each
-// request draws one lottery value in [0,1) — injected by the router — and a
+// request draws one lottery value in [0,1) - injected by the router - and a
 // route matches when the value falls in its cumulative share of the group.
 
 type pendingWeight struct {
@@ -110,7 +110,7 @@ type pendingWeight struct {
 func (w *pendingWeight) match(r *http.Request) bool {
 	v, ok := lotteryFrom(r.Context())
 	if !ok {
-		return false // router did not inject a lottery — misconfiguration
+		return false // router did not inject a lottery - misconfiguration
 	}
 	return v >= w.lo && v < w.hi
 }
@@ -382,7 +382,7 @@ func init() {
 
 	registerPredicate(predicateDef{
 		Type: "x-forwarded-remote-addr",
-		Doc:  "Matches the rightmost X-Forwarded-For address against CIDR ranges — the address the LAST proxy reports; use behind a trusted front proxy.",
+		Doc:  "Matches the rightmost X-Forwarded-For address against CIDR ranges - the address the LAST proxy reports; use behind a trusted front proxy.",
 		Params: []Param{
 			{Name: "cidrs", Kind: KindStringList, Required: true, Doc: "e.g. 10.0.0.0/8, 192.168.1.10/32"},
 		},

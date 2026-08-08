@@ -11,8 +11,8 @@ import (
 
 // Import and export of the whole configuration (CFG-05).
 //
-// ROOT only, and not out of caution: a document crosses both planes at once —
-// routes belong to infra, authorities and settings to the application — so
+// ROOT only, and not out of caution: a document crosses both planes at once -
+// routes belong to infra, authorities and settings to the application - so
 // whoever moves one has to administer both. An infra admin importing a file
 // that rewrites the sign-in authorities would be a way around RBAC-05, not a
 // convenience.
@@ -32,7 +32,7 @@ func (a *API) registerConfig(mux *http.ServeMux) {
 //
 // Plain bytes rather than a JSON envelope, so `curl -o meerkat.yaml` is the
 // whole story for anyone versioning their exports. Asking for ?format=zip gets
-// the YAML with its images beside it instead of inline — both forms are
+// the YAML with its images beside it instead of inline - both forms are
 // self-contained, which is what stops either from ever naming a picture it does
 // not carry.
 func (a *API) exportConfig(w http.ResponseWriter, r *http.Request, actor store.User) {
@@ -127,7 +127,7 @@ func (a *API) importConfig(w http.ResponseWriter, r *http.Request, actor store.U
 	a.auditEvent(r.Context(), actor, "config.import", "config", "", "", "", summarise(plan))
 	// Saving IS applying, here as everywhere else. A reload that fails means a
 	// stored route no longer compiles: say so instead of reporting a clean
-	// import — the previous snapshot keeps serving in the meantime.
+	// import - the previous snapshot keeps serving in the meantime.
 	if err := a.router.Reload(r.Context()); err != nil {
 		a.internal(w, fmt.Errorf("imported, but the routing table could not be reloaded: %w", err))
 		return

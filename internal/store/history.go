@@ -14,7 +14,7 @@ import (
 type LoginEvent struct {
 	ID          string `json:"id"`
 	Method      string `json:"method"` // password | totp | passkey
-	Label       string `json:"label"`  // "Chrome · macOS"
+	Label       string `json:"label"`  // "Chrome - macOS"
 	IP          string `json:"ip"`
 	Country     string `json:"country"` // ISO 3166-1 alpha-2, "" when unknown
 	BrowserHash string `json:"-"`

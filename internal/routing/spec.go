@@ -1,5 +1,5 @@
 // Package routing is Meerkat's declarative routing model: predicates and
-// filters are typed bricks — a type name plus schema-validated args — with
+// filters are typed bricks - a type name plus schema-validated args - with
 // the same shape everywhere (store, JSON export, admin API, console forms).
 // The registry describes every brick (Catalog), so the console can generate
 // its route editor from the schemas and new bricks never touch the engine.
@@ -28,7 +28,7 @@ const (
 	KindBool       ParamKind = "bool"
 )
 
-// Param describes one argument of a brick — the contract the console uses to
+// Param describes one argument of a brick - the contract the console uses to
 // render its form field and the decoder uses to validate input.
 type Param struct {
 	Name     string    `json:"name"`
@@ -38,7 +38,7 @@ type Param struct {
 	Doc      string    `json:"doc,omitempty"`
 	// Literal marks an argument taken VERBATIM: the vault's $name expansion
 	// must leave it alone. A Go template writes $i and $r for its own loop
-	// variables, and the gateway read those as vault references — the route was
+	// variables, and the gateway read those as vault references - the route was
 	// refused for "unknown vault entries: i, r". A template has no business
 	// holding a secret anyway: it travels in the configuration export, which is
 	// public by construction.

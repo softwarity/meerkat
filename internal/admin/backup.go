@@ -13,7 +13,7 @@ import (
 	"github.com/softwarity/meerkat/internal/store"
 )
 
-// Snapshots (STORE-05) — root only.
+// Snapshots (STORE-05) - root only.
 //
 // What the gateway owes an operator is a COHERENT copy taken while it runs;
 // everything else about backups belongs to tools that already do it well. What

@@ -1,16 +1,16 @@
-// Role-based visibility — configuration only. The CSS mechanism that consumes
+// Role-based visibility - configuration only. The CSS mechanism that consumes
 // these lives in `styles.scss`. Authoring in templates: put `any-role="root dev"`
 // (space = logical OR) on any element; it shows only when <body> carries one of
 // those roles as a class. The console sets those classes from the current user
 // (see AppComponent). This is UIF-06 "roles-css": pure CSS, no directive, works
 // even on injected content, and survives being disabled wholesale.
 
-// Roles the UI gates on. Maintained by hand: any role used in an `any-role="…"`
+// Roles the UI gates on. Maintained by hand: any role used in an `any-role="..."`
 // attribute must be listed here or it won't match. The superpowers (RBAC-05)
-// plus tenant-admin (derived from an OWNER/ADMIN membership — TENANT-02).
+// plus tenant-admin (derived from an OWNER/ADMIN membership - TENANT-02).
 // MeService mirrors them onto <body> from /api/me.
 $known-roles: (root, dev, tester, tenant-creator, infra-admin, app-admin, tenant-admin);
 
-// The superuser sees EVERYTHING regardless of an element's any-role — the admin
+// The superuser sees EVERYTHING regardless of an element's any-role - the admin
 // has access to all shared screens, while a dev sees only what targets them.
 $superuser-role: root;

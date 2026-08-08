@@ -21,7 +21,7 @@ func TestLoginEventsNewestFirstAndPruned(t *testing.T) {
 	for i := 0; i < 60; i++ {
 		e := LoginEvent{
 			ID: fmt.Sprintf("e%02d", i), Method: "password",
-			Label: "Chrome · macOS", IP: "203.0.113.7", Country: "FR",
+			Label: "Chrome - macOS", IP: "203.0.113.7", Country: "FR",
 			BrowserHash: "h1", At: int64(1000 + i),
 		}
 		if err := st.AddLoginEvent(ctx, e, "u1"); err != nil {
@@ -38,7 +38,7 @@ func TestLoginEventsNewestFirstAndPruned(t *testing.T) {
 	if events[0].ID != "e59" || events[len(events)-1].ID != "e10" {
 		t.Fatalf("order/prune wrong: first=%s last=%s", events[0].ID, events[len(events)-1].ID)
 	}
-	if e := events[0]; e.Method != "password" || e.Label != "Chrome · macOS" ||
+	if e := events[0]; e.Method != "password" || e.Label != "Chrome - macOS" ||
 		e.IP != "203.0.113.7" || e.Country != "FR" || e.BrowserHash != "h1" || e.At != 1059 {
 		t.Fatalf("event round-trip: %+v", e)
 	}

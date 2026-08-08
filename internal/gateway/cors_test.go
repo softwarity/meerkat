@@ -12,7 +12,7 @@ import (
 
 // The admin console's swagger page (Try it out) calls the data plane straight
 // from the control plane's origin: that ONE sibling origin gets CORS, nothing
-// else does — the applications behind the gateway keep their own policies.
+// else does - the applications behind the gateway keep their own policies.
 func TestCORSForAdminConsoleOrigin(t *testing.T) {
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = fmt.Fprint(w, "ok")

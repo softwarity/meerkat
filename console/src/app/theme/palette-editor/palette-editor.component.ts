@@ -28,7 +28,7 @@ export class PaletteEditorComponent {
   readonly light = model.required<Record<string, string>>();
   // Flat design: dropping every decorative flow-page effect (glows + app-name
   // gradient) at once. Surfaced as a "Glow" checkbox (checked = effects on), so
-  // stored inverted. Two-way — the page persists it with the theme.
+  // stored inverted. Two-way - the page persists it with the theme.
   readonly flat = model<boolean>(false);
   readonly hoverToken = output<string>();
   readonly save = output<void>();

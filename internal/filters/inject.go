@@ -48,7 +48,7 @@ func InjectAfterHeadFunc(f func(*http.Response) string) func(*http.Response) err
 // which returns the rewritten bytes (used for server-side stamping that must
 // edit an existing tag, not just insert after <head>). gate, when non-nil,
 // runs first and skips the whole thing (no body buffering) when it returns
-// false — pass a cheap session check so anonymous requests stay untouched.
+// false - pass a cheap session check so anonymous requests stay untouched.
 // Non-HTML and unsupported encodings pass through.
 func RewriteHTMLFunc(gate func(*http.Response) bool, f func(res *http.Response, body []byte) []byte) func(*http.Response) error {
 	return func(res *http.Response) error {

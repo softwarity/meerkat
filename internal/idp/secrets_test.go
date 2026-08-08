@@ -30,7 +30,7 @@ func looksSensitive(key string) bool {
 // one of them takes a key that looks like a secret without SecretFields saying
 // so. The declaration is what four other behaviours trust (redaction on the way
 // out, carry-forward on save, audit, the vault offer), so an undeclared field
-// leaks quietly in all four at once — exactly the kind of thing a review
+// leaks quietly in all four at once - exactly the kind of thing a review
 // misses and a build should not.
 func TestSecretFieldsCoverEveryDriver(t *testing.T) {
 	// Which file drives which kind. A new driver added without a line here

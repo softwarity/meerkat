@@ -1,5 +1,5 @@
 // Package mail is Meerkat's outbound e-mail: one SMTP config (a gateway-wide
-// setting), one Send. Pure Go (net/smtp + crypto/tls), offline-friendly — a
+// setting), one Send. Pure Go (net/smtp + crypto/tls), offline-friendly - a
 // missing config is a normal, explicit error, never a crash.
 package mail
 

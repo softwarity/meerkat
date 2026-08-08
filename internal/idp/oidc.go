@@ -19,7 +19,7 @@ import (
 // OIDC: the authorization code flow with PKCE, on net/http alone.
 //
 // Why OIDC and not "OAuth2": OAuth2 alone says how to get a token, not who the
-// person is — every vendor then invents its own userinfo shape. OIDC adds the
+// person is - every vendor then invents its own userinfo shape. OIDC adds the
 // discovery document, the ID token and the JWKS, which is exactly what makes
 // an identity verifiable without trusting the network.
 

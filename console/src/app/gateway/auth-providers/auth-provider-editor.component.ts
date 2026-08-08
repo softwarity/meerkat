@@ -27,7 +27,7 @@ const SECRET_FIELDS: Record<string, string[]> = {
 };
 
 // The button name a kind writes itself. A VENDOR has one right answer and
-// nobody should have to type it; a protocol has none — an OIDC authority is
+// nobody should have to type it; a protocol has none - an OIDC authority is
 // "Acme SSO" or "Partners", which only the admin knows.
 const KIND_NAMES: Record<string, string> = {
   github: 'GitHub',
@@ -37,8 +37,8 @@ const KIND_NAMES: Record<string, string> = {
 };
 
 // An identifier nobody should have to invent either: it is the URL segment a
-// sign-in travels through (/login/<id>/callback), so it is derived — from the
-// vendor when there is one, from the name otherwise — and only shown because
+// sign-in travels through (/login/<id>/callback), so it is derived - from the
+// vendor when there is one, from the name otherwise - and only shown because
 // it ends up in the address one registers with that vendor.
 function slugify(s: string): string {
   return s
@@ -121,14 +121,14 @@ export class AuthProviderEditorComponent {
   // homepage URL, base ('http://host:8080/login/') what a callback is built on.
   protected readonly dataOrigin = signal('');
   private readonly callbackBase = signal('');
-  // Name and identifier are DERIVED for a vendor — "GitHub" and github — so
+  // Name and identifier are DERIVED for a vendor - "GitHub" and github - so
   // they are not shown at all: two fields with one right answer are two ways
   // to get it wrong. Revealed on demand, for the second GitHub nobody has yet
   // needed. The identifier stays frozen after creation whatever happens: it is
   // in the URL registered with the vendor.
   protected readonly identityShown = signal(false);
   // Composed from the identifier as it is typed, so the address to paste into
-  // the vendor's form is there DURING the creation — not after a first save,
+  // the vendor's form is there DURING the creation - not after a first save,
   // which is when one has already left for the other tab. Falls back to what
   // the server computed for a stored authority.
   protected readonly callbackUrl = computed(() => {
@@ -196,8 +196,8 @@ export class AuthProviderEditorComponent {
   }
 
   // The name is what the login page writes on the button, and for a vendor
-  // there is only one right answer. Picking the kind fills it in — along with
-  // the identifier, which is that same answer in URL form — and only while
+  // there is only one right answer. Picking the kind fills it in - along with
+  // the identifier, which is that same answer in URL form - and only while
   // both still hold something nobody chose: an "Acme SSO" typed by hand, or an
   // identifier unlocked on purpose, is never overwritten.
   protected pickKind(kind: 'oidc' | 'ldap' | 'saml' | 'github'): void {
@@ -232,7 +232,7 @@ export class AuthProviderEditorComponent {
 
   // These addresses are derived from the one this gateway is reached by. Told
   // from a laptop, the vendor would be handed a localhost that only answers on
-  // that laptop — which fails in production long after the setup, and looks
+  // that laptop - which fails in production long after the setup, and looks
   // like the vendor's fault.
   protected readonly localOrigin = computed(() =>
     /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|$)/.test(this.dataOrigin()),

@@ -153,7 +153,7 @@ func TestForeignFileIsNamed(t *testing.T) {
 }
 
 // TestEntriesAreValidatedOnTheWayIn: the payload is decrypted, therefore
-// trusted for having the right passphrase — not for being well formed.
+// trusted for having the right passphrase - not for being well formed.
 func TestEntriesAreValidatedOnTheWayIn(t *testing.T) {
 	for _, bad := range []PortableEntry{
 		{Name: "no spaces please", Kind: KindValue, Scope: ScopeInfra},

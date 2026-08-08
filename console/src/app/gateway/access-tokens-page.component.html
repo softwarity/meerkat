@@ -27,10 +27,10 @@
           <mat-icon>delete</mat-icon>
         </button>
         <span class="meta">
-          <code class="prefix">{{ t.prefix }}…</code>
-          &nbsp;·&nbsp;<ng-container i18n="@@Created_on">Created on</ng-container> {{ day(t.createdAt) }}
-          &nbsp;·&nbsp;{{ expiryLabel(t.expiresAt) }}
-          &nbsp;·&nbsp;{{ lastUsedLabel(t.lastUsedAt) }}
+          <code class="prefix">{{ t.prefix }}...</code>
+          &nbsp;-&nbsp;<ng-container i18n="@@Created_on">Created on</ng-container> {{ day(t.createdAt) }}
+          &nbsp;-&nbsp;{{ expiryLabel(t.expiresAt) }}
+          &nbsp;-&nbsp;{{ lastUsedLabel(t.lastUsedAt) }}
         </span>
       </div>
     } @empty {

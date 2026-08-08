@@ -170,7 +170,7 @@ func TestRespondOptions(t *testing.T) {
 
 // wrap exists because the shape it produces is what half the applications
 // expect for roles, and writing it by hand is a range plus an index test for
-// the comma — six words of intent, four lines of template.
+// the comma - six words of intent, four lines of template.
 func TestRespondWrapsAListIntoObjects(t *testing.T) {
 	h, err := compileRespond(t, map[string]any{
 		"body": `{"name": {{json .Username}}, "isPasswordUpdatable": false, "authorities": {{json (wrap "authority" .Roles)}}}`,

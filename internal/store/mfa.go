@@ -63,7 +63,7 @@ func (s *Store) EnableUserTOTP(ctx context.Context, userID, secret string, scrat
 }
 
 // DisableUserTOTP removes the second factor entirely (only allowed when MFA is
-// not mandatory for the user — the handler enforces that).
+// not mandatory for the user - the handler enforces that).
 func (s *Store) DisableUserTOTP(ctx context.Context, userID string) error {
 	return s.execUser(ctx, userID,
 		`UPDATE users SET totp_secret = '', totp_pending = '', totp_scratch = '[]', updated_at = ? WHERE id = ?`,
@@ -71,7 +71,7 @@ func (s *Store) DisableUserTOTP(ctx context.Context, userID string) error {
 }
 
 // ConsumeScratch checks a backup code against the stored hashes and, on a
-// match, burns it (single use — MFA-01). Reports whether the code was valid.
+// match, burns it (single use - MFA-01). Reports whether the code was valid.
 func (s *Store) ConsumeScratch(ctx context.Context, userID, code string) (bool, error) {
 	st, err := s.GetUserTOTP(ctx, userID)
 	if err != nil {
@@ -115,8 +115,8 @@ func (s *Store) execUser(ctx context.Context, userID, query string, args ...any)
 }
 
 // MFARequiredForUser reports whether the user must have a second factor
-// (MFA-04). The policy is resolvable BEFORE tenant selection — which the login
-// flow needs (AUTH-05 runs MFA first) — so it walks only user → global: the
+// (MFA-04). The policy is resolvable BEFORE tenant selection - which the login
+// flow needs (AUTH-05 runs MFA first) - so it walks only user -> global: the
 // per-user override ("true"/"false") wins, otherwise the gateway-wide setting.
 // There is deliberately no tenant level: the tenant is unknown at the MFA step.
 func (s *Store) MFARequiredForUser(ctx context.Context, userID string) (bool, error) {
@@ -158,7 +158,7 @@ type TrustedBrowser struct {
 // TrustedBrowserPolicy is the gateway-wide trusted-browser setting: whether
 // users may skip the TOTP challenge on a remembered browser, and for how long
 // (ISO-8601, e.g. "P7D"). Resolved globally because the MFA step runs before
-// tenant selection (AUTH-05) — a per-tenant override would need a re-challenge.
+// tenant selection (AUTH-05) - a per-tenant override would need a re-challenge.
 type TrustedBrowserPolicy struct {
 	Allowed bool   `json:"allowed"`
 	TTL     string `json:"ttl"`
@@ -205,7 +205,7 @@ func (s *Store) IsBrowserTrusted(ctx context.Context, userID, tokenHash string, 
 	}
 }
 
-// TrustedBrowserIDByHash maps a live trust-token hash to its row id — the
+// TrustedBrowserIDByHash maps a live trust-token hash to its row id - the
 // profile badges "this browser" through it.
 func (s *Store) TrustedBrowserIDByHash(ctx context.Context, userID, tokenHash string, now int64) (string, error) {
 	var id string
@@ -250,7 +250,7 @@ func (s *Store) RevokeTrustedBrowser(ctx context.Context, userID, id string) (bo
 	return n > 0, nil
 }
 
-// RevokeAllTrustedBrowsers clears every trusted browser for a user — used when
+// RevokeAllTrustedBrowsers clears every trusted browser for a user - used when
 // the second factor is replaced or removed, so old trust never skips a new one.
 func (s *Store) RevokeAllTrustedBrowsers(ctx context.Context, userID string) error {
 	if _, err := s.db.ExecContext(ctx,

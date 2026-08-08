@@ -11,8 +11,8 @@ import { ApiService, ExternalIdentity } from '../api.service';
 //
 // The GROUPS are the point. An authority reports its own group names on every
 // sign-in; nothing of Meerkat's is derived from them yet, so this is the only
-// place an admin can find out what upstream actually sends — "staff",
-// "cn=devs,ou=groups,dc=acme,dc=io", "softwarity/gateway" — before writing any
+// place an admin can find out what upstream actually sends - "staff",
+// "cn=devs,ou=groups,dc=acme,dc=io", "softwarity/gateway" - before writing any
 // rule against those names. Showing them translated or tidied would defeat
 // that: what is displayed has to be exactly what a mapping would match.
 @Component({

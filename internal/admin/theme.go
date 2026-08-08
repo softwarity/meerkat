@@ -11,7 +11,7 @@ import (
 
 // Theme administration (THEME-04): several saved themes, one active; the
 // editor previews any of them as the REAL login page before activating.
-// APPLICATION plane (RBAC-05): a theme is the product's visual identity — its
+// APPLICATION plane (RBAC-05): a theme is the product's visual identity - its
 // name, tagline, logo and colours. The gateway merely SERVES those pages; who
 // serves them is not who owns them.
 func (a *API) registerThemes(mux *http.ServeMux) {
@@ -26,8 +26,8 @@ func (a *API) registerThemes(mux *http.ServeMux) {
 	mux.Handle("PUT /api/branding", a.appAdmin(a.putBranding))
 }
 
-// Branding (THEME-02) is GLOBAL — one application identity whatever theme is
-// active — but it is edited on the same Theme screen.
+// Branding (THEME-02) is GLOBAL - one application identity whatever theme is
+// active - but it is edited on the same Theme screen.
 func (a *API) getBranding(w http.ResponseWriter, r *http.Request, _ store.User) {
 	b := store.DefaultBranding()
 	if err := a.st.GetSetting(r.Context(), store.SettingBranding, &b); err != nil {
@@ -56,7 +56,7 @@ func (a *API) putBranding(w http.ResponseWriter, r *http.Request, actor store.Us
 	writeJSON(w, http.StatusOK, b)
 }
 
-// listPresets returns the built-in starting palettes (THEME-04) — the console
+// listPresets returns the built-in starting palettes (THEME-04) - the console
 // offers them under the "+" button so a deleted preset can be recreated.
 func (a *API) listPresets(w http.ResponseWriter, _ *http.Request, _ store.User) {
 	writeJSON(w, http.StatusOK, store.PresetThemes())
@@ -170,7 +170,7 @@ func (a *API) activateTheme(w http.ResponseWriter, r *http.Request, actor store.
 }
 
 // previewTheme renders the flow-page specimen in the given theme, one scheme
-// forced (?scheme=dark|light) — the console's editor iframes it twice.
+// forced (?scheme=dark|light) - the console's editor iframes it twice.
 func (a *API) previewTheme(w http.ResponseWriter, r *http.Request, _ store.User) {
 	t, err := a.st.GetTheme(r.Context(), r.PathValue("id"))
 	if err != nil {

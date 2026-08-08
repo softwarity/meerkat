@@ -13,7 +13,7 @@ import { EeLockComponent } from '../shared/ee-lock.component';
 import { BusinessAccessFormComponent } from '../identity/business-access-form.component';
 
 // Application-level General settings (root only): the GLOBAL working hours, the
-// value every tenant inherits unless it overrides. A full PUT of /api/settings —
+// value every tenant inherits unless it overrides. A full PUT of /api/settings -
 // the other fields ride along. Two things are deliberately NOT here: the group
 // mode (RBAC-03), a per-tenant call, and the session TTL, which is a security
 // policy and lives on the Security page.

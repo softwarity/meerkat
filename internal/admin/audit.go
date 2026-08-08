@@ -14,7 +14,7 @@ import (
 )
 
 // The audit trail (phase 2). Every administrative mutation records WHO changed
-// WHAT, and — for updates — the exact field-level diff (before/after). The diff
+// WHAT, and - for updates - the exact field-level diff (before/after). The diff
 // is computed generically by JSON-marshaling the old and new value and
 // comparing top-level keys, so it works for tenants, users, memberships, roles,
 // groups and the settings payload without per-type code.
@@ -57,7 +57,7 @@ func (a *API) audit(ctx context.Context, ev store.AuditEvent) {
 	}
 }
 
-// auditUpdate records an update only when something actually changed — an empty
+// auditUpdate records an update only when something actually changed - an empty
 // diff writes nothing (no noise for a no-op save).
 func (a *API) auditUpdate(ctx context.Context, actor store.User, action, target, targetID, targetName, tenantID string, oldV, newV any) {
 	changes := diffFields(oldV, newV)
@@ -114,7 +114,7 @@ func diffFields(oldV, newV any) []store.FieldChange {
 }
 
 // toMap renders any struct/map to a map[string]any via JSON (honours json tags,
-// drops json:"-" fields). A non-object marshals to an empty map — the diff then
+// drops json:"-" fields). A non-object marshals to an empty map - the diff then
 // treats it as "no fields", which is the safe default.
 func toMap(v any) map[string]any {
 	if v == nil {
@@ -143,7 +143,7 @@ func jsonEqual(a, b any) bool {
 }
 
 // redact replaces sensitive values with "***" so a secret never lands in the
-// trail — either because the key itself is sensitive, or because it hides
+// trail - either because the key itself is sensitive, or because it hides
 // inside a nested object (walked recursively).
 func redact(key string, v any) any {
 	if isSensitiveKey(key) {
@@ -185,9 +185,9 @@ func (a *API) listAudit(w http.ResponseWriter, r *http.Request, actor store.User
 		Limit:    int(atoi64(r.URL.Query().Get("limit"))),
 	}
 	// Scope by capability (RBAC-05): root sees all; otherwise the union of the
-	// domains the caller administers. infra-admin → routing plane targets,
-	// app-admin → identity targets, tenant admin → their tenants (by tenant_id).
-	// Administering nothing → 403 (the trail is an administrative view, not an
+	// domains the caller administers. infra-admin -> routing plane targets,
+	// app-admin -> identity targets, tenant admin -> their tenants (by tenant_id).
+	// Administering nothing -> 403 (the trail is an administrative view, not an
 	// empty page).
 	if !actor.Root {
 		scope := &store.AuditScope{}

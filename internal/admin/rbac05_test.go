@@ -38,7 +38,7 @@ func TestSplitAdministrationScopes(t *testing.T) {
 		{"catalog", "GET", "/api/catalog", "", 200, 200, 403, 403},
 		{"routes", "GET", "/api/routes", "", 200, 200, 403, 403},
 		{"mail relay", "GET", "/api/settings/mail-relay", "", 200, 200, 403, 403},
-		// Application scope: users, roles, and the product's own face — the
+		// Application scope: users, roles, and the product's own face - the
 		// built-in pages' theme and branding. The gateway SERVES those pages;
 		// serving them is not owning them.
 		{"users", "GET", "/api/users", "", 200, 403, 200, 403},

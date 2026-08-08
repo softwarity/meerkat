@@ -14,7 +14,7 @@ import (
 
 // ListVaultEntries returns every entry, secrets INCLUDED but with their value
 // blanked: a secret is never handed back in plain, not even to root (VAULT-01).
-// Values (the plain kind) carry their text — reading them is the point.
+// Values (the plain kind) carry their text - reading them is the point.
 func (s *Store) ListVaultEntries(ctx context.Context, scopes []string) ([]vault.Entry, error) {
 	if len(scopes) == 0 {
 		return nil, nil
@@ -46,7 +46,7 @@ func (s *Store) ListVaultEntries(ctx context.Context, scopes []string) ([]vault.
 
 // VaultValues resolves the entries OF ONE SCOPE to their plain value, secrets
 // decrypted. This is the lookup used when expanding $name while loading the
-// configuration — it never leaves the process. Scoping the resolution is what
+// configuration - it never leaves the process. Scoping the resolution is what
 // keeps an application value out of a route: an app admin cannot repoint an
 // upstream by naming an entry a route happens to reference.
 func (s *Store) VaultValues(ctx context.Context, scope string) (map[string]string, error) {
@@ -86,7 +86,7 @@ func (s *Store) VaultValues(ctx context.Context, scope string) (map[string]strin
 		// reserves the names it expects (ReserveVaultEntry), and those sit empty
 		// until someone fills them: resolving them would turn
 		// "https://${api-host}" into "https://" and a password into the empty
-		// string — two failures nobody can read back to a missing entry. Left
+		// string - two failures nobody can read back to a missing entry. Left
 		// unresolved instead, the name comes out verbatim and is reported.
 		if e.Value == "" {
 			continue
@@ -122,7 +122,7 @@ func (s *Store) GetVaultEntry(ctx context.Context, scope, name string) (vault.En
 
 // SaveVaultEntry inserts or replaces an entry, sealing the value when the kind
 // is secret. On an update of an existing SECRET, an empty value keeps the
-// stored one — the console never receives the secret, so it cannot resend it.
+// stored one - the console never receives the secret, so it cannot resend it.
 func (s *Store) SaveVaultEntry(ctx context.Context, e vault.Entry) error {
 	e.Name = strings.TrimSpace(e.Name)
 	if !vault.NameOK.MatchString(e.Name) {

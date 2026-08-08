@@ -12,7 +12,7 @@ import (
 // Route probing (ROUTE-15): take a request, run it through the REAL matcher of
 // the live snapshot, and report what every route answered, in order. Order is
 // significant (first match wins), so "my request lands on the wrong route" is
-// almost always a route ABOVE the intended one accepting it first — the probe
+// almost always a route ABOVE the intended one accepting it first - the probe
 // names that route and the predicate that let it through.
 //
 // Nothing is proxied: this is matching only, no upstream is touched.

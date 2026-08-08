@@ -14,9 +14,9 @@ import { BusinessAccess, DayRange } from '../api.service';
 // BusinessAccessCtrl pattern): while inherited, the fields are disabled and
 // display the inherited value; switching off inheritance seeds the override
 // from it. The timezone comes first (browser default): each DAY is a row whose
-// hour ranges are set in that local timezone — several ranges per day (split
+// hour ranges are set in that local timezone - several ranges per day (split
 // days), the UTC equivalent as a hint under each. The server always evaluates
-// in UTC. Rows start on the locale's first day of week. Controlled component —
+// in UTC. Rows start on the locale's first day of week. Controlled component -
 // value in, every edit emits a fresh value.
 @Component({
   selector: 'app-business-access-form',
@@ -38,7 +38,7 @@ export class BusinessAccessFormComponent {
   // What this level inherits from (the level above), used for display while
   // inherited and to seed an override. Absent at the top (global) level.
   readonly inherited = input<BusinessAccess>({ inherited: false });
-  // topLevel = the global level: no level above, so no inherit toggle — the
+  // topLevel = the global level: no level above, so no inherit toggle - the
   // fields are always editable.
   readonly topLevel = input(false);
   readonly valueChange = output<BusinessAccess>();
@@ -74,7 +74,7 @@ export class BusinessAccessFormComponent {
 
   protected utcHint(r: DayRange): string {
     const tz = this.displayTz();
-    return `${utcTime(r.from, tz)} – ${utcTime(r.to, tz)} UTC`;
+    return `${utcTime(r.from, tz)} - ${utcTime(r.to, tz)} UTC`;
   }
 
   protected inheritLabel(): string {
@@ -123,7 +123,7 @@ export class BusinessAccessFormComponent {
   }
 }
 
-// "09:00" wall-clock today in tz → "HH:MM" in UTC (DST-correct for today).
+// "09:00" wall-clock today in tz -> "HH:MM" in UTC (DST-correct for today).
 function utcTime(time: string, tz: string): string {
   const [hour, minute] = time.split(':').map(Number);
   if (isNaN(hour) || isNaN(minute)) return '';

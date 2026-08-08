@@ -80,7 +80,7 @@ func TestLocalAccountsAuthority(t *testing.T) {
 	}
 
 	// Disabled: the data plane takes no local password at all, root included.
-	// A correct password is refused exactly like a wrong one — nothing is
+	// A correct password is refused exactly like a wrong one - nothing is
 	// enumerated.
 	setLocalSignIn(t, st, false)
 	for _, who := range []string{"bob", "admin"} {
@@ -98,7 +98,7 @@ func TestLocalAccountsAuthority(t *testing.T) {
 
 // TestClosedPasswordKeepsTheDirectoryForm: the username/password form serves
 // TWO mechanisms. Hiding it because the local accounts are off would take the
-// directory down with it — the field is how a directory is asked.
+// directory down with it - the field is how a directory is asked.
 func TestClosedPasswordKeepsTheDirectoryForm(t *testing.T) {
 	st, data, _ := planes(t)
 	setLocalSignIn(t, st, false)

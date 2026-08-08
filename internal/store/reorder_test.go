@@ -13,7 +13,7 @@ func TestReorderRoutes(t *testing.T) {
 			t.Fatalf("SaveRoute %s: %v", name, err)
 		}
 	}
-	// ListRoutes is ordered by ord — initially insertion order.
+	// ListRoutes is ordered by ord - initially insertion order.
 	if got := routeIDs(ctx, t, s); !reflect.DeepEqual(got, []string{"a", "b", "c"}) {
 		t.Fatalf("initial order = %v", got)
 	}

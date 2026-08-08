@@ -17,7 +17,7 @@ import (
 // Forgot password (AUTH-21): a one-shot mailed link, 1 hour, that lets the
 // user set a new password. Anti-enumeration throughout (the outcome page
 // never says whether the address exists), rate-limited per IP, and a
-// successful reset REVOKES every session of the account — an intruder's
+// successful reset REVOKES every session of the account - an intruder's
 // stolen session dies with the old password.
 
 const resetPurpose = "reset"

@@ -3,14 +3,14 @@ import { join } from 'node:path';
 import scenariosFile from '../scenarios.json';
 
 // scenarios.json is THE shared source of truth: the suites execute it, the
-// doc site renders it. Keep this module dumb — read, type, resolve.
+// doc site renders it. Keep this module dumb - read, type, resolve.
 
 export interface Scenario {
   id: string;
   domain: string;
   kind: 'api' | 'ui' | 'flow';
   // allowedStatus: acceptable statuses for ALLOWED profiles when plain 2xx is
-  // not guaranteed (e.g. 422 while a dependency is not configured) — the
+  // not guaranteed (e.g. 422 while a dependency is not configured) - the
   // point stays that it is NOT 401/403.
   probe?: { method: string; path: string; body?: unknown; allowedStatus?: number[] };
   check?: { railItem: string };

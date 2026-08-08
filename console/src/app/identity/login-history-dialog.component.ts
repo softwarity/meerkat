@@ -17,7 +17,7 @@ export interface LoginHistoryDialogData {
   template: `
     <h2 mat-dialog-title>
       <ng-container i18n="@@Sign_in_history">Sign-in history</ng-container>
-      · {{ data.username }}
+      - {{ data.username }}
     </h2>
     <mat-dialog-content>
       <app-login-history [userId]="data.userId" [tenantId]="data.tenantId" />

@@ -167,7 +167,7 @@ test('flow-register-captcha: a wrong copy is refused', async ({ page }) => {
   await expect(page.locator('#cap-img')).toBeVisible();
 });
 
-// flow-self-register: the full loop against the SMTP sink — register, blocked
+// flow-self-register: the full loop against the SMTP sink - register, blocked
 // until confirmed, mailed one-shot link, admin notified, waiting room. Lives
 // in THIS file so its settings mutation stays serialized with the passkey
 // test (same worker).
@@ -282,7 +282,7 @@ test('flow-forgot-password: mailed link resets the password', async ({ page, bro
   await context.close();
 });
 
-// flow-select-group: EXCLUSIVE group mode end to end — the tenant is forced
+// flow-select-group: EXCLUSIVE group mode end to end - the tenant is forced
 // SINGLE, alice holds two groups, so her sign-in lands on the group choice;
 // picking one completes the flow. Restores the tenant mode afterwards.
 test('flow-select-group: exclusive mode asks which group at sign-in', async ({ browser }) => {

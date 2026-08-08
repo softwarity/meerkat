@@ -14,7 +14,7 @@ import (
 // Literal is a secret field that was left OUT of the export because it held a
 // value instead of a $name reference.
 //
-// The document stays valid — the field is simply absent from it — and the
+// The document stays valid - the field is simply absent from it - and the
 // export stays public, which is the point. Saying so is what keeps the omission
 // from being silent: the admin learns both that the field will be empty
 // wherever this file lands, and that this install carries a secret their vault
@@ -144,7 +144,7 @@ func stripSecrets(doc *Document) []Literal {
 }
 
 // presetLike reports whether t is one of the built-in palettes, unmodified.
-// Compared on what is actually seen — the two palettes and the flat switch —
+// Compared on what is actually seen - the two palettes and the flat switch -
 // not on the name, which an admin may rename without changing a colour.
 func presetLike(t store.Theme) bool {
 	for _, p := range store.PresetThemes() {
@@ -172,7 +172,7 @@ func sameMap(a, b map[string]string) bool {
 
 // Section is one KIND of thing a document carries, and how much of it. The
 // console shows this before the download, and the question it answers is "what
-// nature of information am I handing over" — not "which objects", which is what
+// nature of information am I handing over" - not "which objects", which is what
 // the file itself is for.
 type Section struct {
 	Kind  string `json:"kind"`

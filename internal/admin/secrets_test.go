@@ -64,8 +64,8 @@ func TestReferenceComesBackVerbatim(t *testing.T) {
 }
 
 // TestSavingWithoutTheSecretKeepsIt is the trap this whole shape creates: the
-// console cannot resend what it never received, so an ordinary edit — renaming
-// the authority — would erase the client secret if a blank meant "erase".
+// console cannot resend what it never received, so an ordinary edit - renaming
+// the authority - would erase the client secret if a blank meant "erase".
 func TestSavingWithoutTheSecretKeepsIt(t *testing.T) {
 	f := setup(t)
 	if code, body := f.call(t, "PUT", "/api/auth-providers/acme", oidcBody(literalSecret), f.rootC); code != http.StatusOK {
@@ -175,7 +175,7 @@ func TestVaultUsageCoversEveryHolder(t *testing.T) {
 
 // TestStashMovesTheSecretServerSide is the case the whole design turns on: a
 // literal that arrived through the bootstrap file. The console never received
-// it, so the only way to protect it is to have the server move it — the
+// it, so the only way to protect it is to have the server move it - the
 // request below carries a NAME, never a value.
 func TestStashMovesTheSecretServerSide(t *testing.T) {
 	f := setup(t)
@@ -313,7 +313,7 @@ func TestStashTheRelayPassword(t *testing.T) {
 
 // TestLocalAuthorityIsPartOfTheProduct: the accounts held here are ONE seeded
 // authority (AUTH-24). It ships in the list, it is turned off rather than
-// removed, and there is never a second one — one question, one answer. Turning
+// removed, and there is never a second one - one question, one answer. Turning
 // it off IS allowed even as the last authority: it means nobody signs in to the
 // data plane, which a gateway serving public routes only may well want, and the
 // console keeps its own password sign-in whatever happens.
@@ -345,7 +345,7 @@ func TestLocalAuthorityIsPartOfTheProduct(t *testing.T) {
 
 	// Closing password sign-in on the data plane: one switch, no other screen
 	// involved, and it passes with nothing else enabled. Sent the way the
-	// console sends it — see TestTheConsoleCanFlipTheSwitch.
+	// console sends it - see TestTheConsoleCanFlipTheSwitch.
 	off := `{"kind":"local","name":"Local accounts","enabled":false}`
 	if code, body := f.call(t, "PUT", "/api/auth-providers/local", off, f.rootC); code != http.StatusOK {
 		t.Fatalf("disabling the local accounts: %d %s", code, body)

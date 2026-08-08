@@ -11,7 +11,7 @@ export interface CodeDialogData {
   language: 'css' | 'js';
 }
 
-// Paste-a-snippet editor for a UI route's injected style/script block —
+// Paste-a-snippet editor for a UI route's injected style/script block -
 // CodeMirror 6 (modular, tree-shaken) with CSS or JavaScript highlighting.
 // This component is LAZY-imported by the route editor so CodeMirror never
 // weighs on the initial bundle. Resolves to the edited text on apply,
@@ -47,7 +47,7 @@ export interface CodeDialogData {
     <mat-dialog-actions align="end">
       <!-- close() explicitly, NOT mat-dialog-close: written bare, that
            directive closes with the empty STRING, which the caller cannot tell
-           from "the admin emptied the editor and saved" — so cancelling wiped
+           from "the admin emptied the editor and saved" - so cancelling wiped
            the block that was there. Escape and the backdrop already close with
            undefined; this makes the button agree with them. -->
       <button matButton (click)="ref.close()" i18n="@@Cancel">Cancel</button>

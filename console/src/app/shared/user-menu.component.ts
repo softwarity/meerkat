@@ -15,7 +15,7 @@ const LOCALES: readonly { code: string; label: string }[] = [
 ];
 
 // The rail's bottom entry: one user menu instead of separate language and
-// sign-out items — who you are (from the identity the gateway stamps on
+// sign-out items - who you are (from the identity the gateway stamps on
 // <body>), the console language as a submenu, and sign out.
 @Component({
   selector: 'app-user-menu',

@@ -80,7 +80,7 @@ mat-cell.mat-column-user {
   right: 16px;
 }
 
-/* membership badges — "member" joins/leaves, "admin" flips the type on
+/* membership badges - "member" joins/leaves, "admin" flips the type on
    click, OWNER read-only. Same activatable pill for all. */
 .type-badge {
   margin-left: 8px;
@@ -122,7 +122,7 @@ mat-cell.mat-column-user {
   justify-content: flex-start;
 }
 
-/* last connection — sticky at the right edge, above the horizontal scroll */
+/* last connection - sticky at the right edge, above the horizontal scroll */
 .mat-column-lastConn,
 .mat-column-lastConn-all {
   flex: 0 0 180px;

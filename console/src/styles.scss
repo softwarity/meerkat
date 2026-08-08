@@ -10,11 +10,11 @@
 @use './styles/material-overrides';
 @use './styles/utilities';
 
-// ── Meerkat console — "The Sentinel's Watch" ─────────────────────────────────
+// ── Meerkat console - "The Sentinel's Watch" ─────────────────────────────────
 // Night-blue field, mint-signal accent (the meerkat's alarm call), dark by
 // default. Everything is driven by M3 tokens (--mat-sys-*); the brand palette is
 // generated from primary #1e3856 / secondary #00e9bc via the Angular Material
-// theme-color schematic — never hard-coded colours in components. CSS is split
+// theme-color schematic - never hard-coded colours in components. CSS is split
 // by function under styles/: theme-colors, roles, base, utilities, overrides.
 html {
   @include mat.theme(
@@ -42,7 +42,7 @@ html {
   color-scheme: dark;
 
   // Surfaces: keep Softwarity teal/cyan for primary/accent, but swap M3's
-  // near-black dark neutrals for Catppuccin Macchiato's blue-tinted darks — a
+  // near-black dark neutrals for Catppuccin Macchiato's blue-tinted darks - a
   // warmer, less black field. (Accent tokens stay from the generated palette.)
   --mat-sys-background: #24273a;
   // The ink that goes with it. Swapping the field without swapping this left
@@ -68,7 +68,7 @@ html {
 
   // House tokens layered on top of M3.
   --mk-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
-  --mk-signal: var(--mat-sys-secondary); // mint — used sparingly, as an accent
+  --mk-signal: var(--mat-sys-secondary); // mint - used sparingly, as an accent
   --mk-radius: 12px;
 }
 
@@ -174,7 +174,7 @@ $mat-block: 'mat-card, mat-card-header, mat-card-content, mat-card-actions,'
 
 // The respond template's colours. Global, like .stacked-options above and for
 // the same reason: CodeMirror builds its own DOM, which never carries the
-// component's encapsulation attribute — component styles simply miss it.
+// component's encapsulation attribute - component styles simply miss it.
 .cm-editor {
   .tpl-action {
     color: var(--mat-sys-tertiary);

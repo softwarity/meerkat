@@ -13,8 +13,8 @@ import (
 // Answering from a template instead of proxying (ROUTE-17).
 //
 // The problem it solves: a hosted application asks the gateway "who is signed
-// in?" in ITS OWN vocabulary. One expects {"name":…,"authorities":[…]},
-// another {"user":{"login":…}}, a third a bare string. Building those shapes
+// in?" in ITS OWN vocabulary. One expects {"name":...,"authorities":[...]},
+// another {"user":{"login":...}}, a third a bare string. Building those shapes
 // into Meerkat would mean writing one application's dialect into a product
 // meant for all of them, and a second application would need a second endpoint.
 //
@@ -27,14 +27,14 @@ import (
 // (routing.Identity) and nothing else. No store, no filesystem, no other
 // account. text/template has no loops that do not terminate and no way out of
 // its data, so the worst a mistaken template can do is answer something silly
-// — and even that is caught when the route is saved, not in production.
+// - and even that is caught when the route is saved, not in production.
 
 // respondFuncs are the helpers a template gets. Small on purpose: each one
 // exists because writing it by hand is a bug waiting to happen.
 var respondFuncs = template.FuncMap{
 	// json renders a value as JSON, quotes and escaping included. It is THE
 	// function of this brick: `"name": "{{.Username}}"` looks right and breaks
-	// the day a name holds a quote — and names come from directories, not from
+	// the day a name holds a quote - and names come from directories, not from
 	// us. `"name": {{json .Username}}` cannot.
 	"json": func(v any) (string, error) {
 		b, err := json.Marshal(v)
@@ -49,10 +49,10 @@ var respondFuncs = template.FuncMap{
 	// wrap turns a list of strings into a list of one-key objects, which is the
 	// shape half the applications out there expect for roles:
 	//
-	//	{{json (wrap "authority" .Roles)}}  →  [{"authority":"A"},{"authority":"B"}]
+	//	{{json (wrap "authority" .Roles)}}  ->  [{"authority":"A"},{"authority":"B"}]
 	//
 	// Written by hand that is a range, an index test for the comma and two
-	// nested actions — for something anyone would describe in six words. The
+	// nested actions - for something anyone would describe in six words. The
 	// loop is still there for the shapes this does not cover.
 	"wrap": func(key string, list []string) []map[string]string {
 		out := make([]map[string]string, 0, len(list))
@@ -72,15 +72,16 @@ const bodyDoc = "Go text/template. The caller is available as " +
 	"Functions: json (renders a value as JSON, quotes and escaping included), " +
 	"join (e.g. {{join \",\" .Roles}}) and wrap, which turns a list into one-key " +
 	"objects: {{json (wrap \"authority\" .Roles)}} gives [{\"authority\":\"A\"}]. " +
-	"Write \"name\": {{json .Username}} and NOT \"name\": \"{{.Username}}\" — the second " +
+	"Write \"name\": {{json .Username}} and NOT \"name\": \"{{.Username}}\" - the second " +
 	"breaks on a name holding a quote. Example: " +
 	`{"name": {{json .Username}}, "authorities": {{json (wrap "authority" .Roles)}}}`
 
 func init() {
 	registerFilter(filterDef{
 		Type: "respond", Phase: phaseTerminal, needsIdentity: true,
-		Doc: "Answers from a template built on the signed-in caller, instead of proxying. " +
-			"Use it to expose the identity endpoint a hosted application expects, in its own shape.",
+		Doc: "Answers from a template instead of proxying, with the signed-in caller available " +
+			"to it. Expose the identity endpoint a hosted application expects in its own shape, " +
+			"or serve a small fixed document (robots.txt, a public config) without a service behind it.",
 		Params: []Param{
 			{Name: "body", Kind: KindString, Required: true, Literal: true, Doc: bodyDoc},
 			{Name: "contentType", Kind: KindString, Default: "application/json; charset=utf-8",
@@ -110,7 +111,7 @@ func init() {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				var buf bytes.Buffer
 				if err := tmpl.Execute(&buf, IdentityFrom(r.Context())); err != nil {
-					// Validated at save time, so this is close to impossible —
+					// Validated at save time, so this is close to impossible -
 					// and a half-written body is worse than an honest failure.
 					http.Error(w, "the route's template could not be rendered", http.StatusInternalServerError)
 					return
@@ -143,7 +144,7 @@ func readableTemplateError(err error) string {
 	// routing.Identity"), which means nothing to whoever is writing a template.
 	// Say what they can actually write instead.
 	if i := strings.Index(msg, " in type routing.Identity"); i >= 0 {
-		msg = msg[:i] + " — the caller has: " + strings.Join(IdentityFields, " ")
+		msg = msg[:i] + " - the caller has: " + strings.Join(IdentityFields, " ")
 	}
 	return strings.TrimSpace(msg)
 }
@@ -158,7 +159,7 @@ var IdentityFields = []string{
 // PreviewRespond renders a template against the witness caller, exactly as the
 // route would. It is what the editor calls while someone types: the answer is
 // either the bytes an application would receive, or the error the save would
-// have raised — and both come from the SAME code path as the real thing, so
+// have raised - and both come from the SAME code path as the real thing, so
 // the preview can never disagree with what ships.
 func PreviewRespond(body string) (string, error) {
 	tmpl, err := template.New("respond").Funcs(respondFuncs).Parse(body)

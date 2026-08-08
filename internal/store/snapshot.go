@@ -13,7 +13,7 @@ import (
 //
 // The one piece of backup that only the gateway can do: a COHERENT copy while
 // it is running. `cp meerkat.db` on a live database can catch it mid-write or
-// out of step with its write-ahead log, and nothing says so — the copy looks
+// out of step with its write-ahead log, and nothing says so - the copy looks
 // fine and fails the day it is restored, which is the worst possible day.
 //
 // Everything else about backups is deliberately NOT here. Scheduling,
@@ -31,7 +31,7 @@ import (
 const DBFileName = "meerkat.db"
 
 // Layout is where an installation keeps its state, as the console shows it in
-// the restore procedure. Nothing here is a secret — a path is not one — but the
+// the restore procedure. Nothing here is a secret - a path is not one - but the
 // last field matters: a snapshot holds the vault ENCRYPTED, so it is only worth
 // what the master key's separation is worth.
 type Layout struct {
@@ -40,7 +40,7 @@ type Layout struct {
 	// KeyFile is the master key's path, "" when it comes from the environment.
 	KeyFile string `json:"keyFile,omitempty"`
 	// KeyFromEnv says the key is supplied by MEERKAT_VAULT_KEY and never
-	// touches this directory — the safer setup, and one the operator should
+	// touches this directory - the safer setup, and one the operator should
 	// know applies before they copy a snapshot anywhere.
 	KeyFromEnv bool `json:"keyFromEnv"`
 }

@@ -184,7 +184,7 @@ func run(dataDir string) error {
 		}
 	}
 
-	fmt.Println(`demo dataset seeded (idempotent). Accounts — password: ` + demoPassword + `
+	fmt.Println(`demo dataset seeded (idempotent). Accounts - password: ` + demoPassword + `
 
   marc   acme-demo(Support+Sales, CUMULATIVE) + globex-demo(Traders|Auditors, EXCLUSIVE)
          -> in acme-demo roles merge; entering globex-demo asks WHICH group; switching

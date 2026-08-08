@@ -16,13 +16,13 @@ import (
 )
 
 // Identity simulation (Try it out): the API-docs page lets a privileged tester
-// call a route AS an arbitrary user with arbitrary roles — no account, no
+// call a route AS an arbitrary user with arbitrary roles - no account, no
 // session to prepare. The two headers are honored only when the request ALSO
 // carries an admin session (the admin cookie rides along on a same-host
 // deployment) whose user is root, infra-admin, dev or tester; anyone else gets
 // an explicit 403. The simulated identity then replaces the data-plane session
-// everywhere it counts — access gates, endpoint security (RBAC-07), page stamp,
-// identity forwarding — so the route and the upstream behave exactly as they
+// everywhere it counts - access gates, endpoint security (RBAC-07), page stamp,
+// identity forwarding - so the route and the upstream behave exactly as they
 // would for a real user shaped like that.
 const (
 	SimulateUserHeader  = "X-Meerkat-Simulate-User"
@@ -88,7 +88,7 @@ func simulationMeta(ctx context.Context) (simMeta, bool) {
 
 // specReadKey marks an IN-PROCESS spec read (admin API docs): the caller was
 // already verified root/infra-admin on the control plane, and reading a
-// route's OpenAPI contract must not additionally require a data session —
+// route's OpenAPI contract must not additionally require a data session -
 // actual calls stay gated. Never set on a network request.
 type specReadKey struct{}
 
@@ -131,7 +131,7 @@ func (rt *Router) expandSimRoles(ctx context.Context, roles []string) []string {
 // untouched; requests with them and no privileged admin session are refused.
 func (rt *Router) applySimulation(req *http.Request) (*http.Request, error) {
 	// An ephemeral test token IS the authorization: minted by a privileged
-	// admin, TTL-bounded, self-contained — no session needed alongside.
+	// admin, TTL-bounded, self-contained - no session needed alongside.
 	if auth := req.Header.Get("Authorization"); strings.HasPrefix(auth, "Bearer "+SimTokenPrefix) {
 		d, ok := rt.verifySimulationToken(strings.TrimPrefix(auth, "Bearer "))
 		if !ok {
@@ -172,13 +172,13 @@ func (rt *Router) applySimulation(req *http.Request) (*http.Request, error) {
 // The API screen mints a short-lived token carrying an arbitrary identity
 // (user + roles), pasted into swagger's Authorize: the whole authorization
 // travels IN the token, so Try it out works without cookies or sessions. The
-// HMAC key is drawn per boot and never leaves the process — tokens die with
+// HMAC key is drawn per boot and never leaves the process - tokens die with
 // it, which is exactly the lifespan a test artifact deserves.
 
 // SimTokenPrefix marks an ephemeral test token in an Authorization header.
 const SimTokenPrefix = "mksim_"
 
-var errSimTokenInvalid = errors.New("invalid or expired test token — mint a fresh one on the API screen")
+var errSimTokenInvalid = errors.New("invalid or expired test token - mint a fresh one on the API screen")
 
 type simTokenClaims struct {
 	User  string   `json:"u"`

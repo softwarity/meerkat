@@ -11,7 +11,7 @@ import { ApiService, IdentityForward, IdentityPreview } from '../api.service';
 // What the route's identity forwarding actually sends upstream, for a FICTIONAL
 // caller the server picks (never the real session, and never values chosen by
 // the console: a signed preview is a real token). Opened from the Identity
-// section, it previews the DRAFT config — no save needed.
+// section, it previews the DRAFT config - no save needed.
 export interface IdentityPreviewData {
   routeName: string;
   identity: IdentityForward;

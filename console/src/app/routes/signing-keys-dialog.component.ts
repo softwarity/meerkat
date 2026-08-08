@@ -11,7 +11,7 @@ import { ApiService, SigningKeys } from '../api.service';
 // The identity JWT signing keys (signed-jwt): the JWKS the backends should
 // verify against (the recommended path), plus each algorithm's PUBLIC key as a
 // collapsed static fallback, and a rotate button. Reached from the Routes page.
-// Private keys stay on the server — only public halves are shown.
+// Private keys stay on the server - only public halves are shown.
 @Component({
   selector: 'app-signing-keys-dialog',
   imports: [

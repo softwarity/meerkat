@@ -17,7 +17,7 @@ func TestSealOpenRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewCipher: %v", err)
 	}
-	const plain = "hunter2 · with unicode ✓"
+	const plain = "hunter2 - with unicode ✓"
 	blob, err := c.Seal(plain)
 	if err != nil {
 		t.Fatalf("Seal: %v", err)

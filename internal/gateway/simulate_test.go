@@ -111,8 +111,8 @@ func TestIdentitySimulation(t *testing.T) {
 		}
 	})
 
-	// Ephemeral test tokens: the token IS the authorization — no cookie, no
-	// session — and the upstream never sees it.
+	// Ephemeral test tokens: the token IS the authorization - no cookie, no
+	// session - and the upstream never sees it.
 	bearer := func(t *testing.T, token string) (*http.Response, string) {
 		t.Helper()
 		req, _ := http.NewRequest(http.MethodGet, srv.URL+"/x", nil)

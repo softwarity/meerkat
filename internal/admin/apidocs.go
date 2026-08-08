@@ -14,7 +14,7 @@ import (
 )
 
 // registerAPIDocs mounts the CONSOLE swagger-ui (DOCS-01): assets vendored in
-// the binary (offline-first — nothing comes from a CDN) and Meerkat's OWN
+// the binary (offline-first - nothing comes from a CDN) and Meerkat's OWN
 // admin API, served and tried on this very origin. It stays here, on the
 // control plane: the data plane never exposes Meerkat's contract. The routes'
 // specs are a DEVELOPER matter and live there instead
@@ -68,7 +68,7 @@ type specRef struct {
 	URL  string `json:"url"`
 }
 
-// apidocsSpecs: the console documents the CONTROL plane — Meerkat's own API,
+// apidocsSpecs: the console documents the CONTROL plane - Meerkat's own API,
 // nothing else. The routes' specs live on the data plane, for developers.
 func (a *API) apidocsSpecs(w http.ResponseWriter, _ *http.Request, _ store.User) {
 	w.Header().Set("Cache-Control", "no-store")
@@ -95,8 +95,8 @@ type testTokenRequest struct {
 }
 
 // mintTestToken issues an ephemeral test token (gateway/simulate.go): sent as
-// `Authorization: Bearer mksim_…` to the data plane (swagger, curl, Postman),
-// it carries the whole authorization — the same capabilities that may
+// `Authorization: Bearer mksim_...` to the data plane (swagger, curl, Postman),
+// it carries the whole authorization - the same capabilities that may
 // simulate by header may mint.
 func (a *API) mintTestToken(w http.ResponseWriter, r *http.Request, actor store.User) {
 	mayMint := actor.Root || actor.InfraAdmin || actor.Dev || actor.Tester

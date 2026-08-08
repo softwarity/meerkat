@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CSS_VARS } from '../theme-tokens';
 
 // The live preview: the gateway-rendered flow-page specimen, dark and light
-// SIDE BY SIDE, each scaled from its logical 1280×800 viewport to fit — the
+// SIDE BY SIDE, each scaled from its logical 1280×800 viewport to fit - the
 // point is to see the whole page. Palette/branding edits and token highlights
 // are pushed into both frames over postMessage, no reload.
 @Component({
@@ -30,7 +30,7 @@ export class ThemePreviewComponent {
   readonly brandName = input.required<string>();
   readonly brandTagline = input.required<string>();
   readonly brandLogo = input.required<string>();
-  readonly flat = input(false); // flat design → --mk-glow 0, effects off
+  readonly flat = input(false); // flat design -> --mk-glow 0, effects off
   readonly highlight = input.required<string>(); // a --mk-* var, or ''
 
   private readonly sanitizer = inject(DomSanitizer);
@@ -112,7 +112,7 @@ export class ThemePreviewComponent {
   ): void {
     const vars: Record<string, string> = {};
     for (const [key, cssVar] of Object.entries(CSS_VARS)) {
-      // Palettes come complete from the API; a token mid-typing may be empty —
+      // Palettes come complete from the API; a token mid-typing may be empty -
       // leave the frame's current value rather than inventing one.
       if (!light[key] || !dark[key]) continue;
       vars[cssVar] = `light-dark(${light[key]}, ${dark[key]})`;

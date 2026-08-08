@@ -14,7 +14,7 @@ import (
 )
 
 // groupSetup: one user, tenant t1 in EXCLUSIVE mode with two groups (ops,
-// sales — one role each), tenant t2 with a single group, and one role-gated
+// sales - one role each), tenant t2 with a single group, and one role-gated
 // UI route per role.
 func groupSetup(t *testing.T) (*http.ServeMux, *session.Manager, *store.Store) {
 	t.Helper()
@@ -26,7 +26,7 @@ func groupSetup(t *testing.T) (*http.ServeMux, *session.Manager, *store.Store) {
 			t.Fatal(err)
 		}
 	}
-	// Both tenants run in EXCLUSIVE mode via their own column — the group mode
+	// Both tenants run in EXCLUSIVE mode via their own column - the group mode
 	// is a per-tenant setting (RBAC-03), there is no gateway-wide default.
 	must(st.SaveTenant(ctx, store.Tenant{ID: "t1", Name: "acme", Enabled: true, GroupMode: store.GroupModeSingle}))
 	must(st.SaveTenant(ctx, store.Tenant{ID: "t2", Name: "globex", Enabled: true, GroupMode: store.GroupModeSingle}))
@@ -110,7 +110,7 @@ func TestExclusiveGroupFlow(t *testing.T) {
 		t.Fatalf("exclusive roles: want opsapp only:\n%.400s", body)
 	}
 
-	// Switching to t2 (one lone group) auto-picks it — no choice step.
+	// Switching to t2 (one lone group) auto-picks it - no choice step.
 	sw := do(t, mux, "POST", "/select-tenant", url.Values{"tenant": {"t2"}, "next": {"/here"}}, cookie)
 	if loc := sw.Header().Get("Location"); loc != "/here" {
 		t.Fatalf("switch to t2: %q, want /here", loc)
@@ -122,7 +122,7 @@ func TestExclusiveGroupFlow(t *testing.T) {
 	// And back to t1: the group was reset, the choice is owed AGAIN.
 	back := do(t, mux, "POST", "/select-tenant", url.Values{"tenant": {"t1"}, "next": {"/there"}}, cookie)
 	if loc := back.Header().Get("Location"); !strings.HasPrefix(loc, "/select-group") {
-		t.Fatalf("back to t1: %q, want /select-group…", loc)
+		t.Fatalf("back to t1: %q, want /select-group...", loc)
 	}
 	if sess, _ := sm.Resolve(context.Background(), req); sess.GroupID != "" {
 		t.Fatalf("group must be reset on tenant change, got %q", sess.GroupID)

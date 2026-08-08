@@ -39,7 +39,7 @@ func TestALocalAccountIsAlwaysRecognised(t *testing.T) {
 
 // TestAnAuthorityThatSaysNoToPasskeys: the tri-state on the authority was
 // declared, editable, and read nowhere. Delegating authentication means
-// delegating it whole — a passkey is a local credential.
+// delegating it whole - a passkey is a local credential.
 func TestAnAuthorityThatSaysNoToPasskeys(t *testing.T) {
 	h, st := revalHandler(t)
 	ctx := context.Background()

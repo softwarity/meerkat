@@ -1,6 +1,6 @@
 // Package session implements Meerkat's web sessions, as decided in the
 // requirements (Q6): an opaque httpOnly cookie whose state lives in the
-// store — revocation is immediate — fronted by a small in-memory cache so
+// store - revocation is immediate - fronted by a small in-memory cache so
 // the hot path does not pay a database read on every request. JWTs are for
 // the API path and upstream propagation, never for the browser.
 package session
@@ -27,7 +27,7 @@ const (
 	AdminCookieName = "MEERKAT_ADMIN_SESSION" // control plane
 )
 
-// Planes stamped on every stored session — Resolve refuses a token from the
+// Planes stamped on every stored session - Resolve refuses a token from the
 // other plane even if someone copies the cookie across.
 const (
 	DataPlane  = "data"
@@ -59,7 +59,7 @@ type cacheEntry struct {
 // Option tweaks a Manager (tests mostly).
 type Option func(*Manager)
 
-// WithTTL sets the session lifetime (default 30m — the V1 default).
+// WithTTL sets the session lifetime (default 30m - the V1 default).
 func WithTTL(d time.Duration) Option { return func(m *Manager) { m.ttl = d } }
 
 // WithCacheTTL sets the memory-cache window (default 5s).
@@ -69,7 +69,7 @@ func WithCacheTTL(d time.Duration) Option { return func(m *Manager) { m.cacheTTL
 func WithClock(now func() time.Time) Option { return func(m *Manager) { m.now = now } }
 
 // ForAdminPlane scopes the manager to the control plane: its own cookie name
-// and its own session plane — the two ports never share a browser session.
+// and its own session plane - the two ports never share a browser session.
 func ForAdminPlane() Option {
 	return func(m *Manager) { m.cookieName, m.plane = AdminCookieName, AdminPlane }
 }
@@ -97,8 +97,8 @@ func (m *Manager) Issue(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	return m.IssueWith(ctx, w, r, userID, "", "", m.ttl, "", "")
 }
 
-// IssueWith creates a session with an explicit active tenant and lifetime —
-// the login flow passes the RESOLVED TTL (membership → tenant → global,
+// IssueWith creates a session with an explicit active tenant and lifetime -
+// the login flow passes the RESOLVED TTL (membership -> tenant -> global,
 // TENANT-05). The returned token is the raw cookie value (only its hash is
 // persisted).
 func (m *Manager) IssueWith(ctx context.Context, w http.ResponseWriter, r *http.Request, userID, tenantID, groupID string, ttl time.Duration, pending, next string) (string, error) {
@@ -142,7 +142,7 @@ func (m *Manager) ClearPending(ctx context.Context, r *http.Request) error {
 }
 
 // SetPending advances the request's session to the next login-flow step
-// (AUTH-05) — e.g. from the password step to the MFA step — without issuing a
+// (AUTH-05) - e.g. from the password step to the MFA step - without issuing a
 // new session. "" clears the step (flow complete). Refreshes the cache.
 func (m *Manager) SetPending(ctx context.Context, r *http.Request, step string) error {
 	c, err := r.Cookie(m.cookieName)
@@ -160,7 +160,7 @@ func (m *Manager) SetPending(ctx context.Context, r *http.Request, step string) 
 }
 
 // SetTenant records the active tenant on the request's session (the
-// select-tenant step — TENANT-03) and refreshes the cache.
+// select-tenant step - TENANT-03) and refreshes the cache.
 func (m *Manager) SetTenant(ctx context.Context, r *http.Request, tenantID string) error {
 	c, err := r.Cookie(m.cookieName)
 	if err != nil || c.Value == "" {
@@ -177,7 +177,7 @@ func (m *Manager) SetTenant(ctx context.Context, r *http.Request, tenantID strin
 }
 
 // SetGroup records the ACTIVE group on the request's session (the
-// select-group step, exclusive mode — RBAC-03) and refreshes the cache.
+// select-group step, exclusive mode - RBAC-03) and refreshes the cache.
 func (m *Manager) SetGroup(ctx context.Context, r *http.Request, groupID string) error {
 	c, err := r.Cookie(m.cookieName)
 	if err != nil || c.Value == "" {
@@ -200,7 +200,7 @@ func (m *Manager) Resolve(ctx context.Context, r *http.Request) (store.Session, 
 	c, err := r.Cookie(m.cookieName)
 	if err != nil || c.Value == "" {
 		// No browser session: an API token may authenticate (AUTH-16), but only
-		// one scoped to THIS plane — a data token never opens the admin port and
+		// one scoped to THIS plane - a data token never opens the admin port and
 		// an admin (control-plane) token never opens the data port.
 		if sess, ok := m.resolveToken(ctx, r); ok {
 			return sess, nil
@@ -234,11 +234,11 @@ func (m *Manager) Resolve(ctx context.Context, r *http.Request) (store.Session, 
 	return sess, nil
 }
 
-// apiTokenPrefix marks Meerkat personal access tokens — greppable in logs,
+// apiTokenPrefix marks Meerkat personal access tokens - greppable in logs,
 // detectable by secret scanners, distinct from a session cookie value.
 const apiTokenPrefix = "mk_"
 
-// resolveToken authenticates an "Authorization: Bearer mk_…" request against
+// resolveToken authenticates an "Authorization: Bearer mk_..." request against
 // a live API token, synthesizing the session context the token captured
 // (tenant + group). NOT cached: a revoke or disable takes effect on the very
 // next request. The user is re-checked live so a disabled account's tokens
@@ -258,7 +258,7 @@ func (m *Manager) resolveToken(ctx context.Context, r *http.Request) (store.Sess
 	if err != nil {
 		return store.Session{}, false
 	}
-	// A token authenticates ONLY on its own plane — this is the isolation
+	// A token authenticates ONLY on its own plane - this is the isolation
 	// between the data port and the admin port.
 	if tok.Plane != m.plane {
 		return store.Session{}, false

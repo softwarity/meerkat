@@ -81,7 +81,7 @@ func TestExpiryBeatsCache(t *testing.T) {
 	clock := &now
 	m, _ := setup(t,
 		WithTTL(10*time.Minute),
-		WithCacheTTL(time.Hour), // cache would happily serve stale — expiry must win
+		WithCacheTTL(time.Hour), // cache would happily serve stale - expiry must win
 		WithClock(func() time.Time { return *clock }),
 	)
 	c := issue(t, m)

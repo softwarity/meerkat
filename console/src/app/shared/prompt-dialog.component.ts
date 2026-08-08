@@ -10,12 +10,12 @@ export interface PromptData {
   confirmLabel: string;
   initial?: string;
   // Type-to-confirm: the confirm button stays disabled until the input matches
-  // this exact string (destructive actions — e.g. type the tenant name).
+  // this exact string (destructive actions - e.g. type the tenant name).
   requireMatch?: string;
   danger?: boolean;
 }
 
-// A themed single-field prompt — replaces the native prompt(). Resolves to the
+// A themed single-field prompt - replaces the native prompt(). Resolves to the
 // trimmed value on confirm, undefined on cancel. Callers pass localized strings.
 @Component({
   selector: 'app-prompt-dialog',

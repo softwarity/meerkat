@@ -65,14 +65,14 @@ func TestAuditViewerScope(t *testing.T) {
 		t.Fatalf("add member: %d", code)
 	}
 
-	// root flips the group mode — exactly the François example.
+	// root flips the group mode - exactly the François example.
 	code, body = f.call(t, "PUT", "/api/tenants/"+acme.ID,
 		`{"name":"acme","enabled":true,"businessAccess":{"inherited":true},"sessionTTL":"","groupMode":"SINGLE"}`, f.rootC)
 	if code != http.StatusOK {
 		t.Fatalf("update tenant: %d %s", code, body)
 	}
 
-	// The trail shows the change as groupMode: → SINGLE, not "tenant modified".
+	// The trail shows the change as groupMode: -> SINGLE, not "tenant modified".
 	_, body = f.call(t, "GET", "/api/audit", "", f.rootC)
 	var events []store.AuditEvent
 	if err := json.Unmarshal([]byte(body), &events); err != nil {
@@ -145,7 +145,7 @@ func TestAuditDomainScope(t *testing.T) {
 	if !strings.Contains(ap, `"user.create"`) || strings.Contains(ap, `"route.create"`) {
 		t.Fatalf("app-admin must see identity, not routes: %s", ap)
 	}
-	// A plain user administers nothing → refused.
+	// A plain user administers nothing -> refused.
 	if code, _ := f.call(t, "GET", "/api/audit", "", f.plainC); code != http.StatusForbidden {
 		t.Fatalf("plain user must be refused: %d", code)
 	}

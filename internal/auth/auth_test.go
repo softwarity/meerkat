@@ -352,7 +352,7 @@ func TestForcedPasswordStepCannotBeBypassed(t *testing.T) {
 		t.Fatalf("select-tenant while pending: %d %q", byp.Code, byp.Header().Get("Location"))
 	}
 
-	// 3. Completing the step resumes the flow (two tenants → selection).
+	// 3. Completing the step resumes the flow (two tenants -> selection).
 	form := url.Values{"password": {"brand-new-pass"}, "confirm": {"brand-new-pass"}, "next": {"/app"}}
 	req = httptest.NewRequest("POST", "/update-password", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -388,7 +388,7 @@ func TestForcedPasswordStepCannotBeBypassed(t *testing.T) {
 }
 
 // TestAdminPlaneKeepsMeerkatChrome: the theme editor restyles the DATA plane
-// only — the admin plane's pages keep the built-in identity.
+// only - the admin plane's pages keep the built-in identity.
 func TestAdminPlaneKeepsMeerkatChrome(t *testing.T) {
 	st, err := store.Open(t.TempDir())
 	if err != nil {
@@ -420,8 +420,8 @@ func TestAdminPlaneKeepsMeerkatChrome(t *testing.T) {
 }
 
 // TestDataPlaneDefaultBrandingIsPlaceholder: a fresh gateway shows "MY APP" on
-// the application login — an obvious nudge that the name is the integrator's
-// to set — while the admin plane wears MEERKAT.
+// the application login - an obvious nudge that the name is the integrator's
+// to set - while the admin plane wears MEERKAT.
 func TestDataPlaneDefaultBrandingIsPlaceholder(t *testing.T) {
 	mux, _ := setup(t)
 	rec := httptest.NewRecorder()

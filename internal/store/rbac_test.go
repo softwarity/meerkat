@@ -61,7 +61,7 @@ func TestEffectiveRolesClosure(t *testing.T) {
 func TestRoleCycleRejected(t *testing.T) {
 	s, ctx := rbacStore(t)
 	seedHierarchy(ctx, t, s)
-	// admin is viewer's ancestor → making admin a child of viewer is a cycle.
+	// admin is viewer's ancestor -> making admin a child of viewer is a cycle.
 	err := s.SaveRole(ctx, Role{ID: "admin", Name: "admin", ParentID: "viewer"})
 	if err == nil {
 		t.Fatal("expected a cycle error, got nil")
@@ -143,7 +143,7 @@ func TestGroupModePerTenant(t *testing.T) {
 	if err := s.SaveTenant(ctx, Tenant{ID: "t1", Name: "acme", Enabled: true}); err != nil {
 		t.Fatalf("SaveTenant: %v", err)
 	}
-	// An unset tenant mode defaults to cumulative — the group mode is a
+	// An unset tenant mode defaults to cumulative - the group mode is a
 	// per-tenant responsibility (RBAC-03), there is no gateway-wide default.
 	if m, _ := s.GetGroupMode(ctx, "t1"); m != "" {
 		t.Fatalf("default group mode = %q, want empty", m)

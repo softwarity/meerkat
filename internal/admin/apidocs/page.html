@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Meerkat — API</title>
+  <title>Meerkat - API</title>
   <link rel="stylesheet" href="assets/swagger-ui.css">
   <link rel="stylesheet" href="assets/skin.css">
 </head>
@@ -45,8 +45,8 @@
         tryItOutEnabled: true,
         deepLinking: false,
         validatorUrl: null,
-        // Try it out crosses origins (admin page → data plane): send the
-        // cookies with it — the gateway's scoped CORS allows credentials, and
+        // Try it out crosses origins (admin page -> data plane): send the
+        // cookies with it - the gateway's scoped CORS allows credentials, and
         // identity simulation is authorized by the admin session they carry.
         withCredentials: true
       });
@@ -65,12 +65,12 @@
         mount(specs[0].url);
       } else {
         document.getElementById('swagger').innerHTML =
-          '<p class="mk-error">No specification to show — declare an OpenAPI url on a route, or expose the Meerkat API (Infra › Others).</p>';
+          '<p class="mk-error">No specification to show - declare an OpenAPI url on a route, or expose the Meerkat API (Infra › Others).</p>';
       }
       sel.hidden = specs.length < 2;
     }).catch(() => {
       document.getElementById('swagger').innerHTML =
-        '<p class="mk-error">Could not load the specification list — is your session still alive?</p>';
+        '<p class="mk-error">Could not load the specification list - is your session still alive?</p>';
     });
     sel.addEventListener('change', () => mount(sel.value));
   </script>

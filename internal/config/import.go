@@ -15,7 +15,7 @@ import (
 // Importing a configuration, in two steps: what WOULD happen, then what
 // happens. The preview exists because an import is the one moment an admin can
 // still change their mind, and because it is where the missing secrets are
-// asked for — later, nobody remembers what $ldap-bind was.
+// asked for - later, nobody remembers what $ldap-bind was.
 
 // The actions a change can carry.
 const (
@@ -82,11 +82,11 @@ func Preview(ctx context.Context, st *store.Store, doc *Document, prune bool) (*
 //   - MERGE, not replace. A document may legitimately be partial (three routes
 //     lifted from a preprod), so what is absent is left alone. Removing what
 //     the file does not mention is opt-in (prune), and even then only for the
-//     sections the file actually carries — importing a routes-only file must
+//     sections the file actually carries - importing a routes-only file must
 //     never wipe the role catalogue.
 //   - An EMPTY secret field keeps what is stored. An export never carries a
 //     literal, so re-importing one's own export would otherwise erase every
-//     credential on the way back in — the most expensive way imaginable to
+//     credential on the way back in - the most expensive way imaginable to
 //     learn how the format works.
 func Apply(ctx context.Context, st *store.Store, doc *Document, prune bool) (*Plan, error) {
 	return run(ctx, st, doc, prune, true)
@@ -156,7 +156,7 @@ func run(ctx context.Context, st *store.Store, doc *Document, prune, commit bool
 }
 
 // check refuses a document that cannot possibly apply, BEFORE anything is
-// written. It is deliberately shallow — a route's predicates are compiled by
+// written. It is deliberately shallow - a route's predicates are compiled by
 // the engine on reload, and duplicating that here would be a second truth to
 // keep in step. What it catches is what a hand-written file gets wrong: an
 // object with no id, a route with nothing to match on, an authority of a kind
@@ -491,8 +491,8 @@ func importSettings(ctx context.Context, st *store.Store, doc *Document, plan *P
 }
 
 // missingRefs lists the $names the document expects and the vault does not
-// hold. Configuration resolves in the INFRA scope — routes, authorities and the
-// relay transport all read it — so that is where a missing entry belongs.
+// hold. Configuration resolves in the INFRA scope - routes, authorities and the
+// relay transport all read it - so that is where a missing entry belongs.
 func missingRefs(ctx context.Context, st *store.Store, doc *Document) ([]MissingRef, error) {
 	names, err := Refs(doc)
 	if err != nil {

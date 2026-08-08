@@ -6,7 +6,7 @@ import (
 	"github.com/softwarity/meerkat/internal/store"
 )
 
-// TestMessageCatalogueComplete: every locale carries exactly the same keys —
+// TestMessageCatalogueComplete: every locale carries exactly the same keys -
 // a missing key renders as an empty string, which no test UI would catch.
 func TestMessageCatalogueComplete(t *testing.T) {
 	ref := messages["en"]
@@ -28,7 +28,7 @@ func TestMessageCatalogueComplete(t *testing.T) {
 }
 
 // TestSupportedLanguagesSpeakTheCatalogue: the store's advertised languages
-// must all exist in the catalogue (and have an endonym) — the two lists are
+// must all exist in the catalogue (and have an endonym) - the two lists are
 // maintained by hand in different packages.
 func TestSupportedLanguagesSpeakTheCatalogue(t *testing.T) {
 	for _, code := range store.SupportedLanguages {
@@ -48,7 +48,7 @@ func TestMatchAcceptLanguage(t *testing.T) {
 	cases := map[string]string{
 		"fr-FR,fr;q=0.9,en;q=0.8": "fr",
 		"en-US,en;q=0.9":          "en",
-		"de-DE,de;q=0.9":          "fr", // nothing offered matches → first offered
+		"de-DE,de;q=0.9":          "fr", // nothing offered matches -> first offered
 		"":                        "fr",
 	}
 	for header, want := range cases {

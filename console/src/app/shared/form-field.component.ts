@@ -52,7 +52,7 @@ import { VaultService } from './vault.service';
   ],
   // The projected matInput resolves MAT_FORM_FIELD through its DECLARATION
   // injector (the calling template), where the inner mat-form-field is
-  // invisible — without this provider it believes it is outside any form
+  // invisible - without this provider it believes it is outside any form
   // field and keeps the browser's native input styling.
   providers: [{ provide: MAT_FORM_FIELD, useExisting: forwardRef(() => FormFieldComponent) }],
   host: { '(input)': 'syncEmpty()' },
@@ -84,7 +84,7 @@ export class FormFieldComponent {
   readonly clearable = input(true, { transform: booleanAttribute });
   readonly copyable = input(false, { transform: booleanAttribute });
   readonly revealable = input(false, { transform: booleanAttribute });
-  // Masks the projected control WITHOUT relying on input[type=password] — the
+  // Masks the projected control WITHOUT relying on input[type=password] - the
   // only way to hide a textarea, and the reason we can use one at all: browsers
   // never offer credential autofill on a textarea, only on inputs.
   readonly masked = input(false, { transform: booleanAttribute });
@@ -104,7 +104,7 @@ export class FormFieldComponent {
   private readonly vault = inject(VaultService);
   private readonly dialog = inject(MatDialog);
 
-  // The accepted kinds, parsed from allowVault ("secret/values", "values"…).
+  // The accepted kinds, parsed from allowVault ("secret/values", "values"...).
   protected readonly vaultKinds = computed<('value' | 'secret')[]>(() => {
     const spec = this.allowVault().toLowerCase();
     const kinds: ('value' | 'secret')[] = [];
@@ -202,7 +202,7 @@ export class FormFieldComponent {
   }
 
   // For controls that anchor an overlay on their form field (autocomplete,
-  // datepicker) — delegate to the real mat-form-field.
+  // datepicker) - delegate to the real mat-form-field.
   getConnectedOverlayOrigin(): ElementRef {
     return this.formField().getConnectedOverlayOrigin();
   }

@@ -149,8 +149,8 @@ func (a *API) putVaultEntry(w http.ResponseWriter, r *http.Request, actor store.
 	if existed {
 		action = "vault.update"
 	}
-	// The VALUE never reaches the audit trail — only that it changed.
-	a.auditEvent(r.Context(), actor, action, "vault", e.Name, e.Name, "", e.Kind+" · "+e.Scope)
+	// The VALUE never reaches the audit trail - only that it changed.
+	a.auditEvent(r.Context(), actor, action, "vault", e.Name, e.Name, "", e.Kind+" - "+e.Scope)
 	writeJSON(w, http.StatusOK, vaultEntryView{Name: e.Name, Kind: e.Kind, Scope: e.Scope, HasValue: true})
 }
 

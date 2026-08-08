@@ -25,7 +25,7 @@ import (
 // Authorization model: superpowers (root/dev/tester/tenantCreator) are global
 // user flags; tenant administration is the OWNER/ADMIN membership on that
 // tenant (TENANT-02). Every handler receives the resolved session user and
-// enforces its own scope — the role-CSS gating in the console is comfort, the
+// enforces its own scope - the role-CSS gating in the console is comfort, the
 // contract is here.
 
 type userHandler func(w http.ResponseWriter, r *http.Request, actor store.User)
@@ -39,7 +39,7 @@ func (a *API) authed(next userHandler) http.Handler {
 			return
 		}
 		if sess.Pending != "" {
-			// AUTH-05: the login flow is not complete — nothing else answers.
+			// AUTH-05: the login flow is not complete - nothing else answers.
 			writeErr(w, http.StatusUnauthorized, "login flow incomplete: finish the "+sess.Pending+" step first")
 			return
 		}
@@ -64,7 +64,7 @@ func (a *API) rootOnly(next userHandler) http.Handler {
 }
 
 // infraAdmin restricts a handler to root or infra-admin users (RBAC-05):
-// the routing plane — routes, catalog, reload, built-in pages.
+// the routing plane - routes, catalog, reload, built-in pages.
 func (a *API) infraAdmin(next userHandler) http.Handler {
 	return a.authed(func(w http.ResponseWriter, r *http.Request, actor store.User) {
 		if !actor.Root && !actor.InfraAdmin {
@@ -76,7 +76,7 @@ func (a *API) infraAdmin(next userHandler) http.Handler {
 }
 
 // appAdmin restricts a handler to root or app-admin users (RBAC-05): the
-// application's identity — users, roles, global settings.
+// application's identity - users, roles, global settings.
 func (a *API) appAdmin(next userHandler) http.Handler {
 	return a.authed(func(w http.ResponseWriter, r *http.Request, actor store.User) {
 		if !actor.Root && !actor.AppAdmin {
@@ -88,7 +88,7 @@ func (a *API) appAdmin(next userHandler) http.Handler {
 }
 
 // tenantScoped restricts a handler to root, the tenant's OWNER (Tenant.OwnerID
-// — ownership is decoupled from membership), or an ADMIN member of the tenant
+// - ownership is decoupled from membership), or an ADMIN member of the tenant
 // named by the {id} path value.
 func (a *API) tenantScoped(next userHandler) http.Handler {
 	return a.authed(func(w http.ResponseWriter, r *http.Request, actor store.User) {
@@ -133,7 +133,7 @@ func (a *API) registerIdentity(mux *http.ServeMux) {
 	mux.Handle("GET /api/tenants/{id}/members", a.tenantScoped(a.listMembers))
 	mux.Handle("PUT /api/tenants/{id}/members/{userId}", a.tenantScoped(a.putMember))
 	mux.Handle("DELETE /api/tenants/{id}/members/{userId}", a.tenantScoped(a.deleteMember))
-	// Ownership transfer (TENANT-02): a tenant mutation, not a membership one —
+	// Ownership transfer (TENANT-02): a tenant mutation, not a membership one -
 	// tenantScoped lets ADMINs reach it, the handler narrows to root/owner.
 	mux.Handle("POST /api/tenants/{id}/owner", a.tenantScoped(a.transferOwner))
 	mux.Handle("POST /api/tenants/{id}/members/{userId}/reset-password", a.tenantScoped(a.resetMemberPassword))
@@ -154,13 +154,13 @@ func (a *API) me(w http.ResponseWriter, r *http.Request, actor store.User) {
 	if tenants == nil {
 		tenants = []store.UserTenant{}
 	}
-	// The session's active tenant (TENANT-03) — "" when none is selected.
+	// The session's active tenant (TENANT-03) - "" when none is selected.
 	activeTenant := ""
 	if sess, err := a.sm.Resolve(r.Context(), r); err == nil {
 		activeTenant = sess.TenantID
 	}
 	// tenantAdmin drives the console's role-CSS: true when the user administers
-	// at least one tenant — as its OWNER (even without a membership) or an ADMIN
+	// at least one tenant - as its OWNER (even without a membership) or an ADMIN
 	// member. Ownership is decoupled from membership, so the tenants list above
 	// (memberships) is not enough to decide this.
 	tenantAdmin := false
@@ -239,7 +239,7 @@ func (a *API) createUser(w http.ResponseWriter, r *http.Request, actor store.Use
 		return
 	}
 	u.ID = newID()
-	// A generated one-time password, shown once in the response — the archway
+	// A generated one-time password, shown once in the response - the archway
 	// pattern; temporary-password expiry arrives with the password policy.
 	password, err := randomSecret()
 	if err != nil {
@@ -252,7 +252,7 @@ func (a *API) createUser(w http.ResponseWriter, r *http.Request, actor store.Use
 		return
 	}
 	u.PasswordHash = string(hash)
-	u.MustChangePassword = true // generated password → forced update at first login
+	u.MustChangePassword = true // generated password -> forced update at first login
 	u.EmailVerified = true      // an admin answers for the address they type
 	u.SelfRegistered = false
 	if err := a.st.CreateUser(r.Context(), u); err != nil {
@@ -286,10 +286,10 @@ func (a *API) updateUser(w http.ResponseWriter, r *http.Request, actor store.Use
 		return
 	}
 	// Self-lockout guard: whatever other roots exist, you never disable your
-	// own account nor drop your own root — nothing proves you control the
+	// own account nor drop your own root - nothing proves you control the
 	// other root account (learned the hard way).
 	if u.ID == actor.ID && ((current.Enabled && !u.Enabled) || (current.Root && !u.Root)) {
-		writeErr(w, http.StatusUnprocessableEntity, "refusing: you cannot disable your own account or drop your own root — have another root do it")
+		writeErr(w, http.StatusUnprocessableEntity, "refusing: you cannot disable your own account or drop your own root - have another root do it")
 		return
 	}
 	// Lockout guard: the gateway must always keep one enabled root.
@@ -339,7 +339,7 @@ func (a *API) resetMemberPassword(w http.ResponseWriter, r *http.Request, actor 
 	a.writeResetPassword(w, r, actor, userID, tenantID)
 }
 
-// userLogins returns a user's sign-in history (root scope) — same data the
+// userLogins returns a user's sign-in history (root scope) - same data the
 // user sees on /profile/history, newest first.
 func (a *API) userLogins(w http.ResponseWriter, r *http.Request, _ store.User) {
 	if _, err := a.st.GetUserByID(r.Context(), r.PathValue("id")); err != nil {
@@ -356,8 +356,8 @@ type identityView struct {
 	store.Identity
 	ProviderName string `json:"providerName"`
 	ProviderKind string `json:"providerKind"`
-	// Enabled: a revoked authority still shows — the link is a fact of this
-	// account's history — but it no longer opens anything.
+	// Enabled: a revoked authority still shows - the link is a fact of this
+	// account's history - but it no longer opens anything.
 	ProviderEnabled bool `json:"providerEnabled"`
 }
 
@@ -373,7 +373,7 @@ type identitiesView struct {
 }
 
 // userIdentities answers "how can this person get in, and what does the
-// authority say about them" — the two questions an admin has when someone
+// authority say about them" - the two questions an admin has when someone
 // arrives through SSO and reaches nothing. The reported GROUPS are the ones a
 // mapping would be written against, so they are shown verbatim, upstream's own
 // names, rather than translated into anything of ours.
@@ -433,7 +433,7 @@ func (a *API) writeLogins(w http.ResponseWriter, r *http.Request, userID string)
 }
 
 // writeResetPassword generates a temporary password, stores its hash with the
-// must-change flag, returns it once, and records the reset (a security event —
+// must-change flag, returns it once, and records the reset (a security event -
 // never the password itself). tenantID scopes a tenant-admin's member reset.
 func (a *API) writeResetPassword(w http.ResponseWriter, r *http.Request, actor store.User, id, tenantID string) {
 	password, err := randomSecret()
@@ -503,12 +503,12 @@ func (a *API) ensureAnotherRoot(r *http.Request, excludeID string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("refusing: %q is the last enabled root — promote another root first", excludeID)
+	return fmt.Errorf("refusing: %q is the last enabled root - promote another root first", excludeID)
 }
 
 // lookupUser resolves a username to a minimal identity (never the flags, never
 // anything sensitive) so a tenant admin can add an existing user as a member.
-// Restricted to root or someone administering at least one tenant — a plain
+// Restricted to root or someone administering at least one tenant - a plain
 // user cannot probe usernames.
 func (a *API) lookupUser(w http.ResponseWriter, r *http.Request, actor store.User) {
 	if !actor.Root {
@@ -588,13 +588,13 @@ func (a *API) createTenant(w http.ResponseWriter, r *http.Request, actor store.U
 	}
 	t.ID = newID()
 	t.CreatedBy = actor.ID // audit: stamped once, never changed
-	// Every tenant has an owner from birth (the creator, root included) —
+	// Every tenant has an owner from birth (the creator, root included) -
 	// ownership is a tenant field now, so no tenant is ever ownerless.
 	t.OwnerID = actor.ID
-	// A tenant is born enabled — disabling is a later, deliberate act (PUT).
+	// A tenant is born enabled - disabling is a later, deliberate act (PUT).
 	t.Enabled = true
 	if !t.BusinessAccess.Inherited && len(t.BusinessAccess.Days) == 0 {
-		// No override provided → inherit the global setting.
+		// No override provided -> inherit the global setting.
 		t.BusinessAccess = store.BusinessAccess{Inherited: true}
 	}
 	if err := a.st.SaveTenant(r.Context(), t); err != nil {
@@ -659,7 +659,7 @@ func (a *API) updateTenant(w http.ResponseWriter, r *http.Request, actor store.U
 			return
 		}
 	}
-	// Ownership is NOT changed by the general update — it is transferred in the
+	// Ownership is NOT changed by the general update - it is transferred in the
 	// Danger zone (POST .../owner). Carry the stored owner forward whatever the
 	// payload says, so a round-trip cannot silently reassign it.
 	t.OwnerID = existing.OwnerID
@@ -682,7 +682,7 @@ func (a *API) updateTenant(w http.ResponseWriter, r *http.Request, actor store.U
 		a.internal(w, err)
 		return
 	}
-	// Audit the field-level diff (name, hours, group mode…) — not "tenant saved".
+	// Audit the field-level diff (name, hours, group mode...) - not "tenant saved".
 	a.auditUpdate(r.Context(), actor, "tenant.update", "tenant", saved.ID, saved.Name, saved.ID, existing, saved)
 	writeJSON(w, http.StatusOK, saved)
 }
@@ -696,7 +696,7 @@ func (a *API) deleteTenant(w http.ResponseWriter, r *http.Request, actor store.U
 		writeErr(w, http.StatusNotFound, "tenant not found")
 		return
 	}
-	// Destroying a tenant is for root or its owner — an ADMIN configures, the
+	// Destroying a tenant is for root or its owner - an ADMIN configures, the
 	// owner (or root) disposes.
 	if !actor.Root && t.OwnerID != actor.ID {
 		writeErr(w, http.StatusForbidden, "deleting a tenant requires root or its owner")
@@ -757,7 +757,7 @@ func (a *API) putMember(w http.ResponseWriter, r *http.Request, actor store.User
 			return
 		}
 	}
-	// Ownership is not a membership type — SaveMembership rejects OWNER (422).
+	// Ownership is not a membership type - SaveMembership rejects OWNER (422).
 	// Ownership is transferred through POST .../owner (TENANT-02).
 	if err := a.st.SaveMembership(r.Context(), m); err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err.Error())
@@ -778,7 +778,7 @@ func (a *API) putMember(w http.ResponseWriter, r *http.Request, actor store.User
 
 // transferOwner reassigns the tenant's owner (TENANT-02). Reachable by tenant
 // admins (tenantScoped), but only root or the CURRENT owner may actually
-// transfer — an ADMIN cannot hand the tenant away. The new owner need not be a
+// transfer - an ADMIN cannot hand the tenant away. The new owner need not be a
 // member; the previous owner keeps their membership (if any).
 func (a *API) transferOwner(w http.ResponseWriter, r *http.Request, actor store.User) {
 	tenantID := r.PathValue("id")
@@ -838,7 +838,7 @@ func (a *API) deleteMember(w http.ResponseWriter, r *http.Request, actor store.U
 		writeErr(w, http.StatusNotFound, "membership not found")
 		return
 	}
-	// Removing a membership never touches ownership (Tenant.OwnerID) — an owner
+	// Removing a membership never touches ownership (Tenant.OwnerID) - an owner
 	// who was also a member simply becomes a non-member owner.
 	if _, err := a.st.DeleteMembership(r.Context(), userID, tenantID); err != nil {
 		a.internal(w, err)
@@ -854,7 +854,7 @@ func (a *API) deleteMember(w http.ResponseWriter, r *http.Request, actor store.U
 
 // ── global settings ──────────────────────────────────────────────────────────
 
-// settingsPayload is the global level of the inheritable options — what tenant
+// settingsPayload is the global level of the inheritable options - what tenant
 // and membership overrides fall back to (TENANT-04/05). The "/" trap is NOT a
 // setting: it is an ordinary catch-all route ordered last (ROUTE-10).
 type settingsPayload struct {
@@ -886,8 +886,8 @@ type settingsPayload struct {
 }
 
 // smtpPayload is the APPLICATION's side of outbound e-mail: the display NAME
-// the recipient reads. The address is not a free choice — a provider only lets
-// you send as the account it authenticated — so it travels with the relay
+// the recipient reads. The address is not a free choice - a provider only lets
+// you send as the account it authenticated - so it travels with the relay
 // (host, credentials) behind /api/settings/mail-relay, which an infra admin
 // owns. The relay fields here are read-only context, so this page can show the
 // resulting sender and say whether mail can go out at all.
@@ -983,7 +983,7 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 		writeErr(w, http.StatusUnprocessableEntity, "trusted-browser duration is required when trusted browsers are allowed")
 		return
 	}
-	// The application locale pool: free BCP 47 tags (fr, fr-FR, pt-BR…),
+	// The application locale pool: free BCP 47 tags (fr, fr-FR, pt-BR...),
 	// canonicalized here. It may be empty. The flow pages will speak the
 	// subset Meerkat embeds; the rest still feed the user button and the
 	// upstream forwarding.
@@ -1028,7 +1028,7 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 		a.internal(w, err)
 		return
 	}
-	// Outbound e-mail (AUTH-20). An empty password keeps the stored one — the
+	// Outbound e-mail (AUTH-20). An empty password keeps the stored one - the
 	// console never sees or resends it.
 	// Only the display NAME is this plane's to change: the relay, address
 	// included, is kept verbatim.
@@ -1084,7 +1084,7 @@ func (a *API) putSettings(w http.ResponseWriter, r *http.Request, actor store.Us
 			"pages scheme "+p.PagesScheme+" is not allowed: use \"\" (the visitor decides), light or dark")
 		return
 	}
-	// The default route lives in the data plane's snapshot — apply on save.
+	// The default route lives in the data plane's snapshot - apply on save.
 	if err := a.router.Reload(r.Context()); err != nil {
 		a.internal(w, fmt.Errorf("saved, but reload failed: %w", err))
 		return

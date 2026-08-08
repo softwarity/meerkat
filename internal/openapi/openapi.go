@@ -147,8 +147,8 @@ func Fetch(ctx context.Context, client *http.Client, url string) (*Spec, []byte,
 // operations through the exposed base (UIF-07). A relative base keeps the
 // current origin: Swagger 2.0 gets its basePath set (host and schemes dropped);
 // OpenAPI 3.x gets a single relative server. An absolute base
-// (scheme://host[/path]) points at ANOTHER origin — the API-docs page serves
-// from the admin plane while the routes answer on the data plane — so 2.0 gets
+// (scheme://host[/path]) points at ANOTHER origin - the API-docs page serves
+// from the admin plane while the routes answer on the data plane - so 2.0 gets
 // it decomposed into host/schemes/basePath and 3.x carries it verbatim. The
 // spec is treated as JSON; a YAML-only spec is returned unchanged (swagger-ui
 // still loads it, only gateway targeting is lost) with a non-nil error the
@@ -207,7 +207,7 @@ func Rewrite(raw []byte, exposedBase string) ([]byte, error) {
 // InjectSimulation declares the gateway's identity-simulation headers on a
 // spec served by the API-docs page: swagger-ui's Authorize can then input a
 // user and roles (2.0 gets securityDefinitions, 3.x components.securitySchemes)
-// and every operation shows the padlock — the appended global requirement is
+// and every operation shows the padlock - the appended global requirement is
 // OR-ed with whatever the spec already demands. Serve-time only, the stored
 // spec is untouched. A YAML spec is returned unchanged with a non-nil error.
 func InjectSimulation(raw []byte) ([]byte, error) {
@@ -218,7 +218,7 @@ func InjectSimulation(raw []byte) ([]byte, error) {
 	schemes := map[string]any{
 		"MeerkatSimulateUser": map[string]any{
 			"type": "apiKey", "in": "header", "name": "X-Meerkat-Simulate-User",
-			"description": "Try the route AS this username — no account needed. Honored only for signed-in gateway testers (root, infra-admin, dev, tester).",
+			"description": "Try the route AS this username - no account needed. Honored only for signed-in gateway testers (root, infra-admin, dev, tester).",
 		},
 		"MeerkatSimulateRoles": map[string]any{
 			"type": "apiKey", "in": "header", "name": "X-Meerkat-Simulate-Roles",
@@ -226,7 +226,7 @@ func InjectSimulation(raw []byte) ([]byte, error) {
 		},
 		"MeerkatTestToken": map[string]any{
 			"type": "apiKey", "in": "header", "name": "Authorization",
-			"description": "An ephemeral test token minted in the page header, prefixed: `Bearer mksim_…`. Carries its own identity and roles — no session needed.",
+			"description": "An ephemeral test token minted in the page header, prefixed: `Bearer mksim_...`. Carries its own identity and roles - no session needed.",
 		},
 	}
 	if _, isV2 := doc["swagger"]; isV2 {

@@ -13,7 +13,7 @@ import { FilterItemComponent } from './filter-item.component';
 // bound value stays the route's WHOLE modifier list (indices are global, the
 // engine splits by phase at compile time). "Add" opens a right-hand drawer:
 // the phase's catalog with a real explanation per entry, plus the PLANNED
-// bricks grayed out — what exists and what is coming, in one place.
+// bricks grayed out - what exists and what is coming, in one place.
 // A FormValueControl: bound with [formField], schema errors render at the top.
 @Component({
   selector: 'app-filters',
@@ -24,7 +24,7 @@ import { FilterItemComponent } from './filter-item.component';
 export class FiltersComponent implements FormValueControl<Spec[]> {
   readonly value = model<Spec[]>([]);
   readonly entries = input.required<CatalogEntry[]>();
-  // 'request' | 'response' | 'terminal' — the ONLY phase this section touches.
+  // 'request' | 'response' | 'terminal' - the ONLY phase this section touches.
   readonly phase = input.required<string>();
   readonly errors = input<readonly ValidationError.WithOptionalFieldTree[]>([]);
 
@@ -43,7 +43,7 @@ export class FiltersComponent implements FormValueControl<Spec[]> {
   // A route has at most one terminal (the engine refuses more).
   protected readonly full = computed(() => this.phase() === 'terminal' && this.indexed().length > 0);
 
-  // Nothing posed in this phase? Open the palette straight away — an empty
+  // Nothing posed in this phase? Open the palette straight away - an empty
   // section has nothing to read, and the next move is always "add one". It
   // stays closable (openedChange writes back), and reseeds when the phase
   // empties or gets its first modifier.

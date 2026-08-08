@@ -3,7 +3,7 @@
 }
 
 // Thin baseline for the pills; the nav block is taller and straddles beyond it
-// onto both panes. .rail is NOT clipped (so the nav can overhang) — only .track
+// onto both panes. .rail is NOT clipped (so the nav can overhang) - only .track
 // clips the pills that scroll off the ends.
 .rail {
   position: relative;
@@ -33,7 +33,7 @@
     transition: left 0.22s ease;
   }
 
-  // The selected theme sits under the nav block — hide it, the nav represents it.
+  // The selected theme sits under the nav block - hide it, the nav represents it.
   &.centered {
     visibility: hidden;
   }
@@ -66,7 +66,7 @@
   z-index: 4;
 }
 
-// Current theme's palette as a pill — SAME size as the strip pills, so it hides
+// Current theme's palette as a pill - SAME size as the strip pills, so it hides
 // little of the controls it straddles.
 .current-pill {
   position: absolute;

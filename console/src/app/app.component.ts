@@ -21,7 +21,7 @@ import { MeService } from './me.service';
 import { UserMenuComponent } from './shared/user-menu.component';
 
 // Console scopes (CONSOLE-01): Infra (routing, relay, tokens), Application (the
-// product — identity, RBAC, built-in pages), Tenants (drill into one org), plus
+// product - identity, RBAC, built-in pages), Tenants (drill into one org), plus
 // the transverse screens (API, Vault, Audit). Each is a rail item; the two fixed
 // planes are URL prefixes (/infra, /application) whose sections live in a left
 // nav inside the page, the shape a tenant already had. Only Tenants still opens
@@ -100,7 +100,7 @@ export class AppComponent {
     ),
     { initialValue: this.router.url },
   );
-  // A plane is a URL PREFIX now (/infra/…, /application/…), so "which rail entry
+  // A plane is a URL PREFIX now (/infra/..., /application/...), so "which rail entry
   // is active" is one startsWith, not a list of section names to keep in sync.
   protected readonly inApp = computed(() => this.url().startsWith('/application'));
   protected readonly inTenants = computed(() => /^\/tenants\/[^/]+/.test(this.url()));
@@ -122,7 +122,7 @@ export class AppComponent {
     }
     // Role-based UI visibility (styles/_roles.scss): MeService loads /api/me and
     // mirrors the user's capabilities and tenant-admin status as classes on
-    // <body>; `any-role="…"` elements show accordingly.
+    // <body>; `any-role="..."` elements show accordingly.
     inject(MeService).ensureLoaded();
     this.loadTenants();
   }

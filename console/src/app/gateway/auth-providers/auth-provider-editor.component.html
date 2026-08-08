@@ -100,7 +100,7 @@
   }
 
   <!-- Derived, not asked: it is the URL segment a sign-in travels through, and
-       it is shown only to whoever asks for it. Frozen after creation — changing
+       it is shown only to whoever asks for it. Frozen after creation - changing
        it would break the callback already registered with the vendor. -->
   @if (identityShown()) {
     <app-form-field i18n-label="@@Identifier" label="Identifier" i18n-hint="@@Provider_id_hint" hint="The segment of the sign-in URL, derived from the authority">
@@ -173,8 +173,8 @@
     </app-form-field>
 
     <p class="hint text-muted" i18n="@@Allowed_orgs_groups_hint">
-      These organisations and teams also come back as groups — "org" for an organisation,
-      "org/team" for a team — which a tenant's group rule can turn into roles.
+      These organisations and teams also come back as groups - "org" for an organisation,
+      "org/team" for a team - which a tenant's group rule can turn into roles.
     </p>
 
   }

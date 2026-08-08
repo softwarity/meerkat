@@ -51,7 +51,7 @@ func TestSignInHistoryRecordsAndBadgesBrowser(t *testing.T) {
 			t.Fatalf("history page is missing %q:\n%s", want, body)
 		}
 	}
-	for _, gone := range []string{"Chrome · macOS", "203.0.113.7"} {
+	for _, gone := range []string{"Chrome - macOS", "203.0.113.7"} {
 		if strings.Contains(string(body), gone) {
 			t.Fatalf("the current-browser row must not carry %q", gone)
 		}

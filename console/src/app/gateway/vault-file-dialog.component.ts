@@ -16,7 +16,7 @@ export interface VaultFileDialogData {
 //
 // This file is the opposite of a configuration export. It holds the values
 // themselves, so it is encrypted, it is not something to version, and the
-// passphrase is its ENTIRE security — one file concentrating every secret of an
+// passphrase is its ENTIRE security - one file concentrating every secret of an
 // installation is the most rewarding target there is. Hence the generator: left
 // to themselves, people type the product name and the year.
 @Component({

@@ -3,7 +3,7 @@ import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 // One shape everywhere: these mirror the Go types (routing.Spec, store.Route,
-// routing.CatalogEntry) — the console never invents its own model.
+// routing.CatalogEntry) - the console never invents its own model.
 export interface Spec {
   type: string;
   args?: Record<string, unknown>;
@@ -75,7 +75,7 @@ export interface RouteOperations {
 }
 
 // The injected <meerkat-user-button> web component. The two-word position's
-// FIRST word is the anchored edge — it decides where the menu opens.
+// FIRST word is the anchored edge - it decides where the menu opens.
 export interface UserButtonOptions {
   enabled: boolean;
   height?: number; // px, default 24
@@ -101,7 +101,7 @@ export interface SchemeConfig {
   dark?: string;
 }
 
-// Puts the user's effective role names on the page — as classes (default) or
+// Puts the user's effective role names on the page - as classes (default) or
 // one attribute on a chosen tag (default body), or as a <meta> tag.
 export interface RolesConfig {
   enabled: boolean;
@@ -114,7 +114,7 @@ export interface RolesConfig {
 // meta name is configurable (data-<field> / meerkat-<field> by default).
 export const PAGE_USER_FIELDS = ['username', 'userid', 'fullname', 'email', 'tenant', 'tenantid', 'timezone'] as const;
 
-// Exposes the signed-in user's identity to the page — the SELECTED fields
+// Exposes the signed-in user's identity to the page - the SELECTED fields
 // land as attributes on a chosen tag (default body) or as <meta> tags.
 export interface UserInfoConfig {
   enabled: boolean;
@@ -224,12 +224,12 @@ export interface ConfigLiteral {
 
 // One KIND of thing an export carries, and how much of it. Shown before the
 // download: the question is "what nature of information am I handing over",
-// not "which objects" — that is what the file itself answers.
+// not "which objects" - that is what the file itself answers.
 export interface ConfigSection {
   kind: 'route' | 'role' | 'authProvider' | 'theme' | 'mailRelay' | 'setting' | 'image';
   count: number;
   // Settings only: their storage keys, which the console turns into what they
-  // are about — "12 settings" says nothing.
+  // are about - "12 settings" says nothing.
   keys?: string[];
   // Images only: what they weigh. An export is text except for this.
   bytes?: number;
@@ -383,10 +383,10 @@ export interface RouteProbeResult {
   outcome: 'match' | 'intercepted' | 'missed' | 'none';
 }
 
-// Identity — mirrors the Go types (store.User, store.Tenant, store.Member).
+// Identity - mirrors the Go types (store.User, store.Tenant, store.Member).
 // Superpowers (root/dev/tester/tenantCreator) are cross-cutting user flags;
 // tenant administration is either tenant ownership (Tenant.ownerId) or the
-// ADMIN membership type — ownership is decoupled from membership (TENANT-02).
+// ADMIN membership type - ownership is decoupled from membership (TENANT-02).
 export interface User {
   id: string;
   username: string;
@@ -409,7 +409,7 @@ export interface User {
   updatedAt: number;
   lastConnectionAt: number;
   // Read-only: whether a LOCAL password exists at all. An account born at an
-  // authority has none, so there is nothing to reset — only one to set.
+  // authority has none, so there is nothing to reset - only one to set.
   hasPassword?: boolean;
 }
 
@@ -424,7 +424,7 @@ export interface LoginEvent {
   at: number;
 }
 
-// One allowed window on one weekday (1=Monday … 7=Sunday). Hours are
+// One allowed window on one weekday (1=Monday ... 7=Sunday). Hours are
 // wall-clock in the timezone; the server evaluates in UTC. A day may appear
 // several times (split days); an absent day is closed.
 export interface DayRange {
@@ -454,7 +454,7 @@ export interface Tenant {
   // Audit: who created the tenant (id + display names, the latter GET-only).
   createdBy: string;
   // The current owner (TENANT-02): always set, transferable in the Danger zone,
-  // and INDEPENDENT of membership — an owner need not be a member. ownerName is
+  // and INDEPENDENT of membership - an owner need not be a member. ownerName is
   // display-only (GET-computed).
   ownerId: string;
   createdByName?: string;
@@ -463,7 +463,7 @@ export interface Tenant {
   updatedAt: number;
 }
 
-// Ownership is no longer a membership type (Tenant.ownerId) — memberships are
+// Ownership is no longer a membership type (Tenant.ownerId) - memberships are
 // ADMIN (administer) or USER (belong).
 export type MemberType = 'ADMIN' | 'USER';
 
@@ -490,7 +490,7 @@ export interface UserTenant {
   enabled: boolean;
 }
 
-// A role in the GLOBAL catalogue (RBAC-01) — hierarchical, created at the
+// A role in the GLOBAL catalogue (RBAC-01) - hierarchical, created at the
 // application level.
 export interface Role {
   id: string;
@@ -518,7 +518,7 @@ export interface Group {
 export interface Me {
   user: User;
   tenants: UserTenant[];
-  // True when the user administers at least one tenant — as its owner (even
+  // True when the user administers at least one tenant - as its owner (even
   // without a membership) or an ADMIN member. Drives the tenant-admin role CSS.
   tenantAdmin?: boolean;
   // What this installation is, for the fallback path: normally the gateway has
@@ -541,7 +541,7 @@ export interface Edition {
 }
 
 // One field's before/after inside an audit event (from/to are the decoded JSON
-// values — string, number, boolean, or a nested object/array).
+// values - string, number, boolean, or a nested object/array).
 export interface AuditChange {
   field: string;
   from: unknown;
@@ -633,7 +633,7 @@ export interface AdminTokenCreated {
   id: string;
   name: string;
   prefix: string;
-  token: string; // mk_… shown once
+  token: string; // mk_... shown once
   expiresAt: number;
 }
 
@@ -650,7 +650,7 @@ export interface TrustedBrowserPolicy {
 // One authority people may sign in through (AUTH-19). Config is kind-specific
 // and may hold $name vault references, so a client secret or a bind password
 // never has to sit in it. The 'local' kind is the accounts held HERE (AUTH-24):
-// seeded, unique, without configuration — disabling it is what closes password
+// seeded, unique, without configuration - disabling it is what closes password
 // sign-in on the data plane, and it never affects this console.
 export interface AuthProvider {
   id: string;
@@ -670,7 +670,7 @@ export interface AuthProvider {
   // Read-only: what has to be registered on the authority's side.
   callbackUrl?: string;
   // Read-only: the secret fields holding a stored LITERAL. The value is not in
-  // this payload — a reference comes back inside config, a literal never does,
+  // this payload - a reference comes back inside config, a literal never does,
   // so this is the only sign that one is set at all.
   secretsSet?: string[];
 }
@@ -763,9 +763,9 @@ export interface SMTPSettings {
 export interface Settings {
   businessAccess: BusinessAccess;
   sessionTTL: string;
-  // Gateway-wide second-factor policy (MFA-04) — tenants/members may override.
+  // Gateway-wide second-factor policy (MFA-04) - tenants/members may override.
   mfaRequired: boolean;
-  // Gateway-wide passkey policy (AUTH-15) — global, the login precedes the tenant.
+  // Gateway-wide passkey policy (AUTH-15) - global, the login precedes the tenant.
   passkeysAllowed: boolean;
   // Personal API tokens allowed (AUTH-16).
   apiTokens: boolean;
@@ -789,7 +789,7 @@ export interface Settings {
   pagesScheme?: '' | 'light' | 'dark';
 }
 
-// Global application identity shown on the flow pages (THEME-02) — one per
+// Global application identity shown on the flow pages (THEME-02) - one per
 // gateway, whatever theme is active. Logo is a data URI ('' = built-in mark).
 // What the respond editor gets back while someone types (one of the two
 // fields is set).
@@ -808,14 +808,14 @@ export interface Branding {
   favicon?: string;
 }
 
-// Theme of the SHARED flow pages (login, select-tenant, OTP… — THEME-04).
+// Theme of the SHARED flow pages (login, select-tenant, OTP... - THEME-04).
 // Several saved, one active; dark and light palettes are independent.
 export interface Theme {
   id: string;
   name: string;
   active: boolean;
   // Flat design: turns off the decorative flow-page effects (glows + app-name
-  // gradient) in one switch (THEME-04). Absent on older payloads → treat as
+  // gradient) in one switch (THEME-04). Absent on older payloads -> treat as
   // false (full effects).
   flat: boolean;
   dark: Record<string, string>;
@@ -1112,7 +1112,7 @@ export class ApiService {
 
   // A user's sign-in history (root scope), newest first.
   // How this person can get in through an authority, and what that authority
-  // said about them last time — the reported groups above all, since those are
+  // said about them last time - the reported groups above all, since those are
   // what any mapping would be written against.
   userIdentities(id: string): Observable<ExternalIdentity[]> {
     return this.http.get<ExternalIdentity[]>(`/api/users/${encodeURIComponent(id)}/identities`);
@@ -1271,7 +1271,7 @@ export class ApiService {
     return this.http.get<Theme[]>('/api/themes');
   }
 
-  // Built-in starting palettes (THEME-04) — offered under the "+" button.
+  // Built-in starting palettes (THEME-04) - offered under the "+" button.
   listPresets(): Observable<Theme[]> {
     return this.http.get<Theme[]>('/api/themes/presets');
   }

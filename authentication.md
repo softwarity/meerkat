@@ -65,7 +65,7 @@ port peut avoir son annuaire, affiché sur la page de connexion.
 ## 4. La matrice : qui entre, par où
 
 Les comptes tenus ici sont **une autorité comme les autres** (`kind: local`, écran
-Infra → Authentification). Fermer la connexion par mot de passe sur le plan données,
+Infra -> Authentification). Fermer la connexion par mot de passe sur le plan données,
 c'est désactiver cette entrée. Il n'y a plus de troisième état « administrateurs
 seulement » : il ne protégeait de rien, puisque la console garde de toute façon son
 mot de passe, et il coûtait une règle particulière à chaque parcours.
@@ -100,8 +100,8 @@ elle, reste joignable.
 | Passkey d'un compte purement local | acceptée | **refusée** (voir §4.3) |
 | Bouton passkey sur `/login` | affiché | affiché **seulement si une autorité reste active** |
 
-Quand plus rien ne peut répondre — aucune autorité active, donc ni formulaire, ni
-bouton, ni passkey — la page affiche une phrase et rien d'autre : « la connexion n'est
+Quand plus rien ne peut répondre - aucune autorité active, donc ni formulaire, ni
+bouton, ni passkey - la page affiche une phrase et rien d'autre : « la connexion n'est
 pas disponible, contactez votre administrateur ». Elle ne dit **pas** ce qui est
 fermé : un visiteur n'a pas à lire la configuration de la passerelle.
 
@@ -117,7 +117,7 @@ rien de l'annuaire qui possède la personne. D'où la revalidation.
 
 Et d'abord, d'où une condition plus simple : **le raccourci ne survit pas à ce dont il
 est le raccourci** (AUTH-24). Avant toute revalidation, `aDoorIsOpenFor` demande s'il
-reste une autorité active derrière ce compte — une autorité liée encore activée, ou
+reste une autorité active derrière ce compte - une autorité liée encore activée, ou
 l'entrée `local` pour un compte purement local. Sinon la passkey est refusée, et son
 enregistrement aussi. Sans cela, fermer toutes les portes en laisserait une ouverte,
 et la page de connexion mentirait.

@@ -69,7 +69,7 @@ type AuthProvider struct {
 }
 
 // LocalProviderID is the fixed id of the local-accounts authority: exactly one
-// exists, it is seeded at startup and it is never deleted — only turned off.
+// exists, it is seeded at startup and it is never deleted - only turned off.
 const LocalProviderID = "local"
 
 // ValidProviderKind reports whether kind is one we know how to drive.
@@ -298,7 +298,7 @@ func (s *Store) UserByIdentity(ctx context.Context, providerID, externalID strin
 	return u, nil
 }
 
-// IdentitiesOfUser lists the authorities one account can sign in through —
+// IdentitiesOfUser lists the authorities one account can sign in through -
 // what the profile and the admin's user drawer show.
 func (s *Store) IdentitiesOfUser(ctx context.Context, userID string) ([]Identity, error) {
 	rows, err := s.db.QueryContext(ctx,

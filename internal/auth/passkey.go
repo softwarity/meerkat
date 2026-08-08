@@ -17,7 +17,7 @@ import (
 )
 
 // passkeyCookie remembers which passkey THIS browser registered or last
-// used, so the Security page can badge it — a hint, not a credential.
+// used, so the Security page can badge it - a hint, not a credential.
 const passkeyCookie = "MEERKAT_PASSKEY"
 
 func setPasskeyCookie(w http.ResponseWriter, r *http.Request, id string) {
@@ -30,7 +30,7 @@ func setPasskeyCookie(w http.ResponseWriter, r *http.Request, id string) {
 
 // Passkeys (AUTH-15): WebAuthn ceremonies over the v12 store foundation. A
 // passkey REPLACES password + TOTP (both factors in one), so a passkey login
-// lands directly on the tenant resolution — no pending steps. Registration is
+// lands directly on the tenant resolution - no pending steps. Registration is
 // self-service on /profile; sign-in is the usernameless (discoverable) flow
 // from the login page.
 
@@ -184,7 +184,7 @@ func (h *Handler) passkeyRegisterStart(w http.ResponseWriter, r *http.Request) {
 }
 
 // passkeyRegisterFinish validates the authenticator's answer and stores the
-// credential, labeled like a trusted browser ("Chrome · macOS").
+// credential, labeled like a trusted browser ("Chrome - macOS").
 func (h *Handler) passkeyRegisterFinish(w http.ResponseWriter, r *http.Request) {
 	if !h.passkeysEnabled(w, r) {
 		return

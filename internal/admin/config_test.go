@@ -183,7 +183,7 @@ func TestConfigNeverExportsALiteral(t *testing.T) {
 }
 
 // TestConfigIsRootOnly: a document crosses both planes, so administering one is
-// not enough — an infra admin importing a file that rewrites the sign-in
+// not enough - an infra admin importing a file that rewrites the sign-in
 // authorities would be a way around RBAC-05.
 func TestConfigIsRootOnly(t *testing.T) {
 	f := setup(t)

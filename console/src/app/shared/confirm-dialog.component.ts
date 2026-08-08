@@ -10,7 +10,7 @@ export interface ConfirmData {
   danger?: boolean;
 }
 
-// A themed yes/no confirmation — replaces the native confirm(), whose look is
+// A themed yes/no confirmation - replaces the native confirm(), whose look is
 // dictated by the OS. Resolves the dialog to `true` on confirm, closed/undefined
 // otherwise. Callers pass already-localized strings.
 @Component({

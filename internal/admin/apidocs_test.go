@@ -83,7 +83,7 @@ func TestAPIDocsAssets(t *testing.T) {
 	}
 }
 
-// The console documents the CONTROL plane only: Meerkat's own API, always —
+// The console documents the CONTROL plane only: Meerkat's own API, always -
 // the routes' specs are the data plane's developer docs business.
 func TestAPIDocsConsoleIsMeerkatOnly(t *testing.T) {
 	f := setup(t)

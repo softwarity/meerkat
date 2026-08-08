@@ -28,7 +28,7 @@ export function spec(type: string, args: Record<string, unknown>): Spec {
   return Object.keys(kept).length ? { type, args: kept } : { type };
 }
 
-// Turn a kebab-case brick type into a readable label: "add-request-header" →
+// Turn a kebab-case brick type into a readable label: "add-request-header" ->
 // "Add request header". Keeps the technical type available elsewhere (mono).
 export function humanize(type: string): string {
   const s = type.replace(/-/g, ' ');
@@ -72,6 +72,6 @@ export function cleanPredicates(specs: Spec[]): Spec[] {
 }
 
 // Filters share the same "keep empties while editing, drop them on save" rule as
-// predicates, and their order is significant — cleanPredicates already preserves
+// predicates, and their order is significant - cleanPredicates already preserves
 // it, so this is just a clearer name at the filter call sites.
 export const cleanSpecs = cleanPredicates;

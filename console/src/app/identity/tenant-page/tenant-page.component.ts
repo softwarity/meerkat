@@ -12,11 +12,11 @@ import { ApiService } from '../../api.service';
 import { FormFieldComponent } from '../../shared/form-field.component';
 import { TenantScope } from '../tenant-scope';
 
-// One tenant's administration — a routed LAYOUT: every section is a child
+// One tenant's administration - a routed LAYOUT: every section is a child
 // route (/tenants/:id/general|groups|members|danger), so deep links work and
 // the active entry is plain routerLinkActive. Left: the tenant's name over
 // the section nav. Right: a header owned by the layout (the active section's
-// search, the enabled toggle — persisted immediately) above the section's
+// search, the enabled toggle - persisted immediately) above the section's
 // router outlet. The same screen serves root and the tenant's OWNER/ADMIN
 // (the API scopes every call).
 @Component({
@@ -58,7 +58,7 @@ export class TenantPageComponent {
 
   constructor() {
     // The id input is router-bound: it changes when navigating from one tenant
-    // to another — reload, and drop the previous tenant's search.
+    // to another - reload, and drop the previous tenant's search.
     effect(() => this.load(this.id()));
     effect(() => {
       this.section();

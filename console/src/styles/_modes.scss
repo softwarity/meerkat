@@ -1,4 +1,4 @@
-// What this installation IS, applied by the CSS engine — the same mechanism as
+// What this installation IS, applied by the CSS engine - the same mechanism as
 // the role visibility next door (_roles.scss), and for the same reasons: no
 // directive, no runtime, and it holds on markup Angular never rendered.
 //
@@ -9,7 +9,7 @@
 // Simpler than the role mechanism, and worth saying why: roles HIDE by default
 // and reveal what is granted, which forces a `display` to be restated per
 // Material family (revert would give back `inline`). Here the default is
-// visible, so nothing is ever revealed — only hidden or locked — and the
+// visible, so nothing is ever revealed - only hidden or locked - and the
 // display is left alone.
 
 // Every Enterprise feature, in the order the offer reads. Must match
@@ -23,7 +23,7 @@ $ee-features: (multi-tenant, directories, saml, scim, business-hours, cluster, a
 // features: an organisation's Danger zone is not something a community user is
 // being denied, it is a notion that does not exist in their world, and showing
 // it greyed out would be noise plus a promise nobody made.
-// `html` is not decoration: the role mechanism sets `display: … !important` on
+// `html` is not decoration: the role mechanism sets `display: ... !important` on
 // the very same elements (a rail entry carries both `any-role` and this), and
 // at equal specificity the later rule wins - the role rules live in
 // styles.scss, emitted after every @use. One more element in the selector puts
@@ -37,7 +37,7 @@ html body:not(.multi-tenant) [multi-tenant-only] {
 //
 // The opposite call: an Enterprise control stays VISIBLE and goes inert. Hidden
 // it would never be discovered; a modal would be resented. Met at the moment
-// someone would have used it, it explains itself — which is the whole point of
+// someone would have used it, it explains itself - which is the whole point of
 // the [Enterprise] cap that `app-ee-lock` puts next to it.
 //
 // pointer-events is what actually disables it, so a click cannot slip through
@@ -49,7 +49,7 @@ html body:not(.multi-tenant) [multi-tenant-only] {
     opacity: 0.55;
   }
   // A locked block dims as a whole: its own label included, and its lock badge
-  // excluded — the one thing that must stay readable and clickable is the
+  // excluded - the one thing that must stay readable and clickable is the
   // explanation of why the rest is not.
   body:not(.ee-#{$feature}) [ee-feature='#{$feature}'] app-ee-lock {
     pointer-events: auto;

@@ -4,9 +4,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
-// A reusable editor for a list of strings (path patterns, hosts, CIDRs…): one
+// A reusable editor for a list of strings (path patterns, hosts, CIDRs...): one
 // text field per entry with a remove button, plus an add button. The list is a
-// model(): every edit sets a fresh array — no local state.
+// model(): every edit sets a fresh array - no local state.
 @Component({
   selector: 'app-string-list',
   imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],

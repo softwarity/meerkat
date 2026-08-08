@@ -22,14 +22,14 @@ import (
 // anyone should version: it exists to bootstrap an environment or to move a
 // gateway, then to be deleted.
 //
-// The file writes its own recipe in clear — format version, KDF, its
-// parameters, the salt, the nonce — because it will outlive the binary that
+// The file writes its own recipe in clear - format version, KDF, its
+// parameters, the salt, the nonce - because it will outlive the binary that
 // produced it by years, and a parameter changed in a later release must not
 // make an old export unreadable.
 //
 // The passphrase is the whole security of this file, and this file concentrates
 // every secret of an installation: it is the most rewarding target there is.
-// MinPassphrase is a floor, not an opinion — the console offers to generate one
+// MinPassphrase is a floor, not an opinion - the console offers to generate one
 // precisely so nobody types the product name followed by the year.
 
 // PortableVersion is the format version of an encrypted vault file.

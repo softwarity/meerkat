@@ -9,7 +9,7 @@ interface DialogData {
 }
 
 // One-time password display (user creation / reset): the secret is shown once,
-// copyable, and never retrievable again — the archway pattern.
+// copyable, and never retrievable again - the archway pattern.
 @Component({
   selector: 'app-password-dialog',
   imports: [MatButtonModule, MatDialogModule, MatIconModule],

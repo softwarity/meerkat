@@ -105,7 +105,7 @@ func TestRoundTrip(t *testing.T) {
 }
 
 // TestExportIsStable: two exports of the same state must be the same bytes, or
-// versioning them in git is pointless — every export would show as a change.
+// versioning them in git is pointless - every export would show as a change.
 func TestExportIsStable(t *testing.T) {
 	ctx := context.Background()
 	s := openTemp(t)
@@ -399,7 +399,7 @@ func TestPortStaysAnInteger(t *testing.T) {
 }
 
 // TestInventorySaysWhatTravels: the console shows this before the download. It
-// answers "what nature of information is in this file", not "which objects" —
+// answers "what nature of information is in this file", not "which objects" -
 // that is what the file itself is for.
 func TestInventorySaysWhatTravels(t *testing.T) {
 	ctx := context.Background()

@@ -245,16 +245,59 @@ export class MembersMatrixComponent {
       });
   }
 
-  protected toggleMemberGroup(userId: string, groupId: string, checked: boolean): void {
+  // Ticking a group MAKES someone a member, rather than requiring the
+  // membership to exist first.
+  //
+  // That order was unusable in single-organisation mode: the column that
+  // creates a membership is a multi-organisation notion and is hidden there,
+  // so every checkbox stayed disabled with nothing on screen to explain it.
+  // And it matches what the tick means anyway — giving someone a group in an
+  // organisation IS putting them in it.
+  protected toggleMemberGroup(user: UserRow, groupId: string, checked: boolean): void {
+    const userId = user.id;
     const current = this.memberGroups()[userId] ?? [];
     const ids = checked ? [...current, groupId] : current.filter((g) => g !== groupId);
-    this.api.setMemberGroups(this.tenantId(), userId, ids).subscribe({
-      next: (saved) => this.memberGroups.update((m) => ({ ...m, [userId]: saved })),
-      error: (err) => {
-        this.snack.open(errMsg(err), undefined, { duration: 4000 });
-        this.load();
-      },
-    });
+    const assign = () =>
+      this.api.setMemberGroups(this.tenantId(), userId, ids).subscribe({
+        next: (saved) => this.memberGroups.update((m) => ({ ...m, [userId]: saved })),
+        error: (err) => {
+          this.snack.open(errMsg(err), undefined, { duration: 4000 });
+          this.load();
+        },
+      });
+    if (checked && !this.isMember(userId)) {
+      this.api
+        .putMember({
+          userId,
+          tenantId: this.tenantId(),
+          type: 'USER',
+          enabled: true,
+          businessAccess: { inherited: true },
+          sessionTTL: '',
+        })
+        .subscribe({
+          next: (m) => {
+            // The row already carries what a Member adds to a Membership, so
+            // the table updates without a second round trip.
+            this.memberships.update((all) =>
+              new Map(all).set(userId, {
+                ...m,
+                username: user.username,
+                fullname: user.fullname,
+                email: '',
+                lastConnectionAt: user.lastConnectionAt,
+              }),
+            );
+            assign();
+          },
+          error: (err) => {
+            this.snack.open(errMsg(err), undefined, { duration: 4000 });
+            this.load();
+          },
+        });
+      return;
+    }
+    assign();
   }
 
   // ── last connection + tenant-scoped password reset ────────────────────────

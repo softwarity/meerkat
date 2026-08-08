@@ -357,43 +357,14 @@ const STATUS_CODES: { value: string; what: string }[] = [
   ],
   template: `
     <div class="fields">
-      <div class="body">
-        <app-respond-editor [value]="body()" (changed)="set('body', $event)" />
-        <div class="vars">
-          <p class="lead">
-            The answer is written literally, and anything between
-            <code>&#123;&#123;</code> and <code>&#125;&#125;</code> is replaced by something about the caller.
-            Everything else is sent as typed.
-          </p>
-          <dl>
-            <dt><code>{{ GOOD }}</code></dt>
-            <dd>
-              the caller's name, <strong>with its quotes and escaping</strong>. Always through
-              <code>json</code> — <code>{{ BAD }}</code> looks equivalent and breaks the day a name holds a
-              quote, which is a name that comes from a directory, not from you.
-            </dd>
-            <dt><code>{{ WRAP }}</code></dt>
-            <dd>the roles as one-key objects: <code>{{ WRAP_OUT }}</code>. Empty list if the caller holds none.</dd>
-            <dt><code>{{ JOIN }}</code></dt>
-            <dd>the roles as one string: <code>ROLE_A,ROLE_B</code>.</dd>
-            <dt><code>{{ IFELSE }}</code></dt>
-            <dd>two answers in one route: nobody is signed in when the route has no gateway rule.</dd>
-          </dl>
-          <p class="also">
-            Also available: <code>.UserID</code> <code>.Fullname</code> <code>.Email</code> <code>.Tenant</code>
-            <code>.TenantID</code> <code>.Timezone</code> <code>.Roles</code>. For a shape none of the above
-            covers, loop: <code>{{ LOOP }}</code> — where <code>{{ COMMA }}</code> writes the separating comma
-            (<code>$i</code> is the index, zero is false, so the first element gets none — JSON forbids a
-            trailing one).
-          </p>
-        </div>
-      </div>
+      <!-- What the answer IS comes before what it says: the type and the code
+           are decided once, the body is written after. -->
       <mat-form-field>
         <mat-label>Content type</mat-label>
         <input
           matInput
           [matAutocomplete]="ct"
-          placeholder="application/json; charset=utf-8"
+          placeholder="application/json"
           [value]="contentType()"
           (input)="set('contentType', $any($event.target).value)"
         />
@@ -435,6 +406,38 @@ const STATUS_CODES: { value: string; what: string }[] = [
           }
         </mat-autocomplete>
       </mat-form-field>
+
+      <div class="body">
+        <app-respond-editor [value]="body()" (changed)="set('body', $event)" />
+        <div class="vars">
+          <p class="lead">
+            The answer is written literally, and anything between
+            <code>&#123;&#123;</code> and <code>&#125;&#125;</code> is replaced by something about the caller.
+            Everything else is sent as typed.
+          </p>
+          <dl>
+            <dt><code>{{ GOOD }}</code></dt>
+            <dd>
+              the caller's name, <strong>with its quotes and escaping</strong>. Always through
+              <code>json</code> — <code>{{ BAD }}</code> looks equivalent and breaks the day a name holds a
+              quote, which is a name that comes from a directory, not from you.
+            </dd>
+            <dt><code>{{ WRAP }}</code></dt>
+            <dd>the roles as one-key objects: <code>{{ WRAP_OUT }}</code>. Empty list if the caller holds none.</dd>
+            <dt><code>{{ JOIN }}</code></dt>
+            <dd>the roles as one string: <code>ROLE_A,ROLE_B</code>.</dd>
+            <dt><code>{{ IFELSE }}</code></dt>
+            <dd>two answers in one route: nobody is signed in when the route has no gateway rule.</dd>
+          </dl>
+          <p class="also">
+            Also available: <code>.UserID</code> <code>.Fullname</code> <code>.Email</code> <code>.Tenant</code>
+            <code>.TenantID</code> <code>.Timezone</code> <code>.Roles</code>. For a shape none of the above
+            covers, loop: <code>{{ LOOP }}</code> — where <code>{{ COMMA }}</code> writes the separating comma
+            (<code>$i</code> is the index, zero is false, so the first element gets none — JSON forbids a
+            trailing one).
+          </p>
+        </div>
+      </div>
     </div>
   `,
 })

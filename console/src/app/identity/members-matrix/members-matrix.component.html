@@ -76,10 +76,11 @@
             </button>
           </mat-header-cell>
           <mat-cell *matCellDef="let u">
+            <!-- Never disabled: ticking a group is how someone becomes a
+                 member (see toggleMemberGroup). -->
             <mat-checkbox
               [checked]="memberInGroup(u.id, g.id)"
-              [disabled]="!isMember(u.id)"
-              (change)="toggleMemberGroup(u.id, g.id, $event.checked)"
+              (change)="toggleMemberGroup(u, g.id, $event.checked)"
             />
           </mat-cell>
         </ng-container>

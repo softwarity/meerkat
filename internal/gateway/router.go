@@ -5,12 +5,14 @@
 package gateway
 
 import (
+	"bytes"
 	"context"
 	cryptorand "crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html"
+	"io"
 	"log/slog"
 	"math/rand/v2"
 	"net"
@@ -19,6 +21,7 @@ import (
 	"net/url"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -429,6 +432,12 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 	var handler http.Handler
 	if filters.Terminal != nil {
 		handler = filters.Terminal
+		// Outgoing filters apply to what the route answers itself, exactly as
+		// they do to a proxied response: a CORS or Cache-Control header on an
+		// identity endpoint is the same need either way.
+		if len(filters.Response) > 0 {
+			handler = filterOwnResponse(handler, filters.Response)
+		}
 		// A terminal that answers FROM the caller gets one resolved and carried
 		// in. Only that kind pays the read: redirect and maintenance answer the
 		// same thing to everyone.
@@ -1481,6 +1490,74 @@ func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error)
 		return nil
 	}
 	return proxy, nil
+}
+
+// filterOwnResponse runs the route's outgoing filters over an answer the
+// gateway produced itself.
+//
+// It buffers, which is the honest trade: a filter takes an *http.Response, and
+// a handler writes straight to the client. What a terminal answers is a page or
+// a small document, so holding it in memory to let a header filter see it costs
+// nothing measurable — and the alternative is telling admins that outgoing
+// filters work everywhere except here.
+func filterOwnResponse(next http.Handler, filters []routing.ResponseFilter) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rec := &bufferedResponse{header: http.Header{}, status: http.StatusOK}
+		next.ServeHTTP(rec, r)
+
+		res := &http.Response{
+			StatusCode: rec.status,
+			Header:     rec.header.Clone(),
+			Body:       io.NopCloser(bytes.NewReader(rec.body.Bytes())),
+			Request:    r,
+		}
+		for _, f := range filters {
+			if err := f(res); err != nil {
+				slog.Warn("outgoing filter failed on the route's own answer", "err", err)
+				http.Error(w, "the gateway could not build this answer", http.StatusInternalServerError)
+				return
+			}
+		}
+		body, err := io.ReadAll(res.Body)
+		_ = res.Body.Close()
+		if err != nil {
+			http.Error(w, "the gateway could not build this answer", http.StatusInternalServerError)
+			return
+		}
+		out := w.Header()
+		for k := range out {
+			out.Del(k)
+		}
+		for k, vs := range res.Header {
+			for _, v := range vs {
+				out.Add(k, v)
+			}
+		}
+		out.Set("Content-Length", strconv.Itoa(len(body)))
+		w.WriteHeader(res.StatusCode)
+		_, _ = w.Write(body)
+	})
+}
+
+// bufferedResponse collects a handler's answer so response filters can see it.
+type bufferedResponse struct {
+	header  http.Header
+	status  int
+	written bool
+	body    bytes.Buffer
+}
+
+func (b *bufferedResponse) Header() http.Header { return b.header }
+
+func (b *bufferedResponse) WriteHeader(status int) {
+	if !b.written {
+		b.status, b.written = status, true
+	}
+}
+
+func (b *bufferedResponse) Write(p []byte) (int, error) {
+	b.written = true
+	return b.body.Write(p)
 }
 
 // withIdentity resolves the caller and hands it to a terminal that answers

@@ -3,8 +3,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Decoration, DecorationSet, EditorView, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { EditorState, Range } from '@codemirror/state';
-import { history, defaultKeymap, historyKeymap } from '@codemirror/commands';
-import { keymap, highlightSpecialChars, drawSelection, lineNumbers } from '@codemirror/view';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { basicSetup } from 'codemirror';
 import { ApiService } from '../../api.service';
 
 // The template editor: colours, and an answer under the cursor.
@@ -101,12 +101,17 @@ const highlight = ViewPlugin.fromClass(
         margin-top: 8px;
         border-radius: 8px;
         padding: 8px 10px;
+        background: var(--mat-sys-surface-container);
+      }
+      /* The rendered answer, in a <pre> of its own: it used to sit directly in
+         a pre-wrap block, which printed the template's own indentation. */
+      .out-body {
+        margin: 0;
         font-family: var(--mk-mono);
         font-size: 0.78rem;
         line-height: 1.5;
         white-space: pre-wrap;
         word-break: break-word;
-        background: var(--mat-sys-surface-container);
       }
       .out.err {
         background: color-mix(in srgb, var(--mat-sys-error) 12%, transparent);
@@ -116,10 +121,9 @@ const highlight = ViewPlugin.fromClass(
         display: flex;
         align-items: center;
         gap: 6px;
-        font-family: var(--mat-sys-body-medium-font);
         font-size: 0.74rem;
         color: var(--mat-sys-on-surface-variant);
-        margin-bottom: 4px;
+        margin-bottom: 5px;
       }
       .out.err .out-head {
         color: var(--mat-sys-error);
@@ -136,14 +140,15 @@ const highlight = ViewPlugin.fromClass(
     <div class="editor" #host></div>
     @if (error(); as e) {
       <div class="out err">
-        <div class="out-head"><mat-icon>error_outline</mat-icon>This template cannot be saved</div>{{ e }}
+        <div class="out-head"><mat-icon>error_outline</mat-icon><span>This template cannot be saved</span></div>
+        <pre class="out-body">{{ e }}</pre>
       </div>
     } @else if (output(); as o) {
       <div class="out">
         <div class="out-head">
-          <mat-icon>play_arrow</mat-icon>
-          What an application receives, for a caller named {{ callerName }}
-        </div>{{ o }}
+          <mat-icon>play_arrow</mat-icon><span>What an application receives, for a caller named {{ callerName }}</span>
+        </div>
+        <pre class="out-body">{{ o }}</pre>
       </div>
     }
   `,
@@ -170,14 +175,21 @@ export class RespondEditorComponent {
         state: EditorState.create({
           doc: this.value(),
           extensions: [
-            lineNumbers(),
-            history(),
-            drawSelection(),
-            highlightSpecialChars(),
-            keymap.of([...defaultKeymap, ...historyKeymap]),
+            // The same pair as the Add CSS / Add JavaScript dialog: one library
+            // is not enough, it has to be one SETUP too, or the two editors of
+            // the same product show different gutters.
+            basicSetup,
+            oneDark,
             highlight,
             EditorView.lineWrapping,
-            EditorView.theme({ '&': { minHeight: '120px', maxHeight: '260px' }, '.cm-scroller': { overflow: 'auto' } }),
+            EditorView.theme({
+              '&': { maxHeight: '280px' },
+              '.cm-scroller': { overflow: 'auto' },
+              // The editable area fills the box, so clicking anywhere in it
+              // places the cursor - five visible lines that only answer on the
+              // first one read as a broken field.
+              '.cm-content': { minHeight: '110px' },
+            }),
             EditorView.updateListener.of((u) => {
               if (!u.docChanged) return;
               const text = u.state.doc.toString();

@@ -838,3 +838,42 @@ func fetchES256JWK(t *testing.T, url string) (*ecdsa.PublicKey, string) {
 	t.Fatal("no ES256 key in JWKS")
 	return nil, ""
 }
+
+// Outgoing filters apply to what the route answers ITSELF. An identity endpoint
+// built with respond is called by a browser like any other, so it needs the
+// same CORS or Cache-Control headers a proxied one would — telling admins that
+// outgoing filters work everywhere except here would be arbitrary.
+func TestOutgoingFiltersApplyToTheRoutesOwnAnswer(t *testing.T) {
+	rt := newRouter(t, store.Route{
+		ID: "own", Name: "own", Enabled: true, Order: 1,
+		Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []string{"/who"}}}},
+		Filters: []routing.Spec{
+			{Type: "respond", Args: map[string]any{"body": `{"ok":true}`}},
+			// Incoming: nothing is proxied, so it has nothing to modify.
+			{Type: "strip-prefix", Args: map[string]any{"parts": 1}},
+			// Outgoing: must land on the answer.
+			{Type: "set-response-header", Args: map[string]any{
+				"name": "Access-Control-Allow-Origin", "value": "https://app.example",
+			}},
+		},
+	})
+
+	rec := httptest.NewRecorder()
+	rt.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/who", nil))
+	res := rec.Result()
+	defer func() { _ = res.Body.Close() }()
+
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("status %d", res.StatusCode)
+	}
+	if got := res.Header.Get("Access-Control-Allow-Origin"); got != "https://app.example" {
+		t.Fatalf("the outgoing filter did not apply: %q", got)
+	}
+	body, _ := io.ReadAll(res.Body)
+	if string(body) != `{"ok":true}` {
+		t.Fatalf("body mangled by the filter pass: %q", body)
+	}
+	if res.Header.Get("Content-Type") == "" {
+		t.Fatal("the terminal's own headers must survive the filter pass")
+	}
+}

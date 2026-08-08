@@ -43,7 +43,15 @@ type Section =
 // hidden) when the other type is selected.
 const UI_SECTIONS: Section[] = ['button', 'userinfo', 'inject'];
 
-// Predicate types whose server contract requires a `name` arg.
+// What a new respond template starts as: the identity answer most applications
+// expect, laid out over several lines so the shape is readable. JSON ignores
+// the whitespace between its tokens, so the indentation costs nothing.
+const RESPOND_EXAMPLE = `{
+  "name": {{json .Username}},
+  "roles": {{json .Roles}}
+}`;
+
+// Predicate types whose server contract requires a \`name\` arg.
 const MATCHER_TYPES = ['header', 'cookie', 'query'];
 
 // Identity-token lifetimes (short by design): the select offers these, humanized.
@@ -123,18 +131,19 @@ export class RouteEditorComponent {
   );
   protected readonly mode = computed(() => this.terminalSpec()?.type ?? 'proxy');
   protected readonly hasTerminalFilter = () => this.terminalSpec() !== null;
-  // The server refuses a terminal filter alongside any other: worth saying
-  // here rather than at save time.
-  protected readonly otherModifiers = computed(
-    () => this.draft().filters.filter((f) => !this.terminalTypes().has(f.type)).length,
-  );
-
   protected setMode(m: string): void {
     this.draft.update((d) => {
       const rest = d.filters.filter((f) => !this.terminalTypes().has(f.type));
       // The upstream is KEPT when leaving proxy: switching back must not cost
       // the address someone typed.
-      return { ...d, filters: m === 'proxy' ? rest : [...rest, { type: m, args: {} }] };
+      if (m === 'proxy') return { ...d, filters: rest };
+      // The server's defaults, written down rather than left to a placeholder:
+      // a field showing "application/json" in grey and holding nothing is a
+      // field nobody can tell is empty. The template starts as a WORKING
+      // example on several lines - for a syntax nobody guesses, something to
+      // edit beats an empty box with instructions beside it.
+      const args = m === 'respond' ? { contentType: 'application/json', status: 200, body: RESPOND_EXAMPLE } : {};
+      return { ...d, filters: [...rest, { type: m, args }] };
     });
   }
 

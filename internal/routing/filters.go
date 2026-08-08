@@ -3,6 +3,7 @@ package routing
 import (
 	"fmt"
 	"html"
+	"log/slog"
 	"net/http"
 	"net/http/httputil"
 	"regexp"
@@ -20,6 +21,9 @@ type CompiledFilters struct {
 	Request  []RequestFilter
 	Response []ResponseFilter
 	Terminal http.Handler
+	// IgnoredFilters counts the INCOMING filters dropped because a terminal
+	// answers the route and nothing is proxied (see CompileFilters).
+	IgnoredFilters int
 	// TerminalNeedsIdentity says the terminal answers FROM the caller, so the
 	// engine must resolve the session and carry it in (routing.WithIdentity).
 	// Declared rather than assumed: resolving a session costs a read, and
@@ -52,6 +56,7 @@ type filterDef struct {
 // order within each phase.
 func CompileFilters(specs []Spec) (CompiledFilters, error) {
 	var out CompiledFilters
+	terminalType := ""
 	for _, s := range specs {
 		def, ok := filterRegistry[s.Type]
 		if !ok {
@@ -84,10 +89,24 @@ func CompileFilters(specs []Spec) (CompiledFilters, error) {
 			}
 			out.Terminal = h
 			out.TerminalNeedsIdentity = def.needsIdentity
+			terminalType = s.Type
 		}
 	}
-	if out.Terminal != nil && (len(out.Request) > 0 || len(out.Response) > 0) {
-		return out, fmt.Errorf("a terminal filter (redirect) cannot be combined with other filters")
+	// A terminal answers the route itself. INCOMING filters then have nothing
+	// to modify — the request is never proxied — so they are dropped. OUTGOING
+	// ones still apply: the answer is a response like any other, and putting a
+	// CORS or a Cache-Control header on it is exactly as legitimate as on a
+	// proxied one.
+	//
+	// Both used to be an error, which meant an existing route could not be
+	// switched to an answering mode without first hunting down its modifiers in
+	// two other sections — and the refusal named "redirect" whatever the
+	// terminal actually was.
+	if out.Terminal != nil && len(out.Request) > 0 {
+		out.IgnoredFilters = len(out.Request)
+		out.Request = nil
+		slog.Warn("incoming filters ignored: this route answers by itself, nothing is proxied",
+			"terminal", terminalType, "ignored", out.IgnoredFilters)
 	}
 	return out, nil
 }

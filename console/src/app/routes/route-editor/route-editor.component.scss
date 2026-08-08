@@ -308,3 +308,20 @@ mat-selection-list mat-list-option[aria-selected='true'] {
 .section-hint.warn {
   color: var(--mat-sys-error);
 }
+
+// The warning about modifiers a terminal mode cannot keep, with its way out.
+.warn-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  .section-hint {
+    margin: 0;
+    flex: 1;
+  }
+
+  button {
+    flex: none;
+  }
+}

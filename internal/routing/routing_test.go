@@ -282,12 +282,29 @@ func TestRedirectIsTerminalAndExclusive(t *testing.T) {
 		t.Fatalf("redirect: %d %q", rec.Code, rec.Header().Get("Location"))
 	}
 
-	_, err := CompileFilters([]Spec{
+	// Combined with other filters, a terminal no longer refuses: it keeps the
+	// OUTGOING ones (its answer is a response like any other, and a CORS header
+	// on it is as legitimate as on a proxied one) and drops the INCOMING ones,
+	// which have nothing to modify since nothing is proxied.
+	combined, err := CompileFilters([]Spec{
 		{Type: "redirect", Args: map[string]any{"location": "/x"}},
-		{Type: "set-status", Args: map[string]any{"status": 200}},
+		{Type: "strip-prefix", Args: map[string]any{"parts": 1}},                             // incoming: pointless here
+		{Type: "set-response-header", Args: map[string]any{"name": "X-Note", "value": "hi"}}, // outgoing: applies
 	})
-	if err == nil {
-		t.Fatal("terminal filter combined with others must be rejected")
+	if err != nil {
+		t.Fatalf("a terminal alongside other filters must compile: %v", err)
+	}
+	if combined.Terminal == nil {
+		t.Fatal("the terminal must survive")
+	}
+	if len(combined.Request) != 0 {
+		t.Fatal("incoming filters must be dropped: nothing is proxied")
+	}
+	if len(combined.Response) != 1 {
+		t.Fatalf("outgoing filters must survive, got %d", len(combined.Response))
+	}
+	if combined.IgnoredFilters != 1 {
+		t.Fatalf("IgnoredFilters = %d, want 1 (the incoming one)", combined.IgnoredFilters)
 	}
 }
 

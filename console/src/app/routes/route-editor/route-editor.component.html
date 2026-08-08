@@ -110,7 +110,6 @@
           <mat-hint i18n="@@OpenAPI_hint">The OpenAPI spec the service exposes, for endpoint-level security and swagger UI</mat-hint>
         </mat-form-field>
         } @else {
-          @if (otherModifiers()) {<p class="section-hint warn" i18n="@@Terminal_excludes_modifiers">This route also carries incoming or outgoing modifiers. A route that answers here cannot have any: remove them, or go back to Proxy.</p>}
           @if (terminalSpec(); as t) {
             @switch (mode()) {
               @case ('redirect') {<app-redirect-filter [spec]="t" (specChange)="patchTerminal($event)" />}

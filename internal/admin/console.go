@@ -97,6 +97,16 @@ func consoleHandler(fsys fs.FS, st *store.Store, sm *session.Manager) http.Handl
 				http.ServeFileFS(w, r, fsys, name)
 				return
 			}
+			// A missing FILE is a 404, never the shell. Answering HTML to a
+			// request for main-ABC123.js hands the browser a script that is
+			// not one: it throws a syntax error and the application never
+			// boots — a blank page whose cause is nowhere near it. This is
+			// exactly what a browser holding a previous build's index.html
+			// asks for, and it cost an hour of looking in the wrong place.
+			if path.Ext(name) != "" {
+				http.NotFound(w, r)
+				return
+			}
 		}
 		w.Header().Set("Cache-Control", "no-cache")
 		serveStampedIndex(w, r, fsys, "index.html", st, sm)

@@ -41,10 +41,12 @@ See "Development" in README.md: `npm start` (console, `ng serve` on :4200)
   timezone-select, release-flow… When unsure of an npm package name, read the
   repo's README (package names don't always match repo intuition).
 - **The console is English only** — an operator's tool, served at the root with no
-  locale segment. Write its strings in plain English; nothing to extract, nothing to
-  translate. The **data plane** pages (sign-in, MFA, user button) are the translated
-  ones: their catalogue is `internal/auth/i18n.go`, a Go map, and adding a language
-  means adding an entry there.
+  locale segment: no catalogues, no per-locale build, nothing to extract. But keep
+  MARKING new strings (`i18n="@@Cancel"`, `$localize`): the marks cost an attribute
+  and they are what would make a future translation a translation job rather than a
+  refactoring. Stop marking and the head start rots one screen at a time.
+  The **data plane** pages (sign-in, MFA, user button) ARE translated: their
+  catalogue is `internal/auth/i18n.go`, a Go map, and a new language is a new entry.
 - **Commits**: author is the repo owner's git identity (set `user.name`/`user.email`
   locally per repo — the harness may reset the global config). English messages,
   imperative subject.

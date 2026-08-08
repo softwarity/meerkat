@@ -108,6 +108,20 @@ func TestEmbeddedConsoleServing(t *testing.T) {
 		}
 	})
 
+	// A browser still holding a previous build's index.html asks for file
+	// names that no longer exist. Serving it the shell would hand it HTML
+	// where it expects JavaScript: syntax error, no boot, blank page, and
+	// nothing in sight to explain it.
+	t.Run("a missing file is a 404, not the shell", func(t *testing.T) {
+		for _, name := range []string{"/main-OLDHASH.js", "/styles-GONE.css", "/fr/main-OLDHASH.js"} {
+			res := get(t, name, "")
+			if res.StatusCode != http.StatusNotFound {
+				body, _ := io.ReadAll(res.Body)
+				t.Errorf("%s: got %d %q, want 404", name, res.StatusCode, body)
+			}
+		}
+	})
+
 	// The console is English-only, and no Accept-Language may resurrect a
 	// locale segment: an operator who lands on /routes stays on /routes.
 	t.Run("no language negotiation, ever", func(t *testing.T) {

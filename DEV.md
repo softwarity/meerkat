@@ -2,16 +2,18 @@
 
 Deux terminaux. Node est épinglé par `.node-version` (fnm bascule seul), Go vient de `go.mod`.
 
-## Terminal 1 — console (toutes les locales derrière un proxy :4200)
+## Terminal 1 — console (:4200)
 
 ```bash
 cd console
 npm install   # une fois, et après tout pull qui touche console/package.json
-npm start     # @softwarity/polyglot : un ng serve par locale, proxy unique :4200
+npm start     # ng serve
 ```
 
-> `npm start` répond « Which locales to run? » → `all` (le README parle encore de
-> `start:i18n`, le script s'appelle simplement `start` désormais).
+> La console est en **anglais uniquement** : c'est un outil d'exploitation, et
+> les vingt et une copies de la même SPA pesaient 120 Mo dans le binaire. Ce
+> sont les **pages du plan data** qui parlent les langues de l'application
+> (`internal/auth/i18n.go`).
 
 ## Terminal 2 — gateway hot-reload (air), flags en direct
 

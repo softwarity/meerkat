@@ -45,10 +45,10 @@ Two terminals. Node version is pinned by `.node-version` (fnm/nvm switch automat
 Go toolchain resolves from `go.mod`.
 
 ```bash
-# terminal 1 — the console, all locales behind one proxy (:4200)
+# terminal 1 — the console (:4200)
 cd console
 npm install            # once, and after every pull that touches console/package.json
-npm run start:i18n     # @softwarity/polyglot: one ng serve per locale, single proxy
+npm start              # ng serve
 
 # terminal 2 — the gateway, hot-reloaded on every .go save (air)
 MEERKAT_ADDR=:8082 \
@@ -59,9 +59,13 @@ make dev               # requires air: go install github.com/air-verse/air@lates
 ```
 
 Then browse **http://localhost:9092** (the admin port): the gateway serves its API and
-login there and proxies everything else to the console dev server — `/en/routes`,
-`/fr/routes`, HMR included. Pick any free ports; if a bind fails (port already in use)
-the process exits — the `fatal` line at the top of the log tells you which one.
+login there and proxies everything else to the console dev server, HMR included. Pick
+any free ports; if a bind fails (port already in use) the process exits — the `fatal`
+line at the top of the log tells you which one.
+
+The console is **English only** — it is an operator's tool, and its vocabulary is the
+API's. The pages the application's own users meet (sign-in, MFA, the user button) are
+the translated ones, and that pool is the integrator's to declare.
 
 `make build && ./bin/meerkat --help` lists every flag; each has a `MEERKAT_*` env
 equivalent. First start seeds the `admin` account (password printed once unless

@@ -41,7 +41,7 @@ test('flow-tenancy-switch: single mode serves one organisation and gives the oth
 
   // The console is served knowing it, on the very first paint - no class means
   // the multi-organisation screens would have flashed before disappearing.
-  const html = await (await root.get('/en/', { headers: { Accept: 'text/html' } })).text();
+  const html = await (await root.get('/', { headers: { Accept: 'text/html' } })).text();
   expect(html).toContain('data-meerkat-primary-tenant=');
   expect(html.match(/<body[^>]*>/)?.[0] ?? '').not.toContain('multi-tenant"');
 

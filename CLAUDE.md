@@ -23,7 +23,7 @@ milestones) and update it before ending a work session that changed the state.
 
 ## Dev loop
 
-See "Development" in README.md: `npm run start:i18n` (console, polyglot proxy on :4200)
+See "Development" in README.md: `npm start` (console, `ng serve` on :4200)
 + `MEERKAT_* env… make dev` (gateway, air hot reload). Browse the **admin port**.
 
 ## Hard rules
@@ -38,11 +38,13 @@ See "Development" in README.md: `npm run start:i18n` (console, polyglot proxy on
   best-practices resource (served by the `angular` MCP server configured in `.mcp.json`).
 - **Softwarity ecosystem first**: before writing any generic component/tool, check the
   GitHub org `softwarity` — rail-nav, row-actions, loading-indicator, split-button,
-  timezone-select, polyglot, release-flow… When unsure of an npm package name, read the
+  timezone-select, release-flow… When unsure of an npm package name, read the
   repo's README (package names don't always match repo intuition).
-- **i18n tokens are explicit**: token = the text itself (`@@Cancel`, `@@Save_apply`),
-  placeholders upper-cased (`@@Route_NAME_saved_and_applied`). `npm run extract` after
-  adding strings; keep `src/locale/messages.fr.xlf` complete.
+- **The console is English only** — an operator's tool, served at the root with no
+  locale segment. Write its strings in plain English; nothing to extract, nothing to
+  translate. The **data plane** pages (sign-in, MFA, user button) are the translated
+  ones: their catalogue is `internal/auth/i18n.go`, a Go map, and adding a language
+  means adding an entry there.
 - **Commits**: author is the repo owner's git identity (set `user.name`/`user.email`
   locally per repo — the harness may reset the global config). English messages,
   imperative subject.

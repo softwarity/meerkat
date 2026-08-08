@@ -28,8 +28,7 @@ jobs:
       - uses: golangci/golangci-lint-action@v9
 
   # The console, built ONCE and handed to whoever needs it. It was built twice,
-  # in two configurations, for two jobs that both just need the files; and with
-  # twenty locales the build is no longer the cheap step it used to be.
+  # in two configurations, for two jobs that both just need the files.
   console:
     name: Console
     runs-on: ubuntu-latest

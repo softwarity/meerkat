@@ -59,16 +59,15 @@ func TestRegisterConsoleValidation(t *testing.T) {
 
 func TestEmbeddedConsoleServing(t *testing.T) {
 	fsys := fstest.MapFS{
-		"en/index.html":     {Data: []byte("<html>en shell</html>")},
-		"en/main-K7KMUD.js": {Data: []byte("js-en")},
-		"fr/index.html":     {Data: []byte("<html>fr shell</html>")},
+		"index.html":     {Data: []byte("<html>shell</html>")},
+		"main-K7KMUD.js": {Data: []byte("js")},
 	}
-	// No store and no sessions: this test is about locale routing, and an
-	// unstamped shell is exactly what an anonymous visitor gets.
-	srv := httptest.NewServer(consoleHandler(fsys, []string{"en", "fr"}, nil, nil))
+	// No store and no sessions: this test is about serving, and an unstamped
+	// shell is exactly what an anonymous visitor gets.
+	srv := httptest.NewServer(consoleHandler(fsys, nil, nil))
 	t.Cleanup(srv.Close)
 	client := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
-		return http.ErrUseLastResponse // inspect redirects, don't follow them
+		return http.ErrUseLastResponse // a redirect here would be a regression
 	}}
 
 	get := func(t *testing.T, path, acceptLanguage string) *http.Response {
@@ -85,32 +84,10 @@ func TestEmbeddedConsoleServing(t *testing.T) {
 		return res
 	}
 
-	t.Run("root redirects to the Accept-Language locale", func(t *testing.T) {
-		for header, want := range map[string]string{
-			"":                        "/en/", // no preference → first locale
-			"fr-FR,fr;q=0.9,en;q=0.8": "/fr/",
-			"de-DE,de;q=0.9":          "/en/", // unknown language → first locale
-			"da, fr;q=0.8, en;q=0.7":  "/fr/", // first known primary subtag wins
-		} {
-			res := get(t, "/", header)
-			if res.StatusCode != http.StatusFound || res.Header.Get("Location") != want {
-				t.Errorf("Accept-Language %q: got %d %q, want 302 %q",
-					header, res.StatusCode, res.Header.Get("Location"), want)
-			}
-		}
-	})
-
-	t.Run("path outside a locale keeps its tail", func(t *testing.T) {
-		res := get(t, "/routes", "fr")
-		if res.StatusCode != http.StatusFound || res.Header.Get("Location") != "/fr/routes" {
-			t.Fatalf("got %d %q", res.StatusCode, res.Header.Get("Location"))
-		}
-	})
-
 	t.Run("build files are served immutable", func(t *testing.T) {
-		res := get(t, "/en/main-K7KMUD.js", "")
+		res := get(t, "/main-K7KMUD.js", "")
 		body, _ := io.ReadAll(res.Body)
-		if res.StatusCode != http.StatusOK || string(body) != "js-en" {
+		if res.StatusCode != http.StatusOK || string(body) != "js" {
 			t.Fatalf("got %d %q", res.StatusCode, body)
 		}
 		if cc := res.Header.Get("Cache-Control"); !strings.Contains(cc, "immutable") {
@@ -118,21 +95,28 @@ func TestEmbeddedConsoleServing(t *testing.T) {
 		}
 	})
 
-	t.Run("deep links fall back to the locale index", func(t *testing.T) {
-		for _, path := range []string{"/en/", "/en/routes", "/en/routes/some/deep/link"} {
+	t.Run("deep links fall back to the index", func(t *testing.T) {
+		for _, path := range []string{"/", "/routes", "/routes/some/deep/link"} {
 			res := get(t, path, "")
 			body, _ := io.ReadAll(res.Body)
-			if res.StatusCode != http.StatusOK || string(body) != "<html>en shell</html>" {
+			if res.StatusCode != http.StatusOK || string(body) != "<html>shell</html>" {
 				t.Errorf("%s: got %d %q", path, res.StatusCode, body)
 			}
 			if cc := res.Header.Get("Cache-Control"); cc != "no-cache" {
 				t.Errorf("%s: Cache-Control %q, want no-cache (index must revalidate)", path, cc)
 			}
 		}
-		res := get(t, "/fr/routes", "")
-		body, _ := io.ReadAll(res.Body)
-		if res.StatusCode != http.StatusOK || string(body) != "<html>fr shell</html>" {
-			t.Fatalf("locales must not leak into each other: got %d %q", res.StatusCode, body)
+	})
+
+	// The console is English-only, and no Accept-Language may resurrect a
+	// locale segment: an operator who lands on /routes stays on /routes.
+	t.Run("no language negotiation, ever", func(t *testing.T) {
+		for _, header := range []string{"", "fr-FR,fr;q=0.9,en;q=0.8", "ar", "de-DE,de;q=0.9"} {
+			res := get(t, "/routes", header)
+			if res.StatusCode != http.StatusOK {
+				t.Errorf("Accept-Language %q: got %d %q, want the shell served in place",
+					header, res.StatusCode, res.Header.Get("Location"))
+			}
 		}
 	})
 }
@@ -215,19 +199,19 @@ func TestEmbeddedConsoleIsStampedToo(t *testing.T) {
 	f := setup(t)
 
 	fsys := fstest.MapFS{
-		"en/index.html": &fstest.MapFile{
+		"index.html": &fstest.MapFile{
 			Data: []byte("<!doctype html><html><head></head><body><app-root></app-root></body></html>"),
 		},
 	}
 	mux := http.NewServeMux()
 	f.api.Register(mux)
-	mux.Handle("/", consoleHandler(fsys, []string{"en"}, f.api.st, f.api.sm))
+	mux.Handle("/", consoleHandler(fsys, f.api.st, f.api.sm))
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
 
 	get := func(cookie *http.Cookie) string {
 		t.Helper()
-		req, _ := http.NewRequest("GET", srv.URL+"/en/", nil)
+		req, _ := http.NewRequest("GET", srv.URL+"/", nil)
 		req.Header.Set("Accept", "text/html")
 		if cookie != nil {
 			req.AddCookie(cookie)

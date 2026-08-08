@@ -354,12 +354,15 @@ func loadLicense(path string) error {
 	return nil
 }
 
-// settleTenancy fixes what this installation IS, once. The mode is chosen at
-// the first start and recorded; a later start that contradicts it is refused
-// rather than obeyed, because there is no safe way to swap the two shapes
-// under a live database: going down to single would hide organisations behind
-// an interface that no longer names them, and going up to multi would leave
-// every existing account belonging to an organisation nobody chose.
+// settleTenancy seeds the mode on a first start and gets out of the way after.
+//
+// The flag is for BOOTSTRAP - a first boot, a seeded install, GitOps - and the
+// console owns the mode from then on: it is a setting read per request, not a
+// value captured here, so switching it takes effect immediately and reverses
+// just as fast. That is also why nothing below refuses to start. A gateway
+// that will not boot because a flag disagrees with its database turns a
+// configuration mistake into an outage, at the worst possible hour; the only
+// refusal left is a mode that does not exist, where guessing would be worse.
 func settleTenancy(ctx context.Context, st *store.Store, asked string) error {
 	switch asked {
 	case store.TenancySingle, store.TenancyMulti:
@@ -367,35 +370,49 @@ func settleTenancy(ctx context.Context, st *store.Store, asked string) error {
 		return fmt.Errorf("tenancy %q is not allowed: use %q or %q",
 			asked, store.TenancySingle, store.TenancyMulti)
 	}
-	if asked == store.TenancyMulti {
-		if err := features.Require(features.MultiTenant); err != nil {
-			return fmt.Errorf("-tenancy multi: %w", err)
-		}
-	}
 	recorded := st.Tenancy(ctx)
-	// A database written before the mode existed answers "single"; so does a
-	// fresh one, whose setting the seed just wrote. Either way the first start
-	// that asks for something else is the one that decides.
-	n, err := st.CountTenants(ctx)
+	seeded, err := st.TenancyWasChosen(ctx)
 	if err != nil {
 		return err
 	}
-	if recorded == asked {
-		slog.Info("tenancy", "mode", asked)
+	if seeded {
+		// The console decides from here. Saying so beats silently ignoring a
+		// flag someone put in a compose file and believes in.
+		if asked != recorded {
+			slog.Info("-tenancy ignored: the mode is set in the console",
+				"asked", asked, "running", recorded)
+		}
+		reportHiddenTenants(ctx, st, recorded)
 		return nil
 	}
-	// Going back to single is fine as long as there is nothing to hide: with a
-	// single organisation the two shapes hold exactly the same data, and the
-	// only difference is whether the console says the word.
-	if asked == store.TenancySingle && n > 1 {
-		return fmt.Errorf("this installation holds %d organisations and cannot run in single-tenant mode: "+
-			"they would still exist but no screen would name them (start with -tenancy multi, or remove all but one)", n)
+	mode := asked
+	if mode == store.TenancyMulti && !features.Has(features.MultiTenant) {
+		slog.Warn("-tenancy multi ignored: no license covers it, starting single-tenant",
+			"feature", features.MultiTenant)
+		mode = store.TenancySingle
 	}
-	if err := st.SetSetting(ctx, store.SettingTenancy, asked); err != nil {
+	if err := st.SetSetting(ctx, store.SettingTenancy, mode); err != nil {
 		return err
 	}
-	slog.Info("tenancy settled", "mode", asked, "was", recorded)
+	slog.Info("tenancy", "mode", mode)
 	return nil
+}
+
+// reportHiddenTenants says out loud what single-tenant mode is holding back.
+// Nothing is deleted and the mode reverses in one click, but the people in
+// those organisations lose access to whatever asks for one - and finding that
+// out through complaints rather than through a startup line is the failure
+// mode this exists to prevent.
+func reportHiddenTenants(ctx context.Context, st *store.Store, mode string) {
+	if mode != store.TenancySingle {
+		return
+	}
+	n, err := st.CountTenants(ctx)
+	if err != nil || n <= 1 {
+		return
+	}
+	slog.Warn("single-tenant mode is serving one organisation and holding back the others",
+		"hidden", n-1, "nothing_deleted", true)
 }
 
 func envOr(key, fallback string) string {

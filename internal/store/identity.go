@@ -394,6 +394,9 @@ const (
 	// belonging nowhere - so this is the memory a later boot is checked
 	// against, not a knob the console turns.
 	SettingTenancy = "tenancy"
+	// SettingTenancyChosen marks the mode as settled: the -tenancy flag seeds
+	// it on a first boot, the console owns it afterwards.
+	SettingTenancyChosen = "tenancy_chosen"
 	// SettingRegistration is the self-registration policy (AUTH-20): who may
 	// create their own account. Ships closed.
 	SettingRegistration = "registration"
@@ -481,6 +484,53 @@ func (s *Store) Tenancy(ctx context.Context) string {
 		return TenancySingle
 	}
 	return mode
+}
+
+// TenancyWasChosen reports whether the mode has been settled already - by a
+// first boot or by the console. Before that, the flag gets to seed it; after,
+// the console owns it.
+func (s *Store) TenancyWasChosen(ctx context.Context) (bool, error) {
+	var chosen bool
+	if err := s.GetSetting(ctx, SettingTenancyChosen, &chosen); err != nil {
+		return false, nil // absent on a database written before the setting
+	}
+	return chosen, nil
+}
+
+// SetTenancy records the mode and marks it as chosen. Switching is allowed in
+// both directions and at any time: it is read per request, so it takes effect
+// immediately and reverses just as fast. Going down to single with several
+// organisations does NOT delete anything - the others stop being served, which
+// is what the caller is told to confirm.
+func (s *Store) SetTenancy(ctx context.Context, mode string) error {
+	if mode != TenancySingle && mode != TenancyMulti {
+		return fmt.Errorf("tenancy %q is not allowed: use %q or %q", mode, TenancySingle, TenancyMulti)
+	}
+	if err := s.SetSetting(ctx, SettingTenancy, mode); err != nil {
+		return err
+	}
+	return s.SetSetting(ctx, SettingTenancyChosen, true)
+}
+
+// PrimaryTenant is the organisation a single-tenant installation serves: the
+// FIRST one, not a hard-coded id - an installation that created its own
+// organisations has no "default", and picking by id would serve none of them.
+//
+// Ordered by insertion (rowid), not by created_at: that column has a second's
+// resolution, so a seeded install that writes its organisations in the same
+// second as the boot would fall back to sorting by id, which is alphabetical
+// and means nothing.
+func (s *Store) PrimaryTenant(ctx context.Context) (Tenant, error) {
+	list, err := s.listTenants(ctx,
+		`SELECT id, name, description, enabled, business_access, session_ttl, group_mode, created_by, owner_id, created_at, updated_at
+		 FROM tenants ORDER BY rowid ASC LIMIT 1`)
+	if err != nil {
+		return Tenant{}, err
+	}
+	if len(list) == 0 {
+		return Tenant{}, fmt.Errorf("store: no organisation at all, which cannot happen: one is seeded at first boot")
+	}
+	return list[0], nil
 }
 
 // CountTenants is what a boot checks before accepting single mode: switching

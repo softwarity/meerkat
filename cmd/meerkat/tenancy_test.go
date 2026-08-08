@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"strings"
 	"testing"
 
 	"github.com/softwarity/meerkat/internal/features"
@@ -19,10 +18,11 @@ func openStore(t *testing.T) *store.Store {
 	return s
 }
 
-// What an installation IS gets decided here, once, before it answers anything.
-// The rule is not "the mode never changes" but "the mode never changes under
-// data that would stop being visible": with one organisation the two shapes
-// hold exactly the same thing, and only the vocabulary differs.
+// The flag SEEDS the mode on a first boot and steps aside afterwards: the
+// console owns it, because a mode read per request can be switched and undone
+// in a click. Nothing here refuses to start - a gateway that will not boot
+// because a flag disagrees with its database turns a configuration mistake
+// into an outage.
 func TestSettleTenancy(t *testing.T) {
 	ctx := context.Background()
 
@@ -30,29 +30,25 @@ func TestSettleTenancy(t *testing.T) {
 		t.Cleanup(features.Reset)
 		st := openStore(t)
 		if err := settleTenancy(ctx, st, store.TenancySingle); err != nil {
-			t.Fatalf("single must always be available: %v", err)
+			t.Fatal(err)
 		}
 		if mode := st.Tenancy(ctx); mode != store.TenancySingle {
 			t.Fatalf("recorded %q, want single", mode)
 		}
 	})
 
-	t.Run("multi is refused without the feature, and names it", func(t *testing.T) {
+	t.Run("multi without the feature starts single instead of refusing", func(t *testing.T) {
 		t.Cleanup(features.Reset)
 		st := openStore(t)
-		err := settleTenancy(ctx, st, store.TenancyMulti)
-		if err == nil {
-			t.Fatal("multi must be refused in the community edition")
-		}
-		if !strings.Contains(err.Error(), features.MultiTenant) {
-			t.Fatalf("error = %q, want it to name the feature", err)
+		if err := settleTenancy(ctx, st, store.TenancyMulti); err != nil {
+			t.Fatalf("a gateway must start: %v", err)
 		}
 		if mode := st.Tenancy(ctx); mode != store.TenancySingle {
-			t.Fatalf("a refused boot must record nothing: %q", mode)
+			t.Fatalf("recorded %q, want single", mode)
 		}
 	})
 
-	t.Run("multi is settled and remembered", func(t *testing.T) {
+	t.Run("multi is seeded when the feature is there", func(t *testing.T) {
 		t.Cleanup(features.Reset)
 		features.Enable(features.MultiTenant)
 		st := openStore(t)
@@ -62,44 +58,22 @@ func TestSettleTenancy(t *testing.T) {
 		if mode := st.Tenancy(ctx); mode != store.TenancyMulti {
 			t.Fatalf("recorded %q, want multi", mode)
 		}
-		// Booting the same way again is a no-op, not a second decision.
-		if err := settleTenancy(ctx, st, store.TenancyMulti); err != nil {
-			t.Fatal(err)
-		}
 	})
 
-	t.Run("back to single with one organisation is allowed", func(t *testing.T) {
+	t.Run("once chosen, the flag no longer decides", func(t *testing.T) {
 		t.Cleanup(features.Reset)
 		features.Enable(features.MultiTenant)
 		st := openStore(t)
-		if err := settleTenancy(ctx, st, store.TenancyMulti); err != nil {
+		// The console had the last word...
+		if err := st.SetTenancy(ctx, store.TenancyMulti); err != nil {
 			t.Fatal(err)
 		}
-		features.Reset() // the license is gone; the data is not
+		// ...and a compose file still says single. The database wins.
 		if err := settleTenancy(ctx, st, store.TenancySingle); err != nil {
-			t.Fatalf("nothing would be hidden, so nothing should refuse: %v", err)
-		}
-		if mode := st.Tenancy(ctx); mode != store.TenancySingle {
-			t.Fatalf("recorded %q, want single", mode)
-		}
-	})
-
-	t.Run("back to single with several organisations is refused", func(t *testing.T) {
-		t.Cleanup(features.Reset)
-		features.Enable(features.MultiTenant)
-		st := openStore(t)
-		if err := settleTenancy(ctx, st, store.TenancyMulti); err != nil {
 			t.Fatal(err)
 		}
-		if err := st.SaveTenant(ctx, store.Tenant{ID: "acme", Name: "Acme", Enabled: true}); err != nil {
-			t.Fatal(err)
-		}
-		err := settleTenancy(ctx, st, store.TenancySingle)
-		if err == nil {
-			t.Fatal("organisations would still exist with no screen naming them")
-		}
-		if !strings.Contains(err.Error(), "2 organisations") {
-			t.Fatalf("error = %q, want it to say how many are in the way", err)
+		if mode := st.Tenancy(ctx); mode != store.TenancyMulti {
+			t.Fatalf("recorded %q: the flag must not override a chosen mode", mode)
 		}
 	})
 

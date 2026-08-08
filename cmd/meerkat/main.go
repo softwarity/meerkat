@@ -384,13 +384,12 @@ func settleTenancy(ctx context.Context, st *store.Store, asked string) error {
 		slog.Info("tenancy", "mode", asked)
 		return nil
 	}
+	// Going back to single is fine as long as there is nothing to hide: with a
+	// single organisation the two shapes hold exactly the same data, and the
+	// only difference is whether the console says the word.
 	if asked == store.TenancySingle && n > 1 {
 		return fmt.Errorf("this installation holds %d organisations and cannot run in single-tenant mode: "+
 			"they would still exist but no screen would name them (start with -tenancy multi, or remove all but one)", n)
-	}
-	if recorded == store.TenancyMulti && asked == store.TenancySingle {
-		return fmt.Errorf("this installation was started in multi-tenant mode and cannot go back to single: " +
-			"start with -tenancy multi")
 	}
 	if err := st.SetSetting(ctx, store.SettingTenancy, asked); err != nil {
 		return err

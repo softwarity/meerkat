@@ -20,6 +20,11 @@ type CompiledFilters struct {
 	Request  []RequestFilter
 	Response []ResponseFilter
 	Terminal http.Handler
+	// TerminalNeedsIdentity says the terminal answers FROM the caller, so the
+	// engine must resolve the session and carry it in (routing.WithIdentity).
+	// Declared rather than assumed: resolving a session costs a read, and
+	// redirect and maintenance have no use for one.
+	TerminalNeedsIdentity bool
 }
 
 type filterPhase string
@@ -39,6 +44,8 @@ type filterDef struct {
 	compileRequest  func(a decoded) (RequestFilter, error)
 	compileResponse func(a decoded) (ResponseFilter, error)
 	compileTerminal func(a decoded) (http.Handler, error)
+	// needsIdentity: the terminal reads the caller (see CompiledFilters).
+	needsIdentity bool
 }
 
 // CompileFilters turns specs into executable chains, applied in declared
@@ -76,12 +83,29 @@ func CompileFilters(specs []Spec) (CompiledFilters, error) {
 				return out, err
 			}
 			out.Terminal = h
+			out.TerminalNeedsIdentity = def.needsIdentity
 		}
 	}
 	if out.Terminal != nil && (len(out.Request) > 0 || len(out.Response) > 0) {
 		return out, fmt.Errorf("a terminal filter (redirect) cannot be combined with other filters")
 	}
 	return out, nil
+}
+
+// LiteralArgs lists the arguments of a filter that must reach the brick
+// untouched (see Param.Literal). Unknown filter: nothing to protect.
+func LiteralArgs(filterType string) []string {
+	def, ok := filterRegistry[filterType]
+	if !ok {
+		return nil
+	}
+	var out []string
+	for _, p := range def.Params {
+		if p.Literal {
+			out = append(out, p.Name)
+		}
+	}
+	return out
 }
 
 var filterRegistry = map[string]filterDef{}

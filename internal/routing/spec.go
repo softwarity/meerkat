@@ -36,6 +36,13 @@ type Param struct {
 	Required bool      `json:"required,omitempty"`
 	Default  any       `json:"default,omitempty"`
 	Doc      string    `json:"doc,omitempty"`
+	// Literal marks an argument taken VERBATIM: the vault's $name expansion
+	// must leave it alone. A Go template writes $i and $r for its own loop
+	// variables, and the gateway read those as vault references — the route was
+	// refused for "unknown vault entries: i, r". A template has no business
+	// holding a secret anyway: it travels in the configuration export, which is
+	// public by construction.
+	Literal bool `json:"literal,omitempty"`
 }
 
 // decoded holds schema-validated, normalized args.

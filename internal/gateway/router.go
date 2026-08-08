@@ -261,7 +261,44 @@ func ExpandRoute(r store.Route, values map[string]string) (store.Route, []string
 	if err := json.Unmarshal(out, &resolved); err != nil {
 		return r, missing, fmt.Errorf("gateway: route %q: %w", r.Name, err)
 	}
+	missing = restoreLiteralArgs(r, &resolved, missing)
 	return resolved, missing, nil
+}
+
+// restoreLiteralArgs puts back the filter arguments that must not be expanded,
+// and drops the "missing" names they invented on the way through.
+//
+// A Go template writes $i and $r for its own loop variables; the expansion read
+// them as vault references and the route was refused for "unknown vault
+// entries: i, r". The two syntaxes share the dollar and only one of them owns
+// it here — the template's, since its body is taken verbatim.
+func restoreLiteralArgs(original store.Route, resolved *store.Route, missing []string) []string {
+	invented := map[string]bool{}
+	for i, spec := range original.Filters {
+		if i >= len(resolved.Filters) {
+			break
+		}
+		for _, name := range routing.LiteralArgs(spec.Type) {
+			raw, ok := spec.Args[name].(string)
+			if !ok {
+				continue
+			}
+			for _, ref := range vault.Refs(raw) {
+				invented[ref] = true
+			}
+			resolved.Filters[i].Args[name] = raw
+		}
+	}
+	if len(invented) == 0 {
+		return missing
+	}
+	kept := missing[:0]
+	for _, name := range missing {
+		if !invented[name] {
+			kept = append(kept, name)
+		}
+	}
+	return kept
 }
 
 // JWKSPath is the well-known location where the gateway publishes the public
@@ -392,6 +429,12 @@ func (rt *Router) compile(r store.Route, appLangs []string) (compiledRoute, erro
 	var handler http.Handler
 	if filters.Terminal != nil {
 		handler = filters.Terminal
+		// A terminal that answers FROM the caller gets one resolved and carried
+		// in. Only that kind pays the read: redirect and maintenance answer the
+		// same thing to everyone.
+		if filters.TerminalNeedsIdentity {
+			handler = rt.withIdentity(handler)
+		}
 	} else {
 		handler, err = buildProxy(r, filters)
 		if err != nil {
@@ -1438,6 +1481,24 @@ func buildProxy(r store.Route, cf routing.CompiledFilters) (http.Handler, error)
 		return nil
 	}
 	return proxy, nil
+}
+
+// withIdentity resolves the caller and hands it to a terminal that answers
+// from it (the "respond" brick). No session is not an error here: the template
+// asks {{if .SignedIn}} and decides what an anonymous caller is told — which is
+// what lets one route serve both the signed-in shape and the public one.
+func (rt *Router) withIdentity(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		var id routing.Identity
+		if d, ok := rt.sessionIdentity(req); ok {
+			id = routing.Identity{
+				Username: d.Username, UserID: d.UserID, Fullname: d.Fullname,
+				Email: d.Email, Tenant: d.Tenant, TenantID: d.TenantID,
+				Timezone: d.Timezone, Roles: d.Roles,
+			}
+		}
+		next.ServeHTTP(w, req.WithContext(routing.WithIdentity(req.Context(), id)))
+	})
 }
 
 // requireSession gates a route handler behind a valid session: browsers

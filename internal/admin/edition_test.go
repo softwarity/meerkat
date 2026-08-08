@@ -2,6 +2,7 @@ package admin
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"strconv"
 	"strings"
 	"testing"
@@ -134,5 +135,45 @@ func TestSingleModeReportsWhatItHoldsBack(t *testing.T) {
 	// Still there, just not served.
 	if code, body := f.call(t, "GET", "/api/tenants", "", f.rootC); !strings.Contains(body, "acme") {
 		t.Fatalf("tenants = %d %s, want acme still stored", code, body)
+	}
+}
+
+// The stamp is where the console learns what it is BEFORE its first paint.
+// Reading /api/edition instead would show the multi-organisation console for a
+// frame and then take it away, which reads as a glitch - and a locked control
+// appearing unlocked for a frame reads as a tease.
+func TestConsoleStampCarriesTheEdition(t *testing.T) {
+	f := communityFixture(t)
+
+	stamp := func() string {
+		t.Helper()
+		req := httptest.NewRequest("GET", "/", nil)
+		req.AddCookie(f.rootC)
+		return consoleBodyAttrs(req, f.api.st, f.api.sm)
+	}
+
+	body := stamp()
+	if body == "" {
+		t.Fatal("a signed-in console request must be stamped")
+	}
+	if strings.Contains(body, "multi-tenant") {
+		t.Fatalf("single mode must not stamp the multi class: %q", body)
+	}
+	if strings.Contains(body, "ee-") {
+		t.Fatalf("community must stamp no feature class: %q", body)
+	}
+	if !strings.Contains(body, `data-meerkat-primary-tenant="`+store.DefaultTenantID+`"`) {
+		t.Fatalf("the served organisation must travel: %q", body)
+	}
+
+	features.Enable(features.MultiTenant, features.Directories)
+	if code, _ := f.call(t, "PUT", "/api/settings/tenancy", `{"tenancy":"multi"}`, f.rootC); code != http.StatusOK {
+		t.Fatal("switch to multi")
+	}
+	body = stamp()
+	for _, want := range []string{`multi-tenant`, "ee-multi-tenant", "ee-directories"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("stamp misses %q: %s", want, body)
+		}
 	}
 }

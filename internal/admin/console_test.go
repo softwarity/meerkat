@@ -186,8 +186,19 @@ func TestConsoleIdentityStamp(t *testing.T) {
 		return string(body)
 	}
 
-	if body := get(f.rootC); !strings.Contains(body, `<body class="root" data-meerkat-user-id="root" data-meerkat-username="root">`) {
-		t.Fatalf("root identity not stamped: %q", body)
+	// Checked piece by piece, not as one frozen string: the stamp also carries
+	// what the installation IS, and pinning the whole tag would make every
+	// added class look like a regression.
+	body := get(f.rootC)
+	for _, want := range []string{
+		`class="root`,
+		`data-meerkat-user-id="root"`,
+		`data-meerkat-username="root"`,
+		`data-meerkat-primary-tenant="default"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("stamp misses %s: %q", want, body)
+		}
 	}
 	if body := get(nil); !strings.Contains(body, "<body>") {
 		t.Fatalf("anonymous body must stay untouched: %q", body)

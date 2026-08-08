@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/softwarity/meerkat/internal/admin/ui"
+	"github.com/softwarity/meerkat/internal/features"
 	"github.com/softwarity/meerkat/internal/session"
 	"github.com/softwarity/meerkat/internal/store"
 )
@@ -193,13 +194,32 @@ func consoleBodyAttrs(r *http.Request, st *store.Store, sm *session.Manager) str
 	if administered, err := st.ListTenantsAdministeredBy(r.Context(), user.ID); err == nil && len(administered) > 0 {
 		roles = append(roles, "tenant-admin")
 	}
+	// What this installation IS travels the same way, and for the same reason
+	// the roles do: the CSS that hides the multi-tenant screens and locks the
+	// Enterprise controls must be right on the FIRST paint. Waiting for
+	// /api/edition would show the multi-organisation console for a frame and
+	// then take it away, which reads as a glitch and, for a locked control,
+	// as a tease.
+	if st.Tenancy(r.Context()) == store.TenancyMulti {
+		roles = append(roles, "multi-tenant")
+	}
+	for _, f := range features.Enabled() {
+		roles = append(roles, "ee-"+f)
+	}
 	var b strings.Builder
 	fmt.Fprintf(&b, `class="%s"`, strings.Join(roles, " "))
+	// The organisation a single installation serves: the console targets it for
+	// Groups, Members and the group rules without ever naming it.
+	primary := ""
+	if p, err := st.PrimaryTenant(r.Context()); err == nil {
+		primary = p.ID
+	}
 	for _, kv := range [][2]string{
 		{"user-id", user.ID},
 		{"username", user.Username},
 		{"fullname", user.Fullname},
 		{"email", user.Email},
+		{"primary-tenant", primary},
 	} {
 		if kv[1] == "" {
 			continue

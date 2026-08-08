@@ -262,9 +262,9 @@ export class RouteEditorComponent {
         // The mapping input starts on the attribute's own name (the default a
         // fact travels under); the admin overwrites it to rename. buildRoute
         // drops it again when it still equals the field name.
-        return [f, { selected, as: found?.as || f, asJson: found?.asJson ?? false }];
+        return [f, { selected, as: found?.as || f, asJson: found?.asJson ?? false, trimPrefix: found?.trimPrefix ?? '' }];
       }),
-    ) as Record<string, { selected: boolean; as: string; asJson: boolean }>,
+    ) as Record<string, { selected: boolean; as: string; asJson: boolean; trimPrefix: string }>,
   }));
 
   // The APPLICATION's locale offer, shown read-only (managed in Application
@@ -355,6 +355,17 @@ export class RouteEditorComponent {
       identityAttrs: { ...d.identityAttrs, [field]: { ...d.identityAttrs[field], as } },
     }));
   }
+  // A catalogue mirroring another system carries a common head on every role.
+  // Dropping it saves it on every request - 320 roles is 1600 bytes of the
+  // same five characters - and it is opt-in: a service testing for ROLE_ADMIN
+  // has to keep receiving it.
+  protected setAttrTrim(prefix: string): void {
+    this.draft.update((d) => ({
+      ...d,
+      identityAttrs: { ...d.identityAttrs, roles: { ...d.identityAttrs['roles'], trimPrefix: prefix } },
+    }));
+  }
+
   protected setAttrJson(field: string, asJson: boolean): void {
     this.draft.update((d) => ({
       ...d,
@@ -367,7 +378,11 @@ export class RouteEditorComponent {
   // an illustrative placeholder - the mapping and the list format are what the
   // preview is really about.
   protected mappedExample(field: string, asJson: boolean): string {
-    if (field === 'roles') return asJson ? '["role-a","role-b"]' : 'role-a,role-b';
+    if (field === 'roles') {
+      const trim = this.draft().identityAttrs['roles'].trimPrefix;
+      const sample = ['ROLE_ADMIN', 'ROLE_OPS'].map((r) => (trim ? r.replace(trim, '') : r));
+      return asJson ? JSON.stringify(sample) : sample.join(',');
+    }
     const u = this.me.user();
     switch (field) {
       case 'username':
@@ -665,6 +680,7 @@ export class RouteEditorComponent {
       const as = d.identityAttrs[f].as.trim();
       if (as && as !== f) a.as = as;
       if (f === 'roles' && d.identityAttrs[f].asJson) a.asJson = true;
+      if (f === 'roles' && d.identityAttrs[f].trimPrefix.trim()) a.trimPrefix = d.identityAttrs[f].trimPrefix.trim();
       return a;
     });
     const identity: IdentityForward = { mechanism: d.identityMechanism, attributes };

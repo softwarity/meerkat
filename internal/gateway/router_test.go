@@ -958,3 +958,37 @@ func TestJoiningTakesEffectOnAnOpenSession(t *testing.T) {
 		t.Fatalf("the open session must pick the membership up: got %q", got)
 	}
 }
+
+// A catalogue mirroring another system carries a common head on every role -
+// "ROLE_" for a Spring estate - and it is 1600 bytes of the same five
+// characters on every request when someone holds 320 of them. Trimming it is
+// an option, never the default: a service testing for "ROLE_ADMIN" has to keep
+// receiving it.
+func TestRolePrefixIsTrimmedOnlyWhenAsked(t *testing.T) {
+	for _, tc := range []struct {
+		name, prefix, want string
+	}{
+		{"kept by default", "", "ROLE_A,ROLE_B"},
+		{"trimmed when asked", "ROLE_", "A,B"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got := identityHeaderPairs(store.IdentityForward{
+				Mechanism:  "headers",
+				Attributes: []store.IdentityAttr{{Field: "roles", As: "roles", TrimPrefix: tc.prefix}},
+			}, identityData{Roles: []string{"ROLE_A", "ROLE_B"}})
+			if len(got) != 1 || got[0].Value != tc.want {
+				t.Fatalf("got %+v, want %q", got, tc.want)
+			}
+		})
+	}
+
+	// A role without the prefix is left alone: a catalogue is rarely uniform,
+	// and half-trimmed names would be worse than untrimmed ones.
+	got := identityHeaderPairs(store.IdentityForward{
+		Mechanism:  "headers",
+		Attributes: []store.IdentityAttr{{Field: "roles", As: "roles", TrimPrefix: "ROLE_"}},
+	}, identityData{Roles: []string{"ROLE_A", "plain"}})
+	if got[0].Value != "A,plain" {
+		t.Fatalf("got %q", got[0].Value)
+	}
+}

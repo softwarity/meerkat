@@ -223,6 +223,18 @@
                     <mat-icon>{{ draft().identityAttrs['roles'].asJson ? 'data_array' : 'abc' }}</mat-icon>
                   </button>
                 </mat-form-field>
+                @if (field === 'roles') {
+                  <mat-form-field class="id-trim" subscriptSizing="dynamic">
+                    <mat-label i18n="@@Drop_prefix">Drop prefix</mat-label>
+                    <input
+                      matInput
+                      placeholder="ROLE_"
+                      [disabled]="!draft().identityAttrs['roles'].selected"
+                      [value]="draft().identityAttrs['roles'].trimPrefix"
+                      (input)="setAttrTrim($any($event.target).value)"
+                    />
+                  </mat-form-field>
+                }
                 <span class="id-eq">=</span>
                 <code class="id-sample">{{ mappedExample(field, draft().identityAttrs[field].asJson) }}</code>
               </div>

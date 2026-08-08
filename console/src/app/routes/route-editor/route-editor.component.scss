@@ -339,3 +339,8 @@ header .ui-toggle {
   flex: none;
   margin-right: 4px;
 }
+
+/* Roles only: the head to drop from each one before it travels. */
+.id-trim {
+  flex: 0 0 130px;
+}

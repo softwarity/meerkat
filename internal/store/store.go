@@ -860,6 +860,12 @@ type IdentityAttr struct {
 	Field  string `json:"field"`
 	As     string `json:"as,omitempty"`
 	AsJSON bool   `json:"asJson,omitempty"`
+	// TrimPrefix drops a common head from every ROLE before it travels.
+	// Catalogues that mirror another system carry one - "ROLE_" for a Spring
+	// estate - and it is dead weight on the wire: 320 roles is 1600 bytes of
+	// the same five characters on every single request. Off by default,
+	// because a service testing for "ROLE_ADMIN" must keep receiving it.
+	TrimPrefix string `json:"trimPrefix,omitempty"`
 }
 
 // Route is one declarative routing rule: predicates match a request, filters

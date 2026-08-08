@@ -543,6 +543,14 @@ func validateRouteType(r store.Route) error {
 				return fmt.Errorf("identity attribute %q is set twice", a.Field)
 			}
 			seen[a.Field] = true
+			if a.TrimPrefix != "" {
+				if a.Field != "roles" {
+					return fmt.Errorf("identity attribute %q cannot trim a prefix: only roles carry one", a.Field)
+				}
+				if !schemeTokenOK.MatchString(a.TrimPrefix) {
+					return fmt.Errorf("role prefix %q is not allowed: letters, digits, _ and - only", a.TrimPrefix)
+				}
+			}
 			if a.As != "" {
 				if id.Mechanism == "headers" && !headerNameOK.MatchString(a.As) {
 					return fmt.Errorf("identity header %q for %s is not allowed: letters, digits and - only", a.As, a.Field)
@@ -1266,20 +1274,35 @@ func identityHeaderPairs(cfg store.IdentityForward, d identityData) []IdentityHe
 			if len(d.Roles) == 0 {
 				continue
 			}
+			roles := trimRolePrefix(d.Roles, a.TrimPrefix)
 			if a.AsJSON {
-				b, err := json.Marshal(d.Roles)
+				b, err := json.Marshal(roles)
 				if err != nil {
 					continue
 				}
 				out = append(out, IdentityHeader{Name: name, Value: string(b)})
 			} else {
-				out = append(out, IdentityHeader{Name: name, Value: strings.Join(d.Roles, ",")})
+				out = append(out, IdentityHeader{Name: name, Value: strings.Join(roles, ",")})
 			}
 			continue
 		}
 		if v := userFieldValue(d, a.Field); v != "" {
 			out = append(out, IdentityHeader{Name: name, Value: v})
 		}
+	}
+	return out
+}
+
+// trimRolePrefix drops a common head from role names on the way out. A role
+// that does not carry it is left alone rather than mangled - a catalogue is
+// rarely uniform, and half-trimmed names would be worse than untrimmed ones.
+func trimRolePrefix(roles []string, prefix string) []string {
+	if prefix == "" || len(roles) == 0 {
+		return roles
+	}
+	out := make([]string, len(roles))
+	for i, r := range roles {
+		out[i] = strings.TrimPrefix(r, prefix)
 	}
 	return out
 }
@@ -1337,10 +1360,11 @@ func identityClaims(cfg store.IdentityForward, routeName string, d identityData)
 			name = a.Field
 		}
 		if a.Field == "roles" {
+			roles := trimRolePrefix(d.Roles, a.TrimPrefix)
 			if a.AsJSON {
-				claims[name] = d.Roles
+				claims[name] = roles
 			} else {
-				claims[name] = strings.Join(d.Roles, ",")
+				claims[name] = strings.Join(roles, ",")
 			}
 			continue
 		}

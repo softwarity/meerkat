@@ -162,6 +162,10 @@ export interface IdentityAttr {
   field: string;
   as?: string;
   asJson?: boolean;
+  // Drops a common head from every role before it travels (roles only): a
+  // catalogue mirroring another system carries one, and it is dead weight on
+  // the wire. Off by default - a service testing for ROLE_ADMIN needs it.
+  trimPrefix?: string;
 }
 
 // mechanism picks the transport: '' (off), headers (one per attribute), jwt

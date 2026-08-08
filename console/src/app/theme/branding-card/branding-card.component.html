@@ -49,11 +49,19 @@
   </div>
 
   <!-- The browser tab. Left alone it follows the logo, which is what almost
-       everyone wants and nobody would think to configure. -->
+       everyone wants and nobody would think to configure. Same gesture as the
+       logo above - drop or click - because it is the same act. -->
   <div class="tab-icon">
-    <div class="tab-preview" [class.empty]="!tabIcon()">
+    <div
+      class="dropzone small"
+      [class.dragging]="draggingIcon()"
+      (click)="faviconInput.click()"
+      (dragover)="$event.preventDefault(); draggingIcon.set(true)"
+      (dragleave)="draggingIcon.set(false)"
+      (drop)="onIconDrop($event)"
+    >
       @if (tabIcon(); as icon) {
-        <img [src]="icon" alt="" />
+        <img class="icon-preview" [src]="icon" alt="" />
       } @else {
         <mat-icon>public</mat-icon>
       }
@@ -62,15 +70,14 @@
       <div class="tab-title">Browser tab icon</div>
       <div class="tab-hint">
         @if (favicon()) {
-          Its own image.
+          Its own image. Drop or click to replace.
         } @else if (logo()) {
-          Follows the logo above.
+          Follows the logo above. Drop one here to differ.
         } @else {
           Meerkat's mark, until you set a logo.
         }
       </div>
     </div>
-    <button matButton (click)="faviconInput.click()">Choose</button>
     @if (favicon()) {
       <button matIconButton (click)="favicon.set(''); changed.emit()" matTooltip="Follow the logo again" aria-label="Follow the logo again">
         <mat-icon>close</mat-icon>

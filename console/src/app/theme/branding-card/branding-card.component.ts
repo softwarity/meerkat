@@ -41,6 +41,7 @@ export class BrandingCardComponent {
   readonly changed = output<void>();
 
   protected readonly dragging = signal(false);
+  protected readonly draggingIcon = signal(false);
   // What the tab will actually show, which is the cascade the gateway applies
   // when it serves /meerkat/favicon: the icon, else the logo, else nothing -
   // and "nothing" is where Meerkat's own mark takes over.
@@ -56,6 +57,12 @@ export class BrandingCardComponent {
     ev.preventDefault();
     this.dragging.set(false);
     this.readFile(ev.dataTransfer?.files?.[0]);
+  }
+
+  protected onIconDrop(ev: DragEvent): void {
+    ev.preventDefault();
+    this.draggingIcon.set(false);
+    this.read(ev.dataTransfer?.files?.[0], ACCEPTED_ICON, 40_000, 'icon', this.favicon);
   }
 
   protected onFaviconFile(ev: Event): void {

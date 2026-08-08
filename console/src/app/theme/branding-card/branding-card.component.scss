@@ -64,25 +64,22 @@ h3 {
   margin-top: 12px;
 }
 
-.tab-preview {
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 6px;
-  overflow: hidden;
-  background: var(--mat-sys-surface-container);
+/* The same drop zone as the logo, at tab-icon scale. */
+.dropzone.small {
+  flex: 0 0 auto;
+  padding: 6px;
+  border-radius: 8px;
+}
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
+.icon-preview {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+}
 
-  &.empty {
-    color: var(--mat-sys-on-surface-variant);
-  }
+.dropzone.small mat-icon {
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .tab-text {

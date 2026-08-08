@@ -37,6 +37,10 @@ func TestEndpointSecurityEnforcement(t *testing.T) {
 
 	// A user "neo" in tenant t1 holding the "ops" role.
 	must(st.CreateUser(ctx, store.User{ID: "u1", Username: "neo", PasswordHash: "x", Enabled: true}))
+	// Belongs to nothing: a session for this one carries no role, whatever it
+	// is offered. u1 has a membership, and a session with no organisation now
+	// adopts it when it is the only one (see TestJoiningTakesEffectOnAnOpenSession).
+	must(st.CreateUser(ctx, store.User{ID: "u2", Username: "nobody", PasswordHash: "x", Enabled: true}))
 	must(st.SaveTenant(ctx, store.Tenant{ID: "t1", Name: "acme", Enabled: true}))
 	must(st.SaveMembership(ctx, store.Membership{
 		UserID: "u1", TenantID: "t1", Type: store.MemberUser, Enabled: true,
@@ -75,10 +79,11 @@ func TestEndpointSecurityEnforcement(t *testing.T) {
 		}
 		return rec.Result().Cookies()[0]
 	}
-	// A session with no active tenant carries no roles.
+	// A signed-in caller who belongs to no organisation: roles are held IN one,
+	// so this one has none.
 	noRole := func() *http.Cookie {
 		rec := httptest.NewRecorder()
-		if _, err := sm.Issue(ctx, rec, httptest.NewRequest("POST", "/login", nil), "u1"); err != nil {
+		if _, err := sm.Issue(ctx, rec, httptest.NewRequest("POST", "/login", nil), "u2"); err != nil {
 			t.Fatalf("Issue: %v", err)
 		}
 		return rec.Result().Cookies()[0]

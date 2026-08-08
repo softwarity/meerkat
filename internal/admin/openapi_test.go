@@ -7,6 +7,9 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/softwarity/meerkat/internal/routing"
+	"github.com/softwarity/meerkat/internal/store"
 )
 
 const miniSpec = `{
@@ -130,5 +133,51 @@ func TestPutRouteSecurityEnforced(t *testing.T) {
 	}
 	if code := get("/api/secret"); code != http.StatusOK {
 		t.Fatalf("after clearing, /api/secret: %d, want 200", code)
+	}
+}
+
+// A relative spec url is resolved the way the route's own traffic is. Against
+// the bare upstream it asked for a path the service never serves, and the 404
+// told nobody which end was wrong.
+func TestRelativeSpecURLFollowsTheRoutesPath(t *testing.T) {
+	route := func(strip bool) store.Route {
+		r := store.Route{
+			Upstream:   "http://fpl-svc:3000",
+			Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []string{"/fpl-svc/**"}}}},
+			API:        &store.RouteAPI{OpenapiURL: "openapi.json"},
+		}
+		if strip {
+			r.Filters = []routing.Spec{{Type: "strip-prefix", Args: map[string]any{"parts": 1}}}
+		}
+		return r
+	}
+
+	for _, tc := range []struct {
+		name string
+		r    store.Route
+		want string
+	}{
+		{"no strip: the service still sees the prefix", route(false), "http://fpl-svc:3000/fpl-svc/openapi.json"},
+		{"strip-prefix: it does not", route(true), "http://fpl-svc:3000/openapi.json"},
+		{"an absolute url is left alone", store.Route{
+			Upstream:   "http://fpl-svc:3000",
+			Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []string{"/fpl-svc/**"}}}},
+			API:        &store.RouteAPI{OpenapiURL: "https://elsewhere.example/spec.json"},
+		}, "https://elsewhere.example/spec.json"},
+		{"a catch-all adds nothing", store.Route{
+			Upstream:   "http://portal:9191",
+			Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []string{"/**"}}}},
+			API:        &store.RouteAPI{OpenapiURL: "/v3/api-docs"},
+		}, "http://portal:9191/v3/api-docs"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := resolveSpecURL(tc.r)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != tc.want {
+				t.Fatalf("got %q, want %q", got, tc.want)
+			}
+		})
 	}
 }

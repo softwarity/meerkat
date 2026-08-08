@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/softwarity/meerkat/internal/openapi"
+	"github.com/softwarity/meerkat/internal/routing"
 	"github.com/softwarity/meerkat/internal/store"
 )
 
@@ -143,7 +144,15 @@ func endpointsOf(route store.Route) []store.EndpointPolicy {
 }
 
 // resolveSpecURL yields the absolute URL of a route's OpenAPI spec: an absolute
-// openapiUrl is used as is; a relative one is resolved against the upstream.
+// openapiUrl is used as is; a relative one is resolved THE WAY THE ROUTE'S OWN
+// TRAFFIC IS.
+//
+// That last part is the whole point. A route matching /fpl-svc/** with no
+// strip-prefix hands the service paths that still start with /fpl-svc, so its
+// spec sits at <upstream>/fpl-svc/openapi.json - resolving against the bare
+// upstream asked for <upstream>/openapi.json and got a 404, with the admin
+// left wondering which of the two ends was wrong. With a strip-prefix, the
+// prefix is gone from what the service sees, and so it is from here.
 func resolveSpecURL(route store.Route) (string, error) {
 	if route.API == nil || strings.TrimSpace(route.API.OpenapiURL) == "" {
 		return "", errors.New("this route declares no OpenAPI spec url")
@@ -156,5 +165,76 @@ func resolveSpecURL(route store.Route) (string, error) {
 	if base == "" {
 		return "", errors.New("a relative spec url needs the route to have an upstream")
 	}
-	return base + "/" + strings.TrimLeft(s, "/"), nil
+	return base + routeUpstreamPrefix(route) + "/" + strings.TrimLeft(s, "/"), nil
+}
+
+// routeUpstreamPrefix is the path prefix an upstream actually receives from
+// this route: the literal head of its path predicate, minus whatever
+// strip-prefix removes. "" when the route matches everything or strips it all.
+func routeUpstreamPrefix(route store.Route) string {
+	literal := ""
+	for _, p := range route.Predicates {
+		if p.Type != "path" {
+			continue
+		}
+		pattern, ok := firstPattern(p.Args["patterns"])
+		if !ok {
+			continue
+		}
+		// Only the segments that are literally there: {id} and ** match many
+		// things and name none of them.
+		for _, seg := range strings.Split(strings.Trim(pattern, "/"), "/") {
+			if seg == "" || seg == "**" || strings.HasPrefix(seg, "{") {
+				break
+			}
+			literal += "/" + seg
+		}
+		break
+	}
+	if literal == "" {
+		return ""
+	}
+	strip := 0
+	for _, f := range route.Filters {
+		if f.Type != "strip-prefix" {
+			continue
+		}
+		switch n := f.Args["parts"].(type) {
+		case float64:
+			strip = int(n)
+		case int:
+			strip = n
+		default:
+			strip = 1
+		}
+	}
+	if strip <= 0 {
+		return literal
+	}
+	out := routing.StripSegments(literal, strip)
+	if out == "/" {
+		return ""
+	}
+	return out
+}
+
+// firstPattern reads the first entry of a path predicate's patterns argument,
+// which crosses JSON as []any and Go as []string depending on where it comes
+// from.
+func firstPattern(v any) (string, bool) {
+	switch list := v.(type) {
+	case []string:
+		if len(list) > 0 {
+			return list[0], true
+		}
+	case []any:
+		for _, item := range list {
+			if s, ok := item.(string); ok {
+				return s, true
+			}
+		}
+	case string:
+		return list, true
+	}
+	return "", false
 }

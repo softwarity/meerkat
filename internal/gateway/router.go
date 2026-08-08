@@ -722,14 +722,28 @@ func (rt *Router) sessionIdentity(req *http.Request) (identityData, bool) {
 	}
 	d := identityData{UserID: u.ID, Username: u.Username, Fullname: u.Fullname,
 		Email: u.Email, Timezone: u.Timezone}
-	if sess.TenantID != "" {
-		d.TenantID = sess.TenantID
-		if t, err := rt.st.GetTenant(req.Context(), sess.TenantID); err == nil {
+	tenantID := sess.TenantID
+	if tenantID == "" {
+		// The session was opened BEFORE this account joined an organisation.
+		// Sign-in adopts the only membership when there is exactly one; this
+		// does the same afterwards, so being added to an organisation takes
+		// effect without asking the person to sign out and back in.
+		//
+		// Roles are held IN an organisation (RBAC-06), so without one the
+		// caller carries none - which is how a group full of roles could look
+		// like it did nothing at all.
+		if only, ok := rt.onlyMembership(req, u.ID); ok {
+			tenantID = only
+		}
+	}
+	if tenantID != "" {
+		d.TenantID = tenantID
+		if t, err := rt.st.GetTenant(req.Context(), tenantID); err == nil {
 			d.Tenant = t.Name
 		}
 		// SessionRoleNames applies the group mode (RBAC-03): cumulative =
 		// every group, exclusive = the session's chosen group only.
-		if names, err := rt.st.SessionRoleNames(req.Context(), u.ID, sess.TenantID, sess.GroupID); err == nil {
+		if names, err := rt.st.SessionRoleNames(req.Context(), u.ID, tenantID, sess.GroupID); err == nil {
 			for _, n := range names {
 				if schemeTokenOK.MatchString(n) {
 					d.Roles = append(d.Roles, n)
@@ -738,6 +752,27 @@ func (rt *Router) sessionIdentity(req *http.Request) (identityData, bool) {
 		}
 	}
 	return d, true
+}
+
+// onlyMembership returns the organisation a caller belongs to when there is
+// exactly one enabled membership - the same rule sign-in applies. More than
+// one is a choice nobody may make on their behalf, and none is none.
+func (rt *Router) onlyMembership(req *http.Request, userID string) (string, bool) {
+	all, err := rt.st.ListUserTenants(req.Context(), userID)
+	if err != nil {
+		return "", false
+	}
+	found := ""
+	for _, t := range all {
+		if !t.Enabled {
+			continue
+		}
+		if found != "" {
+			return "", false
+		}
+		found = t.TenantID
+	}
+	return found, found != ""
 }
 
 // hasIdentity is the cheap gate for the page stamp: a completed session exists.

@@ -877,3 +877,84 @@ func TestOutgoingFiltersApplyToTheRoutesOwnAnswer(t *testing.T) {
 		t.Fatal("the terminal's own headers must survive the filter pass")
 	}
 }
+
+// Being added to an organisation must take effect on the session already open.
+//
+// Roles are held IN an organisation (RBAC-06), and a session opened before the
+// membership existed carries none - so an administrator could tick every role
+// into a group, put the account in it, and see the upstream receive no role at
+// all, with nothing anywhere saying why. Sign-in adopts the only membership
+// when there is exactly one; so does this, afterwards.
+func TestJoiningTakesEffectOnAnOpenSession(t *testing.T) {
+	st, err := store.Open(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = st.Close() })
+	ctx := context.Background()
+
+	if err := st.CreateUser(ctx, store.User{ID: "u1", Username: "alice", Enabled: true}); err != nil {
+		t.Fatal(err)
+	}
+	// A session with NO organisation on it: what someone signed in before
+	// anyone put them in one is holding.
+	sm := session.NewManager(st)
+	cookie := issueSession(t, sm, "u1")
+
+	echo := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.WriteString(w, r.Header.Get("roles"))
+	}))
+	t.Cleanup(echo.Close)
+
+	rt := New(st, sm)
+	if err := st.SaveRoute(ctx, store.Route{
+		ID: "r", Name: "r", Enabled: true, Upstream: echo.URL,
+		Predicates: []routing.Spec{{Type: "path", Args: map[string]any{"patterns": []string{"/**"}}}},
+		Identity: &store.IdentityForward{Mechanism: "headers",
+			Attributes: []store.IdentityAttr{{Field: "roles", As: "roles"}}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := rt.Reload(ctx); err != nil {
+		t.Fatal(err)
+	}
+
+	call := func() string {
+		req := httptest.NewRequest(http.MethodGet, "/x", nil)
+		req.AddCookie(cookie)
+		rec := httptest.NewRecorder()
+		rt.ServeHTTP(rec, req)
+		body, _ := io.ReadAll(rec.Result().Body)
+		return string(body)
+	}
+
+	if got := call(); got != "" {
+		t.Fatalf("no organisation, no role: got %q", got)
+	}
+
+	// The administrator now does what an administrator does.
+	if err := st.SaveTenant(ctx, store.Tenant{ID: "t1", Name: "Acme", Enabled: true,
+		BusinessAccess: store.BusinessAccess{Inherited: true}}); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SaveMembership(ctx, store.Membership{UserID: "u1", TenantID: "t1",
+		Type: store.MemberUser, Enabled: true,
+		BusinessAccess: store.BusinessAccess{Inherited: true}}); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SaveRole(ctx, store.Role{ID: "ROLE_A", Name: "ROLE_A"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SaveGroup(ctx, store.Group{ID: "g1", TenantID: "t1", Name: "ROOT",
+		RoleIDs: []string{"ROLE_A"}}); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SetMemberGroups(ctx, "t1", "u1", []string{"g1"}); err != nil {
+		t.Fatal(err)
+	}
+
+	// Same session, no sign-out.
+	if got := call(); got != "ROLE_A" {
+		t.Fatalf("the open session must pick the membership up: got %q", got)
+	}
+}

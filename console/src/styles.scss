@@ -197,3 +197,57 @@ $mat-block: 'mat-card, mat-card-header, mat-card-content, mat-card-actions,'
     color: #a6da95;
   }
 }
+
+// The scheme badges on the theme preview: checkbox, icon and word on one
+// baseline, inside a pill that has to stay small. The rules are global because the checkbox's label is Material's own
+// element, which the component's styles never reach.
+.badge {
+  .mdc-label,
+  .mat-mdc-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+  }
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+    vertical-align: middle;
+  }
+
+  .mat-mdc-checkbox {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  // Material sizes a checkbox for a finger; in a badge this small it has to be
+  // sized for the text beside it, or it spills out of the pill.
+  .mdc-checkbox {
+    padding: 0;
+    margin: 0 2px 0 0;
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  .mdc-checkbox .mdc-checkbox__background {
+    width: 16px;
+    height: 16px;
+    top: 0;
+    left: 0;
+  }
+
+  .mdc-checkbox .mdc-checkbox__native-control,
+  .mdc-checkbox .mat-mdc-checkbox-touch-target,
+  .mdc-checkbox .mat-mdc-checkbox-ripple,
+  .mdc-checkbox .mdc-checkbox__ripple {
+    width: 16px;
+    height: 16px;
+    top: 0;
+    left: 0;
+    transform: none;
+  }
+}

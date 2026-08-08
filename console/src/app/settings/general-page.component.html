@@ -6,6 +6,35 @@
   </div>
 
   <div class="content">
+    <!-- The mode, where the consequence is visible: this is the screen of the
+         application whose organisations it serves. It is a real switch, not a
+         teaser - locked in the community edition, and the one place the offer
+         is mentioned outside the License screen. -->
+    <mat-card appearance="outlined" ee-feature="multi-tenant">
+      <div class="tenancy">
+        <mat-icon>domain</mat-icon>
+        <div class="grow">
+          <div class="title">
+            <ng-container i18n="@@Several_organisations">Several organisations</ng-container>
+            <app-ee-lock
+              feature="multi-tenant"
+              i18n-why="@@Multi_tenant_ee_why"
+              why="Isolate tenants, each with its own groups, members and hours."
+            />
+          </div>
+          <p class="hint text-muted" i18n="@@Several_organisations_hint">
+            Off, this gateway serves one organisation and never names it: its groups and members are
+            administered right here. On, organisations get their own section in the rail.
+          </p>
+        </div>
+        <mat-slide-toggle
+          [checked]="multiTenant()"
+          [disabled]="switching()"
+          (change)="setTenancy($event.checked)"
+        />
+      </div>
+    </mat-card>
+
     <mat-card appearance="outlined" ee-feature="business-hours">
       <h3 i18n="@@Working_hours">
         Working hours

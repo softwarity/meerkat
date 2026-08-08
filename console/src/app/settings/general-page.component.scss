@@ -28,3 +28,32 @@ h3 {
   margin: 0 0 12px;
   font-size: 0.85rem;
 }
+
+// The mode row: an icon, what it does, and the switch on the right.
+.tenancy {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.tenancy > mat-icon {
+  flex-shrink: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+.tenancy .grow {
+  flex: 1;
+  min-width: 0;
+}
+.tenancy .title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+.tenancy .hint {
+  margin: 4px 0 0;
+}
+// The Enterprise cap inside a heading must not inherit its weight or size.
+h3 app-ee-lock {
+  font-weight: 400;
+  margin-left: 8px;
+}

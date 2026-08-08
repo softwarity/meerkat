@@ -538,6 +538,21 @@
         "en": "The belonging axis (RBAC-06) over a real gateway: a confirmed account that belongs to no organisation still passes a route gated on authentication — that level says who it is and nothing more — but a route asking for an organisation sends it to /account-pending rather than answering a bare 403.",
         "fr": "L'axe d'appartenance (RBAC-06) sur une vraie gateway : un compte confirmé qui n'appartient à aucune organisation passe encore une route protégée par l'authentification — ce niveau dit qui c'est, rien de plus — mais une route qui exige une organisation le renvoie vers /account-pending au lieu de répondre un 403 sec."
       }
+    },
+    {
+      "id": "flow-tenancy-switch",
+      "domain": "console",
+      "kind": "flow",
+      "spec": "tenancy",
+      "allowed": ["root"],
+      "title": {
+        "en": "Single-organisation mode is switched live, and gives the others back",
+        "fr": "Le mode mono-organisation se bascule a chaud, et rend les autres"
+      },
+      "description": {
+        "en": "The shape of an installation is a setting read per request, not a value frozen at boot: switching it takes effect at once. Going down to one organisation holds the others back without deleting anything - the console is served knowing it, on the first paint - and switching up gives them and their people's access straight back.",
+        "fr": "La forme d'une installation est un reglage lu par requete, pas une valeur figee au demarrage : la bascule prend effet immediatement. Redescendre a une organisation met les autres de cote sans rien supprimer - la console est servie en le sachant, des la premiere peinture - et rebasculer les rend, elles et l'acces des personnes concernees."
+      }
     }
   ]
 }

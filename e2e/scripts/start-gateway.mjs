@@ -22,10 +22,19 @@ const child = spawn(
     '-admin-addr', ':19092',
     '-console-url', 'http://localhost:14200',
     '-data', `${tmp}/data`,
+    // The suite exercises the whole product, so the gateway runs the
+    // Enterprise shape: several organisations, directories, hours. The
+    // community refusals are covered by Go tests, and the single-tenant
+    // console by a scenario that switches this one over and back.
+    '-tenancy', 'multi',
   ],
   {
     stdio: 'inherit',
-    env: { ...process.env, MEERKAT_ADMIN_PASSWORD: 'e2e-Root-Password-1' },
+    env: {
+      ...process.env,
+      MEERKAT_ADMIN_PASSWORD: 'e2e-Root-Password-1',
+      MEERKAT_FEATURES: 'multi-tenant,directories,business-hours,audit-export,white-label,saml,scim,cluster',
+    },
   },
 );
 child.on('exit', (code) => process.exit(code ?? 1));

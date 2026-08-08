@@ -243,6 +243,14 @@ export const routes: Routes = [
     ],
   },
   {
+    // The only screen that talks about editions. Everywhere else an Enterprise
+    // control carries its cap and links here - repeating the pitch on ten
+    // screens would turn the console into an advert.
+    path: 'license',
+    loadComponent: () =>
+      import('./settings/license-page.component').then((m) => m.LicensePageComponent),
+  },
+  {
     path: 'vault',
     canActivate: [vaultAccess],
     loadComponent: () => import('./gateway/vault-page.component').then((m) => m.VaultPageComponent),

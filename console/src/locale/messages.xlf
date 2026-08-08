@@ -28,21 +28,21 @@
         <source>Tenants</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">24</context>
+          <context context-type="linenumber">27</context>
         </context-group>
       </trans-unit>
       <trans-unit id="API" datatype="html">
         <source>API</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">34</context>
+          <context context-type="linenumber">38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Vault" datatype="html">
         <source>Vault</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">43</context>
+          <context context-type="linenumber">47</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/vault-page.component.html</context>
@@ -53,7 +53,7 @@
         <source>Audit</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">52</context>
+          <context context-type="linenumber">56</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/audit-page.component.html</context>
@@ -64,7 +64,7 @@
         <source>Issues</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">61</context>
+          <context context-type="linenumber">65</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
@@ -75,7 +75,7 @@
         <source>New tenant</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">80,81</context>
+          <context context-type="linenumber">84,85</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
@@ -86,7 +86,7 @@
         <source>No tenant yet</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">93,96</context>
+          <context context-type="linenumber">97,100</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/no-tenant.component.ts</context>
@@ -105,7 +105,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
-          <context context-type="linenumber">363</context>
+          <context context-type="linenumber">365</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
@@ -129,7 +129,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">349</context>
+          <context context-type="linenumber">358</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.ts</context>
@@ -145,7 +145,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">105</context>
+          <context context-type="linenumber">108</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/users-page/users-page.component.ts</context>
@@ -328,7 +328,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">269,270</context>
+          <context context-type="linenumber">274,275</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
@@ -387,7 +387,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">272,273</context>
+          <context context-type="linenumber">277,278</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/groups-matrix/groups-matrix.component.ts</context>
@@ -395,7 +395,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">290</context>
+          <context context-type="linenumber">299</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
@@ -436,11 +436,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">57</context>
+          <context context-type="linenumber">62</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">58</context>
+          <context context-type="linenumber">63</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/password-dialog.component.ts</context>
@@ -556,6 +556,13 @@
           <context context-type="linenumber">28,31</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Directories_ee_why" datatype="html">
+        <source>Plug an LDAP directory or an Active Directory in straight, instead of going through an identity provider.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
+          <context context-type="linenumber">35,37</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Kind_ldap_hint" datatype="html">
         <source>
         A directory asked directly, with what the person typed in the ordinary sign-in form. No
@@ -563,7 +570,7 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">33,36</context>
+          <context context-type="linenumber">38,41</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Kind_github_hint" datatype="html">
@@ -574,21 +581,21 @@
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">38,43</context>
+          <context context-type="linenumber">43,48</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Kind_saml_hint" datatype="html">
         <source>Not available yet.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">43,46</context>
+          <context context-type="linenumber">48,51</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Register_these_on_the_authority" datatype="html">
         <source>Register these on the authority</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">52,53</context>
+          <context context-type="linenumber">57,58</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Github_setup_hint" datatype="html">
@@ -598,14 +605,14 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">64,67</context>
+          <context context-type="linenumber">69,72</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Create_an_OAuth_app" datatype="html">
         <source>Create an OAuth app on GitHub</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">70,72</context>
+          <context context-type="linenumber">75,77</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Local_origin_warning" datatype="html">
@@ -616,14 +623,14 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">75,83</context>
+          <context context-type="linenumber">80,88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Name" datatype="html">
         <source>Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">84</context>
+          <context context-type="linenumber">89</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-providers-page.component.html</context>
@@ -662,53 +669,53 @@
         <source>What the login page shows on the button</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">84,86</context>
+          <context context-type="linenumber">89,91</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Identifier" datatype="html">
         <source>Identifier</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">101</context>
+          <context context-type="linenumber">106</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Provider_id_hint" datatype="html">
         <source>The segment of the sign-in URL, derived from the authority</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">101,103</context>
+          <context context-type="linenumber">106,108</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Name_and_identifier" datatype="html">
         <source>Name and identifier</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">119,122</context>
+          <context context-type="linenumber">124,127</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Issuer" datatype="html">
         <source>Issuer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">124</context>
+          <context context-type="linenumber">129</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Issuer_hint" datatype="html">
         <source>Its discovery document is read from there</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">124</context>
+          <context context-type="linenumber">129</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Client_ID" datatype="html">
         <source>Client ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">130</context>
+          <context context-type="linenumber">135</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">149</context>
+          <context context-type="linenumber">154</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
@@ -719,11 +726,11 @@
         <source>Client secret</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">136,137</context>
+          <context context-type="linenumber">141,142</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">155,156</context>
+          <context context-type="linenumber">160,161</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/mail-relay-page.component.html</context>
@@ -734,28 +741,28 @@
         <source>Allowed e-mail domains</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">140</context>
+          <context context-type="linenumber">145</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allowed_domains_hint" datatype="html">
         <source>Comma separated, empty accepts every address the authority knows</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">140,141</context>
+          <context context-type="linenumber">145,146</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allowed_orgs" datatype="html">
         <source>Allowed organisations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">161,162</context>
+          <context context-type="linenumber">166,167</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allowed_orgs_hint" datatype="html">
         <source>Comma separated. Empty lets in ANY GitHub account.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">163,165</context>
+          <context context-type="linenumber">168,170</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Allowed_orgs_groups_hint" datatype="html">
@@ -765,109 +772,109 @@
     </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">171,178</context>
+          <context context-type="linenumber">176,183</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Dialect" datatype="html">
         <source>Dialect</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">179,180</context>
+          <context context-type="linenumber">184,185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Dialect_directory" datatype="html">
         <source>Directory (OpenLDAP and friends)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">181,182</context>
+          <context context-type="linenumber">186,187</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Server_URL" datatype="html">
         <source>Server URL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">187,188</context>
+          <context context-type="linenumber">192,193</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">192,193</context>
+          <context context-type="linenumber">197,198</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Server_URL_hint" datatype="html">
         <source>ldaps is the one to use unless the directory is on a private network</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">194,195</context>
+          <context context-type="linenumber">199,200</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Base_DN" datatype="html">
         <source>Search base</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">197</context>
+          <context context-type="linenumber">202</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Service_account" datatype="html">
         <source>Service account</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">203</context>
+          <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Service_account_hint" datatype="html">
         <source>Used to SEARCH, never to sign anyone in</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">203</context>
+          <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Service_password" datatype="html">
         <source>Service password</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">209,210</context>
+          <context context-type="linenumber">214,215</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_filter" datatype="html">
         <source>User filter</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">213</context>
+          <context context-type="linenumber">218</context>
         </context-group>
       </trans-unit>
       <trans-unit id="User_filter_hint" datatype="html">
         <source>%s is what the person typed; empty uses the dialect&apos;s default</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">213,214</context>
+          <context context-type="linenumber">218,219</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Nested_groups" datatype="html">
         <source>Follow nested groups</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">220,221</context>
+          <context context-type="linenumber">225,226</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Skip_certificate_check" datatype="html">
         <source>Skip the certificate check (self-signed directory)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">223,224</context>
+          <context context-type="linenumber">228,229</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Policies" datatype="html">
         <source>Policies</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">230,231</context>
+          <context context-type="linenumber">235,236</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Auto_create_accounts" datatype="html">
         <source>Create an account on first sign-in</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">232,233</context>
+          <context context-type="linenumber">237,238</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Auto_create_hint" datatype="html">
@@ -877,14 +884,14 @@
     </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">235,240</context>
+          <context context-type="linenumber">240,245</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Two_factor" datatype="html">
         <source>Two-factor</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">240,241</context>
+          <context context-type="linenumber">245,246</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/mfa-select.component.ts</context>
@@ -903,28 +910,28 @@
         <source>Inherited from the application</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">242,243</context>
+          <context context-type="linenumber">247,248</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Always_required" datatype="html">
         <source>Always required</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">243,244</context>
+          <context context-type="linenumber">248,249</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Left_to_the_authority" datatype="html">
         <source>Left to the authority</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">244,246</context>
+          <context context-type="linenumber">249,251</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Danger_zone" datatype="html">
         <source>Danger zone</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">252,253</context>
+          <context context-type="linenumber">257,258</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
@@ -939,11 +946,11 @@
         <source>Delete</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">255,256</context>
+          <context context-type="linenumber">260,261</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
-          <context context-type="linenumber">344</context>
+          <context context-type="linenumber">346</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/vault-page.component.html</context>
@@ -971,7 +978,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">333</context>
+          <context context-type="linenumber">342</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
@@ -1030,14 +1037,14 @@
         <source>Test the connection</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">265,267</context>
+          <context context-type="linenumber">270,272</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Save" datatype="html">
         <source>Save</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.html</context>
-          <context context-type="linenumber">274,275</context>
+          <context context-type="linenumber">279,280</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
@@ -1053,7 +1060,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">311</context>
+          <context context-type="linenumber">320</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/role-editor/role-editor.component.html</context>
@@ -1065,7 +1072,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.html</context>
-          <context context-type="linenumber">52,53</context>
+          <context context-type="linenumber">40,41</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/code-dialog.component.ts</context>
@@ -1077,7 +1084,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.html</context>
-          <context context-type="linenumber">22,23</context>
+          <context context-type="linenumber">58,59</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/locales-page.component.html</context>
@@ -1104,49 +1111,49 @@
         <source>Homepage URL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
-          <context context-type="linenumber">249</context>
+          <context context-type="linenumber">251</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Authorization_callback_URL" datatype="html">
         <source>Authorization callback URL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
-          <context context-type="linenumber">250</context>
+          <context context-type="linenumber">252</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Redirect_URI" datatype="html">
         <source>Redirect URI</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
-          <context context-type="linenumber">254</context>
+          <context context-type="linenumber">256</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Provider_reachable" datatype="html">
         <source>The authority answered</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
-          <context context-type="linenumber">328</context>
+          <context context-type="linenumber">330</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_provider_NAME" datatype="html">
         <source>Delete &quot;<x id="NAME" equiv-text="p.name"/>&quot;?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
-          <context context-type="linenumber">341</context>
+          <context context-type="linenumber">343</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_provider_hint" datatype="html">
         <source>The accounts that sign in through it will keep existing, but will no longer have a way in.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
-          <context context-type="linenumber">343</context>
+          <context context-type="linenumber">345</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Copied" datatype="html">
         <source>Copied</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/gateway/auth-providers/auth-provider-editor.component.ts</context>
-          <context context-type="linenumber">356</context>
+          <context context-type="linenumber">358</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/routes/identity-preview-dialog.component.ts</context>
@@ -1313,7 +1320,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">65</context>
+          <context context-type="linenumber">79</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">113</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
@@ -1899,6 +1910,10 @@
           <context context-type="sourcefile">src/app/gateway/configuration-page.component.ts</context>
           <context context-type="linenumber">722</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">109</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="Added" datatype="html">
         <source>Added</source>
@@ -2110,7 +2125,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
-          <context context-type="linenumber">59</context>
+          <context context-type="linenumber">73</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/locales-page.component.ts</context>
@@ -2387,6 +2402,138 @@
           <context context-type="linenumber">89</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Groups" datatype="html">
+        <source>Groups</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-groups.component.ts</context>
+          <context context-type="linenumber">32,35</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">13,15</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_mode" datatype="html">
+        <source>Group mode</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-groups.component.ts</context>
+          <context context-type="linenumber">37,38</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Cumulative" datatype="html">
+        <source>Cumulative</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-groups.component.ts</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
+          <context context-type="linenumber">67,68</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Exclusive" datatype="html">
+        <source>Exclusive</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-groups.component.ts</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_mode_hint" datatype="html">
+        <source>
+          Cumulative merges the roles of every group someone is in; exclusive makes them pick one at sign-in.
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-groups.component.ts</context>
+          <context context-type="linenumber">43,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Tag" datatype="html">
+        <source>Tag</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-groups.component.ts</context>
+          <context context-type="linenumber">49,50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="All" datatype="html">
+        <source>All</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-groups.component.ts</context>
+          <context context-type="linenumber">51,52</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">37,38</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
+          <context context-type="linenumber">27,28</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/audit-page.component.html</context>
+          <context context-type="linenumber">17,18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Search" datatype="html">
+        <source>Search</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-groups.component.ts</context>
+          <context context-type="linenumber">60,61</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-members.component.ts</context>
+          <context context-type="linenumber">26,27</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">52,53</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/audit-page.component.html</context>
+          <context context-type="linenumber">35,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Members" datatype="html">
+        <source>Members</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-members.component.ts</context>
+          <context context-type="linenumber">21,24</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
+          <context context-type="linenumber">17,19</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Group_rules" datatype="html">
+        <source>Group rules</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/identity/app-scoped/app-rules.component.ts</context>
+          <context context-type="linenumber">24,26</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
+          <context context-type="linenumber">57</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Timezone" datatype="html">
         <source>Timezone</source>
         <context-group purpose="location">
@@ -2579,7 +2726,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">290</context>
+          <context context-type="linenumber">299</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Edit" datatype="html">
@@ -2601,7 +2748,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">310</context>
+          <context context-type="linenumber">319</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete_group_NAME" datatype="html">
@@ -2612,7 +2759,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">332</context>
+          <context context-type="linenumber">341</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Sign_in_history" datatype="html">
@@ -2755,7 +2902,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">273</context>
+          <context context-type="linenumber">282</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/user-editor/user-editor.component.html</context>
@@ -2766,7 +2913,7 @@
         <source>Reset password for &quot;<x id="USERNAME" equiv-text="u.username"/>&quot;?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/members-matrix/members-matrix.component.ts</context>
-          <context context-type="linenumber">272</context>
+          <context context-type="linenumber">281</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Inherited_MFA" datatype="html">
@@ -2951,43 +3098,6 @@
           <context context-type="linenumber">47,49</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Group_mode" datatype="html">
-        <source>Group mode</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
-          <context context-type="linenumber">65,66</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.html</context>
-          <context context-type="linenumber">31,32</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.html</context>
-          <context context-type="linenumber">37,38</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Cumulative" datatype="html">
-        <source>Cumulative</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
-          <context context-type="linenumber">67,68</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.html</context>
-          <context context-type="linenumber">39,40</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Exclusive" datatype="html">
-        <source>Exclusive</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
-          <context context-type="linenumber">68,69</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.html</context>
-          <context context-type="linenumber">40,41</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Tenant_group_mode_hint" datatype="html">
         <source>
         Cumulative merges the roles of every assigned group; exclusive makes members pick ONE group
@@ -2996,10 +3106,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-dialog.component.ts</context>
           <context context-type="linenumber">72,76</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.html</context>
-          <context context-type="linenumber">33,36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Section_general" datatype="html">
@@ -3021,55 +3127,11 @@
           <context context-type="linenumber">47</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Groups" datatype="html">
-        <source>Groups</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">13,15</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Members" datatype="html">
-        <source>Members</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">17,19</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="Section_group_rules" datatype="html">
         <source>Group rules</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
           <context context-type="linenumber">21,23</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="All" datatype="html">
-        <source>All</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">37,38</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">27,28</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/audit-page.component.html</context>
-          <context context-type="linenumber">17,18</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Search" datatype="html">
-        <source>Search</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/identity/tenant-page/tenant-page.component.html</context>
-          <context context-type="linenumber">52,53</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/issues/issues-page.component.html</context>
-          <context context-type="linenumber">34,35</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/settings/audit-page.component.html</context>
-          <context context-type="linenumber">35,36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Edit_rule" datatype="html">
@@ -3314,18 +3376,18 @@
         <source>Working hours</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.html</context>
-          <context context-type="linenumber">44,45</context>
+          <context context-type="linenumber">31,32</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.html</context>
-          <context context-type="linenumber">10,11</context>
+          <context context-type="linenumber">40,47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Tenant_NAME_saved" datatype="html">
         <source>Tenant &quot;<x id="NAME" equiv-text="saved.name"/>&quot; saved</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/identity/tenant-sections/tenant-general.component.ts</context>
-          <context context-type="linenumber">99</context>
+          <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Group_rules_intro" datatype="html">
@@ -3504,7 +3566,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">50</context>
+          <context context-type="linenumber">55</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Capabilities" datatype="html">
@@ -5794,13 +5856,234 @@
           <context context-type="linenumber">78,82</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Several_organisations" datatype="html">
+        <source>Several organisations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.html</context>
+          <context context-type="linenumber">18,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Multi_tenant_ee_why" datatype="html">
+        <source>Isolate tenants, each with its own groups, members and hours.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.html</context>
+          <context context-type="linenumber">22,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Several_organisations_hint" datatype="html">
+        <source>
+            Off, this gateway serves one organisation and never names it: its groups and members are
+            administered right here. On, organisations get their own section in the rail.
+          </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.html</context>
+          <context context-type="linenumber">26,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Working_hours_ee_why" datatype="html">
+        <source>Refuse access outside declared hours, gateway-wide or per person: an audit requirement rather than a defence.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.html</context>
+          <context context-type="linenumber">44,47</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Working_hours_global_hint" datatype="html">
         <source>
         The application-wide access window: every tenant inherits it unless it defines its own.
       </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/general-page.component.html</context>
-          <context context-type="linenumber">12,15</context>
+          <context context-type="linenumber">48,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Serve_one_organisation" datatype="html">
+        <source>Serve a single organisation?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Serve_one_organisation_message" datatype="html">
+        <source>The other organisations stop being served and the people in them lose access to whatever asks for one. Nothing is deleted: switching back brings them and their access straight back.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Switch" datatype="html">
+        <source>Switch</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/general-page.component.ts</context>
+          <context context-type="linenumber">100</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="License" datatype="html">
+        <source>License</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">28,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Enterprise_edition" datatype="html">
+        <source>Enterprise edition</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Community_edition" datatype="html">
+        <source>Community edition</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="License_perpetual_hint" datatype="html">
+        <source>
+                A license is perpetual: what it unlocks stays unlocked, and an elapsed term never
+                switches anything off. It says how far updates are covered, nothing more.
+              </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">47,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Organisations_held_back" datatype="html">
+        <source>
+                  <x id="INTERPOLATION" equiv-text="{{ hidden() }}"/> organisations are not being served
+                </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">60,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Organisations_held_back_hint" datatype="html">
+        <source>
+                  Single-organisation mode serves the first one. Nothing is deleted: the others come
+                  back the moment the mode is switched, and the people in them regain access then.
+                </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">63,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Features" datatype="html">
+        <source>Features</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">72,73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_multi_tenant" datatype="html">
+        <source>Several organisations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">202</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_multi_tenant_what" datatype="html">
+        <source>Isolate tenants, each with its own groups, members and hours. Without it there is one, and the console never names it.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">203</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_directories" datatype="html">
+        <source>Directories</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">206</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_directories_what" datatype="html">
+        <source>Plug an LDAP directory, an Active Directory or Kerberos in straight, and map their groups onto yours.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">207</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_saml" datatype="html">
+        <source>SAML</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">210</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_saml_what" datatype="html">
+        <source>Federate with a SAML identity provider, for the estates that have one and nothing else.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_scim" datatype="html">
+        <source>SCIM provisioning</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">214</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_scim_what" datatype="html">
+        <source>Accounts created and, above all, deactivated automatically when someone leaves.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">215</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_business_hours" datatype="html">
+        <source>Working hours</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">218</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_business_hours_what" datatype="html">
+        <source>Refuse access outside declared hours, gateway-wide, per organisation or per person.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">219</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_cluster" datatype="html">
+        <source>High availability</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">222</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_cluster_what" datatype="html">
+        <source>Several instances behind the same database, with sessions shared between them.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">223</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_audit_export" datatype="html">
+        <source>Audit export</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">226</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_audit_export_what" datatype="html">
+        <source>Continuous export to a SIEM and long retention. Reading the trail is free and stays free.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">227</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_white_label" datatype="html">
+        <source>White label</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">230</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Feature_white_label_what" datatype="html">
+        <source>Remove the Meerkat mark from the sign-in pages your users see.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/settings/license-page.component.ts</context>
+          <context context-type="linenumber">231</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Application_languages" datatype="html">
@@ -5859,7 +6142,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">52</context>
+          <context context-type="linenumber">59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="MFA_global_hint" datatype="html">
@@ -6085,6 +6368,13 @@
           <context context-type="linenumber">137,138</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Enterprise" datatype="html">
+        <source>Enterprise</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/ee-lock.component.ts</context>
+          <context context-type="linenumber">22,25</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Toggle_visibility" datatype="html">
         <source>Toggle visibility</source>
         <context-group purpose="location">
@@ -6239,7 +6529,7 @@
         <source>Built-in pages</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shell/section-shell.component.ts</context>
-          <context context-type="linenumber">51</context>
+          <context context-type="linenumber">58</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/theme/theme-page/theme-page.component.html</context>

@@ -65,7 +65,7 @@ func RegisterConsole(mux *http.ServeMux, target string, st *store.Store, sm *ses
 		return nil
 	}
 	if fsys, locales, ok := ui.Build(); ok {
-		mux.Handle("/", consoleHandler(fsys, locales))
+		mux.Handle("/", consoleHandler(fsys, locales, st, sm))
 		slog.Info("embedded console mounted", "locales", locales)
 		return nil
 	}
@@ -84,7 +84,7 @@ func RegisterConsole(mux *http.ServeMux, target string, st *store.Store, sm *ses
 // for the request's Accept-Language; inside a locale, a path that is not a
 // build file falls back to that locale's index.html (deep links are the SPA
 // router's business, exactly what ng serve does in dev).
-func consoleHandler(fsys fs.FS, locales []string) http.Handler {
+func consoleHandler(fsys fs.FS, locales []string, st *store.Store, sm *session.Manager) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		trimmed := strings.TrimPrefix(path.Clean(r.URL.Path), "/")
 		locale, rest, _ := strings.Cut(trimmed, "/")
@@ -104,8 +104,38 @@ func consoleHandler(fsys fs.FS, locales []string) http.Handler {
 			}
 		}
 		w.Header().Set("Cache-Control", "no-cache")
-		http.ServeFileFS(w, r, fsys, path.Join(locale, "index.html"))
+		serveStampedIndex(w, r, fsys, path.Join(locale, "index.html"), st, sm)
 	})
+}
+
+// serveStampedIndex writes the SPA shell with the identity and edition stamp
+// on its <body>, the same one the dev proxy applies.
+//
+// It was missing here, which meant the stamp only ever worked in development:
+// the embedded console is what a release runs, and it was booting with a bare
+// <body> and rebuilding the classes from /api/me afterwards. Everything the
+// stamp exists for - role visibility, the multi-tenant screens, the locked
+// Enterprise controls right on the FIRST paint - was therefore true of the
+// dev server and false of production.
+func serveStampedIndex(w http.ResponseWriter, r *http.Request, fsys fs.FS, name string,
+	st *store.Store, sm *session.Manager) {
+	attrs := ""
+	if st != nil && sm != nil {
+		attrs = consoleBodyAttrs(r, st, sm)
+	}
+	if attrs == "" {
+		http.ServeFileFS(w, r, fsys, name)
+		return
+	}
+	body, err := fs.ReadFile(fsys, name)
+	if err != nil {
+		http.ServeFileFS(w, r, fsys, name)
+		return
+	}
+	stamped := bytes.Replace(body, []byte("<body"), []byte("<body "+attrs), 1)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Content-Length", strconv.Itoa(len(stamped)))
+	_, _ = w.Write(stamped)
 }
 
 // pickLocale matches an Accept-Language header against the available

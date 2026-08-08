@@ -5,6 +5,7 @@ import {
   appOnly,
   auditAccess,
   issuesAccess,
+  multiTenantOnly,
   vaultAccess,
   firstTenantRedirect,
   infraOnly,
@@ -143,6 +144,27 @@ export const routes: Routes = [
         loadComponent: () => import('./settings/locales-page.component').then((m) => m.LocalesPageComponent),
       },
       {
+        // Groups, Members and the rules administer the SERVED organisation -
+        // the one single mode never names. They are app-scoped screens, not
+        // organisation ones.
+        path: 'groups',
+        canActivate: [appOnly],
+        loadComponent: () =>
+          import('./identity/app-scoped/app-groups.component').then((m) => m.AppGroupsComponent),
+      },
+      {
+        path: 'members',
+        canActivate: [appOnly],
+        loadComponent: () =>
+          import('./identity/app-scoped/app-members.component').then((m) => m.AppMembersComponent),
+      },
+      {
+        path: 'group-rules',
+        canActivate: [appOnly],
+        loadComponent: () =>
+          import('./identity/app-scoped/app-rules.component').then((m) => m.AppRulesComponent),
+      },
+      {
         // The role drawer is URL-driven too: roles/new opens a blank one,
         // roles/:id opens that role.
         matcher: rolesMatcher,
@@ -181,13 +203,14 @@ export const routes: Routes = [
   // themselves per caller), and a tenant brings its own left nav.
   {
     path: 'tenants',
-    canActivate: [firstTenantRedirect],
+    canActivate: [multiTenantOnly, firstTenantRedirect],
     loadComponent: () => import('./identity/no-tenant.component').then((m) => m.NoTenantComponent),
   },
   // Every tenant section is a child ROUTE of the tenant layout: deep links
   // work, and the left nav's active state is plain routerLinkActive.
   {
     path: 'tenants/:id',
+    canActivate: [multiTenantOnly],
     loadComponent: () =>
       import('./identity/tenant-page/tenant-page.component').then((m) => m.TenantPageComponent),
     children: [

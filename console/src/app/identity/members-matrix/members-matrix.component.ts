@@ -11,6 +11,7 @@ import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
 import { RowActionsDirective } from '@softwarity/row-actions';
 import { DateTime } from 'luxon';
 import { catchError, concatMap, firstValueFrom, forkJoin, from, Observable, of, tap } from 'rxjs';
+import { MeService } from '../../me.service';
 import { ApiService, Group, Member, User } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
 import {
@@ -54,6 +55,8 @@ interface UserRow {
   styleUrl: './members-matrix.component.scss',
 })
 export class MembersMatrixComponent {
+  private readonly me = inject(MeService);
+
   readonly tenantId = input.required<string>();
   // The tenant's owner (ownerId): shown as a read-only badge, may be a
   // non-member. Ownership is transferred in the Danger zone, not here.
@@ -82,9 +85,15 @@ export class MembersMatrixComponent {
     return this.rows().filter((u) => u.username.toLowerCase().includes(q) || u.fullname.toLowerCase().includes(q));
   });
 
+  // The membership column carries three things that only mean something when
+  // there are several organisations: belonging (in single mode an enabled
+  // ACCOUNT is the membership), the ADMIN badge (the app-admin capability
+  // already says that), and ownership. So the column is not rendered at all in
+  // single mode rather than hidden by CSS: a table's columns are structure, and
+  // leaving them in the DOM to hide them would still build every cell.
   protected readonly displayedColumns = computed(() => [
     'user',
-    'member',
+    ...(this.me.multiTenant() ? ['member'] : []),
     'spacer',
     ...this.groups().map((g) => g.id),
     'lastConn',

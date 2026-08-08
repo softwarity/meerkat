@@ -42,6 +42,18 @@ export const appOnly: CanActivateFn = async () => {
   return me.isAppAdmin() ? true : router.parseUrl(landing(me));
 };
 
+// multiTenantOnly closes the whole /tenants area in single mode. Not a
+// permission - a shape: there is one organisation, it is never named, and its
+// groups, members and rules are administered from Application. Someone landing
+// here from a bookmark goes to their own landing rather than a screen about a
+// notion this installation does not use.
+export const multiTenantOnly: CanActivateFn = async () => {
+  const me = inject(MeService);
+  const router = inject(Router);
+  await me.ensureLoaded();
+  return me.multiTenant() ? true : router.parseUrl(landing(me));
+};
+
 // vaultAccess gates the transverse Vault section: anyone administering a plane
 // that holds entries (gateway or application). The API scopes the CONTENT to
 // that plane; this only guards the page.

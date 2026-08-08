@@ -18,7 +18,7 @@
     hideSingleSelectionIndicator
   >
     <mat-button-toggle value="oidc">OpenID Connect</mat-button-toggle>
-    <mat-button-toggle value="ldap" i18n="@@Kind_directory">Directory</mat-button-toggle>
+    <mat-button-toggle value="ldap" ee-feature="directories" i18n="@@Kind_directory">Directory</mat-button-toggle>
     <mat-button-toggle value="github">GitHub</mat-button-toggle>
     <mat-button-toggle value="saml" disabled>SAML</mat-button-toggle>
   </mat-button-toggle-group>
@@ -29,6 +29,11 @@
         published keys, so nothing is taken on trust.
       </ng-container>
     } @else if (kind() === 'ldap') {
+      <app-ee-lock
+        feature="directories"
+        i18n-why="@@Directories_ee_why"
+        why="Plug an LDAP directory or an Active Directory in straight, instead of going through an identity provider."
+      />
       <ng-container i18n="@@Kind_ldap_hint">
         A directory asked directly, with what the person typed in the ordinary sign-in form. No
         button appears on the login page.

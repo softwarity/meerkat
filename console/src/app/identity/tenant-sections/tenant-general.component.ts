@@ -45,6 +45,9 @@ export class TenantGeneralComponent {
   protected readonly description = signal('');
   protected readonly businessAccess = signal<BusinessAccess>({ inherited: true });
   // '' in the store means "default cumulative"; the select surfaces it as MULTIPLE.
+  // Not edited here any more - the group mode moved to the Groups screen,
+  // which is what it describes. It is still carried so a save round-trips the
+  // whole organisation instead of blanking it.
   protected readonly groupMode = signal('MULTIPLE');
 
   protected readonly globalBusinessAccess = computed<BusinessAccess>(

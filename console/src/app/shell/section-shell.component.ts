@@ -47,7 +47,14 @@ const PLANES: Record<string, { title: string; links: SectionLink[] }> = {
       { path: 'general', label: $localize`:@@Section_general:General`, icon: 'tune' },
       { path: 'locales', label: $localize`:@@Locales:Locales`, icon: 'translate' },
       { path: 'roles', label: $localize`:@@Roles:Roles`, icon: 'badge' },
+      // Groups, Members and the group rules used to hang off an organisation.
+      // They belong to the application either way: in single mode there is one
+      // organisation and nobody names it, and in multi these administer the
+      // served one - the others are administered from their own screens.
+      { path: 'groups', label: $localize`:@@Groups:Groups`, icon: 'groups' },
       { path: 'users', label: $localize`:@@Users:Users`, icon: 'group' },
+      { path: 'members', label: $localize`:@@Members:Members`, icon: 'badge_check' },
+      { path: 'group-rules', label: $localize`:@@Group_rules:Group rules`, icon: 'rule' },
       { path: 'built-in-pages', label: $localize`:@@Built_in_pages:Built-in pages`, icon: 'web' },
       { path: 'security', label: $localize`:@@Security:Security`, icon: 'shield' },
     ],

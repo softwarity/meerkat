@@ -18,6 +18,9 @@
     >
       <mat-icon>tune</mat-icon>
     </rail-nav-item>
+    <!-- Organisations only exist as a notion in multi mode: in single there is
+         one, it is never named, and Groups / Members / Rules live under
+         Application instead. -->
     <rail-nav-item
       i18n-label="@@Tenants"
       label="Tenants"
@@ -25,6 +28,7 @@
       [active]="inTenants()"
       (click)="openTenants()"
       any-role="root tenant-admin tenant-creator"
+      multi-tenant-only
     >
       <mat-icon>domain</mat-icon>
     </rail-nav-item>

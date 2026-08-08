@@ -23,7 +23,13 @@ $ee-features: (multi-tenant, directories, saml, scim, business-hours, cluster, a
 // features: an organisation's Danger zone is not something a community user is
 // being denied, it is a notion that does not exist in their world, and showing
 // it greyed out would be noise plus a promise nobody made.
-body:not(.multi-tenant) [multi-tenant-only] {
+// `html` is not decoration: the role mechanism sets `display: … !important` on
+// the very same elements (a rail entry carries both `any-role` and this), and
+// at equal specificity the later rule wins - the role rules live in
+// styles.scss, emitted after every @use. One more element in the selector puts
+// this above them, which is what "not in this mode" has to be: a concept that
+// does not exist cannot be revealed by a role.
+html body:not(.multi-tenant) [multi-tenant-only] {
   display: none !important;
 }
 

@@ -6,8 +6,15 @@
   </div>
 
   <div class="content">
-    <mat-card appearance="outlined">
-      <h3 i18n="@@Working_hours">Working hours</h3>
+    <mat-card appearance="outlined" ee-feature="business-hours">
+      <h3 i18n="@@Working_hours">
+        Working hours
+        <app-ee-lock
+          feature="business-hours"
+          i18n-why="@@Working_hours_ee_why"
+          why="Refuse access outside declared hours, gateway-wide or per person: an audit requirement rather than a defence."
+        />
+      </h3>
       <p class="hint text-muted" i18n="@@Working_hours_global_hint">
         The application-wide access window: every tenant inherits it unless it defines its own.
       </p>

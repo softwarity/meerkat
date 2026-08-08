@@ -28,21 +28,9 @@
   ></textarea>
 </app-form-field>
 
-<h3 class="sub" i18n="@@Group_mode">Group mode</h3>
-<p class="hint" i18n="@@Tenant_group_mode_hint">
-  Cumulative merges the roles of every assigned group; exclusive makes members pick ONE group
-  when they enter this tenant.
-</p>
-<mat-form-field class="mode-field">
-  <mat-label i18n="@@Group_mode">Group mode</mat-label>
-  <mat-select [value]="groupMode()" (selectionChange)="groupMode.set($event.value)">
-    <mat-option value="MULTIPLE" i18n="@@Cumulative">Cumulative</mat-option>
-    <mat-option value="SINGLE" i18n="@@Exclusive">Exclusive</mat-option>
-  </mat-select>
-</mat-form-field>
-
 <h3 class="sub" i18n="@@Working_hours">Working hours</h3>
 <app-business-access-form
+  ee-feature="business-hours"
   [value]="businessAccess()"
   [inherited]="globalBusinessAccess()"
   (valueChange)="businessAccess.set($event)"

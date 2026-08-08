@@ -63,7 +63,9 @@ func TestEmbeddedConsoleServing(t *testing.T) {
 		"en/main-K7KMUD.js": {Data: []byte("js-en")},
 		"fr/index.html":     {Data: []byte("<html>fr shell</html>")},
 	}
-	srv := httptest.NewServer(consoleHandler(fsys, []string{"en", "fr"}))
+	// No store and no sessions: this test is about locale routing, and an
+	// unstamped shell is exactly what an anonymous visitor gets.
+	srv := httptest.NewServer(consoleHandler(fsys, []string{"en", "fr"}, nil, nil))
 	t.Cleanup(srv.Close)
 	client := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
 		return http.ErrUseLastResponse // inspect redirects, don't follow them
@@ -202,5 +204,52 @@ func TestConsoleIdentityStamp(t *testing.T) {
 	}
 	if body := get(nil); !strings.Contains(body, "<body>") {
 		t.Fatalf("anonymous body must stay untouched: %q", body)
+	}
+}
+
+// The EMBEDDED console gets the same stamp as the proxied one. It did not, and
+// that made the whole mechanism a development-only thing: a release serves the
+// embedded build, so it booted with a bare <body> and rebuilt the classes from
+// /api/me afterwards - one paint too late for everything the stamp exists for.
+func TestEmbeddedConsoleIsStampedToo(t *testing.T) {
+	f := setup(t)
+
+	fsys := fstest.MapFS{
+		"en/index.html": &fstest.MapFile{
+			Data: []byte("<!doctype html><html><head></head><body><app-root></app-root></body></html>"),
+		},
+	}
+	mux := http.NewServeMux()
+	f.api.Register(mux)
+	mux.Handle("/", consoleHandler(fsys, []string{"en"}, f.api.st, f.api.sm))
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+
+	get := func(cookie *http.Cookie) string {
+		t.Helper()
+		req, _ := http.NewRequest("GET", srv.URL+"/en/", nil)
+		req.Header.Set("Accept", "text/html")
+		if cookie != nil {
+			req.AddCookie(cookie)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, _ := io.ReadAll(res.Body)
+		_ = res.Body.Close()
+		return string(body)
+	}
+
+	body := get(f.rootC)
+	for _, want := range []string{`class="root`, `data-meerkat-username="root"`, `data-meerkat-primary-tenant="`} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("embedded console not stamped (%s): %q", want, body)
+		}
+	}
+	// Anonymous stays untouched: there is nothing to say about them, and the
+	// shell has to be servable before anyone signs in.
+	if anon := get(nil); !strings.Contains(anon, "<body>") {
+		t.Fatalf("anonymous body must stay untouched: %q", anon)
 	}
 }

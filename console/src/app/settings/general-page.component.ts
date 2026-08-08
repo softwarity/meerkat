@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoadingIndicatorComponent } from '@softwarity/loading-indicator';
 import { ApiService, BusinessAccess, Settings } from '../api.service';
+import { EeLockComponent } from '../shared/ee-lock.component';
 import { BusinessAccessFormComponent } from '../identity/business-access-form.component';
 
 // Application-level General settings (root only): the GLOBAL working hours, the
@@ -18,6 +19,7 @@ import { BusinessAccessFormComponent } from '../identity/business-access-form.co
     MatCardModule,
     LoadingIndicatorComponent,
     BusinessAccessFormComponent,
+    EeLockComponent,
   ],
   styleUrl: './general-page.component.scss',
   templateUrl: './general-page.component.html',

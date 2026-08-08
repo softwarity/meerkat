@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { EeLockComponent } from '../../shared/ee-lock.component';
 import { ApiService, AuthProvider, SecretLocation } from '../../api.service';
 import { DialogsService } from '../../shared/dialogs.service';
 import { FormFieldComponent } from '../../shared/form-field.component';
@@ -70,6 +71,7 @@ function freeId(wanted: string, taken: string[]): string {
 @Component({
   selector: 'app-auth-provider-editor',
   imports: [
+    EeLockComponent,
     MatButtonModule,
     MatButtonToggleModule,
     MatDividerModule,
